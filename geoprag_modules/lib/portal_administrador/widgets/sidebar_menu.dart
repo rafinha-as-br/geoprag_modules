@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../src/theme/geoprag_colors.dart';
+import '../../src/widgets/geoprag_logo.dart';
+
 class SidebarMenu extends StatelessWidget {
   final String currentRoute;
 
@@ -13,13 +16,9 @@ class SidebarMenu extends StatelessWidget {
       child: ListView(
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF1B5E20)),
+            decoration: BoxDecoration(color: GeopragColors.green900),
             child: Center(
-              child: Text(
-                'GeoPrag\nAdmin',
-                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
+              child: GeopragLogo(markSize: 32, variant: GeopragMarkVariant.light),
             ),
           ),
           _buildMenuItem(context, 'Visão Geral', Icons.dashboard, '/dashboard'),
@@ -41,7 +40,7 @@ class SidebarMenu extends StatelessWidget {
 
   Widget _buildMenuItem(BuildContext context, String title, IconData icon, String route) {
     final isActive = currentRoute == route || currentRoute.startsWith('$route/');
-    final activeColor = const Color(0xFF1B5E20);
+    final activeColor = GeopragColors.green900;
 
     return ListTile(
       leading: Icon(icon, color: isActive ? activeColor : null),
@@ -53,7 +52,7 @@ class SidebarMenu extends StatelessWidget {
         ),
       ),
       selected: isActive,
-      selectedTileColor: activeColor.withOpacity(0.1),
+      selectedTileColor: activeColor.withValues(alpha: 0.1),
       onTap: () {
         if (!isActive) {
           Navigator.pushReplacementNamed(context, route);
