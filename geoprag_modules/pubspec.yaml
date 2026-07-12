@@ -10,6 +10,10 @@ dependencies:
     sdk: flutter
   google_fonts: ^6.2.1
 
+flutter:
+  assets:
+    - assets/
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

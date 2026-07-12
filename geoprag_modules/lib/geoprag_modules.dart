@@ -12,7 +12,7 @@ export 'aplicador_app/applications/registro_de_aplicacao.dart';
 export 'aplicador_app/inventory/inventario.dart';
 export 'aplicador_app/reports/denuncia_de_foco.dart';
 
-export 'portal_administrador/auth/autenticacao.dart';
+export 'portal_administrador/autenticacao/autenticacao.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/map_monitoring/mapa_hidrologico.dart';
 export 'portal_administrador/applicators_management/gestao_de_aplicadores.dart';
