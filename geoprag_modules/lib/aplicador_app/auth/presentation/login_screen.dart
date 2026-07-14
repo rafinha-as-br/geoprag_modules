@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.pushNamed(context, '/senha/esqueci'),
                   child: const Text(
                     'Esqueci minha senha',
                     style: TextStyle(color: GeopragColors.green900),
