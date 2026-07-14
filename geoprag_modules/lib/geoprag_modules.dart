@@ -5,6 +5,9 @@ export 'src/theme/geoprag_status.dart';
 export 'src/theme/geoprag_theme.dart';
 export 'src/widgets/geoprag_logo.dart';
 export 'src/widgets/geoprag_status_badge.dart';
+export 'src/widgets/geoprag_otp_input.dart';
+export 'src/widgets/geoprag_countdown.dart';
+export 'src/widgets/geoprag_password_requirements.dart';
 
 export 'aplicador_app/auth/autenticacao.dart';
 export 'aplicador_app/application_points/ponto_de_aplicacao.dart';

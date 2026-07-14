@@ -132,7 +132,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () => Navigator.pushNamed(context, '/senha/esqueci'),
                               child: const Text('Esqueci minha senha'),
                             ),
                           ),
