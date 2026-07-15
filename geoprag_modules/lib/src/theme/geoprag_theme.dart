@@ -15,21 +15,22 @@ class GeopragTheme {
     final textTheme = _textTheme();
     final accent = accentColor ?? GeopragColors.green900;
 
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: GeopragColors.green900,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: GeopragColors.green900,
-      onPrimary: GeopragColors.white,
-      primaryContainer: GeopragColors.green800,
-      onPrimaryContainer: GeopragColors.white,
-      secondary: GeopragColors.blue600,
-      onSecondary: GeopragColors.white,
-      error: GeopragColors.statusAtrasado,
-      onError: GeopragColors.white,
-      surface: GeopragColors.white,
-      onSurface: const Color(0xFF1A1F1C),
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: GeopragColors.green900,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: GeopragColors.green900,
+          onPrimary: GeopragColors.white,
+          primaryContainer: GeopragColors.green800,
+          onPrimaryContainer: GeopragColors.white,
+          secondary: GeopragColors.blue600,
+          onSecondary: GeopragColors.white,
+          error: GeopragColors.statusAtrasado,
+          onError: GeopragColors.white,
+          surface: GeopragColors.white,
+          onSurface: const Color(0xFF1A1F1C),
+        );
 
     final borderRadius = BorderRadius.circular(12);
     final outlineBorder = OutlineInputBorder(
@@ -62,7 +63,9 @@ class GeopragTheme {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(borderRadius: borderRadius),
           elevation: 0,
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -71,13 +74,17 @@ class GeopragTheme {
           side: const BorderSide(color: GeopragColors.green900, width: 1.5),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(borderRadius: borderRadius),
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: GeopragColors.green900,
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -122,19 +129,30 @@ class GeopragTheme {
       displayLarge: base.displayLarge?.copyWith(fontWeight: FontWeight.w800),
       // Título H1/700 — cabeçalho de tela
       headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.w700),
-      headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+      ),
       headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
       // Título H2/600 — seção / card
       titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w600),
       titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       // Corpo de texto 16/400 — body
-      bodyLarge: base.bodyLarge?.copyWith(fontWeight: FontWeight.w400, fontSize: 16),
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontWeight: FontWeight.w400,
+        fontSize: 16,
+      ),
       bodyMedium: base.bodyMedium?.copyWith(fontWeight: FontWeight.w400),
       // Rótulo / caption — tags, tabelas
       labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-      labelMedium: base.labelMedium?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.4),
-      labelSmall: base.labelSmall?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.6),
+      labelMedium: base.labelMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.4,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.6,
+      ),
     );
   }
 }
@@ -154,7 +172,10 @@ class GeopragBrandExtension extends ThemeExtension<GeopragBrandExtension> {
   }
 
   @override
-  GeopragBrandExtension lerp(ThemeExtension<GeopragBrandExtension>? other, double t) {
+  GeopragBrandExtension lerp(
+    ThemeExtension<GeopragBrandExtension>? other,
+    double t,
+  ) {
     if (other is! GeopragBrandExtension) return this;
     return GeopragBrandExtension(
       accentColor: Color.lerp(accentColor, other.accentColor, t) ?? accentColor,

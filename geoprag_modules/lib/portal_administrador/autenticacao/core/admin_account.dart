@@ -5,5 +5,9 @@ class AdminAccount {
   final String nome;
   final AdminRole role;
 
-  const AdminAccount({required this.email, required this.nome, required this.role});
+  const AdminAccount({
+    required this.email,
+    required this.nome,
+    required this.role,
+  });
 }

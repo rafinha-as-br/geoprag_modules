@@ -4,6 +4,7 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/sidebar_menu.dart';
+import '../../core/admin_navigator.dart';
 
 class DashboardDenunciasAdminScreen extends StatelessWidget {
   const DashboardDenunciasAdminScreen({super.key});
@@ -11,9 +12,7 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gestão de Denúncias'),
-      ),
+      appBar: AppBar(title: const Text('Gestão de Denúncias')),
       body: Row(
         children: [
           const SidebarMenu(currentRoute: '/denuncias_admin'),
@@ -30,7 +29,9 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Card(
                     elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -39,13 +40,31 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: DropdownButtonFormField<String>(
-                                  decoration: const InputDecoration(labelText: 'Filtrar por Status', border: OutlineInputBorder()),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Filtrar por Status',
+                                    border: OutlineInputBorder(),
+                                  ),
                                   items: const [
-                                    DropdownMenuItem(value: 'Todas', child: Text('Todas as Denúncias')),
-                                    DropdownMenuItem(value: 'Recebida', child: Text('Recebida')),
-                                    DropdownMenuItem(value: 'Equipe a Investigar', child: Text('Equipe a Investigar')),
-                                    DropdownMenuItem(value: 'Em Combate', child: Text('Em Combate')),
-                                    DropdownMenuItem(value: 'Resolvido', child: Text('Resolvido')),
+                                    DropdownMenuItem(
+                                      value: 'Todas',
+                                      child: Text('Todas as Denúncias'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Recebida',
+                                      child: Text('Recebida'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Equipe a Investigar',
+                                      child: Text('Equipe a Investigar'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Em Combate',
+                                      child: Text('Em Combate'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Resolvido',
+                                      child: Text('Resolvido'),
+                                    ),
                                   ],
                                   onChanged: (v) {},
                                 ),
@@ -53,10 +72,19 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: DropdownButtonFormField<String>(
-                                  decoration: const InputDecoration(labelText: 'Nível de Infestação', border: OutlineInputBorder()),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Nível de Infestação',
+                                    border: OutlineInputBorder(),
+                                  ),
                                   items: const [
-                                    DropdownMenuItem(value: 'Todos', child: Text('Todos os Níveis')),
-                                    DropdownMenuItem(value: 'Alto', child: Text('Alto (Prioridade)')),
+                                    DropdownMenuItem(
+                                      value: 'Todos',
+                                      child: Text('Todos os Níveis'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Alto',
+                                      child: Text('Alto (Prioridade)'),
+                                    ),
                                   ],
                                   onChanged: (v) {},
                                 ),
@@ -75,18 +103,84 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
                             },
                             children: [
                               TableRow(
-                                decoration: BoxDecoration(color: Colors.grey[100]),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                ),
                                 children: const [
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Data', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Descrição do Local', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Nível', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Ações', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Data',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Descrição do Local',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Nível',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Status',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Ações',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
-                              _buildTableRow(context, '05/07/2026', 'Rua Principal (perto da ponte)', 'Alto', 'Recebida', GeopragColors.statusAtrasado, GeopragStatus.denuncia),
-                              _buildTableRow(context, '03/07/2026', 'Remanso no bairro Belchior', 'Médio', 'Equipe a Investigar', GeopragColors.statusDenuncia, GeopragStatus.denuncia),
-                              _buildTableRow(context, '20/06/2026', 'Foco no Gasparinho', 'Baixo', 'Resolvido', GeopragColors.statusEmDia, GeopragStatus.emDia),
+                              _buildTableRow(
+                                context,
+                                '05/07/2026',
+                                'Rua Principal (perto da ponte)',
+                                'Alto',
+                                'Recebida',
+                                GeopragColors.statusAtrasado,
+                                GeopragStatus.denuncia,
+                              ),
+                              _buildTableRow(
+                                context,
+                                '03/07/2026',
+                                'Remanso no bairro Belchior',
+                                'Médio',
+                                'Equipe a Investigar',
+                                GeopragColors.statusDenuncia,
+                                GeopragStatus.denuncia,
+                              ),
+                              _buildTableRow(
+                                context,
+                                '20/06/2026',
+                                'Foco no Gasparinho',
+                                'Baixo',
+                                'Resolvido',
+                                GeopragColors.statusEmDia,
+                                GeopragStatus.emDia,
+                              ),
                             ],
                           ),
                         ],
@@ -102,25 +196,40 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
     );
   }
 
-  TableRow _buildTableRow(BuildContext context, String data, String descricao, String nivel, String status, Color nivelColor, GeopragStatus statusValue) {
+  TableRow _buildTableRow(
+    BuildContext context,
+    String data,
+    String descricao,
+    String nivel,
+    String status,
+    Color nivelColor,
+    GeopragStatus statusValue,
+  ) {
     return TableRow(
       children: [
         Padding(padding: const EdgeInsets.all(12), child: Text(data)),
         Padding(padding: const EdgeInsets.all(12), child: Text(descricao)),
         Padding(
           padding: const EdgeInsets.all(12),
-          child: Text(nivel, style: TextStyle(color: nivelColor, fontWeight: FontWeight.bold)),
+          child: Text(
+            nivel,
+            style: TextStyle(color: nivelColor, fontWeight: FontWeight.bold),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(status: statusValue, label: status, dense: true),
+          child: GeopragStatusBadge(
+            status: statusValue,
+            label: status,
+            dense: true,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(8),
           child: IconButton(
             icon: const Icon(Icons.visibility, color: Colors.blue),
             onPressed: () {
-              Navigator.pushNamed(context, '/denuncias_admin/detalhes');
+              AdminNavigatorScope.of(context).toDenunciaAdminDetalhes();
             },
             tooltip: 'Analisar e Tratar',
           ),

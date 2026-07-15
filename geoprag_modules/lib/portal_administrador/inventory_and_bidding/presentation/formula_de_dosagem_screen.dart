@@ -7,9 +7,7 @@ class FormulaDeDosagemScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('FormulaDeDosagemScreen')),
-      body: const Center(
-        child: Text('Tela FormulaDeDosagemScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela FormulaDeDosagemScreen (Mock)')),
     );
   }
 }

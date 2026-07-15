@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_logo.dart';
+import '../../core/aplicador_navigator.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -35,9 +36,12 @@ class LandingScreen extends StatelessWidget {
                 children: [
                   const Spacer(),
                   // Logo Area
-                  const GeopragMark(size: 96, variant: GeopragMarkVariant.light),
+                  const GeopragMark(
+                    size: 96,
+                    variant: GeopragMarkVariant.light,
+                  ),
                   const SizedBox(height: 20),
-                  const Text    (
+                  const Text(
                     'geoprag',
                     style: TextStyle(
                       fontSize: 42,
@@ -49,10 +53,7 @@ class LandingScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text(
                     'Aplicativo do Voluntário',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white70,
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.white70),
                   ),
                   const Spacer(),
                   // Actions Area
@@ -81,16 +82,13 @@ class LandingScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         const Text(
                           'Identifique-se para acessar seu trecho de atuação.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.black54),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/login');
+                            AplicadorNavigatorScope.of(context).toLogin();
                           },
                           child: const Text('Entrar'),
                         ),
@@ -100,7 +98,7 @@ class LandingScreen extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

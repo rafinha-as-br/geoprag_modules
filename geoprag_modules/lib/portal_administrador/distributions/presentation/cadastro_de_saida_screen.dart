@@ -7,9 +7,7 @@ class CadastroDeSaidaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('CadastroDeSaidaScreen')),
-      body: const Center(
-        child: Text('Tela CadastroDeSaidaScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela CadastroDeSaidaScreen (Mock)')),
     );
   }
 }

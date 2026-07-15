@@ -9,9 +9,7 @@ class DashboardGeralScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Visão Geral'),
-      ),
+      appBar: AppBar(title: const Text('Visão Geral')),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,11 +29,26 @@ class DashboardGeralScreen extends StatelessWidget {
                   // Top Row: KPIs
                   Row(
                     children: [
-                      _buildKpiCard('Estoque Crítico', '2 lotes a vencer', Icons.warning, GeopragColors.statusDenuncia),
+                      _buildKpiCard(
+                        'Estoque Crítico',
+                        '2 lotes a vencer',
+                        Icons.warning,
+                        GeopragColors.statusDenuncia,
+                      ),
                       const SizedBox(width: 16),
-                      _buildKpiCard('Aplicações Atrasadas', '4 córregos', Icons.timer_off, GeopragColors.statusAtrasado),
+                      _buildKpiCard(
+                        'Aplicações Atrasadas',
+                        '4 córregos',
+                        Icons.timer_off,
+                        GeopragColors.statusAtrasado,
+                      ),
                       const SizedBox(width: 16),
-                      _buildKpiCard('Denúncias Abertas', '12', Icons.report, GeopragColors.statusDenuncia),
+                      _buildKpiCard(
+                        'Denúncias Abertas',
+                        '12',
+                        Icons.report,
+                        GeopragColors.statusDenuncia,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -49,24 +62,16 @@ class DashboardGeralScreen extends StatelessWidget {
                           flex: 1,
                           child: Column(
                             children: [
-                              _buildLogPanel(
-                                'Atualizações de Estoque',
-                                [
-                                  'Lote BTI-001 perto de vencer (5 dias).',
-                                  'Novo lote BTI-004 recebido hoje.',
-                                ],
-                                Icons.inventory_2,
-                              ),
+                              _buildLogPanel('Atualizações de Estoque', [
+                                'Lote BTI-001 perto de vencer (5 dias).',
+                                'Novo lote BTI-004 recebido hoje.',
+                              ], Icons.inventory_2),
                               const SizedBox(height: 16),
-                              _buildLogPanel(
-                                'Últimas Aplicações',
-                                [
-                                  'Bairro Coloninha: Aplicação realizada.',
-                                  'Bairro Margem Esquerda: Em breve (2 dias).',
-                                  'Bairro Belchior: ATRASADA (20 dias).',
-                                ],
-                                Icons.water_drop,
-                              ),
+                              _buildLogPanel('Últimas Aplicações', [
+                                'Bairro Coloninha: Aplicação realizada.',
+                                'Bairro Margem Esquerda: Em breve (2 dias).',
+                                'Bairro Belchior: ATRASADA (20 dias).',
+                              ], Icons.water_drop),
                             ],
                           ),
                         ),
@@ -76,37 +81,59 @@ class DashboardGeralScreen extends StatelessWidget {
                           flex: 2,
                           child: Card(
                             elevation: 3,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const Text('Visão Geográfica & Focos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const Text(
+                                    'Visão Geográfica & Focos',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   const SizedBox(height: 16),
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.blue[50],
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: Colors.blue[200]!),
+                                        border: Border.all(
+                                          color: Colors.blue[200]!,
+                                        ),
                                       ),
                                       child: const Center(
                                         child: Text(
                                           '[Componente de Mapa Aqui]\nExibindo divisas de bairros e\nmarcações espaciais dos focos',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: Colors.blueGrey),
+                                          style: TextStyle(
+                                            color: Colors.blueGrey,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  const Text('Focos Recentes', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  const Text(
+                                    'Focos Recentes',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   const SizedBox(height: 8),
                                   const ListTile(
-                                    leading: Icon(Icons.bug_report, color: GeopragColors.statusAtrasado),
+                                    leading: Icon(
+                                      Icons.bug_report,
+                                      color: GeopragColors.statusAtrasado,
+                                    ),
                                     title: Text('Foco Alto - Belchior Alto'),
-                                    subtitle: Text('Status: Equipe a Investigar'),
+                                    subtitle: Text(
+                                      'Status: Equipe a Investigar',
+                                    ),
                                   ),
                                 ],
                               ),
@@ -144,9 +171,21 @@ class DashboardGeralScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -174,7 +213,10 @@ class DashboardGeralScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -190,8 +232,19 @@ class DashboardGeralScreen extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                          Expanded(child: Text(logs[index], style: const TextStyle(fontSize: 13))),
+                          const Text(
+                            '• ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              logs[index],
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
                         ],
                       ),
                     );

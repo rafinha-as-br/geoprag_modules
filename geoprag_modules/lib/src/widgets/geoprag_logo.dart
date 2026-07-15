@@ -115,6 +115,7 @@ class _DropletPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DropletPainter oldDelegate) {
-    return oldDelegate.dropColor != dropColor || oldDelegate.lineColor != lineColor;
+    return oldDelegate.dropColor != dropColor ||
+        oldDelegate.lineColor != lineColor;
   }
 }

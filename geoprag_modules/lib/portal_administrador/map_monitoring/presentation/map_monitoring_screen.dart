@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../widgets/sidebar_menu.dart';
+import '../../core/admin_navigator.dart';
 
 class MapMonitoringScreen extends StatelessWidget {
   const MapMonitoringScreen({super.key});
@@ -9,9 +10,7 @@ class MapMonitoringScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mapa Hidrológico e Monitoramento'),
-      ),
+      appBar: AppBar(title: const Text('Mapa Hidrológico e Monitoramento')),
       body: Row(
         children: [
           const SidebarMenu(currentRoute: '/mapa'),
@@ -50,7 +49,10 @@ class MapMonitoringScreen extends StatelessWidget {
                                   child: Text(
                                     '[Mapa Interativo de Gaspar]\nBairros clicáveis',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.green, fontSize: 18),
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
                                 // Mock Pin
@@ -59,12 +61,23 @@ class MapMonitoringScreen extends StatelessWidget {
                                   left: 200,
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.pushNamed(context, '/mapa/bairro');
+                                      AdminNavigatorScope.of(
+                                        context,
+                                      ).toMapaBairro();
                                     },
                                     child: const Column(
                                       children: [
-                                        Icon(Icons.location_on, color: GeopragColors.statusAtrasado, size: 48),
-                                        Text('Belchior Alto (Atrasado)', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        Icon(
+                                          Icons.location_on,
+                                          color: GeopragColors.statusAtrasado,
+                                          size: 48,
+                                        ),
+                                        Text(
+                                          'Belchior Alto (Atrasado)',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -74,12 +87,23 @@ class MapMonitoringScreen extends StatelessWidget {
                                   left: 350,
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.pushNamed(context, '/mapa/bairro');
+                                      AdminNavigatorScope.of(
+                                        context,
+                                      ).toMapaBairro();
                                     },
                                     child: const Column(
                                       children: [
-                                        Icon(Icons.location_on, color: GeopragColors.statusEmDia, size: 48),
-                                        Text('Gasparinho', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        Icon(
+                                          Icons.location_on,
+                                          color: GeopragColors.statusEmDia,
+                                          size: 48,
+                                        ),
+                                        Text(
+                                          'Gasparinho',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -94,42 +118,75 @@ class MapMonitoringScreen extends StatelessWidget {
                           flex: 1,
                           child: Card(
                             elevation: 3,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const Text('Legenda', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                                  const Text(
+                                    'Legenda',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                                   const SizedBox(height: 16),
                                   const ListTile(
-                                    leading: Icon(Icons.location_on, color: GeopragColors.statusEmDia),
+                                    leading: Icon(
+                                      Icons.location_on,
+                                      color: GeopragColors.statusEmDia,
+                                    ),
                                     title: Text('Em dia (verde)'),
                                     dense: true,
                                   ),
                                   const ListTile(
-                                    leading: Icon(Icons.location_on, color: GeopragColors.statusAtrasado),
+                                    leading: Icon(
+                                      Icons.location_on,
+                                      color: GeopragColors.statusAtrasado,
+                                    ),
                                     title: Text('Atrasado (vermelho)'),
                                     dense: true,
                                   ),
                                   const ListTile(
-                                    leading: Icon(Icons.location_on, color: GeopragColors.statusDenuncia),
+                                    leading: Icon(
+                                      Icons.location_on,
+                                      color: GeopragColors.statusDenuncia,
+                                    ),
                                     title: Text('Foco Reportado (amarelo)'),
                                     dense: true,
                                   ),
                                   const Divider(),
                                   const SizedBox(height: 8),
-                                  const Text('Alertas Críticos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: GeopragColors.statusAtrasado)),
+                                  const Text(
+                                    'Alertas Críticos',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: GeopragColors.statusAtrasado,
+                                    ),
+                                  ),
                                   const SizedBox(height: 8),
                                   Expanded(
                                     child: ListView(
                                       children: [
                                         ListTile(
-                                          title: const Text('Córrego da Onça (Belchior Alto)'),
-                                          subtitle: const Text('25 dias sem aplicação'),
-                                          trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                                          title: const Text(
+                                            'Córrego da Onça (Belchior Alto)',
+                                          ),
+                                          subtitle: const Text(
+                                            '25 dias sem aplicação',
+                                          ),
+                                          trailing: const Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 14,
+                                          ),
                                           onTap: () {
-                                            Navigator.pushNamed(context, '/mapa/bairro');
+                                            AdminNavigatorScope.of(
+                                              context,
+                                            ).toMapaBairro();
                                           },
                                         ),
                                       ],

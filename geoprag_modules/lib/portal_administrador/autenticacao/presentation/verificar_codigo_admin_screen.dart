@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
+import '../../core/admin_navigator.dart';
 
 /// Tela 2 · Fluxo C (Administrador principal) — verificação do código de 6
 /// dígitos combinada com CPF, sem autorização de terceiros, dentro da
@@ -13,10 +14,12 @@ class VerificarCodigoAdminScreen extends StatefulWidget {
   const VerificarCodigoAdminScreen({super.key});
 
   @override
-  State<VerificarCodigoAdminScreen> createState() => _VerificarCodigoAdminScreenState();
+  State<VerificarCodigoAdminScreen> createState() =>
+      _VerificarCodigoAdminScreenState();
 }
 
-class _VerificarCodigoAdminScreenState extends State<VerificarCodigoAdminScreen> {
+class _VerificarCodigoAdminScreenState
+    extends State<VerificarCodigoAdminScreen> {
   static const _duracao = Duration(minutes: 15);
 
   final _cpfController = TextEditingController();
@@ -29,7 +32,8 @@ class _VerificarCodigoAdminScreenState extends State<VerificarCodigoAdminScreen>
     super.dispose();
   }
 
-  bool get _podeConfirmar => _codigo.length == 6 && _cpfController.text.length == 14;
+  bool get _podeConfirmar =>
+      _codigo.length == 6 && _cpfController.text.length == 14;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,11 @@ class _VerificarCodigoAdminScreenState extends State<VerificarCodigoAdminScreen>
               children: [
                 const Text(
                   'Confirme sua identidade',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: GeopragColors.green900),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: GeopragColors.green900,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -64,33 +72,46 @@ class _VerificarCodigoAdminScreenState extends State<VerificarCodigoAdminScreen>
                   child: _expirado
                       ? Text(
                           'Código expirado.',
-                          style: TextStyle(color: GeopragColors.statusAtrasado, fontWeight: FontWeight.w700, fontSize: 13),
+                          style: TextStyle(
+                            color: GeopragColors.statusAtrasado,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
                         )
-                      : GeopragCountdown(duration: _duracao, onExpired: () => setState(() => _expirado = true)),
+                      : GeopragCountdown(
+                          duration: _duracao,
+                          onExpired: () => setState(() => _expirado = true),
+                        ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _cpfController,
                   enabled: !_expirado,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, _CpfInputFormatter()],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    _CpfInputFormatter(),
+                  ],
                   decoration: InputDecoration(
                     hintText: '000.000.000-00',
                     prefixIcon: const Icon(Icons.badge_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 24),
                 if (_expirado)
                   OutlinedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/senha/esqueci'),
+                    onPressed: () =>
+                        AdminNavigatorScope.of(context).toEsqueciSenha(),
                     child: const Text('Reiniciar solicitação'),
                   )
                 else
                   ElevatedButton(
                     onPressed: _podeConfirmar
-                        ? () => Navigator.pushReplacementNamed(context, '/senha/recriar')
+                        ? () => AdminNavigatorScope.of(context).toRecriarSenha()
                         : null,
                     child: const Text('Confirmar'),
                   ),
@@ -105,8 +126,14 @@ class _VerificarCodigoAdminScreenState extends State<VerificarCodigoAdminScreen>
 
 class _CpfInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final digits = newValue.text.substring(0, newValue.text.length.clamp(0, 11));
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.substring(
+      0,
+      newValue.text.length.clamp(0, 11),
+    );
     final buffer = StringBuffer();
     for (var i = 0; i < digits.length; i++) {
       buffer.write(digits[i]);

@@ -7,9 +7,7 @@ class VisualizacaoDeSaidaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('VisualizacaoDeSaidaScreen')),
-      body: const Center(
-        child: Text('Tela VisualizacaoDeSaidaScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela VisualizacaoDeSaidaScreen (Mock)')),
     );
   }
 }

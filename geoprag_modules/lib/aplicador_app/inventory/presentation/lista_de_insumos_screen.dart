@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../core/aplicador_navigator.dart';
 
 class ListaDeInsumosScreen extends StatelessWidget {
   const ListaDeInsumosScreen({super.key});
@@ -8,9 +9,7 @@ class ListaDeInsumosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inventário'),
-      ),
+      appBar: AppBar(title: const Text('Inventário')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -19,19 +18,22 @@ class ListaDeInsumosScreen extends StatelessWidget {
             // Current Stock Card
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    const Icon(Icons.inventory, size: 48, color: GeopragColors.green900),
+                    const Icon(
+                      Icons.inventory,
+                      size: 48,
+                      color: GeopragColors.green900,
+                    ),
                     const SizedBox(height: 16),
                     const Text(
                       'Estoque Atual',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.black54),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -45,10 +47,7 @@ class ListaDeInsumosScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'BTI Líquido - Última atualização hoje',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -57,17 +56,14 @@ class ListaDeInsumosScreen extends StatelessWidget {
             const SizedBox(height: 32),
             const Text(
               'Ações',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             // Pending Deliveries Button
             InkWell(
               onTap: () {
                 // Navigate to pending deliveries (Recebimentos)
-                Navigator.pushNamed(context, '/recebimentos');
+                AplicadorNavigatorScope.of(context).toRecebimentos();
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -75,7 +71,9 @@ class ListaDeInsumosScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: GeopragColors.neutralLight,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: GeopragColors.green500.withOpacity(0.5)),
+                  border: Border.all(
+                    color: GeopragColors.green500.withOpacity(0.5),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -85,7 +83,10 @@ class ListaDeInsumosScreen extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.local_shipping_outlined, color: GeopragColors.green900),
+                      child: const Icon(
+                        Icons.local_shipping_outlined,
+                        color: GeopragColors.green900,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     const Expanded(
@@ -107,7 +108,11 @@ class ListaDeInsumosScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, color: GeopragColors.green900, size: 16),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: GeopragColors.green900,
+                      size: 16,
+                    ),
                   ],
                 ),
               ),
@@ -118,15 +123,22 @@ class ListaDeInsumosScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1, // Inventário tab
         onTap: (index) {
-          if (index == 0) Navigator.pushReplacementNamed(context, '/ponto');
-          if (index == 2) Navigator.pushReplacementNamed(context, '/denuncias');
+          final navigator = AplicadorNavigatorScope.of(context);
+          if (index == 0) navigator.toPonto();
+          if (index == 2) navigator.toDenuncias();
         },
         selectedItemColor: GeopragColors.green900,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Insumos'),
-          BottomNavigationBarItem(icon: Icon(Icons.report_problem_outlined), label: 'Denúncias'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.inventory_2_outlined),
+            label: 'Insumos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.report_problem_outlined),
+            label: 'Denúncias',
+          ),
         ],
       ),
     );

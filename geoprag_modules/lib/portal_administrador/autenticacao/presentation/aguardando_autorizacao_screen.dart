@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../core/admin_navigator.dart';
 
 /// Tela 2 · Fluxo B (Sub-Administrador) — aguardando autorização do
 /// Administrador principal, notificado por e-mail e painel, conforme
@@ -22,11 +23,19 @@ class AguardandoAutorizacaoScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.hourglass_top_outlined, size: 64, color: GeopragColors.green900),
+                const Icon(
+                  Icons.hourglass_top_outlined,
+                  size: 64,
+                  color: GeopragColors.green900,
+                ),
                 const SizedBox(height: 24),
                 const Text(
                   'Aguardando autorização',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: GeopragColors.green900),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: GeopragColors.green900,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -36,16 +45,22 @@ class AguardandoAutorizacaoScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                const GeopragStatusBadge(status: GeopragStatus.denuncia, label: 'Pendente'),
+                const GeopragStatusBadge(
+                  status: GeopragStatus.denuncia,
+                  label: 'Pendente',
+                ),
                 const SizedBox(height: 40),
                 OutlinedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/senha/autorizar'),
+                  onPressed: () =>
+                      AdminNavigatorScope.of(context).toAutorizarRedefinicao(),
                   icon: const Icon(Icons.admin_panel_settings_outlined),
-                  label: const Text('Ver painel do Administrador principal (Mock)'),
+                  label: const Text(
+                    'Ver painel do Administrador principal (Mock)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => AdminNavigatorScope.of(context).back(),
                   child: const Text('Cancelar solicitação'),
                 ),
               ],

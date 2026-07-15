@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../core/aplicador_navigator.dart';
 
 class TelaInformativaScreen extends StatelessWidget {
   const TelaInformativaScreen({super.key});
@@ -8,9 +9,7 @@ class TelaInformativaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro de Aplicação'),
-      ),
+      appBar: AppBar(title: const Text('Registro de Aplicação')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -37,7 +36,9 @@ class TelaInformativaScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: GeopragColors.blue600.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: GeopragColors.blue600.withOpacity(0.3)),
+                border: Border.all(
+                  color: GeopragColors.blue600.withOpacity(0.3),
+                ),
               ),
               child: const Text(
                 'O registro da aplicação é um processo sério e não pode ser desfeito ou editado após a confirmação.\n\n'
@@ -63,7 +64,7 @@ class TelaInformativaScreen extends StatelessWidget {
             const SizedBox(height: 48),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/aplicacao/geo');
+                AplicadorNavigatorScope.of(context).toAplicacaoGeo();
               },
               child: const Text(
                 'Estou ciente, continuar',
@@ -73,7 +74,7 @@ class TelaInformativaScreen extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                AplicadorNavigatorScope.of(context).back();
               },
               child: const Text(
                 'Cancelar',
