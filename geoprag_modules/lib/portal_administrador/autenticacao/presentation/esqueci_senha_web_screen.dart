@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_logo.dart';
-import '../core/admin_account.dart';
-import '../data/mock_admin_accounts.dart';
+import '../../autenticacao/core/admin_account.dart';
+import '../../autenticacao/data/mock_admin_accounts.dart';
 
 /// Tela 1 · Fluxos B e C (Portal Administrador) — ponto de entrada único do
 /// "esqueci minha senha" web. O papel da conta (Administrador principal ou
