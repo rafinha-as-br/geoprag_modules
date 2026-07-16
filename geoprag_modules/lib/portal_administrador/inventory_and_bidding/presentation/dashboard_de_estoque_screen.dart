@@ -7,9 +7,7 @@ class DashboardDeEstoqueScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('DashboardDeEstoqueScreen')),
-      body: const Center(
-        child: Text('Tela DashboardDeEstoqueScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela DashboardDeEstoqueScreen (Mock)')),
     );
   }
 }

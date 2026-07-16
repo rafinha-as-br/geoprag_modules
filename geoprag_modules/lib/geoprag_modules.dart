@@ -9,12 +9,14 @@ export 'src/widgets/geoprag_otp_input.dart';
 export 'src/widgets/geoprag_countdown.dart';
 export 'src/widgets/geoprag_password_requirements.dart';
 
+export 'aplicador_app/core/aplicador_navigator.dart';
 export 'aplicador_app/auth/autenticacao.dart';
 export 'aplicador_app/application_points/ponto_de_aplicacao.dart';
 export 'aplicador_app/applications/registro_de_aplicacao.dart';
 export 'aplicador_app/inventory/inventario.dart';
 export 'aplicador_app/reports/denuncia_de_foco.dart';
 
+export 'portal_administrador/core/admin_navigator.dart';
 export 'portal_administrador/autenticacao/autenticacao.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/map_monitoring/mapa_hidrologico.dart';

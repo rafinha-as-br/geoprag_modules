@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/sidebar_menu.dart';
+import '../../core/admin_navigator.dart';
 
 class DashboardAplicadoresScreen extends StatelessWidget {
   const DashboardAplicadoresScreen({super.key});
@@ -10,9 +11,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gestão de Aplicadores'),
-      ),
+      appBar: AppBar(title: const Text('Gestão de Aplicadores')),
       body: Row(
         children: [
           const SidebarMenu(currentRoute: '/aplicadores'),
@@ -28,7 +27,10 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'Voluntários Cadastrados',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       ElevatedButton.icon(
                         onPressed: () {},
@@ -40,7 +42,9 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Card(
                     elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -49,7 +53,9 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                             decoration: InputDecoration(
                               hintText: 'Buscar por nome, bairro ou status...',
                               prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -63,17 +69,69 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                             },
                             children: [
                               TableRow(
-                                decoration: BoxDecoration(color: Colors.grey[100]),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                ),
                                 children: const [
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Nome', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Bairro/Trecho', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Padding(padding: EdgeInsets.all(12), child: Text('Ações', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Nome',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Bairro/Trecho',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Status',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Text(
+                                      'Ações',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
-                              _buildTableRow(context, 'João Silva', 'Belchior Alto', 'Ativo', GeopragStatus.emDia),
-                              _buildTableRow(context, 'Maria Souza', 'Gasparinho', 'Desativado', GeopragStatus.atrasado),
-                              _buildTableRow(context, 'José Mendes', 'Bateias', 'Ativo', GeopragStatus.emDia),
+                              _buildTableRow(
+                                context,
+                                'João Silva',
+                                'Belchior Alto',
+                                'Ativo',
+                                GeopragStatus.emDia,
+                              ),
+                              _buildTableRow(
+                                context,
+                                'Maria Souza',
+                                'Gasparinho',
+                                'Desativado',
+                                GeopragStatus.atrasado,
+                              ),
+                              _buildTableRow(
+                                context,
+                                'José Mendes',
+                                'Bateias',
+                                'Ativo',
+                                GeopragStatus.emDia,
+                              ),
                             ],
                           ),
                         ],
@@ -89,14 +147,24 @@ class DashboardAplicadoresScreen extends StatelessWidget {
     );
   }
 
-  TableRow _buildTableRow(BuildContext context, String nome, String bairro, String status, GeopragStatus statusValue) {
+  TableRow _buildTableRow(
+    BuildContext context,
+    String nome,
+    String bairro,
+    String status,
+    GeopragStatus statusValue,
+  ) {
     return TableRow(
       children: [
         Padding(padding: const EdgeInsets.all(12), child: Text(nome)),
         Padding(padding: const EdgeInsets.all(12), child: Text(bairro)),
         Padding(
           padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(status: statusValue, label: status, dense: true),
+          child: GeopragStatusBadge(
+            status: statusValue,
+            label: status,
+            dense: true,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(8),
@@ -106,7 +174,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.visibility, color: Colors.blue),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/aplicadores/detalhes');
+                  AdminNavigatorScope.of(context).toAplicadorDetalhes();
                 },
                 tooltip: 'Visualizar',
               ),

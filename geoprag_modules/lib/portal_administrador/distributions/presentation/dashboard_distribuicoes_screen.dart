@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../widgets/sidebar_menu.dart';
+import '../../core/admin_navigator.dart';
 
 class DashboardDistribuicoesScreen extends StatelessWidget {
   const DashboardDistribuicoesScreen({super.key});
@@ -9,9 +10,7 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gestão de Distribuições (Saídas)'),
-      ),
+      appBar: AppBar(title: const Text('Gestão de Distribuições (Saídas)')),
       body: Row(
         children: [
           const SidebarMenu(currentRoute: '/distribuicoes'),
@@ -26,11 +25,16 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'Histórico de Saídas',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/distribuicoes/cadastro');
+                          AdminNavigatorScope.of(
+                            context,
+                          ).toDistribuicaoCadastro();
                         },
                         icon: const Icon(Icons.add),
                         label: const Text('Nova Saída'),
@@ -41,28 +45,56 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
                   Expanded(
                     child: Card(
                       elevation: 3,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: ListView(
                           children: [
                             ListTile(
-                              leading: const CircleAvatar(backgroundColor: GeopragColors.statusEmDia, child: Icon(Icons.local_shipping, color: Colors.white)),
-                              title: const Text('Lote BTI-001 - 10 Litros', style: TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: const Text('Para: João Silva (Líder Belchior)\nData: 05/07/2026'),
+                              leading: const CircleAvatar(
+                                backgroundColor: GeopragColors.statusEmDia,
+                                child: Icon(
+                                  Icons.local_shipping,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: const Text(
+                                'Lote BTI-001 - 10 Litros',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: const Text(
+                                'Para: João Silva (Líder Belchior)\nData: 05/07/2026',
+                              ),
                               trailing: const Icon(Icons.arrow_forward_ios),
                               onTap: () {
-                                Navigator.pushNamed(context, '/distribuicoes/visualizacao');
+                                AdminNavigatorScope.of(
+                                  context,
+                                ).toDistribuicaoVisualizacao();
                               },
                             ),
                             const Divider(),
                             ListTile(
-                              leading: const CircleAvatar(backgroundColor: GeopragColors.statusEmDia, child: Icon(Icons.local_shipping, color: Colors.white)),
-                              title: const Text('Lote BTI-002 - 5 Litros', style: TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: const Text('Para: Maria Souza (Gasparinho)\nData: 20/06/2026'),
+                              leading: const CircleAvatar(
+                                backgroundColor: GeopragColors.statusEmDia,
+                                child: Icon(
+                                  Icons.local_shipping,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: const Text(
+                                'Lote BTI-002 - 5 Litros',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: const Text(
+                                'Para: Maria Souza (Gasparinho)\nData: 20/06/2026',
+                              ),
                               trailing: const Icon(Icons.arrow_forward_ios),
                               onTap: () {
-                                Navigator.pushNamed(context, '/distribuicoes/visualizacao');
+                                AdminNavigatorScope.of(
+                                  context,
+                                ).toDistribuicaoVisualizacao();
                               },
                             ),
                           ],

@@ -100,7 +100,10 @@ class _GeopragOtpInputState extends State<GeopragOtpInput> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: GeopragColors.green900, width: 2),
+                  borderSide: const BorderSide(
+                    color: GeopragColors.green900,
+                    width: 2,
+                  ),
                 ),
               ),
               onChanged: (value) => _handleChanged(index, value),

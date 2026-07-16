@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../core/aplicador_navigator.dart';
 
 class GeolocalizacaoScreen extends StatefulWidget {
   const GeolocalizacaoScreen({super.key});
@@ -15,9 +16,7 @@ class _GeolocalizacaoScreenState extends State<GeolocalizacaoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Validação de Ponto'),
-      ),
+      appBar: AppBar(title: const Text('Validação de Ponto')),
       body: Column(
         children: [
           Expanded(
@@ -46,7 +45,9 @@ class _GeolocalizacaoScreenState extends State<GeolocalizacaoScreen> {
                           ? GeopragColors.statusEmDia.withOpacity(0.2)
                           : GeopragColors.statusAtrasado.withOpacity(0.2),
                       border: Border.all(
-                        color: _isDentroDoRaio ? GeopragColors.statusEmDia : GeopragColors.statusAtrasado,
+                        color: _isDentroDoRaio
+                            ? GeopragColors.statusEmDia
+                            : GeopragColors.statusAtrasado,
                         width: 2,
                       ),
                     ),
@@ -54,7 +55,9 @@ class _GeolocalizacaoScreenState extends State<GeolocalizacaoScreen> {
                   Icon(
                     Icons.my_location,
                     size: 48,
-                    color: _isDentroDoRaio ? GeopragColors.statusEmDia : GeopragColors.statusAtrasado,
+                    color: _isDentroDoRaio
+                        ? GeopragColors.statusEmDia
+                        : GeopragColors.statusAtrasado,
                   ),
                 ],
               ),
@@ -68,17 +71,21 @@ class _GeolocalizacaoScreenState extends State<GeolocalizacaoScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    _isDentroDoRaio ? 'Você chegou ao local!' : 'Desloque-se até o ponto',
+                    _isDentroDoRaio
+                        ? 'Você chegou ao local!'
+                        : 'Desloque-se até o ponto',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: _isDentroDoRaio ? GeopragColors.statusEmDia : Colors.black87,
+                      color: _isDentroDoRaio
+                          ? GeopragColors.statusEmDia
+                          : Colors.black87,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _isDentroDoRaio 
+                    _isDentroDoRaio
                         ? 'Sua localização atual corresponde ao Ponto Inicial cadastrado. Você pode prosseguir com o registro da aplicação.'
                         : 'Você está fora do raio de cobertura permitido do Ponto Inicial (aprox. 150m de distância).',
                     style: const TextStyle(
@@ -105,12 +112,19 @@ class _GeolocalizacaoScreenState extends State<GeolocalizacaoScreen> {
                     ),
                   const SizedBox(height: 32),
                   ElevatedButton(
-                    onPressed: _isDentroDoRaio ? () {
-                      Navigator.pushReplacementNamed(context, '/aplicacao/registrar');
-                    } : null,
+                    onPressed: _isDentroDoRaio
+                        ? () {
+                            AplicadorNavigatorScope.of(
+                              context,
+                            ).toAplicacaoRegistrar();
+                          }
+                        : null,
                     child: const Text(
                       'Iniciar Aplicação',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

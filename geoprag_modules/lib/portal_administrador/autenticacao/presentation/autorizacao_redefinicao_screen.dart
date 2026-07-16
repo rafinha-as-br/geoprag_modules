@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../core/admin_navigator.dart';
 
 enum _StatusAutorizacao { aguardando, autorizado, negado }
 
@@ -15,10 +16,12 @@ class AutorizacaoRedefinicaoScreen extends StatefulWidget {
   const AutorizacaoRedefinicaoScreen({super.key});
 
   @override
-  State<AutorizacaoRedefinicaoScreen> createState() => _AutorizacaoRedefinicaoScreenState();
+  State<AutorizacaoRedefinicaoScreen> createState() =>
+      _AutorizacaoRedefinicaoScreenState();
 }
 
-class _AutorizacaoRedefinicaoScreenState extends State<AutorizacaoRedefinicaoScreen> {
+class _AutorizacaoRedefinicaoScreenState
+    extends State<AutorizacaoRedefinicaoScreen> {
   _StatusAutorizacao _status = _StatusAutorizacao.aguardando;
 
   void _negar() {
@@ -49,15 +52,30 @@ class _AutorizacaoRedefinicaoScreenState extends State<AutorizacaoRedefinicaoScr
                         const CircleAvatar(
                           radius: 22,
                           backgroundColor: GeopragColors.neutralLight,
-                          child: Icon(Icons.person_outline, color: GeopragColors.green900),
+                          child: Icon(
+                            Icons.person_outline,
+                            color: GeopragColors.green900,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Célia Ramos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                              Text('Sub-Administrador', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                              Text(
+                                'Célia Ramos',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                'Sub-Administrador',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -69,14 +87,24 @@ class _AutorizacaoRedefinicaoScreenState extends State<AutorizacaoRedefinicaoScr
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: GeopragColors.statusAtrasado.withValues(alpha: 0.08),
+                          color: GeopragColors.statusAtrasado.withValues(
+                            alpha: 0.08,
+                          ),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: GeopragColors.statusAtrasado.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: GeopragColors.statusAtrasado.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.warning_amber_rounded, color: GeopragColors.statusAtrasado, size: 20),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: GeopragColors.statusAtrasado,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -112,18 +140,28 @@ class _AutorizacaoRedefinicaoScreenState extends State<AutorizacaoRedefinicaoScr
                     ] else if (_status == _StatusAutorizacao.autorizado) ...[
                       Text(
                         'Redefinição autorizada. O código de verificação foi enviado ao usuário.',
-                        style: TextStyle(color: GeopragColors.statusEmDia, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: GeopragColors.statusEmDia,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       OutlinedButton.icon(
-                        onPressed: () => Navigator.pushNamed(context, '/senha/codigo-subadmin'),
+                        onPressed: () => AdminNavigatorScope.of(
+                          context,
+                        ).toVerificarCodigoSubAdmin(),
                         icon: const Icon(Icons.arrow_forward),
-                        label: const Text('Continuar como Sub-Administrador (Mock)'),
+                        label: const Text(
+                          'Continuar como Sub-Administrador (Mock)',
+                        ),
                       ),
                     ] else ...[
                       Text(
                         'Solicitação negada. O usuário foi notificado.',
-                        style: TextStyle(color: GeopragColors.statusAtrasado, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: GeopragColors.statusAtrasado,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ],
@@ -139,11 +177,23 @@ class _AutorizacaoRedefinicaoScreenState extends State<AutorizacaoRedefinicaoScr
   Widget _buildStatusBadge() {
     switch (_status) {
       case _StatusAutorizacao.aguardando:
-        return const GeopragStatusBadge(status: GeopragStatus.denuncia, label: 'Aguardando', dense: true);
+        return const GeopragStatusBadge(
+          status: GeopragStatus.denuncia,
+          label: 'Aguardando',
+          dense: true,
+        );
       case _StatusAutorizacao.autorizado:
-        return const GeopragStatusBadge(status: GeopragStatus.emDia, label: 'Autorizado', dense: true);
+        return const GeopragStatusBadge(
+          status: GeopragStatus.emDia,
+          label: 'Autorizado',
+          dense: true,
+        );
       case _StatusAutorizacao.negado:
-        return const GeopragStatusBadge(status: GeopragStatus.atrasado, label: 'Negado', dense: true);
+        return const GeopragStatusBadge(
+          status: GeopragStatus.atrasado,
+          label: 'Negado',
+          dense: true,
+        );
     }
   }
 }

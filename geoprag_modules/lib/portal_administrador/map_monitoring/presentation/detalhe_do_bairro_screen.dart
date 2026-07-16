@@ -7,9 +7,7 @@ class DetalheDoBairroScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('DetalheDoBairroScreen')),
-      body: const Center(
-        child: Text('Tela DetalheDoBairroScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela DetalheDoBairroScreen (Mock)')),
     );
   }
 }

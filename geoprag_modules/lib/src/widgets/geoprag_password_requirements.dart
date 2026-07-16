@@ -17,7 +17,8 @@ class GeopragPasswordRule {
   static final upperAndNumber = GeopragPasswordRule(
     label: 'Letra maiúscula e número',
     isSatisfied: (password) =>
-        password.contains(RegExp(r'[A-Z]')) && password.contains(RegExp(r'[0-9]')),
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[0-9]')),
   );
 
   static List<GeopragPasswordRule> defaults() => [minLength, upperAndNumber];
@@ -30,10 +31,15 @@ class GeopragPasswordRequirements extends StatelessWidget {
   final String password;
   final List<GeopragPasswordRule>? rules;
 
-  const GeopragPasswordRequirements({super.key, required this.password, this.rules});
+  const GeopragPasswordRequirements({
+    super.key,
+    required this.password,
+    this.rules,
+  });
 
-  bool get allSatisfied =>
-      (rules ?? GeopragPasswordRule.defaults()).every((r) => r.isSatisfied(password));
+  bool get allSatisfied => (rules ?? GeopragPasswordRule.defaults()).every(
+    (r) => r.isSatisfied(password),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +56,9 @@ class GeopragPasswordRequirements extends StatelessWidget {
               Icon(
                 satisfied ? Icons.check_circle : Icons.circle_outlined,
                 size: 16,
-                color: satisfied ? GeopragColors.statusEmDia : Colors.grey.shade400,
+                color: satisfied
+                    ? GeopragColors.statusEmDia
+                    : Colors.grey.shade400,
               ),
               const SizedBox(width: 8),
               Text(
@@ -58,7 +66,9 @@ class GeopragPasswordRequirements extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: satisfied ? GeopragColors.statusEmDia : Colors.grey.shade600,
+                  color: satisfied
+                      ? GeopragColors.statusEmDia
+                      : Colors.grey.shade600,
                 ),
               ),
             ],

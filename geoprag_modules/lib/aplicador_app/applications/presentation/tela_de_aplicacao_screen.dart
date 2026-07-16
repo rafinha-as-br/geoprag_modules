@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../core/aplicador_navigator.dart';
 
 class TelaDeAplicacaoScreen extends StatelessWidget {
   const TelaDeAplicacaoScreen({super.key});
@@ -12,9 +13,7 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
     const volumeAtual = '950 ml disponíveis no inventário';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Execução da Aplicação'),
-      ),
+      appBar: AppBar(title: const Text('Execução da Aplicação')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -22,10 +21,7 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
           children: [
             const Text(
               'Dosagem Recomendada',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 18, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -38,7 +34,11 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Icon(Icons.water_drop, size: 48, color: GeopragColors.green900),
+                  Icon(
+                    Icons.water_drop,
+                    size: 48,
+                    color: GeopragColors.green900,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     dosagem,
@@ -54,28 +54,30 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const Text(
               volumeAtual,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
             const Text(
               'Instruções:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const ListTile(
-              leading: Icon(Icons.check_circle_outline, color: GeopragColors.green900),
-              title: Text('Despeje a dosagem exata indicada acima na correnteza do córrego.'),
+              leading: Icon(
+                Icons.check_circle_outline,
+                color: GeopragColors.green900,
+              ),
+              title: Text(
+                'Despeje a dosagem exata indicada acima na correnteza do córrego.',
+              ),
               contentPadding: EdgeInsets.zero,
             ),
             const ListTile(
-              leading: Icon(Icons.check_circle_outline, color: GeopragColors.green900),
+              leading: Icon(
+                Icons.check_circle_outline,
+                color: GeopragColors.green900,
+              ),
               title: Text('Evite aplicar em remansos ou água parada.'),
               contentPadding: EdgeInsets.zero,
             ),
@@ -85,12 +87,14 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
                 // Simulate confirmation
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Aplicação registrada com sucesso! (Sincronizado)'),
+                    content: const Text(
+                      'Aplicação registrada com sucesso! (Sincronizado)',
+                    ),
                     backgroundColor: GeopragColors.green900,
                   ),
                 );
                 // Return to home
-                Navigator.pushReplacementNamed(context, '/ponto');
+                AplicadorNavigatorScope.of(context).toPonto();
               },
               icon: const Icon(Icons.check),
               label: const Text('Confirmar Aplicação'),
@@ -98,7 +102,7 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                AplicadorNavigatorScope.of(context).back();
               },
               child: const Text(
                 'Cancelar / Voltar',

@@ -7,9 +7,7 @@ class ListagemDeDenunciasScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('ListagemDeDenunciasScreen')),
-      body: const Center(
-        child: Text('Tela ListagemDeDenunciasScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela ListagemDeDenunciasScreen (Mock)')),
     );
   }
 }

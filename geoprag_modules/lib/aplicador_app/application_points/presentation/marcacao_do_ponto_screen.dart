@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../core/aplicador_navigator.dart';
 
 class MarcacaoDoPontoScreen extends StatelessWidget {
   const MarcacaoDoPontoScreen({super.key});
@@ -8,9 +9,7 @@ class MarcacaoDoPontoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Marcação do Ponto Inicial'),
-      ),
+      appBar: AppBar(title: const Text('Marcação do Ponto Inicial')),
       body: Column(
         children: [
           // Simulated Map View Area
@@ -36,7 +35,10 @@ class MarcacaoDoPontoScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: GeopragColors.green900.withOpacity(0.2),
-                      border: Border.all(color: GeopragColors.green900, width: 2),
+                      border: Border.all(
+                        color: GeopragColors.green900,
+                        width: 2,
+                      ),
                     ),
                   ),
                   const Icon(Icons.location_on, size: 48, color: Colors.red),
@@ -84,8 +86,14 @@ class MarcacaoDoPontoScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Precisão atual: Alta (4m)', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text('-26.9312, -48.9567', style: TextStyle(color: Colors.black54)),
+                              Text(
+                                'Precisão atual: Alta (4m)',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '-26.9312, -48.9567',
+                                style: TextStyle(color: Colors.black54),
+                              ),
                             ],
                           ),
                         ),
@@ -96,9 +104,13 @@ class MarcacaoDoPontoScreen extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Localização capturada! Pendente de validação.')),
+                        const SnackBar(
+                          content: Text(
+                            'Localização capturada! Pendente de validação.',
+                          ),
+                        ),
                       );
-                      Navigator.pop(context);
+                      AplicadorNavigatorScope.of(context).back();
                     },
                     icon: const Icon(Icons.save_outlined),
                     label: const Text('Salvar Ponto Inicial'),
@@ -106,11 +118,14 @@ class MarcacaoDoPontoScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      AplicadorNavigatorScope.of(context).back();
                     },
                     child: const Text(
                       'Cancelar',
-                      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

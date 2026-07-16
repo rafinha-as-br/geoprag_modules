@@ -7,9 +7,7 @@ class MapaDeBairrosScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapaDeBairrosScreen')),
-      body: const Center(
-        child: Text('Tela MapaDeBairrosScreen (Mock)'),
-      ),
+      body: const Center(child: Text('Tela MapaDeBairrosScreen (Mock)')),
     );
   }
 }

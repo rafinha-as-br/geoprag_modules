@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/sidebar_menu.dart';
+import '../../core/admin_navigator.dart';
 
 class DashboardEstoqueScreen extends StatelessWidget {
   const DashboardEstoqueScreen({super.key});
@@ -10,9 +11,7 @@ class DashboardEstoqueScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle de Estoque e Compras'),
-      ),
+      appBar: AppBar(title: const Text('Controle de Estoque e Compras')),
       body: Row(
         children: [
           const SidebarMenu(currentRoute: '/estoque'),
@@ -27,22 +26,32 @@ class DashboardEstoqueScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'Inventário Geral',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Row(
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/estoque/formula');
+                              AdminNavigatorScope.of(
+                                context,
+                              ).toEstoqueFormula();
                             },
                             icon: const Icon(Icons.calculate),
                             label: const Text('Fórmula de Dosagem'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/estoque/licitacao');
+                              AdminNavigatorScope.of(
+                                context,
+                              ).toEstoqueLicitacao();
                             },
                             icon: const Icon(Icons.description),
                             label: const Text('Nova Licitação'),
@@ -50,7 +59,9 @@ class DashboardEstoqueScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/estoque/produto');
+                              AdminNavigatorScope.of(
+                                context,
+                              ).toEstoqueProduto();
                             },
                             icon: const Icon(Icons.add_box),
                             label: const Text('Registrar Entrada'),
@@ -63,16 +74,21 @@ class DashboardEstoqueScreen extends StatelessWidget {
                   Expanded(
                     child: Card(
                       elevation: 3,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
                             TextField(
                               decoration: InputDecoration(
-                                hintText: 'Buscar produto por lote ou licitação...',
+                                hintText:
+                                    'Buscar produto por lote ou licitação...',
                                 prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -87,18 +103,81 @@ class DashboardEstoqueScreen extends StatelessWidget {
                               },
                               children: [
                                 TableRow(
-                                  decoration: BoxDecoration(color: Colors.grey[100]),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                  ),
                                   children: const [
-                                    Padding(padding: EdgeInsets.all(12), child: Text('Produto / Lote', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    Padding(padding: EdgeInsets.all(12), child: Text('Licitação', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    Padding(padding: EdgeInsets.all(12), child: Text('Estoque Atual', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    Padding(padding: EdgeInsets.all(12), child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    Padding(padding: EdgeInsets.all(12), child: Text('Ações', style: TextStyle(fontWeight: FontWeight.bold))),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Produto / Lote',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Licitação',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Estoque Atual',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Status',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Ações',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                _buildTableRow(context, 'BTI Líquido - Lote BTI-001', 'Pregão 01/2026', '100 Litros', 'Em estoque', GeopragStatus.emDia),
-                                _buildTableRow(context, 'BTI Sólido - Lote BTI-002', 'Pregão 01/2026', '5 Kg', 'Perto do Venc.', GeopragStatus.denuncia),
-                                _buildTableRow(context, 'BTI Líquido - Lote 999', 'Pregão 10/2025', '0 Litros', 'Esgotado', GeopragStatus.atrasado),
+                                _buildTableRow(
+                                  context,
+                                  'BTI Líquido - Lote BTI-001',
+                                  'Pregão 01/2026',
+                                  '100 Litros',
+                                  'Em estoque',
+                                  GeopragStatus.emDia,
+                                ),
+                                _buildTableRow(
+                                  context,
+                                  'BTI Sólido - Lote BTI-002',
+                                  'Pregão 01/2026',
+                                  '5 Kg',
+                                  'Perto do Venc.',
+                                  GeopragStatus.denuncia,
+                                ),
+                                _buildTableRow(
+                                  context,
+                                  'BTI Líquido - Lote 999',
+                                  'Pregão 10/2025',
+                                  '0 Litros',
+                                  'Esgotado',
+                                  GeopragStatus.atrasado,
+                                ),
                               ],
                             ),
                           ],
@@ -115,7 +194,14 @@ class DashboardEstoqueScreen extends StatelessWidget {
     );
   }
 
-  TableRow _buildTableRow(BuildContext context, String produto, String licitacao, String estoque, String status, GeopragStatus statusValue) {
+  TableRow _buildTableRow(
+    BuildContext context,
+    String produto,
+    String licitacao,
+    String estoque,
+    String status,
+    GeopragStatus statusValue,
+  ) {
     return TableRow(
       children: [
         Padding(padding: const EdgeInsets.all(12), child: Text(produto)),
@@ -123,14 +209,18 @@ class DashboardEstoqueScreen extends StatelessWidget {
         Padding(padding: const EdgeInsets.all(12), child: Text(estoque)),
         Padding(
           padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(status: statusValue, label: status, dense: true),
+          child: GeopragStatusBadge(
+            status: statusValue,
+            label: status,
+            dense: true,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(8),
           child: IconButton(
             icon: const Icon(Icons.visibility, color: Colors.blue),
             onPressed: () {
-              Navigator.pushNamed(context, '/estoque/visualizacao');
+              AdminNavigatorScope.of(context).toEstoqueVisualizacao();
             },
           ),
         ),
