@@ -10,3 +10,7 @@ final List<User> mockUsers = [
     tenantId: 'gaspar-sc',
   ),
 ];
+
+/// Senha aceita para qualquer usuário de [mockUsers] enquanto o login é
+/// simulado — só existe para permitir exercitar sucesso/falha na UI.
+const String mockUserSenha = '123456';
