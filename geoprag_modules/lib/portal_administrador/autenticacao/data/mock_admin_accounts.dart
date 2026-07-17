@@ -16,3 +16,7 @@ final List<AdminAccount> mockAdminAccounts = [
     role: AdminRole.subAdministrador,
   ),
 ];
+
+/// Senha aceita para qualquer conta de [mockAdminAccounts] enquanto o login
+/// é simulado — só existe para permitir exercitar sucesso/falha na UI.
+const String mockAdminSenha = '123456';

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../core/auth_exceptions.dart';
 import '../core/auth_repository.dart';
 import '../core/user.dart';
 import 'auth_action_state.dart';
@@ -20,8 +21,10 @@ class LoginCubit extends Cubit<AuthActionState<User>> {
         senha: senha,
       );
       emit(AuthActionSuccess(user));
+    } on InvalidCredentialsException {
+      emit(const AuthActionFailure('CPF/e-mail ou senha inválidos.'));
     } catch (e) {
-      emit(AuthActionFailure(e.toString()));
+      emit(const AuthActionFailure('Não foi possível entrar. Tente novamente.'));
     }
   }
 }
