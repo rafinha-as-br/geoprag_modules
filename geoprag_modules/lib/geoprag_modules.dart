@@ -21,6 +21,7 @@ export 'portal_administrador/autenticacao/autenticacao.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/map_monitoring/mapa_hidrologico.dart';
 export 'portal_administrador/applicators_management/gestao_de_aplicadores.dart';
+export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/inventory_and_bidding/controle_de_estoque.dart';
 export 'portal_administrador/distributions/distribuicoes.dart';
 export 'portal_administrador/reports_management/gestao_de_denuncias.dart';

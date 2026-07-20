@@ -21,6 +21,11 @@ abstract class AdminNavigator {
   void toAplicadores();
   void toAplicadorDetalhes();
 
+  void toAplicacoes();
+  void toAplicacaoBairro();
+  void toAplicacaoDetalhes();
+  void toAplicacaoCriarPonto();
+
   void toEstoque();
   void toEstoqueFormula();
   void toEstoqueLicitacao();
