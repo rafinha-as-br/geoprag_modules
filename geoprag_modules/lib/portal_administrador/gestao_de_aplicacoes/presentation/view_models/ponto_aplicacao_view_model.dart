@@ -31,9 +31,9 @@ class PontoDeAplicacaoDetalheViewModel {
   });
 
   factory PontoDeAplicacaoDetalheViewModel.fromEntity(
-    PontoDeAplicacao ponto, {
-    String? nomeDoAplicador,
-  }) {
+      PontoDeAplicacao ponto, {
+        String? nomeDoAplicador,
+      }) {
     return PontoDeAplicacaoDetalheViewModel(
       id: ponto.id,
       bairro: ponto.bairro,
@@ -48,6 +48,38 @@ class PontoDeAplicacaoDetalheViewModel {
       // ponto desativado é editado (reativação) por outro fluxo.
       podeAtribuirAplicador: ponto.ativo,
       podeDesativar: ponto.ativo,
+    );
+  }
+}
+
+/// Dados de um ponto de aplicação para telas de listagem/mapa (dashboard e
+/// visualização de bairro) — a tela nunca recebe [PontoDeAplicacao] direto,
+/// só os campos que ela de fato usa para desenhar um pin ou uma linha.
+class PontoDeAplicacaoResumoViewModel {
+  final String id;
+  final String bairro;
+  final double lat;
+  final double lng;
+  final StatusPontoDeAplicacao status;
+  final bool ativo;
+
+  const PontoDeAplicacaoResumoViewModel({
+    required this.id,
+    required this.bairro,
+    required this.lat,
+    required this.lng,
+    required this.status,
+    required this.ativo,
+  });
+
+  factory PontoDeAplicacaoResumoViewModel.fromEntity(PontoDeAplicacao ponto) {
+    return PontoDeAplicacaoResumoViewModel(
+      id: ponto.id,
+      bairro: ponto.bairro,
+      lat: ponto.lat,
+      lng: ponto.lng,
+      status: ponto.status,
+      ativo: ponto.ativo,
     );
   }
 }

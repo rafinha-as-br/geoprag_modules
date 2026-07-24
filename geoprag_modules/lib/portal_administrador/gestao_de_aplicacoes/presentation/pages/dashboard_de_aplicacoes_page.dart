@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/sidebar_menu.dart';
-import '../../core/admin_navigator.dart';
-import '../core/ponto_de_aplicacao.dart';
-import '../data/mock_pontos_de_aplicacao.dart';
-import 'status_ponto_de_aplicacao_badge.dart';
-import 'view_models/ponto_de_aplicacao_resumo_view_model.dart';
+import '../../../widgets/sidebar_menu.dart';
+import '../../../core/admin_navigator.dart';
+import '../../core/ponto_de_aplicacao.dart';
+import '../../data/mock_pontos_de_aplicacao.dart';
+import '../status_ponto_de_aplicacao_badge.dart';
+import '../view_models/ponto_aplicacao_view_model.dart';
 
-class DashboardDeAplicacoesScreen extends StatelessWidget {
-  const DashboardDeAplicacoesScreen({super.key});
+class DashboardAplicacoesPage extends StatelessWidget {
+  const DashboardAplicacoesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
