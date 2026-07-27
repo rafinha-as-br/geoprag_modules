@@ -1,4 +1,4 @@
-import '../core/aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 
 final List<Aplicacao> mockApplications = [
   Aplicacao(

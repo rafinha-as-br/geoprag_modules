@@ -1,4 +1,4 @@
-import '../core/aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 
 /// ViewModel de [Aplicacao] usado nas telas de execução da aplicação —
 /// formata dosagem, data e localização do ponto para exibição.

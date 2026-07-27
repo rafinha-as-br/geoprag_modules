@@ -5,7 +5,7 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/sidebar_menu.dart';
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_view_model.dart';
 import 'denuncias_cubit.dart';
 import 'denuncias_state.dart';

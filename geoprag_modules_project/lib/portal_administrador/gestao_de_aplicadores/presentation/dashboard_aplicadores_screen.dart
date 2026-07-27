@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/sidebar_menu.dart';
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'aplicador_view_model.dart';
 import 'aplicadores_cubit.dart';
 import 'aplicadores_state.dart';

@@ -69,14 +69,14 @@ void main() {
 
   group('FormulaDosagemViewModel.fromEntity', () {
     test('mapeia todos os campos sem alteração', () {
-      const formulaValida = FormulaDosagem(
+      final formulaValida = FormulaDosagem(
         id: 'f1',
         produtoId: 'p1',
         produtoNome: 'BTI Líquido',
         fatorConversao: 1.5,
         distanciaCarreamento: 150,
         fatorCorrecao: 1.2,
-        atualizadoEm: DateTime.fromMillisecondsSinceEpoch(0),
+        atualizadoEm: DateTime(1970),
       );
 
       final viewModel = FormulaDosagemViewModel.fromEntity(formulaValida);

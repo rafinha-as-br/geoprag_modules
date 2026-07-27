@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../core/admin_navigator.dart';
+import '../core/admin_navigator.dart';
 import '../core/solicitacao_redefinicao.dart';
 import 'autorizacao_redefinicao_cubit.dart';
 import 'autorizacao_redefinicao_state.dart';

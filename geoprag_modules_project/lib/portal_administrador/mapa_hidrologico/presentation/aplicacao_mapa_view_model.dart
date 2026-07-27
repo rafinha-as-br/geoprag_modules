@@ -1,4 +1,4 @@
-import '../../../aplicador_app/applications/core/aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 
 /// ViewModel de leitura de uma [Aplicacao] (evento de aplicação de
 /// inseticida) exibida na tela de visualização de aplicação do Mapa

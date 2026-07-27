@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
-import '../../core/admin_navigator.dart';
+import '../core/admin_navigator.dart';
 
 /// Tela 3 · Fluxo B (Sub-Administrador) — verificação do código de 6
 /// dígitos, liberado após a autorização do Administrador principal, com

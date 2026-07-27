@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../src/theme/geoprag_colors.dart';
 import '../../src/widgets/geoprag_logo.dart';
-import '../core/admin_navigator.dart';
+import '../autenticacao/core/admin_navigator.dart';
 
 class SidebarMenu extends StatelessWidget {
   final String currentRoute;

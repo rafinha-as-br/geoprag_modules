@@ -1,6 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/aplicador_app/applications/core/aplicacao.dart';
+import 'package:geoprag_modules/src/entities/aplicacao.dart';
 import 'package:geoprag_modules/aplicador_app/applications/core/aplicacao_repository.dart';
 import 'package:geoprag_modules/aplicador_app/applications/presentation/aplicacao_atual_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/applications/presentation/aplicacao_atual_state.dart';

@@ -1,4 +1,4 @@
-import 'aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 
 /// Contrato de acesso aos dados de Aplicações (registro de uso do produto
 /// biológico) do `aplicador_app`.

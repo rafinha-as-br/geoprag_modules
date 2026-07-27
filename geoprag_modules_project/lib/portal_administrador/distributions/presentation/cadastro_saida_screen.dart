@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'cadastro_saida_cubit.dart';
 import 'cadastro_saida_state.dart';
 

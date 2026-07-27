@@ -16,10 +16,10 @@ void main() {
     observacoes: 'Muita espuma natural no córrego.',
   );
 
-  const historico = HistoricoDenuncia(
+  final historico = HistoricoDenuncia(
     titulo: 'Criada via App Mobile',
     autor: 'João Silva',
-    dataHora: DateTime.fromMillisecondsSinceEpoch(0),
+    dataHora: DateTime(1970),
     status: 'Recebida',
   );
 
@@ -50,10 +50,10 @@ void main() {
     });
 
     test('dataHoraFormatada segue o padrão dd/MM/yyyy às HH:mm', () {
-      const item = HistoricoDenuncia(
+      final item = HistoricoDenuncia(
         titulo: 'Criada via App Mobile',
         autor: 'João Silva',
-        dataHora: DateTime.fromMillisecondsSinceEpoch(0),
+        dataHora: DateTime(1970),
         status: 'Recebida',
       );
       final itemComDataConhecida = HistoricoDenuncia(

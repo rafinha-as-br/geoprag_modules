@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_password_requirements.dart';
-import '../../core/admin_navigator.dart';
+import '../core/admin_navigator.dart';
 import 'admin_recriar_senha_cubit.dart';
 import 'auth_action_state.dart';
 

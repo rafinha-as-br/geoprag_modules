@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../widgets/sidebar_menu.dart';
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'distribuicao_view_model.dart';
 import 'distribuicoes_cubit.dart';
 import 'distribuicoes_state.dart';

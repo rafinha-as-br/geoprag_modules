@@ -9,7 +9,7 @@ import 'aplicacao_mapa_view_model.dart';
 /// Visualização, no mapa, de uma Aplicação (evento de aplicação de
 /// inseticida) específica. Ver `core/aplicacao_mapa_repository.dart` para a
 /// decisão de arquitetura sobre a leitura cross-portal da entidade
-/// `Aplicacao` (modelada em `aplicador_app/applications/core/aplicacao.dart`).
+/// `Aplicacao` (modelada em `src/entities/aplicacao.dart`).
 class VisualizacaoDeAplicacaoScreen extends StatelessWidget {
   const VisualizacaoDeAplicacaoScreen({super.key});
 

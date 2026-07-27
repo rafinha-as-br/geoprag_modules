@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../widgets/sidebar_menu.dart';
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'bairro_view_model.dart';
 import 'bairros_cubit.dart';
 import 'bairros_state.dart';

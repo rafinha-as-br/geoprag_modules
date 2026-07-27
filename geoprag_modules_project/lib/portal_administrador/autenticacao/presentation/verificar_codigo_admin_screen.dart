@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
-import '../../core/admin_navigator.dart';
+import '../core/admin_navigator.dart';
 
 /// Tela 2 · Fluxo C (Administrador principal) — verificação do código de 6
 /// dígitos combinada com CPF, sem autorização de terceiros, dentro da

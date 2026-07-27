@@ -1,12 +1,12 @@
-import '../../../aplicador_app/applications/core/aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 
 /// Contrato mínimo de leitura de uma [Aplicacao] (evento de aplicação de
 /// inseticida registrado pelo `aplicador_app`) para exibição na tela de
 /// visualização de aplicação do Mapa Hidrológico.
 ///
-/// Decisão de arquitetura: `Aplicacao` é modelada em
-/// `aplicador_app/applications/core/aplicacao.dart` e é lida diretamente
-/// aqui (leitura cross-portal), em vez de redefinida — é o MESMO conceito de
+/// Decisão de arquitetura: `Aplicacao` é uma entidade compartilhada, movida
+/// para `src/entities/aplicacao.dart` por ser consumida tanto por
+/// `aplicador_app` quanto por `portal_administrador` — é o MESMO conceito de
 /// domínio, não uma duplicação. A modelagem completa do repositório de
 /// Aplicacao (CRUD, histórico, etc.) permanece de responsabilidade do módulo
 /// `aplicador_app/applications`; este contrato é intencionalmente escopado

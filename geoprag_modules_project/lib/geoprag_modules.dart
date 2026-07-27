@@ -17,7 +17,7 @@ export 'aplicador_app/inventory/inventario.dart';
 export 'aplicador_app/reports/denuncia_de_foco.dart';
 export 'aplicador_app/tenant/tenant.dart';
 
-export 'portal_administrador/core/admin_navigator.dart';
+export 'portal_administrador/autenticacao/core/admin_navigator.dart';
 export 'portal_administrador/autenticacao/autenticacao.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/aplicador_app/applications/core/aplicacao.dart';
+import 'package:geoprag_modules/src/entities/aplicacao.dart';
 import 'package:geoprag_modules/aplicador_app/applications/presentation/aplicacao_view_model.dart';
 
 void main() {

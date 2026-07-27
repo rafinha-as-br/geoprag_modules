@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../core/admin_navigator.dart';
+import '../core/admin_navigator.dart';
 
 /// Tela 2 · Fluxo B (Sub-Administrador) — aguardando autorização do
 /// Administrador principal, notificado por e-mail e painel, conforme

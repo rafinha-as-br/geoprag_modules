@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/admin_navigator.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 
 class CadastroLicitacaoScreen extends StatelessWidget {
   const CadastroLicitacaoScreen({super.key});

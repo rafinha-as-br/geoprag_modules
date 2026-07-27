@@ -1,4 +1,4 @@
-export 'core/aplicacao.dart';
+export '../../src/entities/aplicacao.dart';
 export 'core/aplicacao_repository.dart';
 
 export 'data/mock_aplicacoes.dart';

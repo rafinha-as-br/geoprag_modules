@@ -24,10 +24,10 @@ void main() {
     observacoes: 'Muita espuma natural no córrego.',
   );
 
-  const historico = HistoricoDenuncia(
+  final historico = HistoricoDenuncia(
     titulo: 'Criada via App Mobile',
     autor: 'João Silva',
-    dataHora: DateTime.fromMillisecondsSinceEpoch(0),
+    dataHora: DateTime(1970),
     status: 'Recebida',
   );
 

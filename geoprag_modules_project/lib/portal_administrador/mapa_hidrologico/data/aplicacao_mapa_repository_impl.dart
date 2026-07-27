@@ -1,4 +1,4 @@
-import '../../../aplicador_app/applications/core/aplicacao.dart';
+import '../../../src/entities/aplicacao.dart';
 import '../../../aplicador_app/applications/data/mock_aplicacoes.dart';
 import '../core/aplicacao_mapa_repository.dart';
 
