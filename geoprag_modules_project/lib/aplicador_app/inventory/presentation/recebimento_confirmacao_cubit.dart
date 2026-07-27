@@ -40,7 +40,7 @@ class RecebimentoConfirmacaoCubit extends Cubit<RecebimentoConfirmacaoState> {
         ),
       );
     } catch (e) {
-      emit(RecebimentoConfirmacaoError(e.toString()));
+      emit(RecebimentoConfirmacaoError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 

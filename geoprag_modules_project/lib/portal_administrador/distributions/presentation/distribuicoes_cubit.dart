@@ -29,7 +29,7 @@ class DistribuicoesCubit extends Cubit<DistribuicoesState> {
       );
       emit(DistribuicoesLoaded(resumos));
     } catch (e) {
-      emit(DistribuicoesError(e.toString()));
+      emit(DistribuicoesError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

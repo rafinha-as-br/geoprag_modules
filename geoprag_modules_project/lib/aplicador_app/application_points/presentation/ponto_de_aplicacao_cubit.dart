@@ -23,7 +23,7 @@ class PontoDeAplicacaoCubit extends Cubit<PontoDeAplicacaoState> {
       final ponto = await _repository.buscarAtual();
       emit(PontoDeAplicacaoLoaded(PontoDeAplicacaoViewModel.fromEntity(ponto)));
     } catch (e) {
-      emit(PontoDeAplicacaoError(e.toString()));
+      emit(PontoDeAplicacaoError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

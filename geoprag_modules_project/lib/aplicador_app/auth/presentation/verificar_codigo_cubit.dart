@@ -14,7 +14,7 @@ class VerificarCodigoCubit extends Cubit<AuthActionState<Null>> {
       await _repository.verifyResetCode(code: code);
       emit(const AuthActionSuccess(null));
     } catch (e) {
-      emit(AuthActionFailure(e.toString()));
+      emit(const AuthActionFailure('Código inválido ou expirado. Tente novamente.'));
     }
   }
 }

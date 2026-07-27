@@ -22,7 +22,7 @@ class RecebimentosCubit extends Cubit<RecebimentosState> {
         ),
       );
     } catch (e) {
-      emit(RecebimentosError(e.toString()));
+      emit(RecebimentosError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

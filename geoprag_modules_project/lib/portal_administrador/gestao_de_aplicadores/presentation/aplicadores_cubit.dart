@@ -21,7 +21,7 @@ class AplicadoresCubit extends Cubit<AplicadoresState> {
         ),
       );
     } catch (e) {
-      emit(AplicadoresError(e.toString()));
+      emit(AplicadoresError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

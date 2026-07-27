@@ -33,7 +33,7 @@ class DistribuicaoDetalheCubit extends Cubit<DistribuicaoDetalheState> {
         ),
       );
     } catch (e) {
-      emit(DistribuicaoDetalheError(e.toString()));
+      emit(DistribuicaoDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

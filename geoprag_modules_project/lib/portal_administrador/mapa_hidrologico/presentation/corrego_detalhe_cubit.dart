@@ -27,7 +27,7 @@ class CorregoDetalheCubit extends Cubit<CorregoDetalheState> {
       final corrego = await _repository.buscarPorId(_corregoId);
       emit(CorregoDetalheLoaded(CorregoDetalhadoViewModel.fromEntity(corrego)));
     } catch (e) {
-      emit(CorregoDetalheError(e.toString()));
+      emit(CorregoDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

@@ -28,7 +28,7 @@ class AplicacaoAtualCubit extends Cubit<AplicacaoAtualState> {
         AplicacaoAtualLoaded(AplicacaoAtualViewModel.fromEntity(aplicacao)),
       );
     } catch (e) {
-      emit(AplicacaoAtualError(e.toString()));
+      emit(AplicacaoAtualError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

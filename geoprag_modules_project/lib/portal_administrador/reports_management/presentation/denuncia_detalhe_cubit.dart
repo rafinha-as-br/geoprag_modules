@@ -31,7 +31,7 @@ class DenunciaDetalheCubit extends Cubit<DenunciaDetalheState> {
         ),
       );
     } catch (e) {
-      emit(DenunciaDetalheError(e.toString()));
+      emit(DenunciaDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

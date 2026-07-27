@@ -27,7 +27,7 @@ class TenantCubit extends Cubit<TenantState> {
       await _repository.cache(config);
       emit(TenantReady(config));
     } catch (e) {
-      emit(TenantError(e.toString()));
+      emit(TenantError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

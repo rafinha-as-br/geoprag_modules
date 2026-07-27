@@ -14,7 +14,7 @@ class RecriarSenhaCubit extends Cubit<AuthActionState<Null>> {
       await _repository.resetPassword(novaSenha: novaSenha);
       emit(const AuthActionSuccess(null));
     } catch (e) {
-      emit(AuthActionFailure(e.toString()));
+      emit(const AuthActionFailure('Não foi possível redefinir a senha. Tente novamente.'));
     }
   }
 }

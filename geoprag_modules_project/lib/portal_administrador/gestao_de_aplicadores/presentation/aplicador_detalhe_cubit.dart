@@ -30,7 +30,7 @@ class AplicadorDetalheCubit extends Cubit<AplicadorDetalheState> {
         ),
       );
     } catch (e) {
-      emit(AplicadorDetalheError(e.toString()));
+      emit(AplicadorDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

@@ -32,7 +32,7 @@ class ProdutoDetalheCubit extends Cubit<ProdutoDetalheState> {
         ),
       );
     } catch (e) {
-      emit(ProdutoDetalheError(e.toString()));
+      emit(ProdutoDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

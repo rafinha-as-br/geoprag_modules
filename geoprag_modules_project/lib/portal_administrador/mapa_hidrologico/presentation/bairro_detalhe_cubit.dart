@@ -32,7 +32,7 @@ class BairroDetalheCubit extends Cubit<BairroDetalheState> {
         ),
       );
     } catch (e) {
-      emit(BairroDetalheError(e.toString()));
+      emit(BairroDetalheError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

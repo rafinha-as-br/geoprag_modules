@@ -1,0 +1,37 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/portal_administrador/tenant/data/mock_tenant_configs.dart';
+import 'package:geoprag_modules/portal_administrador/tenant/data/tenant_repository_impl.dart';
+
+void main() {
+  late AdminTenantRepositoryImpl repository;
+
+  setUp(() {
+    repository = AdminTenantRepositoryImpl();
+  });
+
+  test('fetchByTenantId retorna a configuração mockada do tenant existente', () async {
+    final config = await repository.fetchByTenantId('gaspar-sc');
+
+    expect(config.tenantId, 'gaspar-sc');
+    expect(config, mockAdminTenantConfigs['gaspar-sc']);
+  });
+
+  test('fetchByTenantId lança StateError para tenant inexistente', () {
+    expect(
+      () => repository.fetchByTenantId('inexistente'),
+      throwsA(isA<StateError>()),
+    );
+  });
+
+  test('readCached retorna null antes de qualquer cache() ser chamado', () async {
+    expect(await repository.readCached(), isNull);
+  });
+
+  test('cache seguido de readCached retorna a mesma configuração', () async {
+    final config = mockAdminTenantConfigs['gaspar-sc']!;
+
+    await repository.cache(config);
+
+    expect(await repository.readCached(), config);
+  });
+}

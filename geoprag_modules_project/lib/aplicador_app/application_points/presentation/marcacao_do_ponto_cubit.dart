@@ -28,7 +28,7 @@ class MarcacaoDoPontoCubit extends Cubit<MarcacaoDoPontoState> {
         MarcacaoDoPontoCapturado(CapturaLocalizacaoViewModel.fromEntity(ponto)),
       );
     } catch (e) {
-      emit(MarcacaoDoPontoErro(e.toString()));
+      emit(MarcacaoDoPontoErro('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 
@@ -42,7 +42,7 @@ class MarcacaoDoPontoCubit extends Cubit<MarcacaoDoPontoState> {
       await _repository.marcarPontoInicial(ponto);
       emit(const MarcacaoDoPontoSalvo());
     } catch (e) {
-      emit(MarcacaoDoPontoErro(e.toString()));
+      emit(MarcacaoDoPontoErro('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

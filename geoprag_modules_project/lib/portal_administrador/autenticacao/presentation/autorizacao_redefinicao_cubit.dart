@@ -25,7 +25,7 @@ class AutorizacaoRedefinicaoCubit extends Cubit<AutorizacaoRedefinicaoState> {
         ),
       );
     } catch (e) {
-      emit(AutorizacaoRedefinicaoError(e.toString()));
+      emit(AutorizacaoRedefinicaoError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 

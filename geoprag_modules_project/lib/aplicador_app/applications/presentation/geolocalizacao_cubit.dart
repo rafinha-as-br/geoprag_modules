@@ -32,7 +32,7 @@ class GeolocalizacaoCubit extends Cubit<GeolocalizacaoState> {
         ),
       );
     } catch (e) {
-      emit(GeolocalizacaoError(e.toString()));
+      emit(GeolocalizacaoError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 

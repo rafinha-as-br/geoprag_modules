@@ -19,7 +19,7 @@ class DashboardGeralCubit extends Cubit<DashboardGeralState> {
       final resumo = await _repository.buscar();
       emit(DashboardGeralLoaded(ResumoGeralViewModel.fromEntity(resumo)));
     } catch (e) {
-      emit(DashboardGeralError(e.toString()));
+      emit(DashboardGeralError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

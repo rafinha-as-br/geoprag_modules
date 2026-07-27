@@ -26,7 +26,7 @@ class CadastroSaidaCubit extends Cubit<CadastroSaidaState> {
         ),
       );
     } catch (e) {
-      emit(CadastroSaidaError(e.toString()));
+      emit(CadastroSaidaError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

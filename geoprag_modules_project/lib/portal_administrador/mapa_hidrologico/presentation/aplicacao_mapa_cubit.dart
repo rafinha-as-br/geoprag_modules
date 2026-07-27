@@ -27,7 +27,7 @@ class AplicacaoMapaCubit extends Cubit<AplicacaoMapaState> {
       final aplicacao = await _repository.buscarPorId(_aplicacaoId);
       emit(AplicacaoMapaLoaded(AplicacaoMapaViewModel.fromEntity(aplicacao)));
     } catch (e) {
-      emit(AplicacaoMapaError(e.toString()));
+      emit(AplicacaoMapaError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

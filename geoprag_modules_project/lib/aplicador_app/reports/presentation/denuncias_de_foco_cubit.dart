@@ -23,7 +23,7 @@ class DenunciasDeFocoCubit extends Cubit<DenunciasDeFocoState> {
         ),
       );
     } catch (e) {
-      emit(DenunciasDeFocoError(e.toString()));
+      emit(DenunciasDeFocoError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

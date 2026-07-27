@@ -14,7 +14,7 @@ class EsqueciSenhaCubit extends Cubit<AuthActionState<Null>> {
       await _repository.requestPasswordReset(email: email);
       emit(const AuthActionSuccess(null));
     } catch (e) {
-      emit(AuthActionFailure(e.toString()));
+      emit(const AuthActionFailure('Não foi possível enviar o código. Tente novamente.'));
     }
   }
 }

@@ -21,7 +21,7 @@ class ProdutosCubit extends Cubit<ProdutosState> {
         ),
       );
     } catch (e) {
-      emit(ProdutosError(e.toString()));
+      emit(ProdutosError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

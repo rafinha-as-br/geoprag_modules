@@ -29,7 +29,7 @@ class InventarioCubit extends Cubit<InventarioState> {
         ),
       );
     } catch (e) {
-      emit(InventarioError(e.toString()));
+      emit(InventarioError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

@@ -20,7 +20,7 @@ class BairrosCubit extends Cubit<BairrosState> {
         BairrosLoaded(bairros.map(BairroResumoViewModel.fromEntity).toList()),
       );
     } catch (e) {
-      emit(BairrosError(e.toString()));
+      emit(BairrosError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

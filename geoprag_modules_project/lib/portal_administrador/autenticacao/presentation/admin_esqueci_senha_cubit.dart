@@ -19,7 +19,7 @@ class AdminEsqueciSenhaCubit extends Cubit<AuthActionState<AdminRole>> {
       final role = account?.role ?? AdminRole.subAdministrador;
       emit(AuthActionSuccess(role));
     } catch (e) {
-      emit(AuthActionFailure(e.toString()));
+      emit(const AuthActionFailure('Não foi possível enviar o código. Tente novamente.'));
     }
   }
 }

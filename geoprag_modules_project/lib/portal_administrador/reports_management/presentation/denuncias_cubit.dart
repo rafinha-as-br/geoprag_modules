@@ -22,7 +22,7 @@ class DenunciasCubit extends Cubit<DenunciasState> {
         ),
       );
     } catch (e) {
-      emit(DenunciasError(e.toString()));
+      emit(DenunciasError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

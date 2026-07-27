@@ -23,7 +23,7 @@ class FormulasDosagemCubit extends Cubit<FormulasDosagemState> {
         ),
       );
     } catch (e) {
-      emit(FormulasDosagemError(e.toString()));
+      emit(FormulasDosagemError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }

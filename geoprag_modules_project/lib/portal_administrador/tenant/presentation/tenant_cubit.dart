@@ -22,7 +22,7 @@ class AdminTenantCubit extends Cubit<AdminTenantState> {
       await _repository.cache(config);
       emit(AdminTenantReady(config));
     } catch (e) {
-      emit(AdminTenantError(e.toString()));
+      emit(AdminTenantError('Não foi possível carregar os dados. Tente novamente.'));
     }
   }
 }
