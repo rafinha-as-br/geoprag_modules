@@ -20,3 +20,16 @@ class EntidadeNaoEncontradaException implements Exception {
   @override
   String toString() => 'EntidadeNaoEncontradaException: $mensagemAmigavel';
 }
+
+/// Exceção lançada pela camada de dados quando uma operação de criação
+/// viola uma restrição de unicidade de negócio (ex.: e-mail institucional
+/// já cadastrado como identificador de login). Mesma semântica de
+/// [mensagemAmigavel] de [EntidadeNaoEncontradaException].
+class EntidadeDuplicadaException implements Exception {
+  const EntidadeDuplicadaException(this.mensagemAmigavel);
+
+  final String mensagemAmigavel;
+
+  @override
+  String toString() => 'EntidadeDuplicadaException: $mensagemAmigavel';
+}

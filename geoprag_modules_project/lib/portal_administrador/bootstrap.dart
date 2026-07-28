@@ -5,7 +5,11 @@ import 'autenticacao/data/solicitacao_redefinicao_repository_impl.dart';
 import 'autenticacao/presentation/admin_esqueci_senha_cubit.dart';
 import 'autenticacao/presentation/admin_login_cubit.dart';
 import 'autenticacao/presentation/admin_recriar_senha_cubit.dart';
+import 'autenticacao/presentation/admin_session_cubit.dart';
 import 'autenticacao/presentation/autorizacao_redefinicao_cubit.dart';
+import 'gerenciamento_de_administradores/core/administrador_repository.dart';
+import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart';
+import 'gerenciamento_de_administradores/presentation/criar_administrador_cubit.dart';
 import 'gestao_de_aplicadores/core/aplicador_repository.dart';
 import 'gestao_de_aplicadores/data/aplicador_repository_impl.dart';
 import 'gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
@@ -51,6 +55,8 @@ class AdminBootstrap {
   SolicitacaoRedefinicaoRepository buildSolicitacaoRedefinicaoRepository() =>
       SolicitacaoRedefinicaoRepositoryImpl();
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
+  AdministradorRepository buildAdministradorRepository() =>
+      AdministradorRepositoryImpl();
   ResumoGeralRepository buildResumoGeralRepository() =>
       ResumoGeralRepositoryImpl();
   DistribuicaoRepository buildDistribuicaoRepository() =>
@@ -73,6 +79,8 @@ class AdminBootstrap {
       AplicadoresCubit(buildAplicadorRepository());
   AplicadorDetalheCubit buildAplicadorDetalheCubit(String aplicadorId) =>
       AplicadorDetalheCubit(buildAplicadorRepository(), aplicadorId);
+  CriarAdministradorCubit buildCriarAdministradorCubit() =>
+      CriarAdministradorCubit(buildAdministradorRepository());
   DashboardGeralCubit buildDashboardGeralCubit() =>
       DashboardGeralCubit(buildResumoGeralRepository());
   DistribuicoesCubit buildDistribuicoesCubit() =>
@@ -102,4 +110,8 @@ class AdminBootstrap {
 
   AdminTenantCubit buildTenantCubit() =>
       AdminTenantCubit(buildTenantRepository());
+
+  /// Sessão do administrador logado (GEOPRAG-36) — mesma exceção de escopo
+  /// raiz do [buildTenantCubit], ver `AdminSessionCubit`.
+  AdminSessionCubit buildAdminSessionCubit() => AdminSessionCubit();
 }

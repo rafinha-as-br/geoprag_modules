@@ -21,6 +21,12 @@ abstract class AdminNavigator {
   void toAplicadores();
   void toAplicadorDetalhes();
 
+  /// Único destino do módulo `gerenciamento_de_administradores` por ora —
+  /// leva direto ao formulário de criação de novo administrador. Uma tela
+  /// de listagem, se vier a existir, é decisão pendente de wireframe fora
+  /// do escopo desta issue (ver GEOPRAG-46).
+  void toGerenciamentoAdministradores();
+
   void toEstoque();
   void toEstoqueFormula();
   void toEstoqueLicitacao();

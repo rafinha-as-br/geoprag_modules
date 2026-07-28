@@ -23,6 +23,7 @@ export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
 export 'portal_administrador/mapa_hidrologico/mapa_hidrologico.dart';
 export 'portal_administrador/gestao_de_aplicadores/gestao_de_aplicadores.dart';
+export 'portal_administrador/gerenciamento_de_administradores/gerenciamento_de_administradores.dart';
 export 'portal_administrador/inventory_and_bidding/controle_de_estoque.dart';
 export 'portal_administrador/distributions/distribuicoes.dart';
 export 'portal_administrador/reports_management/gestao_de_denuncias.dart';

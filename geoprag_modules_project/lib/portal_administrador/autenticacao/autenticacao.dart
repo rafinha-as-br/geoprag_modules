@@ -9,6 +9,8 @@ export 'data/mock_solicitacoes_redefinicao.dart';
 export 'data/solicitacao_redefinicao_repository_impl.dart';
 
 export 'presentation/admin_login_cubit.dart';
+export 'presentation/admin_session_cubit.dart';
+export 'presentation/admin_session_state.dart';
 export 'presentation/admin_esqueci_senha_cubit.dart';
 export 'presentation/admin_recriar_senha_cubit.dart';
 export 'presentation/autorizacao_redefinicao_cubit.dart';

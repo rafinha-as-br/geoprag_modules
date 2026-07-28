@@ -6,6 +6,7 @@ import '../../../src/widgets/geoprag_logo.dart';
 import '../core/admin_navigator.dart';
 import '../core/admin_account.dart';
 import 'admin_login_cubit.dart';
+import 'admin_session_cubit.dart';
 import 'auth_action_state.dart';
 
 class LoginScreenWeb extends StatefulWidget {
@@ -33,6 +34,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
     return BlocListener<AdminLoginCubit, AuthActionState<AdminAccount>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<AdminAccount>) {
+          context.read<AdminSessionCubit>().iniciarSessao(state.data);
           AdminNavigatorScope.of(context).toDashboard();
         } else if (state is AuthActionFailure<AdminAccount>) {
           ScaffoldMessenger.of(
