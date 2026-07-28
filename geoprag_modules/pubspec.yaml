@@ -1,0 +1,21 @@
+name: geoprag_modules
+description: A shared Flutter package for UI modules.
+version: 1.0.0
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.2.1
+  flutter_bloc: ^9.1.1
+
+flutter:
+  assets:
+    - assets/
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
