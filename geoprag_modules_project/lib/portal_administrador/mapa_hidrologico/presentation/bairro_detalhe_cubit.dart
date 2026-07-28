@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/corrego_repository.dart';
 import 'bairro_detalhe_state.dart';
 import 'bairro_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega o detalhe agregado de um Bairro específico (`bairroId`) e os
 /// córregos que o atravessam, para a tela de detalhe do bairro.
@@ -31,8 +34,11 @@ class BairroDetalheCubit extends Cubit<BairroDetalheState> {
           BairroDetalhadoViewModel.fromEntity(bairro, corregos),
         ),
       );
-    } catch (e) {
-      emit(BairroDetalheError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(BairroDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('BairroDetalheCubit._carregar', e, stackTrace);
+      emit(BairroDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

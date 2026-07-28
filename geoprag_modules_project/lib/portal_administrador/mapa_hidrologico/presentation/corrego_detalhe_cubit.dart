@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/corrego_repository.dart';
 import 'corrego_detalhe_state.dart';
 import 'corrego_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega os dados completos de um Córrego específico (`corregoId`) para a
 /// tela de visualização individual.
@@ -26,8 +29,11 @@ class CorregoDetalheCubit extends Cubit<CorregoDetalheState> {
     try {
       final corrego = await _repository.buscarPorId(_corregoId);
       emit(CorregoDetalheLoaded(CorregoDetalhadoViewModel.fromEntity(corrego)));
-    } catch (e) {
-      emit(CorregoDetalheError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(CorregoDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('CorregoDetalheCubit._carregar', e, stackTrace);
+      emit(CorregoDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

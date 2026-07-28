@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/aplicador_repository.dart';
 import 'aplicador_detalhe_state.dart';
 import 'aplicador_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega o perfil completo e o histórico de atuações de um Aplicador
 /// específico (`aplicadorId`) para a tela de detalhe.
@@ -29,8 +32,11 @@ class AplicadorDetalheCubit extends Cubit<AplicadorDetalheState> {
           AplicadorDetalhadoViewModel.fromEntity(aplicador, historico),
         ),
       );
-    } catch (e) {
-      emit(AplicadorDetalheError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(AplicadorDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('AplicadorDetalheCubit._carregar', e, stackTrace);
+      emit(AplicadorDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

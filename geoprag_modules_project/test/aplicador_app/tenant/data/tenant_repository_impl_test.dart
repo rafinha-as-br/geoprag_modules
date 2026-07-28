@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/data/mock_tenant_configs.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/data/tenant_repository_impl.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late TenantRepositoryImpl repository;
@@ -17,10 +18,10 @@ void main() {
     expect(config, mockAplicadorTenantConfigs['gaspar-sc']);
   });
 
-  test('fetchByTenantId lança StateError para tenant inexistente', () {
+  test('fetchByTenantId lança EntidadeNaoEncontradaException para tenant inexistente', () {
     expect(
       () => repository.fetchByTenantId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 

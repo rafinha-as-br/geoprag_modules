@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/distribuicao_repository.dart';
 import 'cadastro_saida_state.dart';
 import 'distribuicao_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega os dados de referência (produtos e responsáveis disponíveis)
 /// para os dropdowns do formulário de nova distribuição.
@@ -25,8 +28,11 @@ class CadastroSaidaCubit extends Cubit<CadastroSaidaState> {
               .toList(),
         ),
       );
-    } catch (e) {
-      emit(CadastroSaidaError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(CadastroSaidaError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('CadastroSaidaCubit._carregar', e, stackTrace);
+      emit(CadastroSaidaError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/distribuicao_repository.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega a ficha completa de uma Distribuição específica
 /// (`distribuicaoId`) para a tela de detalhe.
@@ -32,8 +35,11 @@ class DistribuicaoDetalheCubit extends Cubit<DistribuicaoDetalheState> {
           DistribuicaoDetalhadaViewModel.fromEntity(distribuicao, produtoNome),
         ),
       );
-    } catch (e) {
-      emit(DistribuicaoDetalheError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(DistribuicaoDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('DistribuicaoDetalheCubit._carregar', e, stackTrace);
+      emit(DistribuicaoDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

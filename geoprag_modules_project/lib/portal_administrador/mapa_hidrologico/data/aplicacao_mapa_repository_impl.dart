@@ -1,6 +1,7 @@
 import '../../../src/entities/aplicacao.dart';
 import '../../../aplicador_app/applications/data/mock_aplicacoes.dart';
 import '../core/aplicacao_mapa_repository.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [AplicacaoMapaRepository] reaproveitando a fonte mockada
 /// já existente do módulo `aplicador_app/applications`
@@ -13,7 +14,7 @@ class AplicacaoMapaRepositoryImpl implements AplicacaoMapaRepository {
   Future<Aplicacao> buscarPorId(String id) async {
     return mockApplications.firstWhere(
       (aplicacao) => aplicacao.id == id,
-      orElse: () => throw StateError('Aplicação "$id" não encontrada.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Aplicação "$id" não encontrada.'),
     );
   }
 }

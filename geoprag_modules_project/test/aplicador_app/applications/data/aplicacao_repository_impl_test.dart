@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/applications/data/aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/aplicador_app/applications/data/mock_aplicacoes.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late AplicacaoRepositoryImpl repository;
@@ -16,10 +17,10 @@ void main() {
     expect(result.id, mockApplications.firstWhere((a) => a.aplicadorId == '1').id);
   });
 
-  test('buscarAtual lança StateError quando o aplicador não tem aplicação em mockApplications', () {
+  test('buscarAtual lança EntidadeNaoEncontradaException quando o aplicador não tem aplicação em mockApplications', () {
     expect(
       () => repository.buscarAtual('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 }

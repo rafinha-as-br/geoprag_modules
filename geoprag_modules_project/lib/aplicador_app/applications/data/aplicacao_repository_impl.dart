@@ -1,6 +1,7 @@
 import '../../../src/entities/aplicacao.dart';
 import '../core/aplicacao_repository.dart';
 import 'mock_aplicacoes.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [AplicacaoRepository] com fonte remota mockada
 /// (`mockApplications`).
@@ -12,7 +13,7 @@ class AplicacaoRepositoryImpl implements AplicacaoRepository {
   Future<Aplicacao> buscarAtual(String aplicadorId) async {
     return mockApplications.firstWhere(
       (aplicacao) => aplicacao.aplicadorId == aplicadorId,
-      orElse: () => throw StateError(
+      orElse: () => throw EntidadeNaoEncontradaException(
         'Nenhuma aplicação em andamento para o aplicador "$aplicadorId".',
       ),
     );

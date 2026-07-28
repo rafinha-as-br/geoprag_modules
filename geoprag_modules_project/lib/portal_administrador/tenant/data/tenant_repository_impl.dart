@@ -1,5 +1,6 @@
 import '../../../src/entities/tenant_config.dart';
 import 'mock_tenant_configs.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [TenantRepository] com fonte remota mockada
 /// (`mockAdminTenantConfigs`, ver TODO no arquivo) e cache local em memória.
@@ -13,7 +14,7 @@ class AdminTenantRepositoryImpl implements TenantRepository {
   Future<TenantConfig> fetchByTenantId(String tenantId) async {
     final config = mockAdminTenantConfigs[tenantId];
     if (config == null) {
-      throw StateError('Tenant "$tenantId" não encontrado.');
+      throw EntidadeNaoEncontradaException('Tenant "$tenantId" não encontrado.');
     }
     return config;
   }

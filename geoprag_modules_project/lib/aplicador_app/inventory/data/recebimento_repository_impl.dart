@@ -1,6 +1,7 @@
 import '../core/recebimento.dart';
 import '../core/recebimento_repository.dart';
 import 'mock_recebimentos.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [RecebimentoRepository] com fonte remota mockada
 /// (`mockRecebimentos`).
@@ -19,7 +20,7 @@ class RecebimentoRepositoryImpl implements RecebimentoRepository {
   Future<Recebimento> buscarPorId(String id) async {
     return mockRecebimentos.firstWhere(
       (recebimento) => recebimento.id == id,
-      orElse: () => throw StateError('Recebimento "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Recebimento "$id" não encontrado.'),
     );
   }
 
@@ -29,7 +30,7 @@ class RecebimentoRepositoryImpl implements RecebimentoRepository {
       (recebimento) => recebimento.id == id,
     );
     if (index == -1) {
-      throw StateError('Recebimento "$id" não encontrado.');
+      throw EntidadeNaoEncontradaException('Recebimento "$id" não encontrado.');
     }
     mockRecebimentos[index] = mockRecebimentos[index].copyWith(
       status: RecebimentoStatus.confirmado,

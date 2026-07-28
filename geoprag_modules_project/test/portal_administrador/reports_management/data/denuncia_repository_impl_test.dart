@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/data/denuncia_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/data/mock_denuncias.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late DenunciaRepositoryImpl repository;
@@ -19,10 +20,10 @@ void main() {
     expect(result.descricao, 'Muitos borrachudos na varanda');
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 

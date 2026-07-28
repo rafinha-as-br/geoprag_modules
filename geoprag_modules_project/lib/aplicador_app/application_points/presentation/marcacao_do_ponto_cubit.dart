@@ -4,6 +4,9 @@ import '../core/ponto_de_aplicacao.dart';
 import '../core/ponto_de_aplicacao_repository.dart';
 import 'marcacao_do_ponto_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Captura a localização GPS do dispositivo e permite salvar o novo ponto
 /// inicial do trecho, para a tela `MarcacaoDoPontoScreen`.
@@ -27,8 +30,11 @@ class MarcacaoDoPontoCubit extends Cubit<MarcacaoDoPontoState> {
       emit(
         MarcacaoDoPontoCapturado(CapturaLocalizacaoViewModel.fromEntity(ponto)),
       );
-    } catch (e) {
-      emit(MarcacaoDoPontoErro('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(MarcacaoDoPontoErro(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('MarcacaoDoPontoCubit._capturarLocalizacao', e, stackTrace);
+      emit(MarcacaoDoPontoErro(AppErrorMessages.carregamentoGenerico));
     }
   }
 
@@ -41,8 +47,11 @@ class MarcacaoDoPontoCubit extends Cubit<MarcacaoDoPontoState> {
     try {
       await _repository.marcarPontoInicial(ponto);
       emit(const MarcacaoDoPontoSalvo());
-    } catch (e) {
-      emit(MarcacaoDoPontoErro('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(MarcacaoDoPontoErro(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('MarcacaoDoPontoCubit.salvar', e, stackTrace);
+      emit(MarcacaoDoPontoErro(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

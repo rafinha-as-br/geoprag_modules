@@ -4,6 +4,7 @@ import '../core/auth_exceptions.dart';
 import '../core/auth_repository.dart';
 import '../core/usuario.dart';
 import 'auth_action_state.dart';
+import '../../../src/errors/app_logger.dart';
 
 class LoginCubit extends Cubit<AuthActionState<Usuario>> {
   LoginCubit(this._repository) : super(const AuthActionIdle());
@@ -23,7 +24,8 @@ class LoginCubit extends Cubit<AuthActionState<Usuario>> {
       emit(AuthActionSuccess(user));
     } on InvalidCredentialsException {
       emit(const AuthActionFailure('CPF/e-mail ou senha inválidos.'));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error('LoginCubit.submit', e, stackTrace);
       emit(const AuthActionFailure('Não foi possível entrar. Tente novamente.'));
     }
   }

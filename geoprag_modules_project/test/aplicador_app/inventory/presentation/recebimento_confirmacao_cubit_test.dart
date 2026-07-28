@@ -5,6 +5,7 @@ import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento_reposit
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/recebimento_confirmacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/recebimento_confirmacao_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockRecebimentoRepository extends Mock implements RecebimentoRepository {}
 
@@ -70,7 +71,7 @@ void main() {
       isA<RecebimentoConfirmacaoError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Não há recebimentos pendentes de confirmação.',
       ),
     ],
   );
@@ -108,5 +109,21 @@ void main() {
     verify: (_) {
       verifyNever(() => repository.confirmar(any()));
     },
+  );
+
+  blocTest<RecebimentoConfirmacaoCubit, RecebimentoConfirmacaoState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.listarPendentes()).thenThrow(Exception('offline'));
+    },
+    build: () => RecebimentoConfirmacaoCubit(repository),
+    expect: () => [
+      isA<RecebimentoConfirmacaoError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
+      ),
+    ],
   );
 }

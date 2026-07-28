@@ -7,6 +7,7 @@ import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento_reposit
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/inventario_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/inventario_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockInsumoRepository extends Mock implements InsumoRepository {}
 
@@ -69,7 +70,7 @@ void main() {
       isA<InventarioError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Nenhum insumo cadastrado no inventário.',
       ),
     ],
   );
@@ -83,6 +84,12 @@ void main() {
       ).thenAnswer((_) async => []);
     },
     build: () => InventarioCubit(insumoRepository, recebimentoRepository),
-    expect: () => [isA<InventarioError>()],
+    expect: () => [
+      isA<InventarioError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
+      ),
+    ],
   );
 }

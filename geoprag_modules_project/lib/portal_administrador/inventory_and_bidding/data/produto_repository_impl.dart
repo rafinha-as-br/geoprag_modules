@@ -5,6 +5,7 @@ import '../core/produto_repository.dart';
 import 'mock_formulas_dosagem.dart';
 import 'mock_movimentacoes_produto.dart';
 import 'mock_produtos.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [ProdutoRepository] com fonte remota mockada
 /// (`mockProdutos`/`mockMovimentacoesProduto`/`mockFormulasDosagem`).
@@ -19,7 +20,7 @@ class ProdutoRepositoryImpl implements ProdutoRepository {
   Future<Produto> buscarPorId(String id) async {
     return mockProdutos.firstWhere(
       (produto) => produto.id == id,
-      orElse: () => throw StateError('Produto "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Produto "$id" não encontrado.'),
     );
   }
 

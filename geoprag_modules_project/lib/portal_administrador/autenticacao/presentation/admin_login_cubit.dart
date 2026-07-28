@@ -4,6 +4,7 @@ import '../core/admin_account.dart';
 import '../core/admin_auth_exceptions.dart';
 import '../core/admin_auth_repository.dart';
 import 'auth_action_state.dart';
+import '../../../src/errors/app_logger.dart';
 
 class AdminLoginCubit extends Cubit<AuthActionState<AdminAccount>> {
   AdminLoginCubit(this._repository) : super(const AuthActionIdle());
@@ -23,7 +24,8 @@ class AdminLoginCubit extends Cubit<AuthActionState<AdminAccount>> {
       emit(AuthActionSuccess(account));
     } on InvalidCredentialsException {
       emit(const AuthActionFailure('Credenciais inválidas.'));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error('AdminLoginCubit.submit', e, stackTrace);
       emit(const AuthActionFailure('Não foi possível entrar. Tente novamente.'));
     }
   }

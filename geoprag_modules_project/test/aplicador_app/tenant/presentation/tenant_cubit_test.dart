@@ -5,6 +5,8 @@ import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_cubit.d
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_state.dart';
 import 'package:geoprag_modules/src/entities/tenant_config.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockTenantRepository extends Mock implements TenantRepository {}
 
@@ -89,7 +91,9 @@ void main() {
       when(() => repository.readCached()).thenAnswer((_) async => null);
       when(
         () => repository.fetchByTenantId('tenant-invalido'),
-      ).thenThrow(StateError('Tenant "tenant-invalido" não encontrado.'));
+      ).thenThrow(
+        const EntidadeNaoEncontradaException('Tenant "tenant-invalido" não encontrado.'),
+      );
     },
     build: () => TenantCubit(repository, downloader),
     act: (cubit) => cubit.load('tenant-invalido'),
@@ -97,7 +101,27 @@ void main() {
       isA<TenantError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Tenant "tenant-invalido" não encontrado.',
+      ),
+    ],
+  );
+
+  blocTest<TenantCubit, TenantState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.readCached()).thenAnswer((_) async => null);
+      when(
+        () => repository.fetchByTenantId('tenant-instavel'),
+      ).thenThrow(Exception('timeout'));
+    },
+    build: () => TenantCubit(repository, downloader),
+    act: (cubit) => cubit.load('tenant-instavel'),
+    expect: () => [
+      isA<TenantError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

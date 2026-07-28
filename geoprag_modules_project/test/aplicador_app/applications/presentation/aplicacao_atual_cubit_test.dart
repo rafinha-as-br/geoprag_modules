@@ -5,6 +5,8 @@ import 'package:geoprag_modules/aplicador_app/applications/core/aplicacao_reposi
 import 'package:geoprag_modules/aplicador_app/applications/presentation/aplicacao_atual_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/applications/presentation/aplicacao_atual_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockAplicacaoRepository extends Mock implements AplicacaoRepository {}
 
@@ -47,7 +49,9 @@ void main() {
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
       when(() => repository.buscarAtual('5')).thenThrow(
-        StateError('Nenhuma aplicação em andamento para o aplicador "5".'),
+        const EntidadeNaoEncontradaException(
+          'Nenhuma aplicação em andamento para o aplicador "5".',
+        ),
       );
     },
     build: () => AplicacaoAtualCubit(repository, '5'),
@@ -55,7 +59,23 @@ void main() {
       isA<AplicacaoAtualError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Nenhuma aplicação em andamento para o aplicador "5".',
+      ),
+    ],
+  );
+
+  blocTest<AplicacaoAtualCubit, AplicacaoAtualState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarAtual('9')).thenThrow(Exception('falha de rede'));
+    },
+    build: () => AplicacaoAtualCubit(repository, '9'),
+    expect: () => [
+      isA<AplicacaoAtualError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

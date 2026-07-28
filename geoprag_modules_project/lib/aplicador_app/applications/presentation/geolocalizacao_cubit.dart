@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/aplicacao_repository.dart';
 import 'aplicacao_view_model.dart';
 import 'geolocalizacao_state.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega o ponto da aplicação em andamento do aplicador (`aplicadorId`) e
 /// controla a validação de geofence (distância até o ponto) exibida na tela
@@ -31,8 +34,11 @@ class GeolocalizacaoCubit extends Cubit<GeolocalizacaoState> {
           aplicacao: AplicacaoAtualViewModel.fromEntity(aplicacao),
         ),
       );
-    } catch (e) {
-      emit(GeolocalizacaoError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(GeolocalizacaoError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('GeolocalizacaoCubit._carregar', e, stackTrace);
+      emit(GeolocalizacaoError(AppErrorMessages.carregamentoGenerico));
     }
   }
 

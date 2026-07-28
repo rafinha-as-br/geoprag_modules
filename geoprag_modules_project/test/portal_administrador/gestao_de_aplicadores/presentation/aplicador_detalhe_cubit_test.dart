@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicador_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockAplicadorRepository extends Mock implements AplicadorRepository {}
 
@@ -60,14 +62,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Aplicador "inexistente" não encontrado.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Aplicador "inexistente" não encontrado.'));
     },
     build: () => AplicadorDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<AplicadorDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Aplicador "inexistente" não encontrado.',
+      ),
+    ],
+  );
+
+  blocTest<AplicadorDetalheCubit, AplicadorDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => AplicadorDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<AplicadorDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

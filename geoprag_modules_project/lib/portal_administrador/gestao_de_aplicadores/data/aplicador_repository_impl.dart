@@ -3,6 +3,7 @@ import '../core/aplicador_repository.dart';
 import '../core/atuacao_aplicador.dart';
 import 'mock_aplicadores.dart';
 import 'mock_atuacoes_aplicador.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [AplicadorRepository] com fonte remota mockada
 /// (`mockApplicators`/`mockAtuacoesAplicador`).
@@ -17,7 +18,7 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
   Future<Aplicador> buscarPorId(String id) async {
     return mockApplicators.firstWhere(
       (aplicador) => aplicador.id == id,
-      orElse: () => throw StateError('Aplicador "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.'),
     );
   }
 

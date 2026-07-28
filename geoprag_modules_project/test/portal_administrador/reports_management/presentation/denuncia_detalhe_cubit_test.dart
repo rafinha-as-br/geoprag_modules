@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/reports_management/core/his
 import 'package:geoprag_modules/portal_administrador/reports_management/presentation/denuncia_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/presentation/denuncia_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockDenunciaRepository extends Mock implements DenunciaRepository {}
 
@@ -57,14 +59,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Denúncia "inexistente" não encontrada.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Denúncia "inexistente" não encontrada.'));
     },
     build: () => DenunciaDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<DenunciaDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Denúncia "inexistente" não encontrada.',
+      ),
+    ],
+  );
+
+  blocTest<DenunciaDetalheCubit, DenunciaDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => DenunciaDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<DenunciaDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

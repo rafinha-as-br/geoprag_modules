@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/data/mock_recebimentos.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/data/recebimento_repository_impl.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 // NOTA: `RecebimentoRepositoryImpl.confirmar` muta a lista `mockRecebimentos`
 // (estado global em memória, compartilhado entre instâncias do repositório).
@@ -36,10 +37,10 @@ void main() {
     expect(result.produtoNome, 'BTI Líquido');
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 
@@ -60,10 +61,10 @@ void main() {
     expect(depois.any((r) => r.id == 'r1'), isFalse);
   });
 
-  test('confirmar lança StateError quando o id não existe', () {
+  test('confirmar lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.confirmar('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 }

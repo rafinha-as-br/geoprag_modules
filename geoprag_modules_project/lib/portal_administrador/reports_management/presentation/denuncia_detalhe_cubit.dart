@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/denuncia_repository.dart';
 import 'denuncia_detalhe_state.dart';
 import 'denuncia_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega os dados completos e o histórico de auditoria de uma Denúncia
 /// específica (`denunciaId`) para a tela de análise/detalhe.
@@ -30,8 +33,11 @@ class DenunciaDetalheCubit extends Cubit<DenunciaDetalheState> {
           DenunciaDetalhadaViewModel.fromEntity(denuncia, historico),
         ),
       );
-    } catch (e) {
-      emit(DenunciaDetalheError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(DenunciaDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('DenunciaDetalheCubit._carregar', e, stackTrace);
+      emit(DenunciaDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/distribuicao_repository.dart';
 import 'distribuicao_view_model.dart';
 import 'distribuicoes_state.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega a listagem do histórico de saídas (distribuições) para o
 /// dashboard.
@@ -28,8 +31,11 @@ class DistribuicoesCubit extends Cubit<DistribuicoesState> {
         }),
       );
       emit(DistribuicoesLoaded(resumos));
-    } catch (e) {
-      emit(DistribuicoesError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(DistribuicoesError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('DistribuicoesCubit._carregar', e, stackTrace);
+      emit(DistribuicoesError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

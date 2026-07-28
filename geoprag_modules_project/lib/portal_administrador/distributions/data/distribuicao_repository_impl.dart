@@ -5,6 +5,7 @@ import '../core/responsavel_referencia_distribuicao.dart';
 import 'mock_distribuicoes.dart';
 import 'mock_produtos_referencia_distribuicao.dart';
 import 'mock_responsaveis_referencia_distribuicao.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [DistribuicaoRepository] com fonte remota mockada
 /// (`mockDistribuicoes`/`mockNomesProdutosDistribuicao`/
@@ -20,7 +21,7 @@ class DistribuicaoRepositoryImpl implements DistribuicaoRepository {
   Future<Distribuicao> buscarPorId(String id) async {
     return mockDistribuicoes.firstWhere(
       (distribuicao) => distribuicao.id == id,
-      orElse: () => throw StateError('Distribuição "$id" não encontrada.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Distribuição "$id" não encontrada.'),
     );
   }
 

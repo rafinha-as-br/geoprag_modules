@@ -5,6 +5,8 @@ import 'package:geoprag_modules/portal_administrador/distributions/core/distribu
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicao_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicao_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockDistribuicaoRepository extends Mock implements DistribuicaoRepository {}
 
@@ -53,14 +55,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Distribuição "inexistente" não encontrada.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Distribuição "inexistente" não encontrada.'));
     },
     build: () => DistribuicaoDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<DistribuicaoDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Distribuição "inexistente" não encontrada.',
+      ),
+    ],
+  );
+
+  blocTest<DistribuicaoDetalheCubit, DistribuicaoDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => DistribuicaoDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<DistribuicaoDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

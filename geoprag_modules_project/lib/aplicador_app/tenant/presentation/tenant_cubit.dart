@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/tenant_config.dart';
 import '../data/mbtiles_downloader.dart';
 import 'tenant_state.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega a configuração do tenant (prefeitura) atual e provisiona o
 /// download em background do pacote `.mbtiles` (via [MbtilesDownloader]),
@@ -26,8 +29,11 @@ class TenantCubit extends Cubit<TenantState> {
       }
       await _repository.cache(config);
       emit(TenantReady(config));
-    } catch (e) {
-      emit(TenantError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(TenantError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('TenantCubit.load', e, stackTrace);
+      emit(TenantError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

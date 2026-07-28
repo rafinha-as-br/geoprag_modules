@@ -2,6 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/entities/tenant_config.dart';
 import 'tenant_state.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega a configuração do tenant (prefeitura) atual: tenta o cache local
 /// primeiro (cold start offline) e depois busca/atualiza a partir do
@@ -21,8 +24,11 @@ class AdminTenantCubit extends Cubit<AdminTenantState> {
       final config = await _repository.fetchByTenantId(tenantId);
       await _repository.cache(config);
       emit(AdminTenantReady(config));
-    } catch (e) {
-      emit(AdminTenantError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(AdminTenantError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('AdminTenantCubit.load', e, stackTrace);
+      emit(AdminTenantError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

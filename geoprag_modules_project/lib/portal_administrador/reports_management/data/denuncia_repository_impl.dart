@@ -3,6 +3,7 @@ import '../core/denuncia_repository.dart';
 import '../core/historico_denuncia.dart';
 import 'mock_denuncias.dart';
 import 'mock_historico_denuncias.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [DenunciaRepository] com fonte remota mockada
 /// (`mockReports`/`mockHistoricoDenuncias`).
@@ -17,7 +18,7 @@ class DenunciaRepositoryImpl implements DenunciaRepository {
   Future<Denuncia> buscarPorId(String id) async {
     return mockReports.firstWhere(
       (denuncia) => denuncia.id == id,
-      orElse: () => throw StateError('Denúncia "$id" não encontrada.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Denúncia "$id" não encontrada.'),
     );
   }
 

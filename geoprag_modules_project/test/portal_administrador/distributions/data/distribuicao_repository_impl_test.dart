@@ -3,6 +3,7 @@ import 'package:geoprag_modules/portal_administrador/distributions/data/distribu
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_distribuicoes.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_produtos_referencia_distribuicao.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_responsaveis_referencia_distribuicao.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late DistribuicaoRepositoryImpl repository;
@@ -21,10 +22,10 @@ void main() {
     expect(result.id, 'd1');
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 

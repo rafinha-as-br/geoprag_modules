@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/applications/data/mock_aplicacoes.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/aplicacao_mapa_repository_impl.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late AplicacaoMapaRepositoryImpl repository;
@@ -18,10 +19,10 @@ void main() {
     expect(result.aplicadorId, esperado.aplicadorId);
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 }

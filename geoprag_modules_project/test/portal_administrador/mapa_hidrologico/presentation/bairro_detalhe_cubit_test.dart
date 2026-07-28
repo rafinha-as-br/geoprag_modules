@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/core/corre
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/bairro_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/bairro_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockCorregoRepository extends Mock implements CorregoRepository {}
 
@@ -55,14 +57,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarBairroPorId('inexistente'),
-      ).thenThrow(StateError('Bairro "inexistente" não encontrado.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Bairro "inexistente" não encontrado.'));
     },
     build: () => BairroDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<BairroDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Bairro "inexistente" não encontrado.',
+      ),
+    ],
+  );
+
+  blocTest<BairroDetalheCubit, BairroDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarBairroPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => BairroDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<BairroDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

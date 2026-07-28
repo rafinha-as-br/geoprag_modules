@@ -5,6 +5,8 @@ import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/core/corre
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/corrego_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/corrego_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockCorregoRepository extends Mock implements CorregoRepository {}
 
@@ -45,14 +47,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Córrego "inexistente" não encontrado.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Córrego "inexistente" não encontrado.'));
     },
     build: () => CorregoDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<CorregoDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Córrego "inexistente" não encontrado.',
+      ),
+    ],
+  );
+
+  blocTest<CorregoDetalheCubit, CorregoDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => CorregoDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<CorregoDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

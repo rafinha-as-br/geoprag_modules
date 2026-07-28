@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/data/mock_formulas_dosagem.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/data/mock_produtos.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/data/produto_repository_impl.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late ProdutoRepositoryImpl repository;
@@ -21,10 +22,10 @@ void main() {
     expect(result.lote, 'L-001');
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/corrego_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/mock_bairros.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/mock_corregos.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late CorregoRepositoryImpl repository;
@@ -20,10 +21,10 @@ void main() {
     expect(result.nome, 'Córrego Belchior');
   });
 
-  test('buscarPorId lança StateError quando o id não existe', () {
+  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 
@@ -37,10 +38,10 @@ void main() {
     expect(result.nome, 'Belchior');
   });
 
-  test('buscarBairroPorId lança StateError quando o id não existe', () {
+  test('buscarBairroPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
     expect(
       () => repository.buscarBairroPorId('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 
@@ -54,7 +55,7 @@ void main() {
   test('listarCorregosDoBairro propaga o erro se o bairro não existir', () {
     expect(
       () => repository.listarCorregosDoBairro('inexistente'),
-      throwsA(isA<StateError>()),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
 }

@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/produto_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/produto_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockProdutoRepository extends Mock implements ProdutoRepository {}
 
@@ -58,14 +60,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Produto "inexistente" não encontrado.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Produto "inexistente" não encontrado.'));
     },
     build: () => ProdutoDetalheCubit(repository, 'inexistente'),
     expect: () => [
       isA<ProdutoDetalheError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Produto "inexistente" não encontrado.',
+      ),
+    ],
+  );
+
+  blocTest<ProdutoDetalheCubit, ProdutoDetalheState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => ProdutoDetalheCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<ProdutoDetalheError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );

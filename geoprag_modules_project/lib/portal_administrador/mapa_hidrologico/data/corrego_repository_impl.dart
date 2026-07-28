@@ -3,6 +3,7 @@ import '../core/corrego.dart';
 import '../core/corrego_repository.dart';
 import 'mock_bairros.dart';
 import 'mock_corregos.dart';
+import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [CorregoRepository] com fonte remota mockada
 /// (`mockStreams`/`mockBairros`).
@@ -17,7 +18,7 @@ class CorregoRepositoryImpl implements CorregoRepository {
   Future<Corrego> buscarPorId(String id) async {
     return mockStreams.firstWhere(
       (corrego) => corrego.id == id,
-      orElse: () => throw StateError('Córrego "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Córrego "$id" não encontrado.'),
     );
   }
 
@@ -28,7 +29,7 @@ class CorregoRepositoryImpl implements CorregoRepository {
   Future<Bairro> buscarBairroPorId(String id) async {
     return mockBairros.firstWhere(
       (bairro) => bairro.id == id,
-      orElse: () => throw StateError('Bairro "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException('Bairro "$id" não encontrado.'),
     );
   }
 

@@ -4,6 +4,9 @@ import '../core/recebimento.dart';
 import '../core/recebimento_repository.dart';
 import 'recebimento_confirmacao_state.dart';
 import 'recebimento_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega o recebimento a ser confirmado em `ReceberProdutoScreen` e
 /// executa a confirmação de entrega.
@@ -30,7 +33,9 @@ class RecebimentoConfirmacaoCubit extends Cubit<RecebimentoConfirmacaoState> {
       } else {
         final pendentes = await _repository.listarPendentes();
         if (pendentes.isEmpty) {
-          throw StateError('Não há recebimentos pendentes de confirmação.');
+          throw const EntidadeNaoEncontradaException(
+            'Não há recebimentos pendentes de confirmação.',
+          );
         }
         recebimento = pendentes.first;
       }
@@ -39,8 +44,11 @@ class RecebimentoConfirmacaoCubit extends Cubit<RecebimentoConfirmacaoState> {
           RecebimentoDetalheViewModel.fromEntity(recebimento),
         ),
       );
-    } catch (e) {
-      emit(RecebimentoConfirmacaoError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(RecebimentoConfirmacaoError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('RecebimentoConfirmacaoCubit._carregar', e, stackTrace);
+      emit(RecebimentoConfirmacaoError(AppErrorMessages.carregamentoGenerico));
     }
   }
 

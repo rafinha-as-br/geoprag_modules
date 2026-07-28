@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/ponto_de_aplicacao_repository.dart';
 import 'ponto_de_aplicacao_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega o ponto de aplicação atualmente atribuído ao aplicador logado
 /// para a tela de visão geral (`VisualizacaoDoPontoScreen`).
@@ -22,8 +25,11 @@ class PontoDeAplicacaoCubit extends Cubit<PontoDeAplicacaoState> {
     try {
       final ponto = await _repository.buscarAtual();
       emit(PontoDeAplicacaoLoaded(PontoDeAplicacaoViewModel.fromEntity(ponto)));
-    } catch (e) {
-      emit(PontoDeAplicacaoError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(PontoDeAplicacaoError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('PontoDeAplicacaoCubit._carregar', e, stackTrace);
+      emit(PontoDeAplicacaoError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

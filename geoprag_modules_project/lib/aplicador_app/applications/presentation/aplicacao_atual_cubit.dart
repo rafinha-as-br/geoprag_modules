@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/aplicacao_repository.dart';
 import 'aplicacao_atual_state.dart';
 import 'aplicacao_view_model.dart';
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 
 /// Carrega a aplicação em andamento do aplicador (`aplicadorId`) para a tela
 /// de execução da aplicação.
@@ -27,8 +30,11 @@ class AplicacaoAtualCubit extends Cubit<AplicacaoAtualState> {
       emit(
         AplicacaoAtualLoaded(AplicacaoAtualViewModel.fromEntity(aplicacao)),
       );
-    } catch (e) {
-      emit(AplicacaoAtualError('Não foi possível carregar os dados. Tente novamente.'));
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(AplicacaoAtualError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('AplicacaoAtualCubit._carregar', e, stackTrace);
+      emit(AplicacaoAtualError(AppErrorMessages.carregamentoGenerico));
     }
   }
 }

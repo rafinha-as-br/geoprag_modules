@@ -5,6 +5,8 @@ import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/core/aplic
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/aplicacao_mapa_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/presentation/aplicacao_mapa_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 
 class MockAplicacaoMapaRepository extends Mock implements AplicacaoMapaRepository {}
 
@@ -45,14 +47,30 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(StateError('Aplicação "inexistente" não encontrada.'));
+      ).thenThrow(const EntidadeNaoEncontradaException('Aplicação "inexistente" não encontrada.'));
     },
     build: () => AplicacaoMapaCubit(repository, 'inexistente'),
     expect: () => [
       isA<AplicacaoMapaError>().having(
         (s) => s.message,
         'message',
-        isNot(contains('StateError')),
+        'Aplicação "inexistente" não encontrada.',
+      ),
+    ],
+  );
+
+  blocTest<AplicacaoMapaCubit, AplicacaoMapaState>(
+    'emite [Error] com mensagem genérica (e loga) quando a exceção é '
+    'inesperada, sem vazar detalhe técnico',
+    setUp: () {
+      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+    },
+    build: () => AplicacaoMapaCubit(repository, 'inexistente'),
+    expect: () => [
+      isA<AplicacaoMapaError>().having(
+        (s) => s.message,
+        'message',
+        AppErrorMessages.carregamentoGenerico,
       ),
     ],
   );
