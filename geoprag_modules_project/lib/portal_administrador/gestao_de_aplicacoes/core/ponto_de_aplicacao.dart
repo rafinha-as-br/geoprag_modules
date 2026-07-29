@@ -38,7 +38,7 @@ extension StatusPontoDeAplicacaoStyle on StatusPontoDeAplicacao {
 /// [ativo] é uma desativação lógica — um ponto nunca é deletado, apenas
 /// marcado como inativo. [aplicadorId] é nullable: um ponto pode existir
 /// sem aplicador atribuído (ex.: recém-criado).
-class PontoDeAplicacao {
+class AdminPontoDeAplicacao {
   final String id;
   final String bairro;
   final double lat;
@@ -49,7 +49,7 @@ class PontoDeAplicacao {
   final DateTime? dataAgendada;
   final DateTime? dataConcluida;
 
-  const PontoDeAplicacao({
+  const AdminPontoDeAplicacao({
     required this.id,
     required this.bairro,
     required this.lat,
@@ -61,14 +61,14 @@ class PontoDeAplicacao {
     this.dataConcluida,
   });
 
-  PontoDeAplicacao copyWith({
+  AdminPontoDeAplicacao copyWith({
     StatusPontoDeAplicacao? status,
     bool? ativo,
     String? Function()? aplicadorId,
     DateTime? Function()? dataAgendada,
     DateTime? Function()? dataConcluida,
   }) {
-    return PontoDeAplicacao(
+    return AdminPontoDeAplicacao(
       id: id,
       bairro: bairro,
       lat: lat,

@@ -1,7 +1,7 @@
 import '../core/ponto_de_aplicacao.dart';
 
-final List<PontoDeAplicacao> mockPontosDeAplicacao = [
-  PontoDeAplicacao(
+final List<AdminPontoDeAplicacao> mockPontosDeAplicacao = [
+  AdminPontoDeAplicacao(
     id: '1',
     bairro: 'Belchior',
     lat: -26.9910,
@@ -10,7 +10,7 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     aplicadorId: '1',
     dataConcluida: DateTime(2026, 7, 15),
   ),
-  PontoDeAplicacao(
+  AdminPontoDeAplicacao(
     id: '2',
     bairro: 'Poço Grande',
     lat: -26.9855,
@@ -19,7 +19,7 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     aplicadorId: '2',
     dataAgendada: DateTime(2026, 7, 25),
   ),
-  PontoDeAplicacao(
+  AdminPontoDeAplicacao(
     id: '3',
     bairro: 'Gasparinho',
     lat: -26.9790,
@@ -28,7 +28,7 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     aplicadorId: '3',
     dataAgendada: DateTime(2026, 7, 10),
   ),
-  PontoDeAplicacao(
+  AdminPontoDeAplicacao(
     id: '4',
     bairro: 'Santa Terezinha',
     lat: -26.9950,
@@ -36,7 +36,7 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     status: StatusPontoDeAplicacao.planejada,
     dataAgendada: DateTime(2026, 7, 28),
   ),
-  PontoDeAplicacao(
+  AdminPontoDeAplicacao(
     id: '5',
     bairro: 'Macucos',
     lat: -27.0020,
@@ -45,7 +45,7 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     aplicadorId: '5',
     dataConcluida: DateTime(2026, 7, 18),
   ),
-  PontoDeAplicacao(
+  AdminPontoDeAplicacao(
     id: '6',
     bairro: 'Belchior',
     lat: -26.9925,

@@ -10,6 +10,7 @@ class PontoDeAplicacaoDetalheViewModel {
   final double lng;
   final StatusPontoDeAplicacao status;
   final bool ativo;
+  final String? aplicadorId;
   final String? nomeDoAplicador;
   final DateTime? dataAgendada;
   final DateTime? dataConcluida;
@@ -23,6 +24,7 @@ class PontoDeAplicacaoDetalheViewModel {
     required this.lng,
     required this.status,
     required this.ativo,
+    this.aplicadorId,
     this.nomeDoAplicador,
     this.dataAgendada,
     this.dataConcluida,
@@ -31,7 +33,7 @@ class PontoDeAplicacaoDetalheViewModel {
   });
 
   factory PontoDeAplicacaoDetalheViewModel.fromEntity(
-    PontoDeAplicacao ponto, {
+    AdminPontoDeAplicacao ponto, {
     String? nomeDoAplicador,
   }) {
     return PontoDeAplicacaoDetalheViewModel(
@@ -41,6 +43,7 @@ class PontoDeAplicacaoDetalheViewModel {
       lng: ponto.lng,
       status: ponto.status,
       ativo: ponto.ativo,
+      aplicadorId: ponto.aplicadorId,
       nomeDoAplicador: nomeDoAplicador,
       dataAgendada: ponto.dataAgendada,
       dataConcluida: ponto.dataConcluida,

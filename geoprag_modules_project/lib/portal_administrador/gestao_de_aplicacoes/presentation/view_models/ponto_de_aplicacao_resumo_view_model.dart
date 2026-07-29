@@ -1,7 +1,7 @@
 import '../../core/ponto_de_aplicacao.dart';
 
 /// Dados de um ponto de aplicação para telas de listagem/mapa (dashboard e
-/// visualização de bairro) — a tela nunca recebe [PontoDeAplicacao] direto,
+/// visualização de bairro) — a tela nunca recebe [AdminPontoDeAplicacao] direto,
 /// só os campos que ela de fato usa para desenhar um pin ou uma linha.
 class PontoDeAplicacaoResumoViewModel {
   final String id;
@@ -20,7 +20,7 @@ class PontoDeAplicacaoResumoViewModel {
     required this.ativo,
   });
 
-  factory PontoDeAplicacaoResumoViewModel.fromEntity(PontoDeAplicacao ponto) {
+  factory PontoDeAplicacaoResumoViewModel.fromEntity(AdminPontoDeAplicacao ponto) {
     return PontoDeAplicacaoResumoViewModel(
       id: ponto.id,
       bairro: ponto.bairro,
