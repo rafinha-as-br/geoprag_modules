@@ -1,9 +1,0 @@
-export 'core/ponto_de_aplicacao.dart';
-export 'data/mock_pontos_de_aplicacao.dart';
-export 'presentation/view_models/ponto_de_aplicacao_resumo_view_model.dart';
-export 'presentation/view_models/ponto_de_aplicacao_detalhe_view_model.dart';
-export 'presentation/status_ponto_de_aplicacao_badge.dart';
-export 'presentation/pages/dashboard_de_aplicacoes_page.dart';
-export 'presentation/pages/visualizacao_bairro_page.dart';
-export 'presentation/visualizacao_de_ponto_de_aplicacao_screen.dart';
-export 'presentation/criacao_de_ponto_screen.dart';
