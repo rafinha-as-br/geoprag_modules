@@ -1,13 +1,13 @@
+import '../../../src/entities/usuario.dart';
+
 enum AdminRole { administrador, subAdministrador }
 
-class AdminAccount {
-  final String email;
-  final String nome;
+class AdminAccount extends Usuario {
   final AdminRole role;
 
   const AdminAccount({
-    required this.email,
-    required this.nome,
+    required super.email,
+    required super.nome,
     required this.role,
   });
 }
