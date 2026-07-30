@@ -7,7 +7,11 @@ class AdminAccount extends Usuario {
 
   const AdminAccount({
     required super.email,
+    required super.senha,
     required super.nome,
+    required super.cpf,
+    required super.dataNascimento,
+    required super.sexo,
     required this.role,
   });
 }

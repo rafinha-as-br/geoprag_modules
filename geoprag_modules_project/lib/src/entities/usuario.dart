@@ -1,23 +1,29 @@
 /// Usuário base do sistema GeoPrag, comum aos três perfis (Aplicador,
 /// Administrador e Sub-Administrador).
 ///
-/// Contém apenas os dados cadastrais confirmados como comuns aos três
-/// perfis na regra de negócio (ver "Regra de Negócio - Dados da Conta",
-/// filha de "Regra de Negócio - Regras de Conta"): `email` e `nome`.
-/// Demais campos levantados na regra (CPF, data de nascimento, sexo, CEP)
-/// são específicos por perfil ou ainda "a confirmar" — não entram aqui.
-///
-/// `senha` não é modelada como campo desta entidade: é tratada só como
-/// parâmetro de criação/autenticação nos repositories, nunca armazenada em
-/// um objeto de domínio (evita reter senha em objetos de sessão de vida
-/// longa, como `AdminAccount`).
+/// Contém os dados cadastrais obrigatórios para os três perfis, conforme
+/// "Regra de Negócio - Dados da Conta" (filha de "Regra de Negócio -
+/// Regras de Conta"): `email`, `senha` (sempre um hash, nunca texto puro),
+/// `nome`, `cpf`, `dataNascimento` e `sexo`. `CEP` não entra aqui — é
+/// obrigatório apenas para o Aplicador, não para os três perfis.
 ///
 /// Cada módulo estende esta entidade com seus campos específicos (ex.:
 /// `AdminAccount`, em `autenticacao/core/admin_account.dart`, adiciona
 /// `role`).
 abstract class Usuario {
   final String email;
+  final String senha;
   final String nome;
+  final String cpf;
+  final DateTime dataNascimento;
+  final String sexo;
 
-  const Usuario({required this.email, required this.nome});
+  const Usuario({
+    required this.email,
+    required this.senha,
+    required this.nome,
+    required this.cpf,
+    required this.dataNascimento,
+    required this.sexo,
+  });
 }

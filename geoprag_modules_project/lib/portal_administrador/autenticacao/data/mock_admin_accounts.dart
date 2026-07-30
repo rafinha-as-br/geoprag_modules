@@ -7,12 +7,20 @@ import '../core/admin_account.dart';
 final List<AdminAccount> mockAdminAccounts = [
   AdminAccount(
     email: 'admin@gaspar.sc.gov.br',
+    senha: mockAdminSenha,
     nome: 'Marcos Vieira',
+    cpf: '123.456.789-00',
+    dataNascimento: DateTime(1980, 5, 12),
+    sexo: 'Masculino',
     role: AdminRole.administrador,
   ),
   AdminAccount(
     email: 'celia.ramos@gaspar.sc.gov.br',
+    senha: mockAdminSenha,
     nome: 'Célia Ramos',
+    cpf: '987.654.321-00',
+    dataNascimento: DateTime(1990, 3, 20),
+    sexo: 'Feminino',
     role: AdminRole.subAdministrador,
   ),
 ];
