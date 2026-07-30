@@ -19,9 +19,12 @@ void main() {
     'quando a conta existe, emite [Loading, Success(role)] com o papel da conta',
     setUp: () {
       when(() => repository.findByEmail('celia.ramos@gaspar.sc.gov.br')).thenAnswer(
-        (_) async => const AdminAccount(
+        (_) async => AdminAccount(
           email: 'celia.ramos@gaspar.sc.gov.br',
           nome: 'Célia Ramos',
+          cpf: '987.654.321-00',
+          dataNascimento: DateTime(1990, 3, 20),
+          sexo: 'Feminino',
           role: AdminRole.subAdministrador,
         ),
       );
