@@ -21,7 +21,6 @@ void main() {
       when(() => repository.findByEmail('celia.ramos@gaspar.sc.gov.br')).thenAnswer(
         (_) async => AdminAccount(
           email: 'celia.ramos@gaspar.sc.gov.br',
-          senha: '123456',
           nome: 'Célia Ramos',
           cpf: '987.654.321-00',
           dataNascimento: DateTime(1990, 3, 20),

@@ -14,7 +14,6 @@ void main() {
 
   final account = AdminAccount(
     email: 'admin@gaspar.sc.gov.br',
-    senha: '123456',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1980, 5, 12),
