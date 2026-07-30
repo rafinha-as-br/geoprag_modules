@@ -2,10 +2,10 @@
 /// Administrador e Sub-Administrador).
 ///
 /// Contém apenas os dados cadastrais confirmados como comuns aos três
-/// perfis na regra de negócio (ver "Regra de Negócio - Dados Cadastrais de
-/// Usuários"): `email` e `nome`. Demais campos levantados na regra (CPF,
-/// data de nascimento, sexo, CEP) são específicos por perfil ou ainda "a
-/// confirmar" — não entram aqui.
+/// perfis na regra de negócio (ver "Regra de Negócio - Dados da Conta",
+/// filha de "Regra de Negócio - Regras de Conta"): `email` e `nome`.
+/// Demais campos levantados na regra (CPF, data de nascimento, sexo, CEP)
+/// são específicos por perfil ou ainda "a confirmar" — não entram aqui.
 ///
 /// `senha` não é modelada como campo desta entidade: é tratada só como
 /// parâmetro de criação/autenticação nos repositories, nunca armazenada em
