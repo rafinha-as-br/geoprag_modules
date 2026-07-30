@@ -14,10 +14,22 @@ class CriarAdministradorCubit extends Cubit<CriarAdministradorState> {
 
   final AdministradorRepository _repository;
 
-  Future<void> submit({required String email, required String nome}) async {
+  Future<void> submit({
+    required String email,
+    required String nome,
+    required String cpf,
+    required DateTime dataNascimento,
+    required String sexo,
+  }) async {
     emit(const CriarAdministradorSalvando());
     try {
-      final conta = await _repository.criar(email: email, nome: nome);
+      final conta = await _repository.criar(
+        email: email,
+        nome: nome,
+        cpf: cpf,
+        dataNascimento: dataNascimento,
+        sexo: sexo,
+      );
       emit(CriarAdministradorSucesso(conta));
     } on EntidadeDuplicadaException catch (e) {
       emit(CriarAdministradorErro(e.mensagemAmigavel));

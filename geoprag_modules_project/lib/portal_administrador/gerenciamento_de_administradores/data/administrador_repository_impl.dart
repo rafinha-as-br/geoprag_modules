@@ -14,6 +14,9 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
   Future<AdminAccount> criar({
     required String email,
     required String nome,
+    required String cpf,
+    required DateTime dataNascimento,
+    required String sexo,
   }) async {
     final jaExiste = mockAdminAccounts.any((conta) => conta.email == email);
     if (jaExiste) {
@@ -25,6 +28,9 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     final conta = AdminAccount(
       email: email,
       nome: nome,
+      cpf: cpf,
+      dataNascimento: dataNascimento,
+      sexo: sexo,
       role: AdminRole.subAdministrador,
     );
     mockAdminAccounts.add(conta);

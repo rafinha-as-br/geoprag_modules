@@ -18,22 +18,38 @@ void main() {
     repository = MockAdministradorRepository();
   });
 
+  final dataNascimento = DateTime(1990, 1, 1);
+
   blocTest<CriarAdministradorCubit, CriarAdministradorState>(
     'emite [Salvando, Sucesso] quando o repositório cria a conta',
     setUp: () {
       when(
-        () => repository.criar(email: 'nova@gaspar.sc.gov.br', nome: 'Nova Conta'),
-      ).thenAnswer(
-        (_) async => const AdminAccount(
+        () => repository.criar(
           email: 'nova@gaspar.sc.gov.br',
           nome: 'Nova Conta',
+          cpf: '123.456.789-00',
+          dataNascimento: dataNascimento,
+          sexo: 'Feminino',
+        ),
+      ).thenAnswer(
+        (_) async => AdminAccount(
+          email: 'nova@gaspar.sc.gov.br',
+          nome: 'Nova Conta',
+          cpf: '123.456.789-00',
+          dataNascimento: dataNascimento,
+          sexo: 'Feminino',
           role: AdminRole.subAdministrador,
         ),
       );
     },
     build: () => CriarAdministradorCubit(repository),
-    act: (cubit) =>
-        cubit.submit(email: 'nova@gaspar.sc.gov.br', nome: 'Nova Conta'),
+    act: (cubit) => cubit.submit(
+      email: 'nova@gaspar.sc.gov.br',
+      nome: 'Nova Conta',
+      cpf: '123.456.789-00',
+      dataNascimento: dataNascimento,
+      sexo: 'Feminino',
+    ),
     expect: () => [
       isA<CriarAdministradorSalvando>(),
       isA<CriarAdministradorSucesso>().having(
@@ -48,7 +64,13 @@ void main() {
     'emite [Salvando, Erro] com a mensagem amigável quando o e-mail já existe',
     setUp: () {
       when(
-        () => repository.criar(email: 'duplicado@gaspar.sc.gov.br', nome: 'X'),
+        () => repository.criar(
+          email: 'duplicado@gaspar.sc.gov.br',
+          nome: 'X',
+          cpf: '123.456.789-00',
+          dataNascimento: dataNascimento,
+          sexo: 'Feminino',
+        ),
       ).thenThrow(
         const EntidadeDuplicadaException(
           'Já existe um administrador cadastrado com o e-mail "duplicado@gaspar.sc.gov.br".',
@@ -56,8 +78,13 @@ void main() {
       );
     },
     build: () => CriarAdministradorCubit(repository),
-    act: (cubit) =>
-        cubit.submit(email: 'duplicado@gaspar.sc.gov.br', nome: 'X'),
+    act: (cubit) => cubit.submit(
+      email: 'duplicado@gaspar.sc.gov.br',
+      nome: 'X',
+      cpf: '123.456.789-00',
+      dataNascimento: dataNascimento,
+      sexo: 'Feminino',
+    ),
     expect: () => [
       isA<CriarAdministradorSalvando>(),
       isA<CriarAdministradorErro>().having(
@@ -73,11 +100,23 @@ void main() {
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
       when(
-        () => repository.criar(email: 'instavel@gaspar.sc.gov.br', nome: 'Y'),
+        () => repository.criar(
+          email: 'instavel@gaspar.sc.gov.br',
+          nome: 'Y',
+          cpf: '123.456.789-00',
+          dataNascimento: dataNascimento,
+          sexo: 'Feminino',
+        ),
       ).thenThrow(Exception('timeout'));
     },
     build: () => CriarAdministradorCubit(repository),
-    act: (cubit) => cubit.submit(email: 'instavel@gaspar.sc.gov.br', nome: 'Y'),
+    act: (cubit) => cubit.submit(
+      email: 'instavel@gaspar.sc.gov.br',
+      nome: 'Y',
+      cpf: '123.456.789-00',
+      dataNascimento: dataNascimento,
+      sexo: 'Feminino',
+    ),
     expect: () => [
       isA<CriarAdministradorSalvando>(),
       isA<CriarAdministradorErro>().having(

@@ -10,5 +10,11 @@ import '../../autenticacao/core/admin_account.dart';
 /// cargo Administrador) é responsabilidade do backend — não há repositório
 /// `geoprag_api` conectado nesta sessão de trabalho para implementar aqui.
 abstract class AdministradorRepository {
-  Future<AdminAccount> criar({required String email, required String nome});
+  Future<AdminAccount> criar({
+    required String email,
+    required String nome,
+    required String cpf,
+    required DateTime dataNascimento,
+    required String sexo,
+  });
 }

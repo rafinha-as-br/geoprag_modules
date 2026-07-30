@@ -19,6 +19,9 @@ void main() {
     final conta = await repository.criar(
       email: 'nova@gaspar.sc.gov.br',
       nome: 'Nova Conta',
+      cpf: '123.456.789-00',
+      dataNascimento: DateTime(1990, 1, 1),
+      sexo: 'Feminino',
     );
 
     expect(conta.role, AdminRole.subAdministrador);
@@ -29,7 +32,13 @@ void main() {
     final emailExistente = mockAdminAccounts.first.email;
 
     expect(
-      () => repository.criar(email: emailExistente, nome: 'Outro Nome'),
+      () => repository.criar(
+        email: emailExistente,
+        nome: 'Outro Nome',
+        cpf: '123.456.789-00',
+        dataNascimento: DateTime(1990, 1, 1),
+        sexo: 'Feminino',
+      ),
       throwsA(isA<EntidadeDuplicadaException>()),
     );
   });

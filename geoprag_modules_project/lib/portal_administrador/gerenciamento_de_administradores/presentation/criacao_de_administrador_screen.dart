@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_administrador_cubit.dart';
 import 'criar_administrador_state.dart';
+
+/// Formata uma data como `dd/MM/yyyy` (sem dependência de `intl`, seguindo o
+/// padrão já usado neste pacote para formatação manual).
+String _formatarData(DateTime data) {
+  final dia = data.day.toString().padLeft(2, '0');
+  final mes = data.month.toString().padLeft(2, '0');
+  return '$dia/$mes/${data.year}';
+}
 
 /// Formulário de criação de novo administrador (GEOPRAG-36). Acesso restrito
 /// a quem tem cargo Administrador — o guard é aplicado no `redirect` do
@@ -24,12 +33,30 @@ class _CriacaoDeAdministradorScreenState
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _sexoController = TextEditingController();
+  DateTime? _dataNascimento;
 
   @override
   void dispose() {
     _nomeController.dispose();
     _emailController.dispose();
+    _cpfController.dispose();
+    _sexoController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selecionarDataNascimento() async {
+    final agora = DateTime.now();
+    final data = await showDatePicker(
+      context: context,
+      initialDate: _dataNascimento ?? DateTime(agora.year - 18),
+      firstDate: DateTime(1900),
+      lastDate: agora,
+    );
+    if (data != null) {
+      setState(() => _dataNascimento = data);
+    }
   }
 
   @override
@@ -105,6 +132,60 @@ class _CriacaoDeAdministradorScreenState
                               ? 'Informe o e-mail institucional.'
                               : null,
                         ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _cpfController,
+                          decoration: const InputDecoration(
+                            labelText: 'CPF',
+                            hintText: '000.000.000-00',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            _CpfInputFormatter(),
+                          ],
+                          validator: (value) =>
+                              (value == null || value.length != 14)
+                              ? 'Informe um CPF válido.'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        FormField<DateTime>(
+                          initialValue: _dataNascimento,
+                          validator: (_) => _dataNascimento == null
+                              ? 'Informe a data de nascimento.'
+                              : null,
+                          builder: (field) => InkWell(
+                            onTap: () async {
+                              await _selecionarDataNascimento();
+                              field.didChange(_dataNascimento);
+                            },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Data de nascimento',
+                                border: const OutlineInputBorder(),
+                                errorText: field.errorText,
+                              ),
+                              child: Text(
+                                _dataNascimento == null
+                                    ? 'Selecione a data'
+                                    : _formatarData(_dataNascimento!),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _sexoController,
+                          decoration: const InputDecoration(
+                            labelText: 'Sexo',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe o sexo.'
+                              : null,
+                        ),
                         const SizedBox(height: 32),
                         ElevatedButton(
                           onPressed: salvando
@@ -116,6 +197,9 @@ class _CriacaoDeAdministradorScreenState
                                   context.read<CriarAdministradorCubit>().submit(
                                     email: _emailController.text,
                                     nome: _nomeController.text,
+                                    cpf: _cpfController.text,
+                                    dataNascimento: _dataNascimento!,
+                                    sexo: _sexoController.text,
                                   );
                                 },
                           style: ElevatedButton.styleFrom(
@@ -140,6 +224,29 @@ class _CriacaoDeAdministradorScreenState
           );
         },
       ),
+    );
+  }
+}
+
+class _CpfInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.substring(
+      0,
+      newValue.text.length.clamp(0, 11),
+    );
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      buffer.write(digits[i]);
+      if (i == 2 || i == 5) buffer.write('.');
+      if (i == 8) buffer.write('-');
+    }
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
     );
   }
 }
