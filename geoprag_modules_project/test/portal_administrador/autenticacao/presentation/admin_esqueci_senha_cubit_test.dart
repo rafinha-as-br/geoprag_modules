@@ -18,13 +18,16 @@ void main() {
   blocTest<AdminEsqueciSenhaCubit, AuthActionState<AdminRole>>(
     'quando a conta existe, emite [Loading, Success(role)] com o papel da conta',
     setUp: () {
-      when(() => repository.findByEmail('celia.ramos@gaspar.sc.gov.br')).thenAnswer(
+      when(
+        () => repository.findByEmail('celia.ramos@gaspar.sc.gov.br'),
+      ).thenAnswer(
         (_) async => AdminAccount(
           email: 'celia.ramos@gaspar.sc.gov.br',
           nome: 'Célia Ramos',
           cpf: '987.654.321-00',
           dataNascimento: DateTime(1990, 3, 20),
           sexo: 'Feminino',
+          dataCriacao: DateTime(2026, 1, 1),
           role: AdminRole.subAdministrador,
         ),
       );
@@ -56,9 +59,7 @@ void main() {
     'emite [Loading, Failure] com mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(
-        () => repository.findByEmail(any()),
-      ).thenThrow(Exception('offline'));
+      when(() => repository.findByEmail(any())).thenThrow(Exception('offline'));
     },
     build: () => AdminEsqueciSenhaCubit(repository),
     act: (cubit) => cubit.submit(email: 'admin@gaspar.sc.gov.br'),

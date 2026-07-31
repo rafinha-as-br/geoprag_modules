@@ -28,7 +28,9 @@ void main() {
       const AuthActionSuccess<Null>(null),
     ],
     verify: (_) {
-      verify(() => repository.resetPassword(novaSenha: 'nova-senha-123')).called(1);
+      verify(
+        () => repository.resetPassword(novaSenha: 'nova-senha-123'),
+      ).called(1);
     },
   );
 

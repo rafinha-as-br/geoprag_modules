@@ -11,6 +11,7 @@ void main() {
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1980, 5, 12),
     sexo: 'Masculino',
+    dataCriacao: DateTime(2026, 1, 1),
     role: AdminRole.administrador,
   );
 

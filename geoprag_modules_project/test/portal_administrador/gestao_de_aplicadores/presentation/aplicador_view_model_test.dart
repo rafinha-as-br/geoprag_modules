@@ -2,15 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/atuacao_aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicador_view_model.dart';
+import 'package:geoprag_modules/src/entities/usuario.dart';
 
 void main() {
   final aplicador = Aplicador(
     id: '1',
     nome: 'João Silva',
     bairro: 'Belchior',
-    status: 'ativo',
-    dataCadastro: DateTime(2026, 5, 10),
+    status: UsuarioStatus.ativo,
+    dataCriacao: DateTime(2026, 5, 10),
+    email: 'joao.silva@email.com',
     cpf: '111.111.111-11',
+    dataNascimento: DateTime(1988, 4, 12),
+    sexo: 'Masculino',
     telefone: '(47) 99111-1111',
     endereco: 'Rua das Flores, 50 - Belchior',
   );
@@ -29,7 +33,7 @@ void main() {
       expect(viewModel.id, '1');
       expect(viewModel.nome, 'João Silva');
       expect(viewModel.bairro, 'Belchior');
-      expect(viewModel.status, 'ativo');
+      expect(viewModel.status, UsuarioStatus.ativo);
     });
   });
 
@@ -46,13 +50,15 @@ void main() {
 
   group('AplicadorDetalhadoViewModel.fromEntity', () {
     test('mapeia o perfil e o histórico de atuações', () {
-      final viewModel = AplicadorDetalhadoViewModel.fromEntity(aplicador, [atuacao]);
+      final viewModel = AplicadorDetalhadoViewModel.fromEntity(aplicador, [
+        atuacao,
+      ]);
 
       expect(viewModel.nome, 'João Silva');
       expect(viewModel.cpf, '111.111.111-11');
       expect(viewModel.telefone, '(47) 99111-1111');
       expect(viewModel.endereco, 'Rua das Flores, 50 - Belchior');
-      expect(viewModel.status, 'ativo');
+      expect(viewModel.status, UsuarioStatus.ativo);
       expect(viewModel.historico, hasLength(1));
       expect(viewModel.historico.first.titulo, 'Aplicação Concluída');
     });

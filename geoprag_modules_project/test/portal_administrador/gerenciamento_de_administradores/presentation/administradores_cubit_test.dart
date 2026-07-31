@@ -20,6 +20,7 @@ void main() {
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1980, 5, 12),
     sexo: 'Masculino',
+    dataCriacao: DateTime(2026, 1, 1),
     role: AdminRole.administrador,
   );
   final contaSub = AdminAccount(
@@ -28,6 +29,7 @@ void main() {
     cpf: '987.654.321-00',
     dataNascimento: DateTime(1990, 3, 20),
     sexo: 'Feminino',
+    dataCriacao: DateTime(2026, 1, 1),
     role: AdminRole.subAdministrador,
   );
 
@@ -38,9 +40,9 @@ void main() {
   blocTest<AdministradoresCubit, AdministradoresState>(
     'carrega a listagem no estado inicial',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
     },
     build: () => AdministradoresCubit(repository),
     expect: () => [
@@ -55,9 +57,9 @@ void main() {
   blocTest<AdministradoresCubit, AdministradoresState>(
     'desativar recarrega a lista com aviso de sucesso',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
       when(
         () => repository.desativar(
           email: contaSub.email,
@@ -66,10 +68,8 @@ void main() {
       ).thenAnswer((_) async {});
     },
     build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.desativar(
-      email: contaSub.email,
-      executorEmail: contaAdmin.email,
-    ),
+    act: (cubit) =>
+        cubit.desativar(email: contaSub.email, executorEmail: contaAdmin.email),
     skip: 1,
     expect: () => [
       isA<AdministradoresLoaded>().having(
@@ -81,11 +81,37 @@ void main() {
   );
 
   blocTest<AdministradoresCubit, AdministradoresState>(
+    'reativar recarrega a lista com aviso de sucesso',
+    setUp: () {
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+      when(
+        () => repository.reativar(
+          email: contaSub.email,
+          executorEmail: contaAdmin.email,
+        ),
+      ).thenAnswer((_) async {});
+    },
+    build: () => AdministradoresCubit(repository),
+    act: (cubit) =>
+        cubit.reativar(email: contaSub.email, executorEmail: contaAdmin.email),
+    skip: 1,
+    expect: () => [
+      isA<AdministradoresLoaded>().having(
+        (s) => s.avisoAcao,
+        'avisoAcao',
+        contains('reativado'),
+      ),
+    ],
+  );
+
+  blocTest<AdministradoresCubit, AdministradoresState>(
     'rebaixar recarrega a lista com aviso de sucesso',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
       when(
         () => repository.rebaixar(
           email: contaAdmin.email,
@@ -111,9 +137,9 @@ void main() {
   blocTest<AdministradoresCubit, AdministradoresState>(
     'rebaixar mostra a mensagem amigável quando o repositório recusa a operação',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
       when(
         () => repository.rebaixar(
           email: contaAdmin.email,
@@ -143,9 +169,9 @@ void main() {
   blocTest<AdministradoresCubit, AdministradoresState>(
     'solicitarPromocao mostra a mensagem amigável quando o repositório recusa a operação',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
       when(
         () => repository.solicitarPromocao(
           solicitanteEmail: contaAdmin.email,
@@ -175,9 +201,9 @@ void main() {
   blocTest<AdministradoresCubit, AdministradoresState>(
     'solicitarPromocao mostra aviso de promoção automática quando não há votação',
     setUp: () {
-      when(() => repository.listar()).thenAnswer(
-        (_) async => [contaAdmin, contaSub],
-      );
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
       when(
         () => repository.solicitarPromocao(
           solicitanteEmail: contaAdmin.email,

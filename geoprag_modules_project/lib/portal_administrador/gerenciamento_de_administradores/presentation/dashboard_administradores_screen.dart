@@ -8,6 +8,7 @@ import '../../autenticacao/core/admin_account.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../autenticacao/presentation/admin_session_cubit.dart';
 import '../../autenticacao/presentation/admin_session_state.dart';
+import 'administrador_detalhe_dialog.dart';
 import 'administrador_view_model.dart';
 import 'administradores_cubit.dart';
 import 'administradores_state.dart';
@@ -175,7 +176,6 @@ class _DashboardAdministradoresScreenState
         1: FlexColumnWidth(2),
         2: FlexColumnWidth(1),
         3: FlexColumnWidth(1),
-        4: FlexColumnWidth(1),
       },
       children: [
         TableRow(
@@ -209,13 +209,6 @@ class _DashboardAdministradoresScreenState
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text(
-                'Ações',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
           ],
         ),
         for (final administrador in administradores)
@@ -229,23 +222,26 @@ class _DashboardAdministradoresScreenState
     AdministradorViewModel administrador,
     AdminAccount? contaAtual,
   ) {
+    void abrirDetalhes() {
+      showAdministradorDetalheDialog(
+        context,
+        administrador: administrador,
+        contaAtual: contaAtual,
+      );
+    }
+
+    Widget celula(Widget child) => TableRowInkWell(
+      onTap: abrirDetalhes,
+      child: Padding(padding: const EdgeInsets.all(12), child: child),
+    );
+
     return TableRow(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(administrador.nome),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(administrador.email),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(administrador.cargoLabel),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(
+        celula(Text(administrador.nome)),
+        celula(Text(administrador.email)),
+        celula(Text(administrador.cargoLabel)),
+        celula(
+          GeopragStatusBadge(
             status: administrador.ativo
                 ? GeopragStatus.emDia
                 : GeopragStatus.atrasado,
@@ -253,156 +249,8 @@ class _DashboardAdministradoresScreenState
             dense: true,
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!administrador.isAdministrador && administrador.ativo)
-                IconButton(
-                  icon: const Icon(Icons.arrow_upward, color: Colors.green),
-                  tooltip: 'Promover a Administrador',
-                  onPressed: contaAtual == null
-                      ? null
-                      : () => _confirmarPromocao(
-                          context,
-                          administrador,
-                          contaAtual,
-                        ),
-                ),
-              if (administrador.isAdministrador &&
-                  administrador.ativo &&
-                  contaAtual?.email != administrador.email)
-                IconButton(
-                  icon: const Icon(Icons.arrow_downward, color: Colors.orange),
-                  tooltip: 'Rebaixar a Sub-Administrador',
-                  onPressed: contaAtual == null
-                      ? null
-                      : () => _confirmarRebaixamento(
-                          context,
-                          administrador,
-                          contaAtual,
-                        ),
-                ),
-              if (administrador.ativo)
-                IconButton(
-                  icon: const Icon(Icons.block, color: Colors.red),
-                  tooltip: 'Desativar',
-                  onPressed: contaAtual == null
-                      ? null
-                      : () => _confirmarDesativacao(
-                          context,
-                          administrador,
-                          contaAtual,
-                        ),
-                ),
-            ],
-          ),
-        ),
       ],
     );
-  }
-
-  Future<void> _confirmarDesativacao(
-    BuildContext context,
-    AdministradorViewModel administrador,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Desativar cadastro'),
-        content: Text(
-          'Tem certeza que deseja desativar o cadastro de "${administrador.nome}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Desativar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.desativar(
-        email: administrador.email,
-        executorEmail: contaAtual.email,
-      );
-    }
-  }
-
-  Future<void> _confirmarRebaixamento(
-    BuildContext context,
-    AdministradorViewModel administrador,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Rebaixar administrador'),
-        content: Text(
-          'Tem certeza que deseja rebaixar "${administrador.nome}" a '
-          'Sub-Administrador? A ação é imediata e não passa por votação.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Rebaixar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.rebaixar(
-        email: administrador.email,
-        executorEmail: contaAtual.email,
-      );
-    }
-  }
-
-  Future<void> _confirmarPromocao(
-    BuildContext context,
-    AdministradorViewModel administrador,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Solicitar promoção'),
-        content: Text(
-          'Abrir uma votação para promover "${administrador.nome}" a '
-          'Administrador? A promoção exige aprovação de 2/3 dos demais '
-          'Administradores.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Solicitar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.solicitarPromocao(
-        solicitanteEmail: contaAtual.email,
-        subAdministradorEmail: administrador.email,
-      );
-    }
   }
 }
 

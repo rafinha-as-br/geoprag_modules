@@ -5,6 +5,7 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicadores_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicadores_state.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:geoprag_modules/src/entities/usuario.dart';
 
 class MockAplicadorRepository extends Mock implements AplicadorRepository {}
 
@@ -15,9 +16,12 @@ void main() {
     id: '1',
     nome: 'João Silva',
     bairro: 'Belchior',
-    status: 'ativo',
-    dataCadastro: DateTime(2026, 5, 10),
+    status: UsuarioStatus.ativo,
+    dataCriacao: DateTime(2026, 5, 10),
+    email: 'joao.silva@email.com',
     cpf: '111.111.111-11',
+    dataNascimento: DateTime(1988, 4, 12),
+    sexo: 'Masculino',
     telefone: '(47) 99111-1111',
     endereco: 'Rua das Flores, 50 - Belchior',
   );

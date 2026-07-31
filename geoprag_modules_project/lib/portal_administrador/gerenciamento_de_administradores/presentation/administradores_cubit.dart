@@ -50,6 +50,23 @@ class AdministradoresCubit extends Cubit<AdministradoresState> {
     }
   }
 
+  Future<void> reativar({
+    required String email,
+    required String executorEmail,
+  }) async {
+    try {
+      await _repository.reativar(email: email, executorEmail: executorEmail);
+      await _carregar(avisoAcao: 'Cadastro reativado com sucesso.');
+    } on EntidadeNaoEncontradaException catch (e) {
+      await _carregar(avisoAcao: e.mensagemAmigavel);
+    } on OperacaoNaoPermitidaException catch (e) {
+      await _carregar(avisoAcao: e.mensagemAmigavel);
+    } catch (e, stackTrace) {
+      AppLogger.error('AdministradoresCubit.reativar', e, stackTrace);
+      await _carregar(avisoAcao: AppErrorMessages.carregamentoGenerico);
+    }
+  }
+
   Future<void> rebaixar({
     required String email,
     required String executorEmail,

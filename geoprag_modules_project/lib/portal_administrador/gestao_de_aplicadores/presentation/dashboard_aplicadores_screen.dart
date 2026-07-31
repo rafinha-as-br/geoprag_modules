@@ -142,7 +142,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
     BuildContext context,
     AplicadorResumoViewModel aplicador,
   ) {
-    final isAtivo = aplicador.status == 'ativo';
+    final isAtivo = aplicador.ativo;
     return TableRow(
       children: [
         Padding(padding: const EdgeInsets.all(12), child: Text(aplicador.nome)),

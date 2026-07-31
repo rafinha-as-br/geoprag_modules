@@ -25,6 +25,7 @@ void main() {
       cpf: '123.456.789-00',
       dataNascimento: DateTime(1980, 5, 12),
       sexo: 'Masculino',
+      dataCriacao: DateTime(2026, 1, 1),
       role: AdminRole.administrador,
     ),
     AdminAccount(
@@ -33,6 +34,7 @@ void main() {
       cpf: '111.111.111-11',
       dataNascimento: DateTime(1980, 5, 12),
       sexo: 'Masculino',
+      dataCriacao: DateTime(2026, 1, 1),
       role: AdminRole.administrador,
     ),
     AdminAccount(
@@ -41,6 +43,7 @@ void main() {
       cpf: '987.654.321-00',
       dataNascimento: DateTime(1990, 3, 20),
       sexo: 'Feminino',
+      dataCriacao: DateTime(2026, 1, 1),
       role: AdminRole.subAdministrador,
     ),
   ];

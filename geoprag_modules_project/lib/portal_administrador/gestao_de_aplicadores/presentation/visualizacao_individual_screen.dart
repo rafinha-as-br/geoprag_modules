@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/entities/usuario.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../core/atuacao_aplicador.dart';
@@ -125,18 +126,18 @@ class _AplicadorDetalheContent extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
+                      DropdownButtonFormField<UsuarioStatus>(
                         initialValue: aplicador.status,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         ),
                         items: const [
                           DropdownMenuItem(
-                            value: 'ativo',
+                            value: UsuarioStatus.ativo,
                             child: Text('Ativo'),
                           ),
                           DropdownMenuItem(
-                            value: 'desativado',
+                            value: UsuarioStatus.desativado,
                             child: Text('Desativado'),
                           ),
                         ],

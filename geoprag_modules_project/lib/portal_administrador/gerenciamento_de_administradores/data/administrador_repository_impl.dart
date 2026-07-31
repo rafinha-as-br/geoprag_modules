@@ -4,6 +4,7 @@ import '../core/administrador_repository.dart';
 import '../core/resultado_solicitacao_promocao.dart';
 import '../core/solicitacao_promocao.dart';
 import 'mock_solicitacoes_promocao.dart';
+import '../../../src/entities/usuario.dart';
 import '../../../src/errors/app_exceptions.dart';
 
 extension _FirstOrNull<T> on Iterable<T> {
@@ -42,6 +43,7 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
       cpf: cpf,
       dataNascimento: dataNascimento,
       sexo: sexo,
+      dataCriacao: DateTime.now(),
       role: AdminRole.subAdministrador,
     );
     mockAdminAccounts.add(conta);
@@ -72,7 +74,8 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     }
 
     mockAdminAccounts[indiceAlvo] = mockAdminAccounts[indiceAlvo].copyWith(
-      ativo: false,
+      status: UsuarioStatus.desativado,
+      dataDesativacao: DateTime.now(),
     );
 
     // RN "Mecânica da Votação 2/3", regra específica 7: desativação do
@@ -87,6 +90,35 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
         );
       }
     }
+  }
+
+  @override
+  Future<void> reativar({
+    required String email,
+    required String executorEmail,
+  }) async {
+    final indiceAlvo = mockAdminAccounts.indexWhere((c) => c.email == email);
+    if (indiceAlvo == -1) {
+      throw EntidadeNaoEncontradaException(
+        'Administrador "$email" não encontrado.',
+      );
+    }
+
+    final executor = _buscarAdministradorAtivo(executorEmail);
+    if (executor == null) {
+      throw const OperacaoNaoPermitidaException(
+        'Apenas um Administrador ativo pode reativar um cadastro.',
+      );
+    }
+
+    final alvo = mockAdminAccounts[indiceAlvo];
+    if (alvo.ativo) {
+      throw const OperacaoNaoPermitidaException('Este cadastro já está ativo.');
+    }
+
+    // A data da última desativação (`dataDesativacao`) é mantida mesmo
+    // após a reativação — só o `status` reflete o estado atual.
+    mockAdminAccounts[indiceAlvo] = alvo.copyWith(status: UsuarioStatus.ativo);
   }
 
   @override

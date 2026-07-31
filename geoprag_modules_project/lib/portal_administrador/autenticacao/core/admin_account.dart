@@ -5,29 +5,31 @@ enum AdminRole { administrador, subAdministrador }
 class AdminAccount extends Usuario {
   final AdminRole role;
 
-  /// Estado do cadastro (GEOPRAG-36) — cadastro de Administrador/
-  /// Sub-Administrador nunca é excluído, apenas desativado (ver RN
-  /// "Cadastro e Acesso do Administrador e Sub-Administrador", seção 4,
-  /// regra 4).
-  final bool ativo;
-
   const AdminAccount({
     required super.email,
     required super.nome,
     required super.cpf,
     required super.dataNascimento,
     required super.sexo,
+    required super.dataCriacao,
+    super.status = UsuarioStatus.ativo,
+    super.dataDesativacao,
     required this.role,
-    this.ativo = true,
   });
 
-  AdminAccount copyWith({AdminRole? role, bool? ativo}) => AdminAccount(
+  AdminAccount copyWith({
+    AdminRole? role,
+    UsuarioStatus? status,
+    DateTime? dataDesativacao,
+  }) => AdminAccount(
     email: email,
     nome: nome,
     cpf: cpf,
     dataNascimento: dataNascimento,
     sexo: sexo,
+    dataCriacao: dataCriacao,
     role: role ?? this.role,
-    ativo: ativo ?? this.ativo,
+    status: status ?? this.status,
+    dataDesativacao: dataDesativacao ?? this.dataDesativacao,
   );
 }

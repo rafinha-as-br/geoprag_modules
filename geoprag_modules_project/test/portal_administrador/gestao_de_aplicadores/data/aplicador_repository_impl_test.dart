@@ -20,20 +20,29 @@ void main() {
     expect(result.nome, 'Maria Souza');
   });
 
-  test('buscarPorId lança EntidadeNaoEncontradaException quando o id não existe', () {
-    expect(
-      () => repository.buscarPorId('inexistente'),
-      throwsA(isA<EntidadeNaoEncontradaException>()),
-    );
-  });
+  test(
+    'buscarPorId lança EntidadeNaoEncontradaException quando o id não existe',
+    () {
+      expect(
+        () => repository.buscarPorId('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    },
+  );
 
-  test('buscarHistorico retorna o histórico de atuações do aplicador conhecido', () async {
-    final result = await repository.buscarHistorico('2');
-    expect(result, hasLength(2));
-  });
+  test(
+    'buscarHistorico retorna o histórico de atuações do aplicador conhecido',
+    () async {
+      final result = await repository.buscarHistorico('2');
+      expect(result, hasLength(2));
+    },
+  );
 
-  test('buscarHistorico retorna lista vazia quando o aplicador não tem histórico mockado', () async {
-    final result = await repository.buscarHistorico('1');
-    expect(result, isEmpty);
-  });
+  test(
+    'buscarHistorico retorna lista vazia quando o aplicador não tem histórico mockado',
+    () async {
+      final result = await repository.buscarHistorico('1');
+      expect(result, isEmpty);
+    },
+  );
 }

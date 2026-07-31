@@ -33,6 +33,11 @@ abstract class AdministradorRepository {
     required String executorEmail,
   });
 
+  /// Reativa o cadastro de [email], previamente desativado. Só um
+  /// Administrador ativo pode acionar. A data da última desativação
+  /// (`dataDesativacao`) não é apagada — só o `status` volta a `ativo`.
+  Future<void> reativar({required String email, required String executorEmail});
+
   /// Rebaixa [email] (Administrador) a Sub-Administrador. Ação unilateral,
   /// sem votação — só um Administrador ativo diferente do alvo pode acionar
   /// (RN "Promoção e Rebaixamento de Cargo de Administrador", seção 3.2 e
