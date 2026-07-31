@@ -97,7 +97,10 @@ class ProdutoOpcaoViewModel {
   factory ProdutoOpcaoViewModel.fromEntity(
     ProdutoReferenciaDistribuicao entity,
   ) {
-    return ProdutoOpcaoViewModel(id: entity.id, nomeExibicao: entity.nomeExibicao);
+    return ProdutoOpcaoViewModel(
+      id: entity.id,
+      nomeExibicao: entity.nomeExibicao,
+    );
   }
 }
 

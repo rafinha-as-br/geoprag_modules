@@ -18,7 +18,9 @@ class DenunciaRepositoryImpl implements DenunciaRepository {
   Future<Denuncia> buscarPorId(String id) async {
     return mockReports.firstWhere(
       (denuncia) => denuncia.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Denúncia "$id" não encontrada.'),
+      orElse: () => throw EntidadeNaoEncontradaException(
+        'Denúncia "$id" não encontrada.',
+      ),
     );
   }
 

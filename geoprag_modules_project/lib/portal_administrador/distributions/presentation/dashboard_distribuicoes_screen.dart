@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'distribuicao_view_model.dart';
 import 'distribuicoes_cubit.dart';
@@ -13,80 +13,66 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/distribuicoes',
       appBar: AppBar(title: const Text('Gestão de Distribuições (Saídas)')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/distribuicoes'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Histórico de Saídas',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Histórico de Saídas',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    AdminNavigatorScope.of(context).toDistribuicaoCadastro();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Nova Saída'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: BlocBuilder<DistribuicoesCubit, DistribuicoesState>(
+                    builder: (context, state) {
+                      return switch (state) {
+                        DistribuicoesLoading() => const Center(
+                          child: CircularProgressIndicator(),
                         ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          AdminNavigatorScope.of(
-                            context,
-                          ).toDistribuicaoCadastro();
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Nova Saída'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: BlocBuilder<DistribuicoesCubit, DistribuicoesState>(
-                          builder: (context, state) {
-                            return switch (state) {
-                              DistribuicoesLoading() => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                              DistribuicoesError(:final message) => Center(
-                                child: Text(
-                                  'Não foi possível carregar as distribuições: $message',
-                                ),
-                              ),
-                              DistribuicoesLoaded(:final distribuicoes) =>
-                                ListView.separated(
-                                  itemCount: distribuicoes.length,
-                                  separatorBuilder: (context, index) =>
-                                      const Divider(),
-                                  itemBuilder: (context, index) =>
-                                      _buildListTile(
-                                        context,
-                                        distribuicoes[index],
-                                      ),
-                                ),
-                            };
-                          },
+                        DistribuicoesError(:final message) => Center(
+                          child: Text(
+                            'Não foi possível carregar as distribuições: $message',
+                          ),
                         ),
-                      ),
-                    ),
+                        DistribuicoesLoaded(:final distribuicoes) =>
+                          ListView.separated(
+                            itemCount: distribuicoes.length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
+                            itemBuilder: (context, index) =>
+                                _buildListTile(context, distribuicoes[index]),
+                          ),
+                      };
+                    },
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -114,7 +100,9 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
       isThreeLine: true,
       trailing: const Icon(Icons.arrow_forward_ios),
       onTap: () {
-        AdminNavigatorScope.of(context).toDistribuicaoVisualizacao();
+        AdminNavigatorScope.of(
+          context,
+        ).toDistribuicaoVisualizacao(distribuicao.id);
       },
     );
   }

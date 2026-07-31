@@ -28,7 +28,19 @@ abstract class AdministradorRepository {
   /// seção 4, regra 4). Se o alvo for Sub-Administrador com votação de
   /// promoção em aberto, a votação é cancelada automaticamente (RN
   /// "Mecânica da Votação 2/3", regra específica 7).
-  Future<void> desativar({required String email, required String executorEmail});
+  Future<void> desativar({
+    required String email,
+    required String executorEmail,
+  });
+
+  /// Rebaixa [email] (Administrador) a Sub-Administrador. Ação unilateral,
+  /// sem votação — só um Administrador ativo diferente do alvo pode acionar
+  /// (RN "Promoção e Rebaixamento de Cargo de Administrador", seção 3.2 e
+  /// regra específica 3). Como o executor precisa ser um Administrador
+  /// ativo distinto do alvo, esta operação nunca deixa o sistema sem
+  /// nenhum Administrador ativo diretamente — o desenho de uma trava mais
+  /// ampla contra outros cenários ainda está pendente (GEOPRAG-53).
+  Future<void> rebaixar({required String email, required String executorEmail});
 
   /// Abre uma votação de promoção para [subAdministradorEmail], iniciada
   /// por [solicitanteEmail]. Se não houver nenhum outro Administrador ativo

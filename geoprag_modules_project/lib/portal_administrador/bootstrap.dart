@@ -100,8 +100,7 @@ class AdminBootstrap {
   ) => DistribuicaoDetalheCubit(buildDistribuicaoRepository(), distribuicaoId);
   CadastroSaidaCubit buildCadastroSaidaCubit() =>
       CadastroSaidaCubit(buildDistribuicaoRepository());
-  ProdutosCubit buildProdutosCubit() =>
-      ProdutosCubit(buildProdutoRepository());
+  ProdutosCubit buildProdutosCubit() => ProdutosCubit(buildProdutoRepository());
   ProdutoDetalheCubit buildProdutoDetalheCubit(String produtoId) =>
       ProdutoDetalheCubit(buildProdutoRepository(), produtoId);
   FormulasDosagemCubit buildFormulasDosagemCubit() =>

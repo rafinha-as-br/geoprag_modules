@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_account.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../autenticacao/presentation/admin_session_cubit.dart';
@@ -64,7 +64,8 @@ class _DashboardAdministradoresScreenState
         ? sessionState.conta
         : null;
 
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/administradores',
       appBar: AppBar(title: const Text('Gerenciamento de Administradores')),
       body: BlocListener<AdministradoresCubit, AdministradoresState>(
         listener: (context, state) {
@@ -74,96 +75,89 @@ class _DashboardAdministradoresScreenState
             ).showSnackBar(SnackBar(content: Text(state.avisoAcao!)));
           }
         },
-        child: Row(
-          children: [
-            const SidebarMenu(currentRoute: '/administradores'),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Administradores Cadastrados',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  const Text(
+                    'Administradores Cadastrados',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _BotaoSolicitacoesPromocao(),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          AdminNavigatorScope.of(
+                            context,
+                          ).toCriarAdministrador();
+                        },
+                        icon: const Icon(Icons.person_add),
+                        label: const Text('Novo Administrador'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _buscaController,
+                        decoration: InputDecoration(
+                          hintText: 'Buscar por nome, e-mail ou cargo...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        Row(
-                          children: [
-                            _BotaoSolicitacoesPromocao(),
-                            const SizedBox(width: 12),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                AdminNavigatorScope.of(
-                                  context,
-                                ).toCriarAdministrador();
-                              },
-                              icon: const Icon(Icons.person_add),
-                              label: const Text('Novo Administrador'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            TextField(
-                              controller: _buscaController,
-                              decoration: InputDecoration(
-                                hintText: 'Buscar por nome, e-mail ou cargo...',
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                      const SizedBox(height: 16),
+                      BlocBuilder<AdministradoresCubit, AdministradoresState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            AdministradoresLoading() => const Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                            AdministradoresError(:final message) => Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(
+                                'Não foi possível carregar os administradores: $message',
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            BlocBuilder<AdministradoresCubit, AdministradoresState>(
-                              builder: (context, state) {
-                                return switch (state) {
-                                  AdministradoresLoading() => const Padding(
-                                    padding: EdgeInsets.all(24),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  ),
-                                  AdministradoresError(:final message) => Padding(
-                                    padding: const EdgeInsets.all(24),
-                                    child: Text(
-                                      'Não foi possível carregar os administradores: $message',
-                                    ),
-                                  ),
-                                  AdministradoresLoaded(:final administradores) =>
-                                    _buildTabela(
-                                      context,
-                                      _filtrar(administradores),
-                                      contaAtual,
-                                    ),
-                                };
-                              },
-                            ),
-                          ],
-                        ),
+                            AdministradoresLoaded(:final administradores) =>
+                              _buildTabela(
+                                context,
+                                _filtrar(administradores),
+                                contaAtual,
+                              ),
+                          };
+                        },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -189,7 +183,10 @@ class _DashboardAdministradoresScreenState
           children: const [
             Padding(
               padding: EdgeInsets.all(12),
-              child: Text('Nome', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                'Nome',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(12),
@@ -267,7 +264,25 @@ class _DashboardAdministradoresScreenState
                   tooltip: 'Promover a Administrador',
                   onPressed: contaAtual == null
                       ? null
-                      : () => _confirmarPromocao(context, administrador, contaAtual),
+                      : () => _confirmarPromocao(
+                          context,
+                          administrador,
+                          contaAtual,
+                        ),
+                ),
+              if (administrador.isAdministrador &&
+                  administrador.ativo &&
+                  contaAtual?.email != administrador.email)
+                IconButton(
+                  icon: const Icon(Icons.arrow_downward, color: Colors.orange),
+                  tooltip: 'Rebaixar a Sub-Administrador',
+                  onPressed: contaAtual == null
+                      ? null
+                      : () => _confirmarRebaixamento(
+                          context,
+                          administrador,
+                          contaAtual,
+                        ),
                 ),
               if (administrador.ativo)
                 IconButton(
@@ -275,7 +290,11 @@ class _DashboardAdministradoresScreenState
                   tooltip: 'Desativar',
                   onPressed: contaAtual == null
                       ? null
-                      : () => _confirmarDesativacao(context, administrador, contaAtual),
+                      : () => _confirmarDesativacao(
+                          context,
+                          administrador,
+                          contaAtual,
+                        ),
                 ),
             ],
           ),
@@ -311,6 +330,40 @@ class _DashboardAdministradoresScreenState
     );
     if (confirmar == true) {
       await cubit.desativar(
+        email: administrador.email,
+        executorEmail: contaAtual.email,
+      );
+    }
+  }
+
+  Future<void> _confirmarRebaixamento(
+    BuildContext context,
+    AdministradorViewModel administrador,
+    AdminAccount contaAtual,
+  ) async {
+    final cubit = context.read<AdministradoresCubit>();
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Rebaixar administrador'),
+        content: Text(
+          'Tem certeza que deseja rebaixar "${administrador.nome}" a '
+          'Sub-Administrador? A ação é imediata e não passa por votação.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Rebaixar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar == true) {
+      await cubit.rebaixar(
         email: administrador.email,
         executorEmail: contaAtual.email,
       );

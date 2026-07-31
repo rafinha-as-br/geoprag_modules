@@ -81,6 +81,66 @@ void main() {
   );
 
   blocTest<AdministradoresCubit, AdministradoresState>(
+    'rebaixar recarrega a lista com aviso de sucesso',
+    setUp: () {
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [contaAdmin, contaSub],
+      );
+      when(
+        () => repository.rebaixar(
+          email: contaAdmin.email,
+          executorEmail: contaAdmin.email,
+        ),
+      ).thenAnswer((_) async {});
+    },
+    build: () => AdministradoresCubit(repository),
+    act: (cubit) => cubit.rebaixar(
+      email: contaAdmin.email,
+      executorEmail: contaAdmin.email,
+    ),
+    skip: 1,
+    expect: () => [
+      isA<AdministradoresLoaded>().having(
+        (s) => s.avisoAcao,
+        'avisoAcao',
+        contains('rebaixado'),
+      ),
+    ],
+  );
+
+  blocTest<AdministradoresCubit, AdministradoresState>(
+    'rebaixar mostra a mensagem amigável quando o repositório recusa a operação',
+    setUp: () {
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [contaAdmin, contaSub],
+      );
+      when(
+        () => repository.rebaixar(
+          email: contaAdmin.email,
+          executorEmail: contaAdmin.email,
+        ),
+      ).thenThrow(
+        const OperacaoNaoPermitidaException(
+          'Não é possível rebaixar o próprio cargo.',
+        ),
+      );
+    },
+    build: () => AdministradoresCubit(repository),
+    act: (cubit) => cubit.rebaixar(
+      email: contaAdmin.email,
+      executorEmail: contaAdmin.email,
+    ),
+    skip: 1,
+    expect: () => [
+      isA<AdministradoresLoaded>().having(
+        (s) => s.avisoAcao,
+        'avisoAcao',
+        contains('próprio cargo'),
+      ),
+    ],
+  );
+
+  blocTest<AdministradoresCubit, AdministradoresState>(
     'solicitarPromocao mostra a mensagem amigável quando o repositório recusa a operação',
     setUp: () {
       when(() => repository.listar()).thenAnswer(

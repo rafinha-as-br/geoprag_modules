@@ -24,20 +24,26 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.all(32.0),
-              child: BlocBuilder<DistribuicaoDetalheCubit, DistribuicaoDetalheState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    DistribuicaoDetalheLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    DistribuicaoDetalheError(:final message) => Text(
-                      'Não foi possível carregar a distribuição: $message',
-                    ),
-                    DistribuicaoDetalheLoaded(:final distribuicao) =>
-                      _DistribuicaoDetalheContent(distribuicao: distribuicao),
-                  };
-                },
-              ),
+              child:
+                  BlocBuilder<
+                    DistribuicaoDetalheCubit,
+                    DistribuicaoDetalheState
+                  >(
+                    builder: (context, state) {
+                      return switch (state) {
+                        DistribuicaoDetalheLoading() => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        DistribuicaoDetalheError(:final message) => Text(
+                          'Não foi possível carregar a distribuição: $message',
+                        ),
+                        DistribuicaoDetalheLoaded(:final distribuicao) =>
+                          _DistribuicaoDetalheContent(
+                            distribuicao: distribuicao,
+                          ),
+                      };
+                    },
+                  ),
             ),
           ),
         ),
@@ -76,10 +82,7 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
           ),
           subtitle: Text(
             distribuicao.dataEntrega,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ListTile(
@@ -89,20 +92,14 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
           ),
           subtitle: Text(
             distribuicao.produtoNome,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ListTile(
           title: const Text('Quantidade', style: TextStyle(color: Colors.grey)),
           subtitle: Text(
             '${distribuicao.quantidade} ${distribuicao.unidade}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ListTile(
@@ -112,10 +109,7 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
           ),
           subtitle: Text(
             '${distribuicao.responsavel} (${distribuicao.bairroResponsavel})',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ListTile(

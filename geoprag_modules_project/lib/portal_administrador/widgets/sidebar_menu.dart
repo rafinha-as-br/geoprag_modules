@@ -28,9 +28,12 @@ class SidebarMenu extends StatelessWidget {
           const DrawerHeader(
             decoration: BoxDecoration(color: GeopragColors.green900),
             child: Center(
-              child: GeopragLogo(
-                markSize: 32,
-                variant: GeopragMarkVariant.light,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: GeopragLogo(
+                  markSize: 32,
+                  variant: GeopragMarkVariant.light,
+                ),
               ),
             ),
           ),

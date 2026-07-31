@@ -193,13 +193,15 @@ class _CriacaoDeAdministradorScreenState
                                   if (!_formKey.currentState!.validate()) {
                                     return;
                                   }
-                                  context.read<CriarAdministradorCubit>().submit(
-                                    email: _emailController.text,
-                                    nome: _nomeController.text,
-                                    cpf: _cpfController.text,
-                                    dataNascimento: _dataNascimento!,
-                                    sexo: _sexoController.text,
-                                  );
+                                  context
+                                      .read<CriarAdministradorCubit>()
+                                      .submit(
+                                        email: _emailController.text,
+                                        nome: _nomeController.text,
+                                        cpf: _cpfController.text,
+                                        dataNascimento: _dataNascimento!,
+                                        sexo: _sexoController.text,
+                                      );
                                 },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 20),

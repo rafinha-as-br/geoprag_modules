@@ -49,7 +49,8 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
   }
 
   @override
-  Future<List<AdminAccount>> listar() async => List.unmodifiable(mockAdminAccounts);
+  Future<List<AdminAccount>> listar() async =>
+      List.unmodifiable(mockAdminAccounts);
 
   @override
   Future<void> desativar({
@@ -86,6 +87,43 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
         );
       }
     }
+  }
+
+  @override
+  Future<void> rebaixar({
+    required String email,
+    required String executorEmail,
+  }) async {
+    if (email == executorEmail) {
+      throw const OperacaoNaoPermitidaException(
+        'Não é possível rebaixar o próprio cargo.',
+      );
+    }
+
+    final indiceAlvo = mockAdminAccounts.indexWhere((c) => c.email == email);
+    if (indiceAlvo == -1) {
+      throw EntidadeNaoEncontradaException(
+        'Administrador "$email" não encontrado.',
+      );
+    }
+
+    final executor = _buscarAdministradorAtivo(executorEmail);
+    if (executor == null) {
+      throw const OperacaoNaoPermitidaException(
+        'Apenas um Administrador ativo pode rebaixar um cadastro.',
+      );
+    }
+
+    final alvo = mockAdminAccounts[indiceAlvo];
+    if (!alvo.ativo || alvo.role != AdminRole.administrador) {
+      throw const OperacaoNaoPermitidaException(
+        'Só é possível rebaixar um Administrador ativo.',
+      );
+    }
+
+    mockAdminAccounts[indiceAlvo] = alvo.copyWith(
+      role: AdminRole.subAdministrador,
+    );
   }
 
   @override
@@ -204,10 +242,8 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     }
 
     final novosVotantes = {...solicitacao.votantesEmail, votanteEmail};
-    final novosFavoraveis =
-        solicitacao.votosFavoraveis + (aprovar ? 1 : 0);
-    final novosContrarios =
-        solicitacao.votosContrarios + (aprovar ? 0 : 1);
+    final novosFavoraveis = solicitacao.votosFavoraveis + (aprovar ? 1 : 0);
+    final novosContrarios = solicitacao.votosContrarios + (aprovar ? 0 : 1);
 
     var novoStatus = solicitacao.status;
     if (novosFavoraveis >= solicitacao.limiar) {
@@ -216,8 +252,9 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
         (c) => c.email == solicitacao.subAdministradorEmail,
       );
       if (indiceAlvo != -1) {
-        mockAdminAccounts[indiceAlvo] = mockAdminAccounts[indiceAlvo]
-            .copyWith(role: AdminRole.administrador);
+        mockAdminAccounts[indiceAlvo] = mockAdminAccounts[indiceAlvo].copyWith(
+          role: AdminRole.administrador,
+        );
       }
     } else if (novosContrarios >= solicitacao.limiar) {
       novoStatus = StatusSolicitacaoPromocao.reprovada;
@@ -272,7 +309,9 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
 
   AdminAccount? _buscarAdministradorAtivo(String email) {
     final conta = mockAdminAccounts.where((c) => c.email == email).firstOrNull;
-    if (conta == null || !conta.ativo || conta.role != AdminRole.administrador) {
+    if (conta == null ||
+        !conta.ativo ||
+        conta.role != AdminRole.administrador) {
       return null;
     }
     return conta;

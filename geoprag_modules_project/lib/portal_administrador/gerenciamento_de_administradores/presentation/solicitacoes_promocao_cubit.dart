@@ -24,9 +24,7 @@ class SolicitacoesPromocaoCubit extends Cubit<SolicitacoesPromocaoState> {
     try {
       final solicitacoes = await _repository.listarSolicitacoesAbertas();
       final administradores = await _repository.listar();
-      final nomesPorEmail = {
-        for (final a in administradores) a.email: a.nome,
-      };
+      final nomesPorEmail = {for (final a in administradores) a.email: a.nome};
       emit(
         SolicitacoesPromocaoLoaded(
           solicitacoes
@@ -47,7 +45,10 @@ class SolicitacoesPromocaoCubit extends Cubit<SolicitacoesPromocaoState> {
     }
   }
 
-  Future<void> votar({required String solicitacaoId, required bool aprovar}) async {
+  Future<void> votar({
+    required String solicitacaoId,
+    required bool aprovar,
+  }) async {
     try {
       await _repository.votar(
         solicitacaoId: solicitacaoId,
@@ -55,7 +56,9 @@ class SolicitacoesPromocaoCubit extends Cubit<SolicitacoesPromocaoState> {
         aprovar: aprovar,
       );
       await _carregar(
-        avisoAcao: aprovar ? 'Voto de aprovação registrado.' : 'Voto de reprovação registrado.',
+        avisoAcao: aprovar
+            ? 'Voto de aprovação registrado.'
+            : 'Voto de reprovação registrado.',
       );
     } on EntidadeNaoEncontradaException catch (e) {
       await _carregar(avisoAcao: e.mensagemAmigavel);

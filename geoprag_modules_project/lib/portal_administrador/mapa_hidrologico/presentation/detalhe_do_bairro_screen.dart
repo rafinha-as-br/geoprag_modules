@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'bairro_detalhe_cubit.dart';
 import 'bairro_detalhe_state.dart';
 import 'bairro_view_model.dart';
@@ -16,34 +16,26 @@ class DetalheDoBairroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/mapa',
       appBar: AppBar(title: const Text('Detalhe do Bairro')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/mapa'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: BlocBuilder<BairroDetalheCubit, BairroDetalheState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    BairroDetalheLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    BairroDetalheError(:final message) => Center(
-                      child: Text(
-                        'Não foi possível carregar o bairro: $message',
-                      ),
-                    ),
-                    BairroDetalheLoaded(:final bairro) => _BairroDetalheContent(
-                      bairro: bairro,
-                    ),
-                  };
-                },
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: BlocBuilder<BairroDetalheCubit, BairroDetalheState>(
+          builder: (context, state) {
+            return switch (state) {
+              BairroDetalheLoading() => const Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-          ),
-        ],
+              BairroDetalheError(:final message) => Center(
+                child: Text('Não foi possível carregar o bairro: $message'),
+              ),
+              BairroDetalheLoaded(:final bairro) => _BairroDetalheContent(
+                bairro: bairro,
+              ),
+            };
+          },
+        ),
       ),
     );
   }

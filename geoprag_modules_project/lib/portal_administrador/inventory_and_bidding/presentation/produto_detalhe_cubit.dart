@@ -26,9 +26,7 @@ class ProdutoDetalheCubit extends Cubit<ProdutoDetalheState> {
   Future<void> _carregar() async {
     try {
       final produto = await _repository.buscarPorId(_produtoId);
-      final movimentacoes = await _repository.buscarMovimentacoes(
-        _produtoId,
-      );
+      final movimentacoes = await _repository.buscarMovimentacoes(_produtoId);
       emit(
         ProdutoDetalheLoaded(
           ProdutoDetalhadoViewModel.fromEntity(produto, movimentacoes),

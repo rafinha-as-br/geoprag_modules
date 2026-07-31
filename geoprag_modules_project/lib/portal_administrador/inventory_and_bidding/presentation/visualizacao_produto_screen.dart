@@ -63,10 +63,7 @@ class _ProdutoDetalheContent extends StatelessWidget {
           children: [
             Text(
               '${produto.nome} - Lote ${produto.lote}',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
@@ -97,10 +94,7 @@ class _ProdutoDetalheContent extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: const Text(
-            'Fornecedor',
-            style: TextStyle(color: Colors.grey),
-          ),
+          title: const Text('Fornecedor', style: TextStyle(color: Colors.grey)),
           subtitle: Text(
             produto.fornecedor,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

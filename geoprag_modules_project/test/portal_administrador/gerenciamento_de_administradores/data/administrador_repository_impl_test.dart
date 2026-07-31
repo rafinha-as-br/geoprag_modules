@@ -129,6 +129,66 @@ void main() {
     });
   });
 
+  group('rebaixar', () {
+    test('rebaixa o Administrador alvo quando o executor é Administrador ativo diferente dele', () async {
+      adicionarAdministrador('admin2-rebaixar@gaspar.sc.gov.br');
+
+      await repository.rebaixar(
+        email: 'admin2-rebaixar@gaspar.sc.gov.br',
+        executorEmail: _adminSeedEmail,
+      );
+
+      final atualizado = mockAdminAccounts.firstWhere(
+        (c) => c.email == 'admin2-rebaixar@gaspar.sc.gov.br',
+      );
+      expect(atualizado.role, AdminRole.subAdministrador);
+    });
+
+    test('lança OperacaoNaoPermitidaException ao tentar rebaixar o próprio cargo', () async {
+      expect(
+        () => repository.rebaixar(
+          email: _adminSeedEmail,
+          executorEmail: _adminSeedEmail,
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('lança EntidadeNaoEncontradaException para e-mail inexistente', () {
+      expect(
+        () => repository.rebaixar(
+          email: 'inexistente@gaspar.sc.gov.br',
+          executorEmail: _adminSeedEmail,
+        ),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+
+    test('lança OperacaoNaoPermitidaException quando o executor não é Administrador ativo', () async {
+      adicionarAdministrador('admin2-executor-invalido@gaspar.sc.gov.br');
+
+      expect(
+        () => repository.rebaixar(
+          email: 'admin2-executor-invalido@gaspar.sc.gov.br',
+          executorEmail: 'inexistente@gaspar.sc.gov.br',
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('lança OperacaoNaoPermitidaException ao tentar rebaixar quem já é Sub-Administrador', () async {
+      final alvo = await criarSubAdministrador('sub-nao-rebaixavel@gaspar.sc.gov.br');
+
+      expect(
+        () => repository.rebaixar(
+          email: alvo.email,
+          executorEmail: _adminSeedEmail,
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
+
   group('solicitarPromocao', () {
     test('promove automaticamente quando não há outro Administrador ativo elegível', () async {
       final alvo = await criarSubAdministrador('auto-promovido@gaspar.sc.gov.br');

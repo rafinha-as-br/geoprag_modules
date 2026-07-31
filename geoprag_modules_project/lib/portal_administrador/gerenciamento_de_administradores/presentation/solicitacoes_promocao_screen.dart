@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_cubit.dart';
 import 'solicitacoes_promocao_state.dart';
@@ -15,7 +15,8 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/administradores/solicitacoes',
       appBar: AppBar(title: const Text('Solicitações de Promoção')),
       body: BlocListener<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
         listener: (context, state) {
@@ -25,67 +26,61 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
             ).showSnackBar(SnackBar(content: Text(state.avisoAcao!)));
           }
         },
-        child: Row(
-          children: [
-            const SidebarMenu(currentRoute: '/administradores/solicitacoes'),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Solicitações de Promoção em Aberto',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Durante a votação, só a contagem agregada de votos é '
-                      'exibida — a identidade de quem votou o quê não é '
-                      'mostrada a ninguém.',
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                    const SizedBox(height: 24),
-                    Expanded(
-                      child: BlocBuilder<
-                        SolicitacoesPromocaoCubit,
-                        SolicitacoesPromocaoState
-                      >(
-                        builder: (context, state) {
-                          return switch (state) {
-                            SolicitacoesPromocaoLoading() => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            SolicitacoesPromocaoError(:final message) => Center(
-                              child: Text(
-                                'Não foi possível carregar as solicitações: $message',
-                              ),
-                            ),
-                            SolicitacoesPromocaoLoaded(:final solicitacoes) =>
-                              solicitacoes.isEmpty
-                                  ? const Center(
-                                      child: Text(
-                                        'Nenhuma solicitação de promoção em aberto.',
-                                      ),
-                                    )
-                                  : ListView.separated(
-                                      itemCount: solicitacoes.length,
-                                      separatorBuilder: (context, index) =>
-                                          const SizedBox(height: 12),
-                                      itemBuilder: (context, index) =>
-                                          _SolicitacaoCard(
-                                            solicitacao: solicitacoes[index],
-                                          ),
-                                    ),
-                          };
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Solicitações de Promoção em Aberto',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              const Text(
+                'Durante a votação, só a contagem agregada de votos é '
+                'exibida — a identidade de quem votou o quê não é '
+                'mostrada a ninguém.',
+                style: TextStyle(color: Colors.black54),
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child:
+                    BlocBuilder<
+                      SolicitacoesPromocaoCubit,
+                      SolicitacoesPromocaoState
+                    >(
+                      builder: (context, state) {
+                        return switch (state) {
+                          SolicitacoesPromocaoLoading() => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          SolicitacoesPromocaoError(:final message) => Center(
+                            child: Text(
+                              'Não foi possível carregar as solicitações: $message',
+                            ),
+                          ),
+                          SolicitacoesPromocaoLoaded(:final solicitacoes) =>
+                            solicitacoes.isEmpty
+                                ? const Center(
+                                    child: Text(
+                                      'Nenhuma solicitação de promoção em aberto.',
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    itemCount: solicitacoes.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 12),
+                                    itemBuilder: (context, index) =>
+                                        _SolicitacaoCard(
+                                          solicitacao: solicitacoes[index],
+                                        ),
+                                  ),
+                        };
+                      },
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -111,10 +106,7 @@ class _SolicitacaoCard extends StatelessWidget {
           children: [
             Text(
               'Promoção de ${solicitacao.subAdministradorNome} a Administrador',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(

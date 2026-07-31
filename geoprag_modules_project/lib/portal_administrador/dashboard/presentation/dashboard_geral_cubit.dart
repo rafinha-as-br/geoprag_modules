@@ -10,8 +10,7 @@ import '../../../src/errors/app_logger.dart';
 /// Carrega o resumo geral operacional exibido no Dashboard do Portal
 /// Administrador.
 class DashboardGeralCubit extends Cubit<DashboardGeralState> {
-  DashboardGeralCubit(this._repository)
-    : super(const DashboardGeralLoading()) {
+  DashboardGeralCubit(this._repository) : super(const DashboardGeralLoading()) {
     _carregar();
   }
 

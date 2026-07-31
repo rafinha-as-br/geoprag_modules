@@ -11,7 +11,8 @@ import '../../../src/errors/app_logger.dart';
 /// Carrega a listagem de administradores para o dashboard e executa as
 /// ações de desativar e solicitar promoção (GEOPRAG-36).
 class AdministradoresCubit extends Cubit<AdministradoresState> {
-  AdministradoresCubit(this._repository) : super(const AdministradoresLoading()) {
+  AdministradoresCubit(this._repository)
+    : super(const AdministradoresLoading()) {
     _carregar();
   }
 
@@ -45,6 +46,25 @@ class AdministradoresCubit extends Cubit<AdministradoresState> {
       await _carregar(avisoAcao: e.mensagemAmigavel);
     } catch (e, stackTrace) {
       AppLogger.error('AdministradoresCubit.desativar', e, stackTrace);
+      await _carregar(avisoAcao: AppErrorMessages.carregamentoGenerico);
+    }
+  }
+
+  Future<void> rebaixar({
+    required String email,
+    required String executorEmail,
+  }) async {
+    try {
+      await _repository.rebaixar(email: email, executorEmail: executorEmail);
+      await _carregar(
+        avisoAcao: 'Administrador rebaixado a Sub-Administrador com sucesso.',
+      );
+    } on EntidadeNaoEncontradaException catch (e) {
+      await _carregar(avisoAcao: e.mensagemAmigavel);
+    } on OperacaoNaoPermitidaException catch (e) {
+      await _carregar(avisoAcao: e.mensagemAmigavel);
+    } catch (e, stackTrace) {
+      AppLogger.error('AdministradoresCubit.rebaixar', e, stackTrace);
       await _carregar(avisoAcao: AppErrorMessages.carregamentoGenerico);
     }
   }
