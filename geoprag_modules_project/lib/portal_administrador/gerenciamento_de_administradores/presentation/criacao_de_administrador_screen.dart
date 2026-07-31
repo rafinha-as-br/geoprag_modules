@@ -73,11 +73,10 @@ class _CriacaoDeAdministradorScreenState
                 ),
               ),
             );
-            // Rota atual foi alcançada por pushReplacement a partir da
-            // sidebar (mesmo padrão dos demais itens de topo) — não há uma
-            // tela anterior confiável para `.back()`, por isso volta
-            // explicitamente ao dashboard.
-            AdminNavigatorScope.of(context).toDashboard();
+            // Esta tela é sempre alcançada por push a partir do dashboard
+            // do módulo (`toCriarAdministrador`) — `.back()` volta pra lá,
+            // onde o cadastro recém-criado já aparece na listagem.
+            AdminNavigatorScope.of(context).back();
           } else if (state is CriarAdministradorErro) {
             ScaffoldMessenger.of(
               context,

@@ -33,3 +33,16 @@ class EntidadeDuplicadaException implements Exception {
   @override
   String toString() => 'EntidadeDuplicadaException: $mensagemAmigavel';
 }
+
+/// Exceção lançada quando uma operação viola uma regra de negócio que não é
+/// nem "não encontrado" nem "duplicado" — ex.: tentar votar duas vezes na
+/// mesma solicitação, ou cancelar uma solicitação sem ser o solicitante.
+/// Mesma semântica de [mensagemAmigavel] das exceções acima.
+class OperacaoNaoPermitidaException implements Exception {
+  const OperacaoNaoPermitidaException(this.mensagemAmigavel);
+
+  final String mensagemAmigavel;
+
+  @override
+  String toString() => 'OperacaoNaoPermitidaException: $mensagemAmigavel';
+}
