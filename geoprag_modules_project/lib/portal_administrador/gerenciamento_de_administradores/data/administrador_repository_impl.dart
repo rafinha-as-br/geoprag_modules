@@ -29,6 +29,7 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     required String cpf,
     required DateTime dataNascimento,
     required String sexo,
+    String? cep,
   }) async {
     final jaExiste = mockAdminAccounts.any((conta) => conta.email == email);
     if (jaExiste) {
@@ -43,6 +44,7 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
       cpf: cpf,
       dataNascimento: dataNascimento,
       sexo: sexo,
+      cep: cep,
       dataCriacao: DateTime.now(),
       role: AdminRole.subAdministrador,
     );

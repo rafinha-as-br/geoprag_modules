@@ -123,6 +123,7 @@ class _AdministradorDetalheDialog extends StatelessWidget {
                 valor: _formatarData(administrador.dataNascimento),
               ),
               _CampoInfo(label: 'Sexo', valor: administrador.sexo),
+              _CampoInfo(label: 'CEP', valor: administrador.cep ?? '-'),
               _CampoInfo(label: 'Cargo', valor: administrador.cargoLabel),
               _CampoInfo(
                 label: 'Cadastrado em',

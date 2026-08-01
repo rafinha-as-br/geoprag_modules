@@ -8,8 +8,9 @@ enum UsuarioStatus { ativo, desativado }
 /// Contém os dados cadastrais obrigatórios para os três perfis, conforme
 /// "Regra de Negócio - Dados da Conta" (filha de "Regra de Negócio -
 /// Regras de Conta"): `email`, `nome`, `cpf`, `dataNascimento` e `sexo`.
-/// `CEP` não entra aqui — é obrigatório apenas para o Aplicador, não para
-/// os três perfis.
+/// `cep` também é modelado aqui — obrigatório apenas para o Aplicador, mas
+/// aplicável (opcional) para Administrador e Sub-Administrador, conforme a
+/// mesma RN.
 ///
 /// Também carrega o estado do cadastro em nível de conta — comum aos três
 /// perfis, já que nenhum deles pode ser excluído, apenas desativado (ver
@@ -35,6 +36,7 @@ abstract class Usuario {
   final String cpf;
   final DateTime dataNascimento;
   final String sexo;
+  final String? cep;
   final DateTime dataCriacao;
   final UsuarioStatus status;
   final DateTime? dataDesativacao;
@@ -45,6 +47,7 @@ abstract class Usuario {
     required this.cpf,
     required this.dataNascimento,
     required this.sexo,
+    this.cep,
     required this.dataCriacao,
     required this.status,
     this.dataDesativacao,

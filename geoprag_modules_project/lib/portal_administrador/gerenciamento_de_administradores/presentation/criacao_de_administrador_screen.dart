@@ -35,6 +35,7 @@ class _CriacaoDeAdministradorScreenState
   final _emailController = TextEditingController();
   final _cpfController = TextEditingController();
   final _sexoController = TextEditingController();
+  final _cepController = TextEditingController();
   DateTime? _dataNascimento;
 
   @override
@@ -43,6 +44,7 @@ class _CriacaoDeAdministradorScreenState
     _emailController.dispose();
     _cpfController.dispose();
     _sexoController.dispose();
+    _cepController.dispose();
     super.dispose();
   }
 
@@ -185,6 +187,16 @@ class _CriacaoDeAdministradorScreenState
                               ? 'Informe o sexo.'
                               : null,
                         ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _cepController,
+                          decoration: const InputDecoration(
+                            labelText: 'CEP (opcional)',
+                            hintText: '00000-000',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
                         const SizedBox(height: 32),
                         ElevatedButton(
                           onPressed: salvando
@@ -201,6 +213,9 @@ class _CriacaoDeAdministradorScreenState
                                         cpf: _cpfController.text,
                                         dataNascimento: _dataNascimento!,
                                         sexo: _sexoController.text,
+                                        cep: _cepController.text.isEmpty
+                                            ? null
+                                            : _cepController.text,
                                       );
                                 },
                           style: ElevatedButton.styleFrom(
