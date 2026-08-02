@@ -17,3 +17,4 @@ export 'presentation/criar_aplicador_cubit.dart';
 export 'presentation/dashboard_aplicadores_screen.dart';
 export 'presentation/visualizacao_individual_screen.dart';
 export 'presentation/cadastro_de_aplicador_screen.dart';
+export 'presentation/widgets/formulario_cadastro_aplicador.dart';
