@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../src/widgets/geoprag_data_nascimento_input.dart';
+import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../../src/widgets/geoprag_sexo_input.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../widgets/admin_scaffold.dart';
@@ -44,11 +45,6 @@ class _CriacaoDeAdministradorScreenState
     super.dispose();
   }
 
-  /// Senha inicial exibida uma única vez em [_SenhaGeradaBanner], logo após
-  /// o cadastro ser salvo (GEOPRAG-61/68) — não é reexibida depois que a
-  /// tela é fechada, nem persistida em nenhum outro lugar.
-  String? _senhaGerada;
-
   @override
   Widget build(BuildContext context) {
     return AdminScaffold(
@@ -57,11 +53,20 @@ class _CriacaoDeAdministradorScreenState
       body: BlocConsumer<CriarAdministradorCubit, CriarAdministradorState>(
         listener: (context, state) {
           if (state is CriarAdministradorSucesso) {
-            // Não navega de volta imediatamente — a senha gerada precisa
-            // ficar visível na tela até o Administrador confirmar que já
-            // repassou ela verbalmente ao novo usuário (ver botão
-            // "Concluir" em [_SenhaGeradaBanner]).
-            setState(() => _senhaGerada = state.senhaGerada);
+            // GEOPRAG-68 (review Rafinha, PR #13): mesmo tratamento da
+            // GEOPRAG-65 — dialog modal reutilizável em vez do painel
+            // sobreposto (cor escura, texto ilegível).
+            GeopragSenhaGeradaDialog.mostrar(
+              context,
+              senha: state.senhaGerada,
+              onConcluir: () {
+                // GEOPRAG-68 (review Rafinha): esta tela passou a ser
+                // alcançada por pushReplacement (destino de topo, não
+                // sub-rota) — não há mais frame anterior para `.back()`,
+                // volta ao dashboard do módulo explicitamente.
+                AdminNavigatorScope.of(context).toGerenciamentoAdministradores();
+              },
+            );
           } else if (state is CriarAdministradorErro) {
             ScaffoldMessenger.of(
               context,
@@ -70,26 +75,7 @@ class _CriacaoDeAdministradorScreenState
         },
         builder: (context, state) {
           final salvando = state is CriarAdministradorSalvando;
-          return Stack(
-            children: [
-              _buildFormulario(context, salvando),
-              if (_senhaGerada != null)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: _SenhaGeradaBanner(
-                    senha: _senhaGerada!,
-                    onConcluir: () {
-                      // Esta tela é sempre alcançada por push a partir do
-                      // dashboard do módulo (`toCriarAdministrador`) —
-                      // `.back()` volta pra lá, onde o cadastro recém-criado
-                      // já aparece na listagem.
-                      AdminNavigatorScope.of(context).back();
-                    },
-                  ),
-                ),
-            ],
-          );
+          return _buildFormulario(context, salvando);
         },
       ),
     );
@@ -208,62 +194,6 @@ class _CriacaoDeAdministradorScreenState
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Painel exibido no canto superior direito da tela de criação, mostrando a
-/// senha inicial gerada automaticamente (GEOPRAG-61/68) para que quem
-/// cadastrou possa lê-la e repassá-la verbalmente ao novo usuário. Some ao
-/// clicar em "Concluir" — a senha não fica acessível em nenhuma outra tela.
-class _SenhaGeradaBanner extends StatelessWidget {
-  final String senha;
-  final VoidCallback onConcluir;
-
-  const _SenhaGeradaBanner({required this.senha, required this.onConcluir});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 8,
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: Container(
-        width: 320,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Senha inicial gerada',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Repasse verbalmente e pessoalmente ao novo usuário. Esta '
-              'senha não será exibida novamente.',
-            ),
-            const SizedBox(height: 12),
-            SelectableText(
-              senha,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onConcluir,
-                child: const Text('Concluir'),
-              ),
-            ),
-          ],
         ),
       ),
     );
