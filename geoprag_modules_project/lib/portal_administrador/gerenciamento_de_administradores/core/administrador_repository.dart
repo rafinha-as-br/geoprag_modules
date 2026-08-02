@@ -19,7 +19,6 @@ abstract class AdministradorRepository {
     required String cpf,
     required DateTime dataNascimento,
     required String sexo,
-    String? cep,
   });
 
   Future<List<AdminAccount>> listar();
