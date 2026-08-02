@@ -18,4 +18,26 @@ class Aplicador {
     required this.telefone,
     required this.endereco,
   });
+
+  Aplicador copyWith({
+    String? id,
+    String? nome,
+    String? bairro,
+    String? status,
+    DateTime? dataCadastro,
+    String? cpf,
+    String? telefone,
+    String? endereco,
+  }) {
+    return Aplicador(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      bairro: bairro ?? this.bairro,
+      status: status ?? this.status,
+      dataCadastro: dataCadastro ?? this.dataCadastro,
+      cpf: cpf ?? this.cpf,
+      telefone: telefone ?? this.telefone,
+      endereco: endereco ?? this.endereco,
+    );
+  }
 }

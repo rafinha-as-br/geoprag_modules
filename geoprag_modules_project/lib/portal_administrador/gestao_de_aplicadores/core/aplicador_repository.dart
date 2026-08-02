@@ -10,4 +10,12 @@ abstract class AplicadorRepository {
   Future<List<Aplicador>> listar();
   Future<Aplicador> buscarPorId(String id);
   Future<List<AtuacaoAplicador>> buscarHistorico(String aplicadorId);
+
+  /// Ativa o cadastro do Aplicador. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir.
+  Future<void> ativar(String id);
+
+  /// Desativa o cadastro do Aplicador. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir.
+  Future<void> desativar(String id);
 }

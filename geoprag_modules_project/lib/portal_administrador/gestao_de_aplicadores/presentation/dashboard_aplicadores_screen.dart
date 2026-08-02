@@ -55,7 +55,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                         children: [
                           TextField(
                             decoration: InputDecoration(
-                              hintText: 'Buscar por nome, bairro ou status...',
+                              hintText: 'Buscar por nome ou status...',
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -78,63 +78,8 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                                     'Não foi possível carregar os aplicadores: $message',
                                   ),
                                 ),
-                                AplicadoresLoaded(:final aplicadores) => Table(
-                                  border: TableBorder.all(
-                                    color: Colors.grey[300]!,
-                                  ),
-                                  columnWidths: const {
-                                    0: FlexColumnWidth(2),
-                                    1: FlexColumnWidth(2),
-                                    2: FlexColumnWidth(1),
-                                    3: FlexColumnWidth(1),
-                                  },
-                                  children: [
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[100],
-                                      ),
-                                      children: const [
-                                        Padding(
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
-                                            'Nome',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
-                                            'Bairro/Trecho',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
-                                            'Status',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.all(12),
-                                          child: Text(
-                                            'Ações',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    for (final aplicador in aplicadores)
-                                      _buildTableRow(context, aplicador),
-                                  ],
+                                AplicadoresLoaded() => _DashboardConteudo(
+                                  state: state,
                                 ),
                               };
                             },
@@ -151,14 +96,130 @@ class DashboardAplicadoresScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashboardConteudo extends StatelessWidget {
+  const _DashboardConteudo({required this.state});
+
+  final AplicadoresLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<AplicadoresCubit>();
+    final aplicadoresFiltrados = state.aplicadoresFiltrados;
+    final idsVisiveis = aplicadoresFiltrados.map((a) => a.id).toSet();
+    final todosVisiveisSelecionados =
+        idsVisiveis.isNotEmpty && idsVisiveis.every(state.selecionados.contains);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Todos'),
+              selected: state.filtro == FiltroStatusAplicador.todos,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.todos),
+            ),
+            ChoiceChip(
+              label: const Text('Ativos'),
+              selected: state.filtro == FiltroStatusAplicador.ativos,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.ativos),
+            ),
+            ChoiceChip(
+              label: const Text('Desativados'),
+              selected: state.filtro == FiltroStatusAplicador.desativados,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.desativados),
+            ),
+          ],
+        ),
+        if (state.selecionados.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _BarraAcaoEmMassa(state: state, cubit: cubit),
+        ],
+        const SizedBox(height: 16),
+        Table(
+          border: TableBorder.all(color: Colors.grey[300]!),
+          columnWidths: const {
+            0: FixedColumnWidth(48),
+            1: FlexColumnWidth(2),
+            2: FlexColumnWidth(2),
+            3: FlexColumnWidth(1),
+            4: FlexColumnWidth(1),
+          },
+          children: [
+            TableRow(
+              decoration: BoxDecoration(color: Colors.grey[100]),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Checkbox(
+                    value: todosVisiveisSelecionados,
+                    onChanged: state.processandoAcaoEmMassa
+                        ? null
+                        : (_) => cubit.alternarSelecaoDeTodosVisiveis(),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text(
+                    'Nome',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text(
+                    'Bairro/Trecho',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text(
+                    'Status',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text(
+                    'Ações',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            for (final aplicador in aplicadoresFiltrados)
+              _buildTableRow(context, cubit, state, aplicador),
+          ],
+        ),
+      ],
+    );
+  }
 
   TableRow _buildTableRow(
     BuildContext context,
+    AplicadoresCubit cubit,
+    AplicadoresLoaded state,
     AplicadorResumoViewModel aplicador,
   ) {
     final isAtivo = aplicador.status == 'ativo';
     return TableRow(
       children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Checkbox(
+            value: state.selecionados.contains(aplicador.id),
+            onChanged: state.processandoAcaoEmMassa
+                ? null
+                : (_) => cubit.alternarSelecao(aplicador.id),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(12),
           child: Text(aplicador.nome),
@@ -191,6 +252,55 @@ class DashboardAplicadoresScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _BarraAcaoEmMassa extends StatelessWidget {
+  const _BarraAcaoEmMassa({required this.state, required this.cubit});
+
+  final AplicadoresLoaded state;
+  final AplicadoresCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final quantidade = state.selecionados.length;
+    final processando = state.processandoAcaoEmMassa;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
+        children: [
+          Text('$quantidade selecionado(s)'),
+          OutlinedButton.icon(
+            onPressed: processando ? null : cubit.ativarSelecionados,
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Ativar selecionados'),
+          ),
+          OutlinedButton.icon(
+            onPressed: processando ? null : cubit.desativarSelecionados,
+            icon: const Icon(Icons.block),
+            label: const Text('Desativar selecionados'),
+          ),
+          TextButton(
+            onPressed: processando ? null : cubit.limparSelecao,
+            child: const Text('Limpar seleção'),
+          ),
+          if (processando)
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -56,4 +56,114 @@ void main() {
       ),
     ],
   );
+
+  final aplicadorDesativado = Aplicador(
+    id: '2',
+    nome: 'Carlos Lima',
+    bairro: 'Gasparinho',
+    status: 'desativado',
+    dataCadastro: DateTime(2026, 6, 15),
+    cpf: '333.333.333-33',
+    telefone: '(47) 99333-3333',
+    endereco: 'Rua do Bosque, 20 - Gasparinho',
+  );
+
+  blocTest<AplicadoresCubit, AplicadoresState>(
+    'alterarFiltro atualiza aplicadoresFiltrados e limpa a seleção atual',
+    setUp: () {
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [aplicador, aplicadorDesativado]);
+    },
+    build: () => AplicadoresCubit(repository),
+    act: (cubit) async {
+      // Aguarda o carregamento inicial do construtor terminar antes de
+      // mutar o estado — do contrário a chamada corre com o Cubit ainda
+      // em AplicadoresLoading e é ignorada (no-op).
+      await Future<void>.delayed(Duration.zero);
+      cubit.alternarSelecao('1');
+      cubit.alterarFiltro(FiltroStatusAplicador.ativos);
+    },
+    skip: 1,
+    expect: () => [
+      isA<AplicadoresLoaded>(), // seleção de '1'
+      isA<AplicadoresLoaded>()
+          .having((s) => s.selecionados, 'selecionados', isEmpty)
+          .having(
+            (s) => s.aplicadoresFiltrados.map((a) => a.id),
+            'aplicadoresFiltrados',
+            ['1'],
+          ),
+    ],
+  );
+
+  blocTest<AplicadoresCubit, AplicadoresState>(
+    'alternarSelecao adiciona e remove o id da seleção',
+    setUp: () {
+      when(() => repository.listar()).thenAnswer((_) async => [aplicador]);
+    },
+    build: () => AplicadoresCubit(repository),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      cubit.alternarSelecao('1');
+      cubit.alternarSelecao('1');
+    },
+    skip: 1,
+    expect: () => [
+      isA<AplicadoresLoaded>().having(
+        (s) => s.selecionados,
+        'selecionados',
+        {'1'},
+      ),
+      isA<AplicadoresLoaded>().having(
+        (s) => s.selecionados,
+        'selecionados',
+        isEmpty,
+      ),
+    ],
+  );
+
+  blocTest<AplicadoresCubit, AplicadoresState>(
+    'ativarSelecionados chama o repositório para cada id e recarrega a lista',
+    setUp: () {
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [aplicador, aplicadorDesativado]);
+      when(() => repository.ativar(any())).thenAnswer((_) async {});
+    },
+    build: () => AplicadoresCubit(repository),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      cubit.alternarSelecao('2');
+      await cubit.ativarSelecionados();
+    },
+    verify: (_) {
+      verify(() => repository.ativar('2')).called(1);
+      verifyNever(() => repository.desativar(any()));
+    },
+  );
+
+  blocTest<AplicadoresCubit, AplicadoresState>(
+    'desativarSelecionados emite Error quando o repositório falha',
+    setUp: () {
+      when(() => repository.listar()).thenAnswer((_) async => [aplicador]);
+      when(
+        () => repository.desativar(any()),
+      ).thenAnswer((_) async => throw Exception('falha de rede'));
+    },
+    build: () => AplicadoresCubit(repository),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      cubit.alternarSelecao('1');
+      await cubit.desativarSelecionados();
+    },
+    skip: 3, // Loaded inicial, seleção do id '1', e o flag processando=true
+    expect: () => [
+      isA<AplicadoresError>().having(
+        (s) => s.message,
+        'message',
+        isNot(contains('Exception')),
+      ),
+    ],
+  );
 }

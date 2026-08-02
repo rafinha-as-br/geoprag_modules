@@ -26,4 +26,18 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
   Future<List<AtuacaoAplicador>> buscarHistorico(String aplicadorId) async {
     return mockAtuacoesAplicador[aplicadorId] ?? const [];
   }
+
+  @override
+  Future<void> ativar(String id) async => _atualizarStatus(id, 'ativo');
+
+  @override
+  Future<void> desativar(String id) async => _atualizarStatus(id, 'desativado');
+
+  void _atualizarStatus(String id, String status) {
+    final index = mockApplicators.indexWhere((aplicador) => aplicador.id == id);
+    if (index == -1) {
+      throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.');
+    }
+    mockApplicators[index] = mockApplicators[index].copyWith(status: status);
+  }
 }
