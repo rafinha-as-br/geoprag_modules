@@ -14,6 +14,7 @@ import 'administradores_cubit.dart';
 import 'administradores_state.dart';
 import 'solicitacoes_promocao_cubit.dart';
 import 'solicitacoes_promocao_state.dart';
+import 'widgets/geoprag_data_table.dart';
 
 /// Dashboard do módulo Gerenciamento de Administradores (GEOPRAG-36):
 /// listagem com busca, desativação de cadastro e solicitação de promoção
@@ -169,83 +170,35 @@ class _DashboardAdministradoresScreenState
     List<AdministradorViewModel> administradores,
     AdminAccount? contaAtual,
   ) {
-    return Table(
-      border: TableBorder.all(color: Colors.grey[300]!),
-      columnWidths: const {
-        0: FlexColumnWidth(2),
-        1: FlexColumnWidth(2),
-        2: FlexColumnWidth(1),
-        3: FlexColumnWidth(1),
-      },
-      children: [
-        TableRow(
-          decoration: BoxDecoration(color: Colors.grey[100]),
-          children: const [
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text(
-                'Nome',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text(
-                'E-mail',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text(
-                'Cargo',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text(
-                'Status',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        for (final administrador in administradores)
-          _buildTableRow(context, administrador, contaAtual),
-      ],
-    );
-  }
-
-  TableRow _buildTableRow(
-    BuildContext context,
-    AdministradorViewModel administrador,
-    AdminAccount? contaAtual,
-  ) {
-    void abrirDetalhes() {
-      showAdministradorDetalheDialog(
+    return GeopragDataTable<AdministradorViewModel>(
+      items: administradores,
+      onRowTap: (administrador) => showAdministradorDetalheDialog(
         context,
         administrador: administrador,
         contaAtual: contaAtual,
-      );
-    }
-
-    Widget celula(Widget child) => TableRowInkWell(
-      onTap: abrirDetalhes,
-      child: Padding(padding: const EdgeInsets.all(12), child: child),
-    );
-
-    return TableRow(
-      children: [
-        celula(Text(administrador.nome)),
-        celula(Text(administrador.email)),
-        celula(Text(administrador.cargoLabel)),
-        celula(
-          GeopragStatusBadge(
-            status: administrador.ativo
-                ? GeopragStatus.emDia
-                : GeopragStatus.atrasado,
-            label: administrador.ativo ? 'Ativo' : 'Desativado',
+      ),
+      columns: [
+        GeopragDataColumn(
+          label: 'Nome',
+          width: const FlexColumnWidth(2),
+          cellBuilder: (context, a) => Text(a.nome),
+        ),
+        GeopragDataColumn(
+          label: 'E-mail',
+          width: const FlexColumnWidth(2),
+          cellBuilder: (context, a) => Text(a.email),
+        ),
+        GeopragDataColumn(
+          label: 'Cargo',
+          width: const FlexColumnWidth(1),
+          cellBuilder: (context, a) => Text(a.cargoLabel),
+        ),
+        GeopragDataColumn(
+          label: 'Status',
+          width: const FlexColumnWidth(1),
+          cellBuilder: (context, a) => GeopragStatusBadge(
+            status: a.ativo ? GeopragStatus.emDia : GeopragStatus.atrasado,
+            label: a.ativo ? 'Ativo' : 'Desativado',
             dense: true,
           ),
         ),

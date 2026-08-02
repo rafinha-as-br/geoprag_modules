@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../autenticacao/core/admin_navigator.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'criar_administrador_cubit.dart';
 import 'criar_administrador_state.dart';
 
@@ -17,6 +18,9 @@ String _formatarData(DateTime data) {
 /// Formulário de criação de novo administrador (GEOPRAG-36). Acesso restrito
 /// a quem tem cargo Administrador — o guard é aplicado no `redirect` do
 /// GoRouter (`app_administrador/lib/main.dart`), não nesta tela.
+///
+/// Usa [AdminScaffold] como as demais telas do módulo — abre com o sidebar
+/// comum, não como uma tela cheia isolada (feedback de revisão do PR #9).
 ///
 /// O cargo do novo cadastro não é escolhido aqui: todo cadastro novo nasce
 /// Sub-Administrador (ver [CriarAdministradorCubit]/`AdministradorRepository`).
@@ -63,7 +67,8 @@ class _CriacaoDeAdministradorScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/administradores/novo',
       appBar: AppBar(title: const Text('Registrar Novo Administrador')),
       body: BlocConsumer<CriarAdministradorCubit, CriarAdministradorState>(
         listener: (context, state) {
