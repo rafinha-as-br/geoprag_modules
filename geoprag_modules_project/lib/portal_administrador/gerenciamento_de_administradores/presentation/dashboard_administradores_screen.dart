@@ -12,8 +12,7 @@ import 'administrador_detalhe_dialog.dart';
 import 'administrador_view_model.dart';
 import 'administradores_cubit.dart';
 import 'administradores_state.dart';
-import 'solicitacoes_promocao_cubit.dart';
-import 'solicitacoes_promocao_state.dart';
+import 'widgets/botao_solicitacoes_promocao.dart';
 import 'widgets/geoprag_data_table.dart';
 
 /// Dashboard do módulo Gerenciamento de Administradores (GEOPRAG-36):
@@ -97,7 +96,7 @@ class _DashboardAdministradoresScreenState
                     runSpacing: 8,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      _BotaoSolicitacoesPromocao(),
+                      const BotaoSolicitacoesPromocao(),
                       ElevatedButton.icon(
                         onPressed: () {
                           AdminNavigatorScope.of(
@@ -203,60 +202,6 @@ class _DashboardAdministradoresScreenState
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Botão que leva à tela de Solicitações de Promoção, com indicador de
-/// quantas solicitações em aberto ainda aguardam o voto do usuário atual
-/// (RN "Promoção e Rebaixamento de Cargo de Administrador", seção 4, regra
-/// 6).
-class _BotaoSolicitacoesPromocao extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
-      builder: (context, state) {
-        final pendentes = state is SolicitacoesPromocaoLoaded
-            ? state.solicitacoes
-                  .where((s) => !s.jaVotei && !s.souOSolicitante)
-                  .length
-            : 0;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            OutlinedButton.icon(
-              onPressed: () {
-                AdminNavigatorScope.of(
-                  context,
-                ).toSolicitacoesPromocaoAdministrador();
-              },
-              icon: const Icon(Icons.how_to_vote),
-              label: const Text('Solicitações de Promoção'),
-            ),
-            if (pendentes > 0)
-              Positioned(
-                right: -6,
-                top: -6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 20,
-                    minHeight: 20,
-                  ),
-                  child: Text(
-                    '$pendentes',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_account.dart';
 import 'administrador_view_model.dart';
 import 'administradores_cubit.dart';
+import 'widgets/geoprag_detail_dialog.dart';
 
 String _formatarData(DateTime data) {
   final dia = data.day.toString().padLeft(2, '0');
@@ -47,110 +48,62 @@ class _AdministradorDetalheDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 640),
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GeopragDetailDialog(
+      title: administrador.nome,
+      subtitle: administrador.cargoLabel,
+      statusBadge: GeopragStatusBadge(
+        status: administrador.ativo
+            ? GeopragStatus.emDia
+            : GeopragStatus.atrasado,
+        label: administrador.ativo ? 'Ativo' : 'Desativado',
+      ),
+      banner: administrador.ativo
+          ? null
+          : Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: GeopragStatus.atrasado.background,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
                 children: [
+                  Icon(
+                    Icons.block,
+                    color: GeopragStatus.atrasado.color,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          administrador.nome,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          administrador.cargoLabel,
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                      ],
+                    child: Text(
+                      'Este cadastro está desativado desde '
+                      '${administrador.dataDesativacao != null ? _formatarData(administrador.dataDesativacao!) : 'data desconhecida'}.',
+                      style: TextStyle(color: GeopragStatus.atrasado.color),
                     ),
                   ),
-                  GeopragStatusBadge(
-                    status: administrador.ativo
-                        ? GeopragStatus.emDia
-                        : GeopragStatus.atrasado,
-                    label: administrador.ativo ? 'Ativo' : 'Desativado',
-                  ),
                 ],
               ),
-              if (!administrador.ativo) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: GeopragStatus.atrasado.background,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.block,
-                        color: GeopragStatus.atrasado.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Este cadastro está desativado desde '
-                          '${administrador.dataDesativacao != null ? _formatarData(administrador.dataDesativacao!) : 'data desconhecida'}.',
-                          style: TextStyle(color: GeopragStatus.atrasado.color),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 24),
-              const Divider(),
-              _CampoInfo(label: 'E-mail', valor: administrador.email),
-              _CampoInfo(label: 'CPF', valor: administrador.cpf),
-              _CampoInfo(
-                label: 'Data de nascimento',
-                valor: _formatarData(administrador.dataNascimento),
-              ),
-              _CampoInfo(label: 'Sexo', valor: administrador.sexo),
-              _CampoInfo(label: 'CEP', valor: administrador.cep ?? '-'),
-              _CampoInfo(label: 'Cargo', valor: administrador.cargoLabel),
-              _CampoInfo(
-                label: 'Cadastrado em',
-                valor: _formatarData(administrador.dataCriacao),
-              ),
-              if (administrador.dataDesativacao != null)
-                _CampoInfo(
-                  label: 'Última desativação',
-                  valor: _formatarData(administrador.dataDesativacao!),
-                ),
-              const SizedBox(height: 24),
-              Wrap(
-                alignment: WrapAlignment.end,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Fechar'),
-                  ),
-                  if (contaAtual != null) ..._buildAcoes(context),
-                ],
-              ),
-            ],
-          ),
+            ),
+      infoRows: [
+        GeopragInfoRow(label: 'E-mail', valor: administrador.email),
+        GeopragInfoRow(label: 'CPF', valor: administrador.cpf),
+        GeopragInfoRow(
+          label: 'Data de nascimento',
+          valor: _formatarData(administrador.dataNascimento),
         ),
-      ),
+        GeopragInfoRow(label: 'Sexo', valor: administrador.sexo),
+        GeopragInfoRow(label: 'CEP', valor: administrador.cep ?? '-'),
+        GeopragInfoRow(label: 'Cargo', valor: administrador.cargoLabel),
+        GeopragInfoRow(
+          label: 'Cadastrado em',
+          valor: _formatarData(administrador.dataCriacao),
+        ),
+        if (administrador.dataDesativacao != null)
+          GeopragInfoRow(
+            label: 'Última desativação',
+            valor: _formatarData(administrador.dataDesativacao!),
+          ),
+      ],
+      actions: contaAtual != null ? _buildAcoes(context) : const [],
     );
   }
 
@@ -342,34 +295,5 @@ class _AdministradorDetalheDialog extends StatelessWidget {
       );
       if (context.mounted) Navigator.of(context).pop();
     }
-  }
-}
-
-class _CampoInfo extends StatelessWidget {
-  final String label;
-  final String valor;
-
-  const _CampoInfo({required this.label, required this.valor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 180,
-            child: Text(label, style: const TextStyle(color: Colors.black54)),
-          ),
-          Expanded(
-            child: Text(
-              valor,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

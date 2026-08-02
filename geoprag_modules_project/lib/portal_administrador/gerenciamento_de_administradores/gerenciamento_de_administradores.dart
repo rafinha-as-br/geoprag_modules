@@ -17,4 +17,7 @@ export 'presentation/administrador_detalhe_dialog.dart';
 export 'presentation/criacao_de_administrador_screen.dart';
 export 'presentation/dashboard_administradores_screen.dart';
 export 'presentation/solicitacoes_promocao_screen.dart';
+export 'presentation/widgets/botao_solicitacoes_promocao.dart';
+export 'presentation/widgets/geoprag_badge_button.dart';
 export 'presentation/widgets/geoprag_data_table.dart';
+export 'presentation/widgets/geoprag_detail_dialog.dart';
