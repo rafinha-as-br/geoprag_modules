@@ -91,7 +91,6 @@ class _AdministradorDetalheDialog extends StatelessWidget {
           valor: _formatarData(administrador.dataNascimento),
         ),
         GeopragInfoRow(label: 'Sexo', valor: administrador.sexo),
-        GeopragInfoRow(label: 'CEP', valor: administrador.cep ?? '-'),
         GeopragInfoRow(label: 'Cargo', valor: administrador.cargoLabel),
         GeopragInfoRow(
           label: 'Cadastrado em',
