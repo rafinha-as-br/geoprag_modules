@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'aplicador_view_model.dart';
 import 'aplicadores_cubit.dart';
@@ -14,85 +15,74 @@ class DashboardAplicadoresScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/aplicadores',
       appBar: AppBar(title: const Text('Gestão de Aplicadores')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/aplicadores'),
-          // Main Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Voluntários Cadastrados',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Voluntários Cadastrados',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  // Fluxo de criação é escopo da GEOPRAG-65, não desta issue.
+                  onPressed: () {},
+                  icon: const Icon(Icons.add),
+                  label: const Text('Novo Aplicador'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Buscar por nome ou status...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.add),
-                        label: const Text('Novo Aplicador'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Buscar por nome ou status...',
-                              prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                    const SizedBox(height: 16),
+                    BlocBuilder<AplicadoresCubit, AplicadoresState>(
+                      builder: (context, state) {
+                        return switch (state) {
+                          AplicadoresLoading() => const Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          AplicadoresError(:final message) => Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              'Não foi possível carregar os aplicadores: $message',
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          BlocBuilder<AplicadoresCubit, AplicadoresState>(
-                            builder: (context, state) {
-                              return switch (state) {
-                                AplicadoresLoading() => const Padding(
-                                  padding: EdgeInsets.all(24),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                                AplicadoresError(:final message) => Padding(
-                                  padding: const EdgeInsets.all(24),
-                                  child: Text(
-                                    'Não foi possível carregar os aplicadores: $message',
-                                  ),
-                                ),
-                                AplicadoresLoaded() => _DashboardConteudo(
-                                  state: state,
-                                ),
-                              };
-                            },
+                          AplicadoresLoaded() => _DashboardConteudo(
+                            state: state,
                           ),
-                        ],
-                      ),
+                        };
+                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -142,116 +132,68 @@ class _DashboardConteudo extends StatelessWidget {
           _BarraAcaoEmMassa(state: state, cubit: cubit),
         ],
         const SizedBox(height: 16),
-        Table(
-          border: TableBorder.all(color: Colors.grey[300]!),
-          columnWidths: const {
-            0: FixedColumnWidth(48),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(2),
-            3: FlexColumnWidth(1),
-            4: FlexColumnWidth(1),
-          },
-          children: [
-            TableRow(
-              decoration: BoxDecoration(color: Colors.grey[100]),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Checkbox(
-                    value: todosVisiveisSelecionados,
-                    onChanged: state.processandoAcaoEmMassa
-                        ? null
-                        : (_) => cubit.alternarSelecaoDeTodosVisiveis(),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    'Nome',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    'Bairro/Trecho',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    'Status',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    'Ações',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            for (final aplicador in aplicadoresFiltrados)
-              _buildTableRow(context, cubit, state, aplicador),
-          ],
-        ),
-      ],
-    );
-  }
-
-  TableRow _buildTableRow(
-    BuildContext context,
-    AplicadoresCubit cubit,
-    AplicadoresLoaded state,
-    AplicadorResumoViewModel aplicador,
-  ) {
-    final isAtivo = aplicador.ativo;
-    return TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Checkbox(
-            value: state.selecionados.contains(aplicador.id),
-            onChanged: state.processandoAcaoEmMassa
-                ? null
-                : (_) => cubit.alternarSelecao(aplicador.id),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(aplicador.nome),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(aplicador.bairro),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(
-            status: isAtivo ? GeopragStatus.emDia : GeopragStatus.atrasado,
-            label: isAtivo ? 'Ativo' : 'Desativado',
-            dense: true,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.visibility, color: Colors.blue),
-                onPressed: () {
-                  AdminNavigatorScope.of(
-                    context,
-                  ).toAplicadorDetalhes(aplicador.id);
-                },
-                tooltip: 'Visualizar',
+        // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
+        // GeopragDataTable extraído na GEOPRAG-36, em vez de um Table
+        // duplicado localmente.
+        GeopragDataTable<AplicadorResumoViewModel>(
+          items: aplicadoresFiltrados,
+          columns: [
+            GeopragDataColumn(
+              label: 'Selecionar',
+              width: const FixedColumnWidth(48),
+              headerBuilder: (context) => Checkbox(
+                value: todosVisiveisSelecionados,
+                onChanged: state.processandoAcaoEmMassa
+                    ? null
+                    : (_) => cubit.alternarSelecaoDeTodosVisiveis(),
               ),
-            ],
-          ),
+              cellBuilder: (context, aplicador) => Checkbox(
+                value: state.selecionados.contains(aplicador.id),
+                onChanged: state.processandoAcaoEmMassa
+                    ? null
+                    : (_) => cubit.alternarSelecao(aplicador.id),
+              ),
+            ),
+            GeopragDataColumn(
+              label: 'Nome',
+              width: const FlexColumnWidth(2),
+              cellBuilder: (context, aplicador) => Text(aplicador.nome),
+            ),
+            GeopragDataColumn(
+              label: 'Bairro/Trecho',
+              width: const FlexColumnWidth(2),
+              cellBuilder: (context, aplicador) => Text(aplicador.bairro),
+            ),
+            GeopragDataColumn(
+              label: 'Status',
+              width: const FlexColumnWidth(1),
+              cellBuilder: (context, aplicador) => GeopragStatusBadge(
+                status: aplicador.ativo
+                    ? GeopragStatus.emDia
+                    : GeopragStatus.atrasado,
+                label: aplicador.ativo ? 'Ativo' : 'Desativado',
+                dense: true,
+              ),
+            ),
+            GeopragDataColumn(
+              label: 'Ações',
+              width: const FlexColumnWidth(1),
+              cellBuilder: (context, aplicador) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.visibility, color: Colors.blue),
+                    onPressed: () {
+                      AdminNavigatorScope.of(
+                        context,
+                      ).toAplicadorDetalhes(aplicador.id);
+                    },
+                    tooltip: 'Visualizar',
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -268,6 +210,11 @@ class _BarraAcaoEmMassa extends StatelessWidget {
   Widget build(BuildContext context) {
     final quantidade = state.selecionados.length;
     final processando = state.processandoAcaoEmMassa;
+    // GEOPRAG-67 (review Rafinha, PR #14): fundo verde escuro (M3
+    // primaryContainer) com texto no estilo padrão (preto) ficava
+    // ilegível — o texto agora usa onPrimaryContainer, o par de contraste
+    // correto definido em GeopragTheme.
+    final onPrimaryContainer = Theme.of(context).colorScheme.onPrimaryContainer;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -280,26 +227,43 @@ class _BarraAcaoEmMassa extends StatelessWidget {
         spacing: 12,
         runSpacing: 8,
         children: [
-          Text('$quantidade selecionado(s)'),
+          Text(
+            '$quantidade selecionado(s)',
+            style: TextStyle(color: onPrimaryContainer),
+          ),
           OutlinedButton.icon(
             onPressed: processando ? null : cubit.ativarSelecionados,
-            icon: const Icon(Icons.check_circle_outline),
-            label: const Text('Ativar selecionados'),
+            icon: Icon(Icons.check_circle_outline, color: onPrimaryContainer),
+            label: Text(
+              'Ativar selecionados',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
+            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
           ),
           OutlinedButton.icon(
             onPressed: processando ? null : cubit.desativarSelecionados,
-            icon: const Icon(Icons.block),
-            label: const Text('Desativar selecionados'),
+            icon: Icon(Icons.block, color: onPrimaryContainer),
+            label: Text(
+              'Desativar selecionados',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
+            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
           ),
           TextButton(
             onPressed: processando ? null : cubit.limparSelecao,
-            child: const Text('Limpar seleção'),
+            child: Text(
+              'Limpar seleção',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
           ),
           if (processando)
-            const SizedBox(
+            SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: onPrimaryContainer,
+              ),
             ),
         ],
       ),

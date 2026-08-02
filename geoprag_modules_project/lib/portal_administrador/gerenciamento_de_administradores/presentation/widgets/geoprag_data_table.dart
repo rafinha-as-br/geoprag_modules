@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 
 /// Uma coluna de [GeopragDataTable]: rótulo do cabeçalho, largura e como
 /// renderizar a célula de cada linha a partir do item [T].
+///
+/// [headerBuilder] permite substituir o cabeçalho padrão (`Text(label)`) por
+/// um widget customizado — ex.: um checkbox de "selecionar todos" na coluna
+/// de seleção em massa (GEOPRAG-67, feedback de revisão do PR #14: reusar
+/// esta tabela no dashboard de Aplicadores, que tem essa necessidade que o
+/// dashboard de Administradores não tinha). [label] continua obrigatório
+/// mesmo quando [headerBuilder] é informado, para manter uma descrição
+/// textual da coluna disponível.
 class GeopragDataColumn<T> {
   final String label;
   final TableColumnWidth width;
   final Widget Function(BuildContext context, T item) cellBuilder;
+  final WidgetBuilder? headerBuilder;
 
   const GeopragDataColumn({
     required this.label,
     required this.width,
     required this.cellBuilder,
+    this.headerBuilder,
   });
 }
 
@@ -50,10 +60,12 @@ class GeopragDataTable<T> extends StatelessWidget {
             for (final coluna in columns)
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: Text(
-                  coluna.label,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: coluna.headerBuilder != null
+                    ? coluna.headerBuilder!(context)
+                    : Text(
+                        coluna.label,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
               ),
           ],
         ),
