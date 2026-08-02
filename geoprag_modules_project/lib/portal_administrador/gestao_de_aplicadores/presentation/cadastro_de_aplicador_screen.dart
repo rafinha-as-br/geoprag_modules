@@ -45,11 +45,6 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
     super.dispose();
   }
 
-  /// Senha inicial exibida uma única vez em [_SenhaGeradaBanner], logo após
-  /// o cadastro ser salvo (GEOPRAG-61/65) — não é reexibida depois que a
-  /// tela é fechada, nem persistida em nenhum outro lugar.
-  String? _senhaGerada;
-
   @override
   Widget build(BuildContext context) {
     return AdminScaffold(
@@ -58,11 +53,12 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
       body: BlocConsumer<CriarAplicadorCubit, CriarAplicadorState>(
         listener: (context, state) {
           if (state is CriarAplicadorSucesso) {
-            // Não navega de volta imediatamente — a senha gerada precisa
-            // ficar visível na tela até o Administrador/Sub-Administrador
-            // confirmar que já repassou ela verbalmente ao voluntário (ver
-            // botão "Concluir" em [_SenhaGeradaBanner]).
-            setState(() => _senhaGerada = state.senhaGerada);
+            // GEOPRAG-65 (review Rafinha): a senha gerada vira um Dialog
+            // modal, não mais um banner sobreposto (cor escura demais,
+            // texto ilegível). `barrierDismissible: false` — só sai do
+            // dialog pelo botão "Concluir", garantindo que o cadastrador
+            // leu a senha antes de voltar ao dashboard.
+            _mostrarSenhaGeradaDialog(context, state.senhaGerada);
           } else if (state is CriarAplicadorErro) {
             ScaffoldMessenger.of(
               context,
@@ -71,27 +67,53 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
         },
         builder: (context, state) {
           final salvando = state is CriarAplicadorSalvando;
-          return Stack(
-            children: [
-              _buildFormulario(context, salvando),
-              if (_senhaGerada != null)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: _SenhaGeradaBanner(
-                    senha: _senhaGerada!,
-                    onConcluir: () {
-                      // Esta tela é sempre alcançada por push a partir do
-                      // Dashboard de Aplicadores (`toCriarAplicador`) —
-                      // `.back()` volta pra lá, onde o cadastro recém-criado
-                      // já aparece na listagem.
-                      AdminNavigatorScope.of(context).back();
-                    },
-                  ),
-                ),
-            ],
-          );
+          return _buildFormulario(context, salvando);
         },
+      ),
+    );
+  }
+
+  Future<void> _mostrarSenhaGeradaDialog(
+    BuildContext context,
+    String senha,
+  ) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Senha inicial gerada'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Repasse verbalmente e pessoalmente ao voluntário. Esta '
+              'senha não será exibida novamente.',
+            ),
+            const SizedBox(height: 16),
+            SelectableText(
+              senha,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              // Esta tela é alcançada por pushReplacement (destino de
+              // topo, não sub-rota) — não há frame anterior para `.back()`,
+              // volta ao dashboard explicitamente, onde o cadastro
+              // recém-criado já aparece na listagem.
+              AdminNavigatorScope.of(context).toAplicadores();
+            },
+            child: const Text('Concluir'),
+          ),
+        ],
       ),
     );
   }
@@ -227,62 +249,6 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Painel exibido no canto superior direito da tela de cadastro, mostrando a
-/// senha inicial gerada automaticamente (GEOPRAG-61/65) para que quem
-/// cadastrou possa lê-la e repassá-la verbalmente ao voluntário. Some ao
-/// clicar em "Concluir" — a senha não fica acessível em nenhuma outra tela.
-class _SenhaGeradaBanner extends StatelessWidget {
-  final String senha;
-  final VoidCallback onConcluir;
-
-  const _SenhaGeradaBanner({required this.senha, required this.onConcluir});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 8,
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: Container(
-        width: 320,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Senha inicial gerada',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Repasse verbalmente e pessoalmente ao voluntário. Esta '
-              'senha não será exibida novamente.',
-            ),
-            const SizedBox(height: 12),
-            SelectableText(
-              senha,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onConcluir,
-                child: const Text('Concluir'),
-              ),
-            ),
-          ],
         ),
       ),
     );
