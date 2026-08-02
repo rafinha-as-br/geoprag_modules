@@ -18,7 +18,12 @@ class CriarAdministradorSalvando extends CriarAdministradorState {
 
 class CriarAdministradorSucesso extends CriarAdministradorState {
   final AdminAccount conta;
-  const CriarAdministradorSucesso(this.conta);
+
+  /// Senha inicial gerada automaticamente (GEOPRAG-61/68) — exibida em tela
+  /// uma única vez para quem cadastrou repassar verbalmente ao novo usuário.
+  final String senhaGerada;
+
+  const CriarAdministradorSucesso(this.conta, this.senhaGerada);
 }
 
 class CriarAdministradorErro extends CriarAdministradorState {
