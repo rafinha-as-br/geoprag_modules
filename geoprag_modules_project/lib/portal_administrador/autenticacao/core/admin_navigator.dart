@@ -21,6 +21,9 @@ abstract class AdminNavigator {
   void toAplicadores();
   void toAplicadorDetalhes(String aplicadorId);
 
+  /// Formulário de criação de novo Aplicador (GEOPRAG-65).
+  void toCriarAplicador();
+
   /// Dashboard do módulo `gerenciamento_de_administradores` — listagem,
   /// busca, desativação e solicitação de promoção (GEOPRAG-36).
   void toGerenciamentoAdministradores();
