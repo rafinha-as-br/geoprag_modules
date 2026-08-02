@@ -20,7 +20,6 @@ class CriarAdministradorCubit extends Cubit<CriarAdministradorState> {
     required String cpf,
     required DateTime dataNascimento,
     required String sexo,
-    String? cep,
   }) async {
     emit(const CriarAdministradorSalvando());
     try {
@@ -30,7 +29,6 @@ class CriarAdministradorCubit extends Cubit<CriarAdministradorState> {
         cpf: cpf,
         dataNascimento: dataNascimento,
         sexo: sexo,
-        cep: cep,
       );
       emit(CriarAdministradorSucesso(conta));
     } on EntidadeDuplicadaException catch (e) {

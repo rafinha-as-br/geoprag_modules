@@ -11,7 +11,6 @@ class AdministradorViewModel {
   final String cpf;
   final DateTime dataNascimento;
   final String sexo;
-  final String? cep;
   final AdminRole role;
   final UsuarioStatus status;
   final DateTime dataCriacao;
@@ -23,7 +22,6 @@ class AdministradorViewModel {
     required this.cpf,
     required this.dataNascimento,
     required this.sexo,
-    this.cep,
     required this.role,
     required this.status,
     required this.dataCriacao,
@@ -44,7 +42,6 @@ class AdministradorViewModel {
       cpf: entity.cpf,
       dataNascimento: entity.dataNascimento,
       sexo: entity.sexo,
-      cep: entity.cep,
       role: entity.role,
       status: entity.status,
       dataCriacao: entity.dataCriacao,

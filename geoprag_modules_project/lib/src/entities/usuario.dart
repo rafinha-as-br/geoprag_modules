@@ -8,9 +8,10 @@ enum UsuarioStatus { ativo, desativado }
 /// Contém os dados cadastrais obrigatórios para os três perfis, conforme
 /// "Regra de Negócio - Dados da Conta" (filha de "Regra de Negócio -
 /// Regras de Conta"): `email`, `nome`, `cpf`, `dataNascimento` e `sexo`.
-/// `cep` também é modelado aqui — obrigatório apenas para o Aplicador, mas
-/// aplicável (opcional) para Administrador e Sub-Administrador, conforme a
-/// mesma RN.
+/// `cep` também é modelado aqui — obrigatório apenas para o Aplicador; CEP
+/// não existe como conceito para Administrador/Sub-Administrador (nenhum
+/// código desses dois perfis lê ou escreve este campo), conforme a mesma
+/// RN.
 ///
 /// Também carrega o estado do cadastro em nível de conta — comum aos três
 /// perfis, já que nenhum deles pode ser excluído, apenas desativado (ver
