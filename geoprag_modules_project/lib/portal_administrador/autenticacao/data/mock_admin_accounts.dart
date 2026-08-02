@@ -11,6 +11,7 @@ final List<AdminAccount> mockAdminAccounts = [
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1980, 5, 12),
     sexo: 'Masculino',
+    dataCriacao: DateTime(2026, 1, 10),
     role: AdminRole.administrador,
   ),
   AdminAccount(
@@ -19,6 +20,7 @@ final List<AdminAccount> mockAdminAccounts = [
     cpf: '987.654.321-00',
     dataNascimento: DateTime(1990, 3, 20),
     sexo: 'Feminino',
+    dataCriacao: DateTime(2026, 2, 3),
     role: AdminRole.subAdministrador,
   ),
 ];

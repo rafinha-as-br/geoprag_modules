@@ -30,25 +30,28 @@ class AutorizacaoRedefinicaoScreen extends StatelessWidget {
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: BlocBuilder<
-                  AutorizacaoRedefinicaoCubit,
-                  AutorizacaoRedefinicaoState
-                >(
-                  builder: (context, state) {
-                    return switch (state) {
-                      AutorizacaoRedefinicaoLoading() => const SizedBox(
-                        height: 80,
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                      AutorizacaoRedefinicaoError(:final message) => Text(
-                        'Não foi possível carregar a solicitação: $message',
-                        style: const TextStyle(color: GeopragColors.statusAtrasado),
-                      ),
-                      AutorizacaoRedefinicaoLoaded(:final solicitacao) =>
-                        _SolicitacaoContent(solicitacao: solicitacao),
-                    };
-                  },
-                ),
+                child:
+                    BlocBuilder<
+                      AutorizacaoRedefinicaoCubit,
+                      AutorizacaoRedefinicaoState
+                    >(
+                      builder: (context, state) {
+                        return switch (state) {
+                          AutorizacaoRedefinicaoLoading() => const SizedBox(
+                            height: 80,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          AutorizacaoRedefinicaoError(:final message) => Text(
+                            'Não foi possível carregar a solicitação: $message',
+                            style: const TextStyle(
+                              color: GeopragColors.statusAtrasado,
+                            ),
+                          ),
+                          AutorizacaoRedefinicaoLoaded(:final solicitacao) =>
+                            _SolicitacaoContent(solicitacao: solicitacao),
+                        };
+                      },
+                    ),
               ),
             ),
           ),
@@ -165,9 +168,8 @@ class _SolicitacaoContent extends StatelessWidget {
           // simula essa continuação enquanto não há integração real entre
           // sessões/dispositivos.
           OutlinedButton.icon(
-            onPressed: () => AdminNavigatorScope.of(
-              context,
-            ).toVerificarCodigoSubAdmin(),
+            onPressed: () =>
+                AdminNavigatorScope.of(context).toVerificarCodigoSubAdmin(),
             icon: const Icon(Icons.arrow_forward),
             label: const Text('Continuar como Sub-Administrador'),
           ),

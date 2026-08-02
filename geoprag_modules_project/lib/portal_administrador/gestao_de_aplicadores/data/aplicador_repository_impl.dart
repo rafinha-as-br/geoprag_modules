@@ -3,6 +3,7 @@ import '../core/aplicador_repository.dart';
 import '../core/atuacao_aplicador.dart';
 import 'mock_aplicadores.dart';
 import 'mock_atuacoes_aplicador.dart';
+import '../../../src/entities/usuario.dart';
 import '../../../src/errors/app_exceptions.dart';
 
 /// Implementação de [AplicadorRepository] com fonte remota mockada
@@ -18,7 +19,9 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
   Future<Aplicador> buscarPorId(String id) async {
     return mockApplicators.firstWhere(
       (aplicador) => aplicador.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException(
+        'Aplicador "$id" não encontrado.',
+      ),
     );
   }
 
@@ -28,16 +31,23 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
   }
 
   @override
-  Future<void> ativar(String id) async => _atualizarStatus(id, 'ativo');
+  Future<void> ativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.ativo);
 
   @override
-  Future<void> desativar(String id) async => _atualizarStatus(id, 'desativado');
+  Future<void> desativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.desativado);
 
-  void _atualizarStatus(String id, String status) {
+  void _atualizarStatus(String id, UsuarioStatus status) {
     final index = mockApplicators.indexWhere((aplicador) => aplicador.id == id);
     if (index == -1) {
       throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.');
     }
-    mockApplicators[index] = mockApplicators[index].copyWith(status: status);
+    mockApplicators[index] = mockApplicators[index].copyWith(
+      status: status,
+      dataDesativacao: status == UsuarioStatus.desativado
+          ? DateTime.now()
+          : mockApplicators[index].dataDesativacao,
+    );
   }
 }

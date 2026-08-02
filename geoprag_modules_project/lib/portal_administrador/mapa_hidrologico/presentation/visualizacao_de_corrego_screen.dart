@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'corrego_detalhe_cubit.dart';
 import 'corrego_detalhe_state.dart';
 import 'corrego_view_model.dart';
@@ -13,33 +13,26 @@ class VisualizacaoDeCorregoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/mapa',
       appBar: AppBar(title: const Text('Visualização de Córrego')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/mapa'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: BlocBuilder<CorregoDetalheCubit, CorregoDetalheState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    CorregoDetalheLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    CorregoDetalheError(:final message) => Center(
-                      child: Text(
-                        'Não foi possível carregar o córrego: $message',
-                      ),
-                    ),
-                    CorregoDetalheLoaded(:final corrego) =>
-                      _CorregoDetalheContent(corrego: corrego),
-                  };
-                },
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: BlocBuilder<CorregoDetalheCubit, CorregoDetalheState>(
+          builder: (context, state) {
+            return switch (state) {
+              CorregoDetalheLoading() => const Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-          ),
-        ],
+              CorregoDetalheError(:final message) => Center(
+                child: Text('Não foi possível carregar o córrego: $message'),
+              ),
+              CorregoDetalheLoaded(:final corrego) => _CorregoDetalheContent(
+                corrego: corrego,
+              ),
+            };
+          },
+        ),
       ),
     );
   }
@@ -67,7 +60,9 @@ class _CorregoDetalheContent extends StatelessWidget {
         const SizedBox(height: 24),
         Card(
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

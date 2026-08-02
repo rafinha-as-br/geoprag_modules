@@ -20,3 +20,29 @@ class EntidadeNaoEncontradaException implements Exception {
   @override
   String toString() => 'EntidadeNaoEncontradaException: $mensagemAmigavel';
 }
+
+/// Exceção lançada pela camada de dados quando uma operação de criação
+/// viola uma restrição de unicidade de negócio (ex.: e-mail institucional
+/// já cadastrado como identificador de login). Mesma semântica de
+/// [mensagemAmigavel] de [EntidadeNaoEncontradaException].
+class EntidadeDuplicadaException implements Exception {
+  const EntidadeDuplicadaException(this.mensagemAmigavel);
+
+  final String mensagemAmigavel;
+
+  @override
+  String toString() => 'EntidadeDuplicadaException: $mensagemAmigavel';
+}
+
+/// Exceção lançada quando uma operação viola uma regra de negócio que não é
+/// nem "não encontrado" nem "duplicado" — ex.: tentar votar duas vezes na
+/// mesma solicitação, ou cancelar uma solicitação sem ser o solicitante.
+/// Mesma semântica de [mensagemAmigavel] das exceções acima.
+class OperacaoNaoPermitidaException implements Exception {
+  const OperacaoNaoPermitidaException(this.mensagemAmigavel);
+
+  final String mensagemAmigavel;
+
+  @override
+  String toString() => 'OperacaoNaoPermitidaException: $mensagemAmigavel';
+}

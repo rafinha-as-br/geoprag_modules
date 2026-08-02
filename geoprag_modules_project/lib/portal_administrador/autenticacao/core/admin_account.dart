@@ -11,6 +11,27 @@ class AdminAccount extends Usuario {
     required super.cpf,
     required super.dataNascimento,
     required super.sexo,
+    super.cep,
+    required super.dataCriacao,
+    super.status = UsuarioStatus.ativo,
+    super.dataDesativacao,
     required this.role,
   });
+
+  AdminAccount copyWith({
+    AdminRole? role,
+    UsuarioStatus? status,
+    DateTime? dataDesativacao,
+  }) => AdminAccount(
+    email: email,
+    nome: nome,
+    cpf: cpf,
+    dataNascimento: dataNascimento,
+    sexo: sexo,
+    cep: cep,
+    dataCriacao: dataCriacao,
+    role: role ?? this.role,
+    status: status ?? this.status,
+    dataDesativacao: dataDesativacao ?? this.dataDesativacao,
+  );
 }

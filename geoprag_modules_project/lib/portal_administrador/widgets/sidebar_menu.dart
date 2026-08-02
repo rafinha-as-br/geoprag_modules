@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../src/theme/geoprag_colors.dart';
 import '../../src/widgets/geoprag_logo.dart';
+import '../autenticacao/core/admin_account.dart';
 import '../autenticacao/core/admin_navigator.dart';
+import '../autenticacao/presentation/admin_session_cubit.dart';
+import '../autenticacao/presentation/admin_session_state.dart';
 
 class SidebarMenu extends StatelessWidget {
   final String currentRoute;
@@ -11,6 +15,11 @@ class SidebarMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sessionState = context.watch<AdminSessionCubit>().state;
+    final isAdministrador =
+        sessionState is AdminSessionAutenticado &&
+        sessionState.conta.role == AdminRole.administrador;
+
     return Container(
       width: 250,
       color: Colors.grey[100],
@@ -19,9 +28,12 @@ class SidebarMenu extends StatelessWidget {
           const DrawerHeader(
             decoration: BoxDecoration(color: GeopragColors.green900),
             child: Center(
-              child: GeopragLogo(
-                markSize: 32,
-                variant: GeopragMarkVariant.light,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: GeopragLogo(
+                  markSize: 32,
+                  variant: GeopragMarkVariant.light,
+                ),
               ),
             ),
           ),
@@ -46,11 +58,23 @@ class SidebarMenu extends StatelessWidget {
             Icons.report_problem,
             '/denuncias_admin',
           ),
+          // Ocultação total (não apenas bloqueio de rota) para
+          // Sub-Administrador — GEOPRAG-36, escopo 3.
+          if (isAdministrador)
+            _buildMenuItem(
+              context,
+              'Gerenciamento de Administradores',
+              Icons.admin_panel_settings,
+              '/administradores',
+            ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
-            onTap: () => AdminNavigatorScope.of(context).toLogout(),
+            onTap: () {
+              context.read<AdminSessionCubit>().encerrarSessao();
+              AdminNavigatorScope.of(context).toLogout();
+            },
           ),
         ],
       ),
@@ -101,6 +125,8 @@ class SidebarMenu extends StatelessWidget {
         navigator.toDistribuicoes();
       case '/denuncias_admin':
         navigator.toDenunciasAdmin();
+      case '/administradores':
+        navigator.toGerenciamentoAdministradores();
     }
   }
 }

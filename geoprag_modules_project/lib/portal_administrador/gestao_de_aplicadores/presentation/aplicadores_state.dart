@@ -1,3 +1,4 @@
+import '../../../src/entities/usuario.dart';
 import 'aplicador_view_model.dart';
 
 /// Filtro de status aplicado à listagem do dashboard de Aplicadores.
@@ -30,9 +31,9 @@ class AplicadoresLoaded extends AplicadoresState {
     return switch (filtro) {
       FiltroStatusAplicador.todos => aplicadores,
       FiltroStatusAplicador.ativos =>
-        aplicadores.where((a) => a.status == 'ativo').toList(),
+        aplicadores.where((a) => a.status == UsuarioStatus.ativo).toList(),
       FiltroStatusAplicador.desativados =>
-        aplicadores.where((a) => a.status == 'desativado').toList(),
+        aplicadores.where((a) => a.status == UsuarioStatus.desativado).toList(),
     };
   }
 

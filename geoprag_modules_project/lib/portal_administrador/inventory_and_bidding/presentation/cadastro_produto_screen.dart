@@ -39,10 +39,11 @@ class CadastroProdutoScreen extends StatelessWidget {
                     BlocBuilder<ProdutosCubit, ProdutosState>(
                       builder: (context, state) {
                         final licitacoes = switch (state) {
-                          ProdutosLoaded(:final produtos) => produtos
-                              .map((produto) => produto.licitacao)
-                              .toSet()
-                              .toList(),
+                          ProdutosLoaded(:final produtos) =>
+                            produtos
+                                .map((produto) => produto.licitacao)
+                                .toSet()
+                                .toList(),
                           _ => const <String>[],
                         };
                         return DropdownButtonFormField<String>(

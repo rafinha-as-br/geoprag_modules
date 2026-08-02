@@ -48,7 +48,10 @@ void main() {
 
     test('lança InvalidCredentialsException para e-mail inexistente', () {
       expect(
-        () => repository.login(identifier: 'ninguem@gaspar.sc.gov.br', senha: mockAdminSenha),
+        () => repository.login(
+          identifier: 'ninguem@gaspar.sc.gov.br',
+          senha: mockAdminSenha,
+        ),
         throwsA(isA<InvalidCredentialsException>()),
       );
     });
@@ -57,28 +60,37 @@ void main() {
       final account = mockAdminAccounts.first;
 
       expect(
-        () => repository.login(identifier: account.email, senha: 'senha-errada'),
+        () =>
+            repository.login(identifier: account.email, senha: 'senha-errada'),
         throwsA(isA<InvalidCredentialsException>()),
       );
     });
   });
 
   group('findByEmail', () {
-    test('retorna a conta correspondente ao e-mail (case-insensitive)', () async {
-      final account = mockAdminAccounts.firstWhere(
-        (a) => a.role == AdminRole.subAdministrador,
-      );
+    test(
+      'retorna a conta correspondente ao e-mail (case-insensitive)',
+      () async {
+        final account = mockAdminAccounts.firstWhere(
+          (a) => a.role == AdminRole.subAdministrador,
+        );
 
-      final result = await repository.findByEmail(account.email.toUpperCase());
+        final result = await repository.findByEmail(
+          account.email.toUpperCase(),
+        );
 
-      expect(result, isNotNull);
-      expect(result!.role, AdminRole.subAdministrador);
-    });
+        expect(result, isNotNull);
+        expect(result!.role, AdminRole.subAdministrador);
+      },
+    );
 
-    test('retorna null quando o e-mail não existe em mockAdminAccounts', () async {
-      final result = await repository.findByEmail('ninguem@gaspar.sc.gov.br');
-      expect(result, isNull);
-    });
+    test(
+      'retorna null quando o e-mail não existe em mockAdminAccounts',
+      () async {
+        final result = await repository.findByEmail('ninguem@gaspar.sc.gov.br');
+        expect(result, isNull);
+      },
+    );
   });
 
   group('demais operações mockadas', () {
@@ -87,7 +99,10 @@ void main() {
     });
 
     test('resetPassword completa sem lançar exceção', () async {
-      await expectLater(repository.resetPassword(novaSenha: 'nova-senha-123'), completes);
+      await expectLater(
+        repository.resetPassword(novaSenha: 'nova-senha-123'),
+        completes,
+      );
     });
   });
 }

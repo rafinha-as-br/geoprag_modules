@@ -16,7 +16,11 @@ class AdminRecriarSenhaCubit extends Cubit<AuthActionState<Null>> {
       emit(const AuthActionSuccess(null));
     } catch (e, stackTrace) {
       AppLogger.error('AdminRecriarSenhaCubit.submit', e, stackTrace);
-      emit(const AuthActionFailure('Não foi possível redefinir a senha. Tente novamente.'));
+      emit(
+        const AuthActionFailure(
+          'Não foi possível redefinir a senha. Tente novamente.',
+        ),
+      );
     }
   }
 }

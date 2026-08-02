@@ -208,7 +208,7 @@ class _DashboardConteudo extends StatelessWidget {
     AplicadoresLoaded state,
     AplicadorResumoViewModel aplicador,
   ) {
-    final isAtivo = aplicador.status == 'ativo';
+    final isAtivo = aplicador.ativo;
     return TableRow(
       children: [
         Padding(
@@ -244,7 +244,9 @@ class _DashboardConteudo extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.visibility, color: Colors.blue),
                 onPressed: () {
-                  AdminNavigatorScope.of(context).toAplicadorDetalhes();
+                  AdminNavigatorScope.of(
+                    context,
+                  ).toAplicadorDetalhes(aplicador.id);
                 },
                 tooltip: 'Visualizar',
               ),

@@ -9,7 +9,8 @@ class Distribuicao {
   final DateTime dataEntrega;
   final String responsavel;
   final String bairroResponsavel;
-  final String statusConfirmacao; // 'aguardando_aceite' | 'confirmado' | 'recusado'
+  final String
+  statusConfirmacao; // 'aguardando_aceite' | 'confirmado' | 'recusado'
 
   const Distribuicao({
     required this.id,

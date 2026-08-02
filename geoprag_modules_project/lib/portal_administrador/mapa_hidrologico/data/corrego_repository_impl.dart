@@ -18,7 +18,8 @@ class CorregoRepositoryImpl implements CorregoRepository {
   Future<Corrego> buscarPorId(String id) async {
     return mockStreams.firstWhere(
       (corrego) => corrego.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Córrego "$id" não encontrado.'),
+      orElse: () =>
+          throw EntidadeNaoEncontradaException('Córrego "$id" não encontrado.'),
     );
   }
 
@@ -29,7 +30,8 @@ class CorregoRepositoryImpl implements CorregoRepository {
   Future<Bairro> buscarBairroPorId(String id) async {
     return mockBairros.firstWhere(
       (bairro) => bairro.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Bairro "$id" não encontrado.'),
+      orElse: () =>
+          throw EntidadeNaoEncontradaException('Bairro "$id" não encontrado.'),
     );
   }
 

@@ -20,7 +20,8 @@ class ProdutoRepositoryImpl implements ProdutoRepository {
   Future<Produto> buscarPorId(String id) async {
     return mockProdutos.firstWhere(
       (produto) => produto.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Produto "$id" não encontrado.'),
+      orElse: () =>
+          throw EntidadeNaoEncontradaException('Produto "$id" não encontrado.'),
     );
   }
 

@@ -14,7 +14,9 @@ class AplicacaoMapaRepositoryImpl implements AplicacaoMapaRepository {
   Future<Aplicacao> buscarPorId(String id) async {
     return mockApplications.firstWhere(
       (aplicacao) => aplicacao.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Aplicação "$id" não encontrada.'),
+      orElse: () => throw EntidadeNaoEncontradaException(
+        'Aplicação "$id" não encontrada.',
+      ),
     );
   }
 }

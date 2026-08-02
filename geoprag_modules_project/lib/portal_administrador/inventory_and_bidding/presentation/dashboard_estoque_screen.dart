@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'produto_view_model.dart';
 import 'produtos_cubit.dart';
@@ -14,184 +14,167 @@ class DashboardEstoqueScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/estoque',
       appBar: AppBar(title: const Text('Controle de Estoque e Compras')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/estoque'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 12,
+              children: [
+                const Text(
+                  'Inventário Geral',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        AdminNavigatorScope.of(context).toEstoqueFormula();
+                      },
+                      icon: const Icon(Icons.calculate),
+                      label: const Text('Fórmula de Dosagem'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        AdminNavigatorScope.of(context).toEstoqueLicitacao();
+                      },
+                      icon: const Icon(Icons.description),
+                      label: const Text('Nova Licitação'),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        AdminNavigatorScope.of(context).toEstoqueProduto();
+                      },
+                      icon: const Icon(Icons.add_box),
+                      label: const Text('Registrar Entrada'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      const Text(
-                        'Inventário Geral',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Buscar produto por lote ou licitação...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              AdminNavigatorScope.of(
-                                context,
-                              ).toEstoqueFormula();
-                            },
-                            icon: const Icon(Icons.calculate),
-                            label: const Text('Fórmula de Dosagem'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
+                      const SizedBox(height: 16),
+                      BlocBuilder<ProdutosCubit, ProdutosState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            ProdutosLoading() => const Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Center(child: CircularProgressIndicator()),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              AdminNavigatorScope.of(
-                                context,
-                              ).toEstoqueLicitacao();
-                            },
-                            icon: const Icon(Icons.description),
-                            label: const Text('Nova Licitação'),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              AdminNavigatorScope.of(
-                                context,
-                              ).toEstoqueProduto();
-                            },
-                            icon: const Icon(Icons.add_box),
-                            label: const Text('Registrar Entrada'),
-                          ),
-                        ],
+                            ProdutosError(:final message) => Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(
+                                'Não foi possível carregar os produtos: $message',
+                              ),
+                            ),
+                            ProdutosLoaded(:final produtos) => Table(
+                              border: TableBorder.all(color: Colors.grey[300]!),
+                              columnWidths: const {
+                                0: FlexColumnWidth(2),
+                                1: FlexColumnWidth(1),
+                                2: FlexColumnWidth(1),
+                                3: FlexColumnWidth(1),
+                                4: FlexColumnWidth(1),
+                              },
+                              children: [
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                  ),
+                                  children: const [
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Produto / Lote',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Licitação',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Estoque Atual',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Status',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Ações',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                for (final produto in produtos)
+                                  _buildTableRow(context, produto),
+                              ],
+                            ),
+                          };
+                        },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            TextField(
-                              decoration: InputDecoration(
-                                hintText:
-                                    'Buscar produto por lote ou licitação...',
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            BlocBuilder<ProdutosCubit, ProdutosState>(
-                              builder: (context, state) {
-                                return switch (state) {
-                                  ProdutosLoading() => const Padding(
-                                    padding: EdgeInsets.all(24),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  ),
-                                  ProdutosError(:final message) => Padding(
-                                    padding: const EdgeInsets.all(24),
-                                    child: Text(
-                                      'Não foi possível carregar os produtos: $message',
-                                    ),
-                                  ),
-                                  ProdutosLoaded(:final produtos) => Table(
-                                    border: TableBorder.all(
-                                      color: Colors.grey[300]!,
-                                    ),
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(2),
-                                      1: FlexColumnWidth(1),
-                                      2: FlexColumnWidth(1),
-                                      3: FlexColumnWidth(1),
-                                      4: FlexColumnWidth(1),
-                                    },
-                                    children: [
-                                      TableRow(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[100],
-                                        ),
-                                        children: const [
-                                          Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'Produto / Lote',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'Licitação',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'Estoque Atual',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'Status',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Text(
-                                              'Ações',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      for (final produto in produtos)
-                                        _buildTableRow(context, produto),
-                                    ],
-                                  ),
-                                };
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -228,7 +211,7 @@ class DashboardEstoqueScreen extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.visibility, color: Colors.blue),
             onPressed: () {
-              AdminNavigatorScope.of(context).toEstoqueVisualizacao();
+              AdminNavigatorScope.of(context).toEstoqueVisualizacao(produto.id);
             },
           ),
         ),

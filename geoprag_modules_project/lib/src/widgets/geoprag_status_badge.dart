@@ -39,12 +39,15 @@ class GeopragStatusBadge extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
-          Text(
-            label ?? status.defaultLabel,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w700,
-              fontSize: dense ? 12 : 14,
+          Flexible(
+            child: Text(
+              label ?? status.defaultLabel,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w700,
+                fontSize: dense ? 12 : 14,
+              ),
             ),
           ),
         ],

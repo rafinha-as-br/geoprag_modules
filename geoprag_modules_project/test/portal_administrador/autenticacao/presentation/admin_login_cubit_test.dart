@@ -18,6 +18,7 @@ void main() {
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1980, 5, 12),
     sexo: 'Masculino',
+    dataCriacao: DateTime(2026, 1, 1),
     role: AdminRole.administrador,
   );
 
@@ -29,14 +30,21 @@ void main() {
     'emite [Loading, Success(account)] quando o login é bem-sucedido',
     setUp: () {
       when(
-        () => repository.login(identifier: any(named: 'identifier'), senha: any(named: 'senha')),
+        () => repository.login(
+          identifier: any(named: 'identifier'),
+          senha: any(named: 'senha'),
+        ),
       ).thenAnswer((_) async => account);
     },
     build: () => AdminLoginCubit(repository),
     act: (cubit) => cubit.submit(identifier: account.email, senha: '123456'),
     expect: () => [
       const AuthActionLoading<AdminAccount>(),
-      isA<AuthActionSuccess<AdminAccount>>().having((s) => s.data, 'data', account),
+      isA<AuthActionSuccess<AdminAccount>>().having(
+        (s) => s.data,
+        'data',
+        account,
+      ),
     ],
   );
 
@@ -44,7 +52,10 @@ void main() {
     'emite [Loading, Failure] com mensagem específica quando as credenciais são inválidas',
     setUp: () {
       when(
-        () => repository.login(identifier: any(named: 'identifier'), senha: any(named: 'senha')),
+        () => repository.login(
+          identifier: any(named: 'identifier'),
+          senha: any(named: 'senha'),
+        ),
       ).thenThrow(const InvalidCredentialsException());
     },
     build: () => AdminLoginCubit(repository),
@@ -60,14 +71,19 @@ void main() {
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
       when(
-        () => repository.login(identifier: any(named: 'identifier'), senha: any(named: 'senha')),
+        () => repository.login(
+          identifier: any(named: 'identifier'),
+          senha: any(named: 'senha'),
+        ),
       ).thenThrow(Exception('timeout de rede'));
     },
     build: () => AdminLoginCubit(repository),
     act: (cubit) => cubit.submit(identifier: account.email, senha: '123456'),
     expect: () => [
       const AuthActionLoading<AdminAccount>(),
-      const AuthActionFailure<AdminAccount>('Não foi possível entrar. Tente novamente.'),
+      const AuthActionFailure<AdminAccount>(
+        'Não foi possível entrar. Tente novamente.',
+      ),
     ],
   );
 }

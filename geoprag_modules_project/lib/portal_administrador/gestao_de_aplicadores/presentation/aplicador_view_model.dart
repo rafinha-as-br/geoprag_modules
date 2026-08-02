@@ -1,3 +1,4 @@
+import '../../../src/entities/usuario.dart';
 import '../core/aplicador.dart';
 import '../core/atuacao_aplicador.dart';
 
@@ -7,7 +8,7 @@ class AplicadorResumoViewModel {
   final String id;
   final String nome;
   final String bairro;
-  final String status;
+  final UsuarioStatus status;
 
   const AplicadorResumoViewModel({
     required this.id,
@@ -15,6 +16,8 @@ class AplicadorResumoViewModel {
     required this.bairro,
     required this.status,
   });
+
+  bool get ativo => status == UsuarioStatus.ativo;
 
   factory AplicadorResumoViewModel.fromEntity(Aplicador entity) {
     return AplicadorResumoViewModel(
@@ -57,7 +60,9 @@ class AplicadorDetalhadoViewModel {
   final String cpf;
   final String telefone;
   final String endereco;
-  final String status;
+  final UsuarioStatus status;
+  final DateTime dataCriacao;
+  final DateTime? dataDesativacao;
   final List<AtuacaoAplicadorViewModel> historico;
 
   const AplicadorDetalhadoViewModel({
@@ -66,8 +71,12 @@ class AplicadorDetalhadoViewModel {
     required this.telefone,
     required this.endereco,
     required this.status,
+    required this.dataCriacao,
+    this.dataDesativacao,
     required this.historico,
   });
+
+  bool get ativo => status == UsuarioStatus.ativo;
 
   factory AplicadorDetalhadoViewModel.fromEntity(
     Aplicador entity,
@@ -79,6 +88,8 @@ class AplicadorDetalhadoViewModel {
       telefone: entity.telefone,
       endereco: entity.endereco,
       status: entity.status,
+      dataCriacao: entity.dataCriacao,
+      dataDesativacao: entity.dataDesativacao,
       historico: historico.map(AtuacaoAplicadorViewModel.fromEntity).toList(),
     );
   }

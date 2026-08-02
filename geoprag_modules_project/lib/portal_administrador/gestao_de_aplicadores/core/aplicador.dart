@@ -1,20 +1,22 @@
-class Aplicador {
+import '../../../src/entities/usuario.dart';
+
+class Aplicador extends Usuario {
   final String id;
-  final String nome;
   final String bairro;
-  final String status; // 'ativo' | 'desativado'
-  final DateTime dataCadastro;
-  final String cpf;
   final String telefone;
   final String endereco;
 
   const Aplicador({
     required this.id,
-    required this.nome,
+    required super.nome,
     required this.bairro,
-    required this.status,
-    required this.dataCadastro,
-    required this.cpf,
+    required super.status,
+    required super.dataCriacao,
+    super.dataDesativacao,
+    required super.email,
+    required super.cpf,
+    required super.dataNascimento,
+    required super.sexo,
     required this.telefone,
     required this.endereco,
   });
@@ -23,8 +25,8 @@ class Aplicador {
     String? id,
     String? nome,
     String? bairro,
-    String? status,
-    DateTime? dataCadastro,
+    UsuarioStatus? status,
+    DateTime? dataDesativacao,
     String? cpf,
     String? telefone,
     String? endereco,
@@ -34,8 +36,12 @@ class Aplicador {
       nome: nome ?? this.nome,
       bairro: bairro ?? this.bairro,
       status: status ?? this.status,
-      dataCadastro: dataCadastro ?? this.dataCadastro,
+      dataCriacao: dataCriacao,
+      dataDesativacao: dataDesativacao ?? this.dataDesativacao,
+      email: email,
       cpf: cpf ?? this.cpf,
+      dataNascimento: dataNascimento,
+      sexo: sexo,
       telefone: telefone ?? this.telefone,
       endereco: endereco ?? this.endereco,
     );

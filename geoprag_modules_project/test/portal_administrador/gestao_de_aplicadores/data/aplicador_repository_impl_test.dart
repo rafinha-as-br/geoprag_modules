@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/data/aplicador_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/data/mock_aplicadores.dart';
+import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
@@ -52,13 +53,13 @@ void main() {
     await repository.desativar('1');
     await repository.ativar('1');
     final result = await repository.buscarPorId('1');
-    expect(result.status, 'ativo');
+    expect(result.status, UsuarioStatus.ativo);
   });
 
   test('desativar muda o status do aplicador para desativado', () async {
     await repository.desativar('1');
     final result = await repository.buscarPorId('1');
-    expect(result.status, 'desativado');
+    expect(result.status, UsuarioStatus.desativado);
   });
 
   test('ativar lança EntidadeNaoEncontradaException quando o id não existe', () {

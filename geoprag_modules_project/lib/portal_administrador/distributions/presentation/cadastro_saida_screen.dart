@@ -64,7 +64,10 @@ class _CadastroSaidaScreenState extends State<CadastroSaidaScreen> {
                           CadastroSaidaError(:final message) => Text(
                             'Não foi possível carregar as opções do formulário: $message',
                           ),
-                          CadastroSaidaLoaded(:final produtos, :final responsaveis) =>
+                          CadastroSaidaLoaded(
+                            :final produtos,
+                            :final responsaveis,
+                          ) =>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [

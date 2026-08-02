@@ -59,7 +59,8 @@ void main() {
     setUp: () {
       when(() => repository.buscarPendente()).thenAnswer((_) async => pendente);
       when(() => repository.autorizar('sr1')).thenAnswer(
-        (_) async => pendente.copyWith(status: StatusSolicitacaoRedefinicao.autorizado),
+        (_) async =>
+            pendente.copyWith(status: StatusSolicitacaoRedefinicao.autorizado),
       );
     },
     build: () => AutorizacaoRedefinicaoCubit(repository),
@@ -89,7 +90,8 @@ void main() {
     setUp: () {
       when(() => repository.buscarPendente()).thenAnswer((_) async => pendente);
       when(() => repository.negar('sr1')).thenAnswer(
-        (_) async => pendente.copyWith(status: StatusSolicitacaoRedefinicao.negado),
+        (_) async =>
+            pendente.copyWith(status: StatusSolicitacaoRedefinicao.negado),
       );
     },
     build: () => AutorizacaoRedefinicaoCubit(repository),
