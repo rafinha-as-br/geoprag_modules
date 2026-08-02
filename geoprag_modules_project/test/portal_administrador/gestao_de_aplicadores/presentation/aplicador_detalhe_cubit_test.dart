@@ -25,6 +25,7 @@ void main() {
     cpf: '123.456.789-00',
     dataNascimento: DateTime(1992, 9, 3),
     sexo: 'Feminino',
+    cep: '89222-000',
     telefone: '(47) 99999-9999',
     endereco: 'Rua Principal, 100 - Poço Grande',
   );

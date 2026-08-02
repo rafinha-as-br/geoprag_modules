@@ -17,6 +17,7 @@ class Aplicador extends Usuario {
     required super.cpf,
     required super.dataNascimento,
     required super.sexo,
+    required super.cep,
     required this.telefone,
     required this.endereco,
   });

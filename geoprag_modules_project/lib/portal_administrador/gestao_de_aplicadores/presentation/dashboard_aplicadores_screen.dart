@@ -30,7 +30,9 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    AdminNavigatorScope.of(context).toCriarAplicador();
+                  },
                   icon: const Icon(Icons.add),
                   label: const Text('Novo Aplicador'),
                 ),

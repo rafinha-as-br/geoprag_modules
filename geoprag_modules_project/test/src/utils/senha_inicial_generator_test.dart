@@ -3,7 +3,7 @@ import 'package:geoprag_modules/src/utils/senha_inicial_generator.dart';
 
 void main() {
   group('gerarSenhaInicial', () {
-    test('combina data (DDMMAAAA) + iniciais minúsculas + # ', () {
+    test('combina data (DDMMAAAA) + iniciais minúsculas + #', () {
       final senha = gerarSenhaInicial(
         nome: 'João Silva',
         dataNascimento: DateTime(1990, 3, 15),
