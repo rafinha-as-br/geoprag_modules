@@ -15,7 +15,6 @@ void main() {
   final aplicador = Aplicador(
     id: '1',
     nome: 'João Silva',
-    bairro: 'Belchior',
     status: UsuarioStatus.ativo,
     dataCriacao: DateTime(2026, 5, 10),
     email: 'joao.silva@email.com',
@@ -24,7 +23,12 @@ void main() {
     sexo: 'Masculino',
     cep: '89111-000',
     telefone: '(47) 99111-1111',
-    endereco: 'Rua das Flores, 50 - Belchior',
+    cep: '89010-000',
+    rua: 'Rua das Flores',
+    numero: '50',
+    bairro: 'Belchior',
+    cidade: 'Blumenau',
+    uf: 'SC',
   );
 
   setUp(() {
