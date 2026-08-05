@@ -55,6 +55,11 @@ void main() {
       dataNascimento: DateTime(1993, 5, 20),
       sexo: 'Feminino',
       cep: '89100-000',
+      rua: 'Rua Nova',
+      numero: '10',
+      bairro: 'Centro',
+      cidade: 'Gaspar',
+      uf: 'SC',
     );
 
     expect(novo.email, 'novo.criar@email.com');
@@ -73,6 +78,11 @@ void main() {
           dataNascimento: DateTime(1993, 5, 20),
           sexo: 'Feminino',
           cep: '89100-000',
+          rua: 'Rua Nova',
+          numero: '10',
+          bairro: 'Centro',
+          cidade: 'Gaspar',
+          uf: 'SC',
         ),
         throwsA(isA<EntidadeDuplicadaException>()),
       );

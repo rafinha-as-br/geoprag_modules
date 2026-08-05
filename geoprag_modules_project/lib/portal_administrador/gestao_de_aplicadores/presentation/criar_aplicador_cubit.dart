@@ -21,6 +21,12 @@ class CriarAplicadorCubit extends Cubit<CriarAplicadorState> {
     required DateTime dataNascimento,
     required String sexo,
     required String cep,
+    required String rua,
+    required String numero,
+    String? complemento,
+    required String bairro,
+    required String cidade,
+    required String uf,
   }) async {
     emit(const CriarAplicadorSalvando());
     try {
@@ -31,6 +37,12 @@ class CriarAplicadorCubit extends Cubit<CriarAplicadorState> {
         dataNascimento: dataNascimento,
         sexo: sexo,
         cep: cep,
+        rua: rua,
+        numero: numero,
+        complemento: complemento,
+        bairro: bairro,
+        cidade: cidade,
+        uf: uf,
       );
       final senhaGerada = gerarSenhaInicial(
         nome: nome,

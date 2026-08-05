@@ -21,7 +21,6 @@ void main() {
     cpf: '111.111.111-11',
     dataNascimento: DateTime(1988, 4, 12),
     sexo: 'Masculino',
-    cep: '89111-000',
     telefone: '(47) 99111-1111',
     cep: '89010-000',
     rua: 'Rua das Flores',

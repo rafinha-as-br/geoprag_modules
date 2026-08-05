@@ -19,6 +19,12 @@ class FormularioCadastroAplicador extends StatelessWidget {
   final TextEditingController cpfController;
   final TextEditingController sexoController;
   final TextEditingController cepController;
+  final TextEditingController ruaController;
+  final TextEditingController numeroController;
+  final TextEditingController complementoController;
+  final TextEditingController bairroController;
+  final TextEditingController cidadeController;
+  final TextEditingController ufController;
   final DateTime? dataNascimento;
   final ValueChanged<DateTime?> onDataNascimentoChanged;
   final bool salvando;
@@ -32,6 +38,12 @@ class FormularioCadastroAplicador extends StatelessWidget {
     required this.cpfController,
     required this.sexoController,
     required this.cepController,
+    required this.ruaController,
+    required this.numeroController,
+    required this.complementoController,
+    required this.bairroController,
+    required this.cidadeController,
+    required this.ufController,
     required this.dataNascimento,
     required this.onDataNascimentoChanged,
     required this.salvando,
@@ -51,10 +63,14 @@ class FormularioCadastroAplicador extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(32.0),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            // Formulário rola verticalmente (campos de endereço da
+            // GEOPRAG-70 fazem o conteúdo passar da altura disponível em
+            // telas menores).
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
@@ -137,6 +153,91 @@ class FormularioCadastroAplicador extends StatelessWidget {
                         ? 'Informe o CEP.'
                         : null,
                   ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: ruaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Rua',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Informe a rua.'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: numeroController,
+                          decoration: const InputDecoration(
+                            labelText: 'Número',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe o número.'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: complementoController,
+                          decoration: const InputDecoration(
+                            labelText: 'Complemento (opcional)',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: bairroController,
+                    decoration: const InputDecoration(
+                      labelText: 'Bairro',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Informe o bairro.'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: cidadeController,
+                          decoration: const InputDecoration(
+                            labelText: 'Cidade',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe a cidade.'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextFormField(
+                          controller: ufController,
+                          decoration: const InputDecoration(
+                            labelText: 'UF',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLength: 2,
+                          textCapitalization: TextCapitalization.characters,
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe a UF.'
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: salvando
@@ -158,7 +259,8 @@ class FormularioCadastroAplicador extends StatelessWidget {
                           )
                         : const Text('Registrar Aplicador'),
                   ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -32,6 +32,12 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
   final _cpfController = TextEditingController();
   final _sexoController = TextEditingController();
   final _cepController = TextEditingController();
+  final _ruaController = TextEditingController();
+  final _numeroController = TextEditingController();
+  final _complementoController = TextEditingController();
+  final _bairroController = TextEditingController();
+  final _cidadeController = TextEditingController();
+  final _ufController = TextEditingController();
   DateTime? _dataNascimento;
 
   @override
@@ -41,6 +47,12 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
     _cpfController.dispose();
     _sexoController.dispose();
     _cepController.dispose();
+    _ruaController.dispose();
+    _numeroController.dispose();
+    _complementoController.dispose();
+    _bairroController.dispose();
+    _cidadeController.dispose();
+    _ufController.dispose();
     super.dispose();
   }
 
@@ -79,6 +91,12 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
             cpfController: _cpfController,
             sexoController: _sexoController,
             cepController: _cepController,
+            ruaController: _ruaController,
+            numeroController: _numeroController,
+            complementoController: _complementoController,
+            bairroController: _bairroController,
+            cidadeController: _cidadeController,
+            ufController: _ufController,
             dataNascimento: _dataNascimento,
             onDataNascimentoChanged: (data) =>
                 setState(() => _dataNascimento = data),
@@ -90,6 +108,14 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
               dataNascimento: _dataNascimento!,
               sexo: _sexoController.text,
               cep: _cepController.text,
+              rua: _ruaController.text,
+              numero: _numeroController.text,
+              complemento: _complementoController.text.isEmpty
+                  ? null
+                  : _complementoController.text,
+              bairro: _bairroController.text,
+              cidade: _cidadeController.text,
+              uf: _ufController.text,
             ),
           );
         },
