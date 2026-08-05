@@ -42,7 +42,7 @@ class TelaInformativaScreen extends StatelessWidget {
               ),
               child: const Text(
                 'O registro da aplicação é um processo sério e não pode ser desfeito ou editado após a confirmação.\n\n'
-                'Este registro gera a prova de auditoria para a Secretaria de Agricultura de que o produto biológico foi efetivamente utilizado no combate ao borrachudo no seu trecho.',
+                'Este registro gera a prova de auditoria para a Secretaria de Agricultura de que o produto biológico foi efetivamente utilizado no combate ao borrachudo no seu ponto de aplicação.',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
