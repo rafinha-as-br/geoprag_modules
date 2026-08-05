@@ -1,15 +1,17 @@
 import '../../../src/entities/usuario.dart';
 
+/// Endereço de residência do Aplicador é obrigatório (RN "Dados da
+/// Conta"), por isso os campos herdados de [Usuario] que compõem o
+/// endereço (`cep`, `rua`, `numero`, `bairro`, `cidade`, `uf`) são
+/// `required` aqui — `complemento` continua opcional (nem todo endereço
+/// tem complemento).
 class Aplicador extends Usuario {
   final String id;
-  final String bairro;
   final String telefone;
-  final String endereco;
 
   const Aplicador({
     required this.id,
     required super.nome,
-    required this.bairro,
     required super.status,
     required super.dataCriacao,
     super.dataDesativacao,
@@ -17,7 +19,13 @@ class Aplicador extends Usuario {
     required super.cpf,
     required super.dataNascimento,
     required super.sexo,
+    required super.cep,
+    required super.rua,
+    required super.numero,
+    super.complemento,
+    required super.bairro,
+    required super.cidade,
+    required super.uf,
     required this.telefone,
-    required this.endereco,
   });
 }

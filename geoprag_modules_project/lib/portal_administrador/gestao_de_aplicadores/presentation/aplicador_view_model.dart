@@ -23,7 +23,7 @@ class AplicadorResumoViewModel {
     return AplicadorResumoViewModel(
       id: entity.id,
       nome: entity.nome,
-      bairro: entity.bairro,
+      bairro: entity.bairro ?? '',
       status: entity.status,
     );
   }
@@ -86,11 +86,29 @@ class AplicadorDetalhadoViewModel {
       nome: entity.nome,
       cpf: entity.cpf,
       telefone: entity.telefone,
-      endereco: entity.endereco,
+      endereco: _formatarEndereco(entity),
       status: entity.status,
       dataCriacao: entity.dataCriacao,
       dataDesativacao: entity.dataDesativacao,
       historico: historico.map(AtuacaoAplicadorViewModel.fromEntity).toList(),
     );
   }
+}
+
+/// Compõe o endereço de residência do Aplicador em uma única linha de
+/// exibição: "Rua, Número, Complemento - Bairro, Cidade/UF".
+String _formatarEndereco(Aplicador entity) {
+  final logradouro = [
+    entity.rua,
+    entity.numero,
+    entity.complemento,
+  ].nonNulls.join(', ');
+  final localidade = entity.cidade == null && entity.uf == null
+      ? null
+      : '${entity.cidade ?? ''}/${entity.uf ?? ''}';
+  return [
+    logradouro,
+    entity.bairro,
+    localidade,
+  ].nonNulls.where((parte) => parte.isNotEmpty).join(' - ');
 }
