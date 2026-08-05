@@ -134,9 +134,13 @@ class _DashboardConteudo extends StatelessWidget {
         const SizedBox(height: 16),
         // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
         // GeopragDataTable extraído na GEOPRAG-36, em vez de um Table
-        // duplicado localmente.
+        // duplicado localmente. onRowTap substitui a antiga coluna de
+        // "Ações" — clicar em qualquer ponto da linha (fora da célula de
+        // seleção) abre o detalhe do Aplicador.
         GeopragDataTable<AplicadorResumoViewModel>(
           items: aplicadoresFiltrados,
+          onRowTap: (aplicador) =>
+              AdminNavigatorScope.of(context).toAplicadorDetalhes(aplicador.id),
           columns: [
             GeopragDataColumn(
               label: 'Selecionar',
@@ -173,24 +177,6 @@ class _DashboardConteudo extends StatelessWidget {
                     : GeopragStatus.atrasado,
                 label: aplicador.ativo ? 'Ativo' : 'Desativado',
                 dense: true,
-              ),
-            ),
-            GeopragDataColumn(
-              label: 'Ações',
-              width: const FlexColumnWidth(1),
-              cellBuilder: (context, aplicador) => Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.visibility, color: Colors.blue),
-                    onPressed: () {
-                      AdminNavigatorScope.of(
-                        context,
-                      ).toAplicadorDetalhes(aplicador.id);
-                    },
-                    tooltip: 'Visualizar',
-                  ),
-                ],
               ),
             ),
           ],

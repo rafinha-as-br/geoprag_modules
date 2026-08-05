@@ -32,17 +32,21 @@ class Aplicador extends Usuario {
   Aplicador copyWith({
     String? id,
     String? nome,
-    String? bairro,
     UsuarioStatus? status,
     DateTime? dataDesativacao,
     String? cpf,
     String? telefone,
-    String? endereco,
+    String? cep,
+    String? rua,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
   }) {
     return Aplicador(
       id: id ?? this.id,
       nome: nome ?? this.nome,
-      bairro: bairro ?? this.bairro,
       status: status ?? this.status,
       dataCriacao: dataCriacao,
       dataDesativacao: dataDesativacao ?? this.dataDesativacao,
@@ -51,7 +55,13 @@ class Aplicador extends Usuario {
       dataNascimento: dataNascimento,
       sexo: sexo,
       telefone: telefone ?? this.telefone,
-      endereco: endereco ?? this.endereco,
+      cep: cep ?? this.cep,
+      rua: rua ?? this.rua,
+      numero: numero ?? this.numero,
+      complemento: complemento ?? this.complemento,
+      bairro: bairro ?? this.bairro,
+      cidade: cidade ?? this.cidade,
+      uf: uf ?? this.uf,
     );
   }
 }

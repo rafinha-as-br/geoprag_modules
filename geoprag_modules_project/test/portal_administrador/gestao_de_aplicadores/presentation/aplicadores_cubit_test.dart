@@ -68,7 +68,6 @@ void main() {
   final aplicadorDesativado = Aplicador(
     id: '2',
     nome: 'Carlos Lima',
-    bairro: 'Gasparinho',
     status: UsuarioStatus.desativado,
     dataCriacao: DateTime(2026, 6, 15),
     email: 'carlos.lima@email.com',
@@ -76,7 +75,12 @@ void main() {
     dataNascimento: DateTime(1975, 11, 30),
     sexo: 'Masculino',
     telefone: '(47) 99333-3333',
-    endereco: 'Rua do Bosque, 20 - Gasparinho',
+    cep: '89030-000',
+    rua: 'Rua do Bosque',
+    numero: '20',
+    bairro: 'Gasparinho',
+    cidade: 'Blumenau',
+    uf: 'SC',
   );
 
   blocTest<AplicadoresCubit, AplicadoresState>(
