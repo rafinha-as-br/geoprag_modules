@@ -18,7 +18,6 @@ void main() {
   final aplicador = Aplicador(
     id: '2',
     nome: 'Maria Souza',
-    bairro: 'Poço Grande',
     status: UsuarioStatus.ativo,
     dataCriacao: DateTime(2026, 7, 1),
     email: 'maria.souza@email.com',
@@ -26,7 +25,12 @@ void main() {
     dataNascimento: DateTime(1992, 9, 3),
     sexo: 'Feminino',
     telefone: '(47) 99999-9999',
-    endereco: 'Rua Principal, 100 - Poço Grande',
+    cep: '89020-000',
+    rua: 'Rua Principal',
+    numero: '100',
+    bairro: 'Poço Grande',
+    cidade: 'Blumenau',
+    uf: 'SC',
   );
 
   const historico = [
