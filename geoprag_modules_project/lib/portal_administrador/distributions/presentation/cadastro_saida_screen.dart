@@ -142,7 +142,10 @@ class _CadastroSaidaScreenState extends State<CadastroSaidaScreen> {
                         // TODO(GEOPRAG-24): submeter o formulário ao backend
                         // assim que o endpoint de criação de distribuição
                         // existir; hoje apenas retorna à listagem.
-                        AdminNavigatorScope.of(context).back();
+                        // GEOPRAG-72: rota alcançada por pushReplacement
+                        // (destino de topo, não sub-rota) — não há frame
+                        // anterior para `.back()`.
+                        AdminNavigatorScope.of(context).toDistribuicoes();
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),
