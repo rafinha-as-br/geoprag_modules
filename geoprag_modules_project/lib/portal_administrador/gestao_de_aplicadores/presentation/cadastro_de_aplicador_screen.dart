@@ -30,7 +30,7 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _cpfController = TextEditingController();
-  final _sexoController = TextEditingController();
+  String? _sexo;
   final _cepController = TextEditingController();
   final _ruaController = TextEditingController();
   final _numeroController = TextEditingController();
@@ -45,7 +45,6 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
     _nomeController.dispose();
     _emailController.dispose();
     _cpfController.dispose();
-    _sexoController.dispose();
     _cepController.dispose();
     _ruaController.dispose();
     _numeroController.dispose();
@@ -89,7 +88,8 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
             nomeController: _nomeController,
             emailController: _emailController,
             cpfController: _cpfController,
-            sexoController: _sexoController,
+            sexo: _sexo,
+            onSexoChanged: (value) => setState(() => _sexo = value),
             cepController: _cepController,
             ruaController: _ruaController,
             numeroController: _numeroController,
@@ -106,7 +106,7 @@ class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen> {
               nome: _nomeController.text,
               cpf: _cpfController.text,
               dataNascimento: _dataNascimento!,
-              sexo: _sexoController.text,
+              sexo: _sexo!,
               cep: _cepController.text,
               rua: _ruaController.text,
               numero: _numeroController.text,

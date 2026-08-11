@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../src/widgets/geoprag_cep_input.dart';
 import '../../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../../src/widgets/geoprag_data_nascimento_input.dart';
 import '../../../../src/widgets/geoprag_email_input.dart';
@@ -17,7 +18,8 @@ class FormularioCadastroAplicador extends StatelessWidget {
   final TextEditingController nomeController;
   final TextEditingController emailController;
   final TextEditingController cpfController;
-  final TextEditingController sexoController;
+  final String? sexo;
+  final ValueChanged<String?> onSexoChanged;
   final TextEditingController cepController;
   final TextEditingController ruaController;
   final TextEditingController numeroController;
@@ -36,7 +38,8 @@ class FormularioCadastroAplicador extends StatelessWidget {
     required this.nomeController,
     required this.emailController,
     required this.cpfController,
-    required this.sexoController,
+    required this.sexo,
+    required this.onSexoChanged,
     required this.cepController,
     required this.ruaController,
     required this.numeroController,
@@ -127,7 +130,8 @@ class FormularioCadastroAplicador extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   GeopragSexoInput(
-                    controller: sexoController,
+                    value: sexo,
+                    onChanged: onSexoChanged,
                     decoration: const InputDecoration(
                       labelText: 'Sexo',
                       border: OutlineInputBorder(),
@@ -137,21 +141,17 @@ class FormularioCadastroAplicador extends StatelessWidget {
                         : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  GeopragCepInput(
                     controller: cepController,
                     decoration: const InputDecoration(
                       labelText: 'CEP',
                       hintText: '00000-000',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.number,
                     // CEP é obrigatório para o Aplicador (diferente do
                     // Administrador/Sub-Administrador) — alimenta o cadastro
                     // do ponto de aplicação atribuído a ele (ver "Regra de
                     // Negócio - Dados da Conta", seção 4.1).
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? 'Informe o CEP.'
-                        : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
