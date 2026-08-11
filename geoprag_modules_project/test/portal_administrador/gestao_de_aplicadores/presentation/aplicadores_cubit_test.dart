@@ -139,6 +139,37 @@ void main() {
   );
 
   blocTest<AplicadoresCubit, AplicadoresState>(
+    'alternarSelecao em dois ids diferentes em sequência mantém ambos '
+    'selecionados (QA GEOPRAG-TC-11: descarta o Cubit como causa do bug de '
+    'seleção — a causa real era o deslocamento de layout na tela, ver '
+    'dashboard_aplicadores_screen.dart)',
+    setUp: () {
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [aplicador, aplicadorDesativado]);
+    },
+    build: () => AplicadoresCubit(repository),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      cubit.alternarSelecao('1');
+      cubit.alternarSelecao('2');
+    },
+    skip: 1,
+    expect: () => [
+      isA<AplicadoresLoaded>().having(
+        (s) => s.selecionados,
+        'selecionados após toggle 1',
+        {'1'},
+      ),
+      isA<AplicadoresLoaded>().having(
+        (s) => s.selecionados,
+        'selecionados após toggle 2',
+        {'1', '2'},
+      ),
+    ],
+  );
+
+  blocTest<AplicadoresCubit, AplicadoresState>(
     'ativarSelecionados chama o repositório para cada id e recarrega a lista',
     setUp: () {
       when(
