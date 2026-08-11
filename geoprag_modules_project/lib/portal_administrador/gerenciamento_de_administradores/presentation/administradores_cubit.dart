@@ -18,6 +18,14 @@ class AdministradoresCubit extends Cubit<AdministradoresState> {
 
   final AdministradorRepository _repository;
 
+  /// Recarrega a listagem sem aviso associado. Usado pelo Dashboard para se
+  /// atualizar ao voltar de outra tela (criação, votação de promoção) que
+  /// alterou o estado de um administrador por fora deste Cubit — como o
+  /// GoRouter mantém esta rota (e este Cubit) viva por baixo da pilha de
+  /// navegação, sem isso a lista ficava desatualizada até uma renavegação
+  /// manual (GEOPRAG-36, QA GEOPRAG-TC-4/TC-9).
+  Future<void> recarregar() => _carregar();
+
   Future<void> _carregar({String? avisoAcao}) async {
     try {
       final administradores = await _repository.listar();

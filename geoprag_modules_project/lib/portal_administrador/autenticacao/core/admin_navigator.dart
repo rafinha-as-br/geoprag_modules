@@ -26,11 +26,16 @@ abstract class AdminNavigator {
   void toGerenciamentoAdministradores();
 
   /// Formulário de criação de novo administrador (nasce sempre
-  /// Sub-Administrador).
-  void toCriarAdministrador();
+  /// Sub-Administrador). O `Future` completa quando a tela é fechada, para
+  /// quem chamou poder recarregar dados que ela pode ter alterado
+  /// (GEOPRAG-36, QA GEOPRAG-TC-4).
+  Future<void> toCriarAdministrador();
 
-  /// Tela de Solicitações de Promoção em aberto (votação de 2/3).
-  void toSolicitacoesPromocaoAdministrador();
+  /// Tela de Solicitações de Promoção em aberto (votação de 2/3). O
+  /// `Future` completa quando a tela é fechada, para quem chamou poder
+  /// recarregar dados que ela pode ter alterado (GEOPRAG-36, QA
+  /// GEOPRAG-TC-9).
+  Future<void> toSolicitacoesPromocaoAdministrador();
 
   void toEstoque();
   void toEstoqueFormula();
