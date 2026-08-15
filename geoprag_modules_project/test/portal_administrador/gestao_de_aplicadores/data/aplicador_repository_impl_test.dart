@@ -15,11 +15,12 @@ void main() {
   });
 
   tearDown(() {
-    // ativar/desativar mutam a lista mock global em memória — restaura o
-    // estado original para não vazar entre testes.
-    for (var i = 0; i < mockApplicators.length; i++) {
-      mockApplicators[i] = estadoOriginal[i];
-    }
+    // criar/ativar/desativar mutam a lista mock global em memória (inclusive
+    // o tamanho, no caso de criar) — restaura o estado original para não
+    // vazar entre testes.
+    mockApplicators
+      ..clear()
+      ..addAll(estadoOriginal);
   });
 
   test('listar retorna todos os aplicadores mockados', () async {
