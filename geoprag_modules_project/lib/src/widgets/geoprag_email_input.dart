@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-/// Campo de e-mail com validação de formato embutida — extraído de
-/// `CriacaoDeAdministradorScreen`, que validava apenas a presença do valor,
-/// sem checar o formato do e-mail (feedback de revisão do PR #9).
+/// Campo de e-mail com validação de formato embutida — extraído das telas
+/// de cadastro de Administrador e Aplicador, que duplicavam o mesmo
+/// `TextFormField` (feedback de revisão dos PRs #9 e #12).
 ///
 /// Valida obrigatoriedade e formato por padrão; [validator] permite
 /// validação adicional (ex.: mensagem de e-mail duplicado vinda do
@@ -19,7 +19,7 @@ class GeopragEmailInput extends StatelessWidget {
   const GeopragEmailInput({
     super.key,
     required this.controller,
-    this.decoration = const InputDecoration(),
+    this.decoration = const InputDecoration(labelText: 'E-mail'),
     this.enabled = true,
     this.onChanged,
     this.validator,
@@ -35,7 +35,7 @@ class GeopragEmailInput extends StatelessWidget {
       onChanged: onChanged,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Informe o e-mail institucional.';
+          return 'Informe o e-mail.';
         }
         if (!_emailRegex.hasMatch(value)) {
           return 'Informe um e-mail válido.';

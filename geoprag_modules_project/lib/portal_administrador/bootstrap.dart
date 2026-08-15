@@ -16,6 +16,7 @@ import 'gestao_de_aplicadores/core/aplicador_repository.dart';
 import 'gestao_de_aplicadores/data/aplicador_repository_impl.dart';
 import 'gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'gestao_de_aplicadores/presentation/aplicadores_cubit.dart';
+import 'gestao_de_aplicadores/presentation/criar_aplicador_cubit.dart';
 import 'dashboard/core/resumo_geral_repository.dart';
 import 'dashboard/data/resumo_geral_repository_impl.dart';
 import 'dashboard/presentation/dashboard_geral_cubit.dart';
@@ -81,6 +82,8 @@ class AdminBootstrap {
       AplicadoresCubit(buildAplicadorRepository());
   AplicadorDetalheCubit buildAplicadorDetalheCubit(String aplicadorId) =>
       AplicadorDetalheCubit(buildAplicadorRepository(), aplicadorId);
+  CriarAplicadorCubit buildCriarAplicadorCubit() =>
+      CriarAplicadorCubit(buildAplicadorRepository());
   CriarAdministradorCubit buildCriarAdministradorCubit() =>
       CriarAdministradorCubit(buildAdministradorRepository());
   AdministradoresCubit buildAdministradoresCubit() =>

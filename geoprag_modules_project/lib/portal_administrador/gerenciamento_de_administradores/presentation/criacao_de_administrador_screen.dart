@@ -33,7 +33,7 @@ class _CriacaoDeAdministradorScreenState
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _cpfController = TextEditingController();
-  final _sexoController = TextEditingController();
+  String? _sexo;
   DateTime? _dataNascimento;
 
   @override
@@ -41,7 +41,6 @@ class _CriacaoDeAdministradorScreenState
     _nomeController.dispose();
     _emailController.dispose();
     _cpfController.dispose();
-    _sexoController.dispose();
     super.dispose();
   }
 
@@ -142,7 +141,8 @@ class _CriacaoDeAdministradorScreenState
                         ),
                         const SizedBox(height: 16),
                         GeopragSexoInput(
-                          controller: _sexoController,
+                          value: _sexo,
+                          onChanged: (value) => setState(() => _sexo = value),
                           decoration: const InputDecoration(
                             labelText: 'Sexo',
                             border: OutlineInputBorder(),
@@ -166,7 +166,7 @@ class _CriacaoDeAdministradorScreenState
                                         nome: _nomeController.text,
                                         cpf: _cpfController.text,
                                         dataNascimento: _dataNascimento!,
-                                        sexo: _sexoController.text,
+                                        sexo: _sexo!,
                                       );
                                 },
                           style: ElevatedButton.styleFrom(

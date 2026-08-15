@@ -45,4 +45,47 @@ void main() {
       expect(result, isEmpty);
     },
   );
+
+  test('criar adiciona um novo aplicador ativo à lista', () async {
+    final totalAntes = mockApplicators.length;
+    final novo = await repository.criar(
+      email: 'novo.criar@email.com',
+      nome: 'Novo Criar',
+      cpf: '999.999.999-99',
+      dataNascimento: DateTime(1993, 5, 20),
+      sexo: 'Feminino',
+      cep: '89100-000',
+      rua: 'Rua Nova',
+      numero: '10',
+      bairro: 'Centro',
+      cidade: 'Gaspar',
+      uf: 'SC',
+    );
+
+    expect(novo.email, 'novo.criar@email.com');
+    expect(novo.ativo, isTrue);
+    expect(mockApplicators.length, totalAntes + 1);
+  });
+
+  test(
+    'criar lança EntidadeDuplicadaException quando o e-mail já está cadastrado',
+    () {
+      expect(
+        () => repository.criar(
+          email: 'maria.souza@email.com',
+          nome: 'Outra Maria',
+          cpf: '888.888.888-88',
+          dataNascimento: DateTime(1993, 5, 20),
+          sexo: 'Feminino',
+          cep: '89100-000',
+          rua: 'Rua Nova',
+          numero: '10',
+          bairro: 'Centro',
+          cidade: 'Gaspar',
+          uf: 'SC',
+        ),
+        throwsA(isA<EntidadeDuplicadaException>()),
+      );
+    },
+  );
 }
