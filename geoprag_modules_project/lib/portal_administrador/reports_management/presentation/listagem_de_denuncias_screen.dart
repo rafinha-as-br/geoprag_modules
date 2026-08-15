@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_view_model.dart';
 import 'denuncias_cubit.dart';
@@ -34,133 +34,126 @@ class ListagemDeDenunciasScreen extends StatefulWidget {
       _ListagemDeDenunciasScreenState();
 }
 
-class _ListagemDeDenunciasScreenState
-    extends State<ListagemDeDenunciasScreen> {
+class _ListagemDeDenunciasScreenState extends State<ListagemDeDenunciasScreen> {
   String _statusFiltro = _todosOsStatus;
   String _nivelFiltro = _todosOsNiveis;
   String _busca = '';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/denuncias_admin',
       appBar: AppBar(title: const Text('Listagem de Denúncias')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/denuncias_admin'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Todas as Denúncias Registradas',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        'Buscar por denunciante ou descrição...',
-                                    prefixIcon: const Icon(Icons.search),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onChanged: (valor) {
-                                    setState(() => _busca = valor);
-                                  },
-                                ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Todas as Denúncias Registradas',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Buscar por denunciante ou descrição...',
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  initialValue: _statusFiltro,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Status',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  items: [
-                                    for (final status in _opcoesStatus)
-                                      DropdownMenuItem(
-                                        value: status,
-                                        child: Text(status),
-                                      ),
-                                  ],
-                                  onChanged: (valor) {
-                                    if (valor != null) {
-                                      setState(() => _statusFiltro = valor);
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  initialValue: _nivelFiltro,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Nível de Infestação',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  items: [
-                                    for (final nivel in _opcoesNivel)
-                                      DropdownMenuItem(
-                                        value: nivel,
-                                        child: Text(nivel),
-                                      ),
-                                  ],
-                                  onChanged: (valor) {
-                                    if (valor != null) {
-                                      setState(() => _nivelFiltro = valor);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          BlocBuilder<DenunciasCubit, DenunciasState>(
-                            builder: (context, state) {
-                              return switch (state) {
-                                DenunciasLoading() => const Padding(
-                                  padding: EdgeInsets.all(24),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                                DenunciasError(:final message) => Padding(
-                                  padding: const EdgeInsets.all(24),
-                                  child: Text(
-                                    'Não foi possível carregar as denúncias: $message',
-                                  ),
-                                ),
-                                DenunciasLoaded(:final denuncias) =>
-                                  _buildTabela(context, _filtrar(denuncias)),
-                              };
+                            ),
+                            onChanged: (valor) {
+                              setState(() => _busca = valor);
                             },
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            initialValue: _statusFiltro,
+                            decoration: const InputDecoration(
+                              labelText: 'Status',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              for (final status in _opcoesStatus)
+                                DropdownMenuItem(
+                                  value: status,
+                                  child: Text(status),
+                                ),
+                            ],
+                            onChanged: (valor) {
+                              if (valor != null) {
+                                setState(() => _statusFiltro = valor);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            initialValue: _nivelFiltro,
+                            decoration: const InputDecoration(
+                              labelText: 'Nível de Infestação',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              for (final nivel in _opcoesNivel)
+                                DropdownMenuItem(
+                                  value: nivel,
+                                  child: Text(nivel),
+                                ),
+                            ],
+                            onChanged: (valor) {
+                              if (valor != null) {
+                                setState(() => _nivelFiltro = valor);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    BlocBuilder<DenunciasCubit, DenunciasState>(
+                      builder: (context, state) {
+                        return switch (state) {
+                          DenunciasLoading() => const Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          DenunciasError(:final message) => Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              'Não foi possível carregar as denúncias: $message',
+                            ),
+                          ),
+                          DenunciasLoaded(:final denuncias) => _buildTabela(
+                            context,
+                            _filtrar(denuncias),
+                          ),
+                        };
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -220,10 +213,7 @@ class _ListagemDeDenunciasScreenState
     );
   }
 
-  TableRow _buildLinha(
-    BuildContext context,
-    DenunciaResumoViewModel denuncia,
-  ) {
+  TableRow _buildLinha(BuildContext context, DenunciaResumoViewModel denuncia) {
     return TableRow(
       children: [
         Padding(
@@ -261,7 +251,9 @@ class _ListagemDeDenunciasScreenState
           child: IconButton(
             icon: const Icon(Icons.visibility, color: Colors.blue),
             onPressed: () {
-              AdminNavigatorScope.of(context).toDenunciaAdminDetalhes();
+              AdminNavigatorScope.of(
+                context,
+              ).toDenunciaAdminDetalhes(denuncia.id);
             },
             tooltip: 'Analisar e Tratar',
           ),

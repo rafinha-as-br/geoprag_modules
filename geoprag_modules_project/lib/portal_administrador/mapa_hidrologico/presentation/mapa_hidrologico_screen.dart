@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'bairro_view_model.dart';
 import 'bairros_cubit.dart';
@@ -26,51 +26,45 @@ class MapaHidrologicoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/mapa',
       appBar: AppBar(title: const Text('Mapa Hidrológico e Monitoramento')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/mapa'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Mapa do Município',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Selecione um bairro no mapa para visualizar a situação dos córregos e aplicações.',
-                    style: TextStyle(color: Colors.black54, fontSize: 16),
-                  ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: BlocBuilder<BairrosCubit, BairrosState>(
-                      builder: (context, state) {
-                        return switch (state) {
-                          BairrosLoading() => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          BairrosError(:final message) => Center(
-                            child: Text(
-                              'Não foi possível carregar os bairros: $message',
-                            ),
-                          ),
-                          BairrosLoaded(:final bairros) => _MapaContent(
-                            bairros: bairros,
-                          ),
-                        };
-                      },
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Mapa do Município',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Selecione um bairro no mapa para visualizar a situação dos córregos e aplicações.',
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: BlocBuilder<BairrosCubit, BairrosState>(
+                builder: (context, state) {
+                  return switch (state) {
+                    BairrosLoading() => const Center(
+                      child: CircularProgressIndicator(),
                     ),
-                  ),
-                ],
+                    BairrosError(:final message) => Center(
+                      child: Text(
+                        'Não foi possível carregar os bairros: $message',
+                      ),
+                    ),
+                    BairrosLoaded(:final bairros) => _MapaContent(
+                      bairros: bairros,
+                    ),
+                  };
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -194,7 +188,7 @@ class _MapaContent extends StatelessWidget {
                                   onTap: () {
                                     AdminNavigatorScope.of(
                                       context,
-                                    ).toMapaBairro();
+                                    ).toMapaBairro(bairro.id);
                                   },
                                 ),
                             ],
@@ -225,12 +219,15 @@ class _BairroPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        AdminNavigatorScope.of(context).toMapaBairro();
+        AdminNavigatorScope.of(context).toMapaBairro(bairro.id);
       },
       child: Column(
         children: [
           Icon(Icons.location_on, color: _status.color, size: 48),
-          Text(bairro.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            bairro.nome,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );

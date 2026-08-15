@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/entities/usuario.dart';
 import '../../../src/theme/geoprag_colors.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import '../core/atuacao_aplicador.dart';
 import 'aplicador_detalhe_cubit.dart';
 import 'aplicador_detalhe_state.dart';
@@ -13,31 +14,25 @@ class VisualizacaoIndividualScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/aplicadores',
       appBar: AppBar(title: const Text('Detalhes do Aplicador')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/aplicadores'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: BlocBuilder<AplicadorDetalheCubit, AplicadorDetalheState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    AplicadorDetalheLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    AplicadorDetalheError(:final message) => Text(
-                      'Não foi possível carregar o aplicador: $message',
-                    ),
-                    AplicadorDetalheLoaded(:final aplicador) =>
-                      _AplicadorDetalheContent(aplicador: aplicador),
-                  };
-                },
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: BlocBuilder<AplicadorDetalheCubit, AplicadorDetalheState>(
+          builder: (context, state) {
+            return switch (state) {
+              AplicadorDetalheLoading() => const Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-          ),
-        ],
+              AplicadorDetalheError(:final message) => Text(
+                'Não foi possível carregar o aplicador: $message',
+              ),
+              AplicadorDetalheLoaded(:final aplicador) =>
+                _AplicadorDetalheContent(aplicador: aplicador),
+            };
+          },
+        ),
       ),
     );
   }
@@ -58,10 +53,7 @@ class _AplicadorDetalheContent extends StatelessWidget {
           children: [
             Text(
               aplicador.nome,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
@@ -134,18 +126,18 @@ class _AplicadorDetalheContent extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
+                      DropdownButtonFormField<UsuarioStatus>(
                         initialValue: aplicador.status,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         ),
                         items: const [
                           DropdownMenuItem(
-                            value: 'ativo',
+                            value: UsuarioStatus.ativo,
                             child: Text('Ativo'),
                           ),
                           DropdownMenuItem(
-                            value: 'desativado',
+                            value: UsuarioStatus.desativado,
                             child: Text('Desativado'),
                           ),
                         ],
@@ -189,7 +181,8 @@ class _AplicadorDetalheContent extends StatelessWidget {
                             atuacao.tipo == AtuacaoAplicadorTipo.aplicacao
                                 ? Icons.water_drop
                                 : Icons.inventory_2,
-                            color: atuacao.tipo == AtuacaoAplicadorTipo.aplicacao
+                            color:
+                                atuacao.tipo == AtuacaoAplicadorTipo.aplicacao
                                 ? Colors.blue
                                 : GeopragColors.statusEmDia,
                           ),

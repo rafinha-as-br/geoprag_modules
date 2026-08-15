@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'aplicacao_mapa_cubit.dart';
 import 'aplicacao_mapa_state.dart';
 import 'aplicacao_mapa_view_model.dart';
@@ -15,33 +15,26 @@ class VisualizacaoDeAplicacaoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/mapa',
       appBar: AppBar(title: const Text('Visualização de Aplicação')),
-      body: Row(
-        children: [
-          const SidebarMenu(currentRoute: '/mapa'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: BlocBuilder<AplicacaoMapaCubit, AplicacaoMapaState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    AplicacaoMapaLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    AplicacaoMapaError(:final message) => Center(
-                      child: Text(
-                        'Não foi possível carregar a aplicação: $message',
-                      ),
-                    ),
-                    AplicacaoMapaLoaded(:final aplicacao) =>
-                      _AplicacaoDetalheContent(aplicacao: aplicacao),
-                  };
-                },
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: BlocBuilder<AplicacaoMapaCubit, AplicacaoMapaState>(
+          builder: (context, state) {
+            return switch (state) {
+              AplicacaoMapaLoading() => const Center(
+                child: CircularProgressIndicator(),
               ),
-            ),
-          ),
-        ],
+              AplicacaoMapaError(:final message) => Center(
+                child: Text('Não foi possível carregar a aplicação: $message'),
+              ),
+              AplicacaoMapaLoaded(:final aplicacao) => _AplicacaoDetalheContent(
+                aplicacao: aplicacao,
+              ),
+            };
+          },
+        ),
       ),
     );
   }
@@ -131,9 +124,7 @@ class _AplicacaoDetalheContent extends StatelessWidget {
                       ListTile(
                         leading: const Icon(Icons.my_location),
                         title: const Text('Coordenadas'),
-                        subtitle: Text(
-                          '${aplicacao.lat}, ${aplicacao.lng}',
-                        ),
+                        subtitle: Text('${aplicacao.lat}, ${aplicacao.lng}'),
                       ),
                       ListTile(
                         leading: const Icon(Icons.person),

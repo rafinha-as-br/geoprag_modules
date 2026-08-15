@@ -14,7 +14,9 @@ class AdminTenantRepositoryImpl implements TenantRepository {
   Future<TenantConfig> fetchByTenantId(String tenantId) async {
     final config = mockAdminTenantConfigs[tenantId];
     if (config == null) {
-      throw EntidadeNaoEncontradaException('Tenant "$tenantId" não encontrado.');
+      throw EntidadeNaoEncontradaException(
+        'Tenant "$tenantId" não encontrado.',
+      );
     }
     return config;
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
+import '../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
 import '../core/admin_navigator.dart';
 
@@ -84,14 +84,9 @@ class _VerificarCodigoAdminScreenState
                         ),
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
+                GeopragCpfInput(
                   controller: _cpfController,
                   enabled: !_expirado,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    _CpfInputFormatter(),
-                  ],
                   decoration: InputDecoration(
                     hintText: '000.000.000-00',
                     prefixIcon: const Icon(Icons.badge_outlined),
@@ -120,29 +115,6 @@ class _VerificarCodigoAdminScreenState
           ),
         ),
       ),
-    );
-  }
-}
-
-class _CpfInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digits = newValue.text.substring(
-      0,
-      newValue.text.length.clamp(0, 11),
-    );
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      buffer.write(digits[i]);
-      if (i == 2 || i == 5) buffer.write('.');
-      if (i == 8) buffer.write('-');
-    }
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
     );
   }
 }

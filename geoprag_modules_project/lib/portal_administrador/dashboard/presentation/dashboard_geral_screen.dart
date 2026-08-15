@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
-import '../../widgets/sidebar_menu.dart';
+import '../../widgets/admin_scaffold.dart';
 import 'dashboard_geral_cubit.dart';
 import 'dashboard_geral_state.dart';
 import 'resumo_geral_view_model.dart';
@@ -12,48 +12,40 @@ class DashboardGeralScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AdminScaffold(
+      currentRoute: '/dashboard',
       appBar: AppBar(title: const Text('Visão Geral')),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SidebarMenu(currentRoute: '/dashboard'),
-          // Main Content Area
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Dashboard',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child:
-                        BlocBuilder<DashboardGeralCubit, DashboardGeralState>(
-                          builder: (context, state) {
-                            return switch (state) {
-                              DashboardGeralLoading() => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                              DashboardGeralError(:final message) => Center(
-                                child: Text(
-                                  'Não foi possível carregar o resumo geral: $message',
-                                ),
-                              ),
-                              DashboardGeralLoaded(:final resumo) =>
-                                _DashboardConteudo(resumo: resumo),
-                            };
-                          },
-                        ),
-                  ),
-                ],
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Dashboard',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: BlocBuilder<DashboardGeralCubit, DashboardGeralState>(
+                builder: (context, state) {
+                  return switch (state) {
+                    DashboardGeralLoading() => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    DashboardGeralError(:final message) => Center(
+                      child: Text(
+                        'Não foi possível carregar o resumo geral: $message',
+                      ),
+                    ),
+                    DashboardGeralLoaded(:final resumo) => _DashboardConteudo(
+                      resumo: resumo,
+                    ),
+                  };
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

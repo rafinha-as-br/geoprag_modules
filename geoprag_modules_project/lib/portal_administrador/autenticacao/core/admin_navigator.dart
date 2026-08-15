@@ -16,23 +16,39 @@ abstract class AdminNavigator {
   void toDashboard();
 
   void toMapa();
-  void toMapaBairro();
+  void toMapaBairro(String bairroId);
 
   void toAplicadores();
-  void toAplicadorDetalhes();
+  void toAplicadorDetalhes(String aplicadorId);
+
+  /// Dashboard do módulo `gerenciamento_de_administradores` — listagem,
+  /// busca, desativação e solicitação de promoção (GEOPRAG-36).
+  void toGerenciamentoAdministradores();
+
+  /// Formulário de criação de novo administrador (nasce sempre
+  /// Sub-Administrador). O `Future` completa quando a tela é fechada, para
+  /// quem chamou poder recarregar dados que ela pode ter alterado
+  /// (GEOPRAG-36, QA GEOPRAG-TC-4).
+  Future<void> toCriarAdministrador();
+
+  /// Tela de Solicitações de Promoção em aberto (votação de 2/3). O
+  /// `Future` completa quando a tela é fechada, para quem chamou poder
+  /// recarregar dados que ela pode ter alterado (GEOPRAG-36, QA
+  /// GEOPRAG-TC-9).
+  Future<void> toSolicitacoesPromocaoAdministrador();
 
   void toEstoque();
   void toEstoqueFormula();
   void toEstoqueLicitacao();
   void toEstoqueProduto();
-  void toEstoqueVisualizacao();
+  void toEstoqueVisualizacao(String produtoId);
 
   void toDistribuicoes();
   void toDistribuicaoCadastro();
-  void toDistribuicaoVisualizacao();
+  void toDistribuicaoVisualizacao(String distribuicaoId);
 
   void toDenunciasAdmin();
-  void toDenunciaAdminDetalhes();
+  void toDenunciaAdminDetalhes(String denunciaId);
 
   /// Substitui a rota atual pela tela de login (usado pelo "Sair" da sidebar).
   void toLogout();

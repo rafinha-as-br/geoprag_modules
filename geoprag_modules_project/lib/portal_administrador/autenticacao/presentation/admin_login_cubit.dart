@@ -26,7 +26,9 @@ class AdminLoginCubit extends Cubit<AuthActionState<AdminAccount>> {
       emit(const AuthActionFailure('Credenciais inválidas.'));
     } catch (e, stackTrace) {
       AppLogger.error('AdminLoginCubit.submit', e, stackTrace);
-      emit(const AuthActionFailure('Não foi possível entrar. Tente novamente.'));
+      emit(
+        const AuthActionFailure('Não foi possível entrar. Tente novamente.'),
+      );
     }
   }
 }

@@ -8,6 +8,7 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/prese
 import 'package:mocktail/mocktail.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/entities/usuario.dart';
 
 class MockAplicadorRepository extends Mock implements AplicadorRepository {}
 
@@ -18,9 +19,12 @@ void main() {
     id: '2',
     nome: 'Maria Souza',
     bairro: 'Poço Grande',
-    status: 'ativo',
-    dataCadastro: DateTime(2026, 7, 1),
+    status: UsuarioStatus.ativo,
+    dataCriacao: DateTime(2026, 7, 1),
+    email: 'maria.souza@email.com',
     cpf: '123.456.789-00',
+    dataNascimento: DateTime(1992, 9, 3),
+    sexo: 'Feminino',
     telefone: '(47) 99999-9999',
     endereco: 'Rua Principal, 100 - Poço Grande',
   );
@@ -41,14 +45,22 @@ void main() {
   blocTest<AplicadorDetalheCubit, AplicadorDetalheState>(
     'emite [Loaded] com perfil e histórico do aplicador informado',
     setUp: () {
-      when(() => repository.buscarPorId('2')).thenAnswer((_) async => aplicador);
-      when(() => repository.buscarHistorico('2')).thenAnswer((_) async => historico);
+      when(
+        () => repository.buscarPorId('2'),
+      ).thenAnswer((_) async => aplicador);
+      when(
+        () => repository.buscarHistorico('2'),
+      ).thenAnswer((_) async => historico);
     },
     build: () => AplicadorDetalheCubit(repository, '2'),
     expect: () => [
       isA<AplicadorDetalheLoaded>()
           .having((s) => s.aplicador.nome, 'aplicador.nome', 'Maria Souza')
-          .having((s) => s.aplicador.historico, 'aplicador.historico', hasLength(1)),
+          .having(
+            (s) => s.aplicador.historico,
+            'aplicador.historico',
+            hasLength(1),
+          ),
     ],
     verify: (_) {
       verify(() => repository.buscarPorId('2')).called(1);
@@ -60,9 +72,11 @@ void main() {
     'emite [Error] com mensagem amigável quando o id não é encontrado '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(
-        () => repository.buscarPorId('inexistente'),
-      ).thenThrow(const EntidadeNaoEncontradaException('Aplicador "inexistente" não encontrado.'));
+      when(() => repository.buscarPorId('inexistente')).thenThrow(
+        const EntidadeNaoEncontradaException(
+          'Aplicador "inexistente" não encontrado.',
+        ),
+      );
     },
     build: () => AplicadorDetalheCubit(repository, 'inexistente'),
     expect: () => [
@@ -78,7 +92,9 @@ void main() {
     'emite [Error] com mensagem genérica (e loga) quando a exceção é '
     'inesperada, sem vazar detalhe técnico',
     setUp: () {
-      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+      when(
+        () => repository.buscarPorId('inexistente'),
+      ).thenThrow(Exception('offline'));
     },
     build: () => AplicadorDetalheCubit(repository, 'inexistente'),
     expect: () => [

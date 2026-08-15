@@ -18,7 +18,9 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
   Future<Aplicador> buscarPorId(String id) async {
     return mockApplicators.firstWhere(
       (aplicador) => aplicador.id == id,
-      orElse: () => throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.'),
+      orElse: () => throw EntidadeNaoEncontradaException(
+        'Aplicador "$id" não encontrado.',
+      ),
     );
   }
 
