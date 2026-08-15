@@ -28,4 +28,40 @@ class Aplicador extends Usuario {
     required super.uf,
     required this.telefone,
   });
+
+  Aplicador copyWith({
+    String? id,
+    String? nome,
+    UsuarioStatus? status,
+    DateTime? dataDesativacao,
+    String? cpf,
+    String? telefone,
+    String? cep,
+    String? rua,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
+  }) {
+    return Aplicador(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      status: status ?? this.status,
+      dataCriacao: dataCriacao,
+      dataDesativacao: dataDesativacao ?? this.dataDesativacao,
+      email: email,
+      cpf: cpf ?? this.cpf,
+      dataNascimento: dataNascimento,
+      sexo: sexo,
+      telefone: telefone ?? this.telefone,
+      cep: cep ?? this.cep,
+      rua: rua ?? this.rua,
+      numero: numero ?? this.numero,
+      complemento: complemento ?? this.complemento,
+      bairro: bairro ?? this.bairro,
+      cidade: cidade ?? this.cidade,
+      uf: uf ?? this.uf,
+    );
+  }
 }

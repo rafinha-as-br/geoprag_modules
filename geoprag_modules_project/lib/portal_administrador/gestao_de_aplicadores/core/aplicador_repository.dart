@@ -32,4 +32,12 @@ abstract class AplicadorRepository {
     required String cidade,
     required String uf,
   });
+
+  /// Ativa o cadastro do Aplicador. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir.
+  Future<void> ativar(String id);
+
+  /// Desativa o cadastro do Aplicador. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir.
+  Future<void> desativar(String id);
 }
