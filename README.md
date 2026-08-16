@@ -62,6 +62,14 @@ flutter pub get
 flutter test
 ```
 
+## Convenção de branch
+
+```
+{tipo}/{CHAVE-DA-ISSUE}-claude
+```
+
+Exemplo: `feat/GEOPRAG-70-claude`. A chave da issue no nome é o que permite a integração nativa GitHub-Jira detectar automaticamente o vínculo entre branch/commit/PR e a issue no Jira. `develop` é a branch de integração (é para onde o merge acontece depois que a pipeline passa); `main` fica reservada para produção/release.
+
 ## CI (GitHub Actions)
 
 Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
