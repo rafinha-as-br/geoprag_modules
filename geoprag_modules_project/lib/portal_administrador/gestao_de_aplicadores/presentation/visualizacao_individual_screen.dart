@@ -70,7 +70,7 @@ class _AplicadorDetalheContent extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.delete),
-                  label: const Text('Excluir (Lógico)'),
+                  label: const Text('Desativar Cadastro'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: GeopragColors.statusAtrasado,
                     foregroundColor: Colors.white,
