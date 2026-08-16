@@ -79,3 +79,13 @@ Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 - **Gates obrigatórios (bloqueiam merge)**: `flutter analyze` (erros e warnings; infos não bloqueiam)
 - **Branch protection na `develop`**: ativa, exige o check `Analyze & test` passando + branch atualizada com a `develop` antes do merge (`strict: true`). `enforce_admins` está desligado — o dono do repo ainda consegue fazer bypass numa emergência, mas o fluxo normal (PR + merge automatizado) sempre passa pelos checks.
 - **Não bloqueia ainda**: `flutter test` roda e reporta, mas não derruba o job (`continue-on-error: true`). Motivo: 37 dos ~304 testes hoje falham na própria `develop`, todos com a mesma assinatura (Cubit não emite o estado `Error` esperado nos testes de `bloc_test` quando o repositório mockado lança exceção) — indício de causa raiz única (timing do `bloc_test`/`mocktail`, não 19 features quebradas de fato). Assim que corrigido, remover o `continue-on-error` e marcar `test` como check obrigatório na branch protection.
+
+## Release & Versionamento
+
+Ciclo de entrega separado do dia a dia de merges em `develop` — ver [Release & Versionamento](https://rafinha84dev.atlassian.net/wiki/spaces/CS1/pages/44335153) no Confluence para o conceito completo. Executado sob demanda por `jira-release-executor`, nunca automaticamente.
+
+- **Versão**: `version:` no `pubspec.yaml` (`^3.9.2`, SemVer `MAJOR.MINOR.PATCH`). Hoje em `0.1.0` — projeto em desenvolvimento inicial.
+- **Changelog**: [`CHANGELOG.md`](CHANGELOG.md), formato Keep a Changelog.
+- **Estratégia de branch**: sem branch de release dedicada por enquanto — `develop → main` direto via PR quando uma release for cortada. `release/X.Y.Z` fica reservada pra quando o projeto precisar de uma janela de estabilização (Release Candidate) antes do merge pra `main`.
+- **Pipeline**: [`.github/workflows/release.yml`](.github/workflows/release.yml), trigger em push de tag `v*`. Roda `analyze` + `test` de novo — aqui **sem** `continue-on-error` (release.yml responde "está pronto pra virar versão oficial?", régua mais rígida que o `ci.yml`) — e cria a GitHub Release com notas geradas automaticamente. Como é um pacote (sem app pra empacotar), não gera artifact além do código taggeado.
+- **Branch protection na `main`**: ativa, exige o job `Validate & publish release` passando antes de qualquer merge.
