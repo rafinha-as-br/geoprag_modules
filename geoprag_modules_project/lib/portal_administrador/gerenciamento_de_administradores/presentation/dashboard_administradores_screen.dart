@@ -98,10 +98,13 @@ class _DashboardAdministradoresScreenState
                     children: [
                       const BotaoSolicitacoesPromocao(),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          AdminNavigatorScope.of(
+                        onPressed: () async {
+                          await AdminNavigatorScope.of(
                             context,
                           ).toCriarAdministrador();
+                          if (context.mounted) {
+                            context.read<AdministradoresCubit>().recarregar();
+                          }
                         },
                         icon: const Icon(Icons.person_add),
                         label: const Text('Novo Administrador'),

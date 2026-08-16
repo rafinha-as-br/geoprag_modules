@@ -20,6 +20,11 @@ class SolicitacoesPromocaoCubit extends Cubit<SolicitacoesPromocaoState> {
   final AdministradorRepository _repository;
   final String _usuarioAtualEmail;
 
+  /// Recarrega as solicitações sem aviso associado. Usado pelo botão
+  /// "Solicitações de Promoção" do Dashboard para atualizar o badge de
+  /// pendências ao voltar desta tela (GEOPRAG-36, QA GEOPRAG-TC-9).
+  Future<void> recarregar() => _carregar();
+
   Future<void> _carregar({String? avisoAcao}) async {
     try {
       final solicitacoes = await _repository.listarSolicitacoesAbertas();

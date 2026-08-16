@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../src/widgets/geoprag_data_nascimento_input.dart';
+import '../../../src/widgets/geoprag_email_input.dart';
 import '../../../src/widgets/geoprag_sexo_input.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../widgets/admin_scaffold.dart';
@@ -106,16 +107,12 @@ class _CriacaoDeAdministradorScreenState
                               : null,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
+                        GeopragEmailInput(
                           controller: _emailController,
                           decoration: const InputDecoration(
                             labelText: 'E-mail institucional',
                             border: OutlineInputBorder(),
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) => (value == null || value.isEmpty)
-                              ? 'Informe o e-mail institucional.'
-                              : null,
                         ),
                         const SizedBox(height: 16),
                         GeopragCpfInput(

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-/// Campo de e-mail com teclado apropriado — extraído das telas de cadastro
-/// de Administrador e Aplicador, que duplicavam o mesmo `TextFormField`
-/// (feedback de revisão do PR #12, GEOPRAG-65).
+final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
+/// Campo de e-mail com validação de formato embutida — extraído das telas
+/// de cadastro de Administrador e Aplicador, que duplicavam o mesmo
+/// `TextFormField` (feedback de revisão dos PRs #9 e #12).
 ///
-/// Não impõe decoração nem validação fixas: o chamador controla `decoration`
-/// e `validator` para manter o rótulo e a mensagem de cada tela.
+/// Valida obrigatoriedade e formato por padrão; [validator] permite
+/// validação adicional (ex.: mensagem de e-mail duplicado vinda do
+/// back-end), aplicada depois da validação embutida.
 class GeopragEmailInput extends StatelessWidget {
   final TextEditingController controller;
   final InputDecoration decoration;
   final bool enabled;
+  final ValueChanged<String>? onChanged;
   final FormFieldValidator<String>? validator;
 
   const GeopragEmailInput({
@@ -17,6 +21,7 @@ class GeopragEmailInput extends StatelessWidget {
     required this.controller,
     this.decoration = const InputDecoration(labelText: 'E-mail'),
     this.enabled = true,
+    this.onChanged,
     this.validator,
   });
 
@@ -27,7 +32,16 @@ class GeopragEmailInput extends StatelessWidget {
       enabled: enabled,
       keyboardType: TextInputType.emailAddress,
       decoration: decoration,
-      validator: validator,
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Informe o e-mail.';
+        }
+        if (!_emailRegex.hasMatch(value)) {
+          return 'Informe um e-mail válido.';
+        }
+        return validator?.call(value);
+      },
     );
   }
 }

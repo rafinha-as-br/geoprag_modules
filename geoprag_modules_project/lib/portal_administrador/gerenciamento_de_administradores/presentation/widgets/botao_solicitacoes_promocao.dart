@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../autenticacao/core/admin_navigator.dart';
+import '../administradores_cubit.dart';
 import '../solicitacoes_promocao_cubit.dart';
 import '../solicitacoes_promocao_state.dart';
 import 'geoprag_badge_button.dart';
@@ -27,9 +28,20 @@ class BotaoSolicitacoesPromocao extends StatelessWidget {
           icon: Icons.how_to_vote,
           label: 'Solicitações de Promoção',
           badgeCount: pendentes,
-          onPressed: () => AdminNavigatorScope.of(
-            context,
-          ).toSolicitacoesPromocaoAdministrador(),
+          onPressed: () async {
+            await AdminNavigatorScope.of(
+              context,
+            ).toSolicitacoesPromocaoAdministrador();
+            if (context.mounted) {
+              // A votação nesta tela roda sobre uma instância própria de
+              // SolicitacoesPromocaoCubit (rota separada) — recarrega tanto
+              // o badge quanto a lista do Dashboard, já que um voto pode
+              // resolver a promoção e mudar o cargo exibido (GEOPRAG-36,
+              // QA GEOPRAG-TC-9).
+              context.read<SolicitacoesPromocaoCubit>().recarregar();
+              context.read<AdministradoresCubit>().recarregar();
+            }
+          },
         );
       },
     );

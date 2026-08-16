@@ -81,7 +81,7 @@ class LandingScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Identifique-se para acessar seu trecho de atuação.',
+                          'Identifique-se para acessar seu ponto de aplicação.',
                           style: TextStyle(fontSize: 14, color: Colors.black54),
                           textAlign: TextAlign.center,
                         ),

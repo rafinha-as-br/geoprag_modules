@@ -1,6 +1,6 @@
-/// Ponto de aplicação (trecho) atribuído ao aplicador logado no
-/// `aplicador_app`: localização GPS do início do trecho mais o status do
-/// ciclo de aplicações naquele ponto.
+/// Ponto de aplicação atribuído ao aplicador logado no `aplicador_app`:
+/// localização GPS do início do ponto mais o status do ciclo de
+/// aplicações naquele ponto.
 ///
 /// A mesma entidade é usada tanto para o perfil "atual" do ponto
 /// ([PontoDeAplicacaoRepository.buscarAtual]) quanto para uma leitura de GPS
@@ -8,7 +8,7 @@
 /// ([PontoDeAplicacaoRepository.capturarLocalizacaoAtual]).
 class PontoDeAplicacao {
   final String id;
-  final String nomeTrecho;
+  final String nomePonto;
   final String referencia;
   final double latitude;
   final double longitude;
@@ -19,7 +19,7 @@ class PontoDeAplicacao {
 
   const PontoDeAplicacao({
     required this.id,
-    required this.nomeTrecho,
+    required this.nomePonto,
     required this.referencia,
     required this.latitude,
     required this.longitude,

@@ -79,4 +79,25 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
     mockApplicators.add(aplicador);
     return aplicador;
   }
+
+  @override
+  Future<void> ativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.ativo);
+
+  @override
+  Future<void> desativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.desativado);
+
+  void _atualizarStatus(String id, UsuarioStatus status) {
+    final index = mockApplicators.indexWhere((aplicador) => aplicador.id == id);
+    if (index == -1) {
+      throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.');
+    }
+    mockApplicators[index] = mockApplicators[index].copyWith(
+      status: status,
+      dataDesativacao: status == UsuarioStatus.desativado
+          ? DateTime.now()
+          : mockApplicators[index].dataDesativacao,
+    );
+  }
 }

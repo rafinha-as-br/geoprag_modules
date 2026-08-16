@@ -6,6 +6,10 @@ import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_account.dart';
 import 'administrador_view_model.dart';
 import 'administradores_cubit.dart';
+import 'widgets/administrador_inativo_banner.dart';
+import 'widgets/botao_promover_administrador.dart';
+import 'widgets/botao_reativar_administrador.dart';
+import 'widgets/botao_rebaixar_administrador.dart';
 import 'widgets/geoprag_detail_dialog.dart';
 
 String _formatarData(DateTime data) {
@@ -59,29 +63,10 @@ class _AdministradorDetalheDialog extends StatelessWidget {
       ),
       banner: administrador.ativo
           ? null
-          : Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: GeopragStatus.atrasado.background,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.block,
-                    color: GeopragStatus.atrasado.color,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Este cadastro está desativado desde '
-                      '${administrador.dataDesativacao != null ? _formatarData(administrador.dataDesativacao!) : 'data desconhecida'}.',
-                      style: TextStyle(color: GeopragStatus.atrasado.color),
-                    ),
-                  ),
-                ],
-              ),
+          : AdministradorInativoBanner(
+              desdeLabel: administrador.dataDesativacao != null
+                  ? _formatarData(administrador.dataDesativacao!)
+                  : 'data desconhecida',
             ),
       infoRows: [
         GeopragInfoRow(label: 'E-mail', valor: administrador.email),
@@ -112,10 +97,9 @@ class _AdministradorDetalheDialog extends StatelessWidget {
 
     if (administrador.ativo && !administrador.isAdministrador) {
       acoes.add(
-        OutlinedButton.icon(
-          onPressed: () => _confirmarPromocao(context, contaAtualNaoNula),
-          icon: const Icon(Icons.arrow_upward, color: Colors.green),
-          label: const Text('Promover a Administrador'),
+        BotaoPromoverAdministrador(
+          administrador: administrador,
+          contaAtual: contaAtualNaoNula,
         ),
       );
     }
@@ -124,10 +108,9 @@ class _AdministradorDetalheDialog extends StatelessWidget {
         administrador.isAdministrador &&
         contaAtualNaoNula.email != administrador.email) {
       acoes.add(
-        OutlinedButton.icon(
-          onPressed: () => _confirmarRebaixamento(context, contaAtualNaoNula),
-          icon: const Icon(Icons.arrow_downward, color: Colors.orange),
-          label: const Text('Rebaixar a Sub-Administrador'),
+        BotaoRebaixarAdministrador(
+          administrador: administrador,
+          contaAtual: contaAtualNaoNula,
         ),
       );
     }
@@ -146,14 +129,9 @@ class _AdministradorDetalheDialog extends StatelessWidget {
       );
     } else {
       acoes.add(
-        ElevatedButton.icon(
-          onPressed: () => _confirmarReativacao(context, contaAtualNaoNula),
-          icon: const Icon(Icons.replay),
-          label: const Text('Reativar'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-          ),
+        BotaoReativarAdministrador(
+          administrador: administrador,
+          contaAtual: contaAtualNaoNula,
         ),
       );
     }
@@ -194,105 +172,4 @@ class _AdministradorDetalheDialog extends StatelessWidget {
     }
   }
 
-  Future<void> _confirmarReativacao(
-    BuildContext context,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Reativar cadastro'),
-        content: Text(
-          'Tem certeza que deseja reativar o cadastro de "${administrador.nome}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Reativar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.reativar(
-        email: administrador.email,
-        executorEmail: contaAtual.email,
-      );
-      if (context.mounted) Navigator.of(context).pop();
-    }
-  }
-
-  Future<void> _confirmarRebaixamento(
-    BuildContext context,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Rebaixar administrador'),
-        content: Text(
-          'Tem certeza que deseja rebaixar "${administrador.nome}" a '
-          'Sub-Administrador? A ação é imediata e não passa por votação.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Rebaixar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.rebaixar(
-        email: administrador.email,
-        executorEmail: contaAtual.email,
-      );
-      if (context.mounted) Navigator.of(context).pop();
-    }
-  }
-
-  Future<void> _confirmarPromocao(
-    BuildContext context,
-    AdminAccount contaAtual,
-  ) async {
-    final cubit = context.read<AdministradoresCubit>();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Solicitar promoção'),
-        content: Text(
-          'Abrir uma votação para promover "${administrador.nome}" a '
-          'Administrador? A promoção exige aprovação de 2/3 dos demais '
-          'Administradores.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Solicitar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await cubit.solicitarPromocao(
-        solicitanteEmail: contaAtual.email,
-        subAdministradorEmail: administrador.email,
-      );
-      if (context.mounted) Navigator.of(context).pop();
-    }
-  }
 }

@@ -12,7 +12,7 @@ import '../../../src/errors/app_logger.dart';
 ///
 /// TODO(GEOPRAG-24): hoje não há sessão/roteamento real no `aplicador_app` —
 /// o repositório resolve "o ponto atual" a partir de um mock fixo; falta o
-/// backend expor qual trecho pertence ao aplicador autenticado.
+/// backend expor qual ponto de aplicação pertence ao aplicador autenticado.
 class PontoDeAplicacaoCubit extends Cubit<PontoDeAplicacaoState> {
   PontoDeAplicacaoCubit(this._repository)
     : super(const PontoDeAplicacaoLoading()) {
