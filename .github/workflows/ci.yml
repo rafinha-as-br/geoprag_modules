@@ -32,9 +32,4 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Run tests
-        # TODO: tirar o continue-on-error quando os 37 testes hoje quebrados
-        # na develop (todos com a mesma assinatura: Cubit não emite estado
-        # Error nos testes de bloc_test) forem corrigidos. Até lá, test roda
-        # e reporta, mas não bloqueia o merge.
-        continue-on-error: true
         run: flutter test

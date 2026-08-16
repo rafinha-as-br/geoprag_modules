@@ -76,9 +76,9 @@ Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 - **Triggers**: Pull Request para `develop`/`main`; push em `develop`
 - **Job `Analyze & test`**: checkout → Flutter 3.35.5 → `flutter pub get` → `flutter analyze --no-fatal-infos` → `flutter test`
-- **Gates obrigatórios (bloqueiam merge)**: `flutter analyze` (erros e warnings; infos não bloqueiam)
+- **Gates obrigatórios (bloqueiam merge)**: `flutter analyze` (erros e warnings; infos não bloqueiam) e `flutter test`
 - **Branch protection na `develop`**: ativa, exige o check `Analyze & test` passando + branch atualizada com a `develop` antes do merge (`strict: true`). `enforce_admins` está desligado — o dono do repo ainda consegue fazer bypass numa emergência, mas o fluxo normal (PR + merge automatizado) sempre passa pelos checks.
-- **Não bloqueia ainda**: `flutter test` roda e reporta, mas não derruba o job (`continue-on-error: true`). Motivo: 37 dos ~304 testes hoje falham na própria `develop`, todos com a mesma assinatura (Cubit não emite o estado `Error` esperado nos testes de `bloc_test` quando o repositório mockado lança exceção) — indício de causa raiz única (timing do `bloc_test`/`mocktail`, não 19 features quebradas de fato). Assim que corrigido, remover o `continue-on-error` e marcar `test` como check obrigatório na branch protection.
+- **Dívida técnica conhecida**: 37 dos ~304 testes falham hoje, todos com a mesma assinatura (Cubit não emite o estado `Error` esperado nos testes de `bloc_test` quando o repositório mockado lança exceção) — indício de causa raiz única (timing do `bloc_test`/`mocktail`, não 37 features quebradas de fato). Decisão de 2026-08-16: `test` é bloqueante mesmo assim (projeto solo, sem risco de travar outro desenvolvedor) — **nenhum PR mergeia até esses testes serem corrigidos**.
 
 ## Release & Versionamento
 
