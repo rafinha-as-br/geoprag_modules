@@ -7,7 +7,7 @@ import 'ponto_de_aplicacao_cubit.dart';
 import 'ponto_de_aplicacao_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 
-/// Tela de visão geral do ponto de aplicação (trecho) do aplicador logado.
+/// Tela de visão geral do ponto de aplicação do aplicador logado.
 ///
 /// Assume que um [PontoDeAplicacaoCubit] já foi provido acima na árvore de
 /// widgets (ver `AplicadorBootstrap.buildPontoDeAplicacaoCubit` em
@@ -108,7 +108,7 @@ class _PontoDeAplicacaoContent extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Aqui está o resumo do seu trecho de atuação atual.',
+            'Aqui está o resumo do seu ponto de aplicação atual.',
             style: TextStyle(fontSize: 16, color: Colors.black54),
           ),
           const SizedBox(height: 32),
@@ -161,7 +161,7 @@ class _PontoDeAplicacaoContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          ponto.nomeTrecho,
+                          ponto.nomePonto,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

@@ -38,6 +38,12 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
     required DateTime dataNascimento,
     required String sexo,
     required String cep,
+    required String rua,
+    required String numero,
+    String? complemento,
+    required String bairro,
+    required String cidade,
+    required String uf,
   }) async {
     final jaExiste = mockApplicators.any(
       (aplicador) => aplicador.email == email,
@@ -49,13 +55,12 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
     }
 
     final aplicador = Aplicador(
-      // TODO(GEOPRAG-42/69): `bairro`/`telefone`/`endereco` são campos
-      // legados que não fazem parte do formulário de cadastro documentado
-      // (ver "Regra de Negócio - Dados da Conta") — mantidos vazios aqui até
-      // a divergência de modelo ser resolvida nessas issues.
+      // TODO(GEOPRAG-42): `telefone` é um campo legado que não faz parte do
+      // formulário de cadastro documentado (ver "Regra de Negócio - Dados
+      // da Conta") — mantido vazio aqui até a divergência de modelo ser
+      // resolvida nessa issue.
       id: (mockApplicators.length + 1).toString(),
       nome: nome,
-      bairro: '',
       status: UsuarioStatus.ativo,
       dataCriacao: DateTime.now(),
       email: email,
@@ -63,10 +68,36 @@ class AplicadorRepositoryImpl implements AplicadorRepository {
       dataNascimento: dataNascimento,
       sexo: sexo,
       cep: cep,
+      rua: rua,
+      numero: numero,
+      complemento: complemento,
+      bairro: bairro,
+      cidade: cidade,
+      uf: uf,
       telefone: '',
-      endereco: '',
     );
     mockApplicators.add(aplicador);
     return aplicador;
+  }
+
+  @override
+  Future<void> ativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.ativo);
+
+  @override
+  Future<void> desativar(String id) async =>
+      _atualizarStatus(id, UsuarioStatus.desativado);
+
+  void _atualizarStatus(String id, UsuarioStatus status) {
+    final index = mockApplicators.indexWhere((aplicador) => aplicador.id == id);
+    if (index == -1) {
+      throw EntidadeNaoEncontradaException('Aplicador "$id" não encontrado.');
+    }
+    mockApplicators[index] = mockApplicators[index].copyWith(
+      status: status,
+      dataDesativacao: status == UsuarioStatus.desativado
+          ? DateTime.now()
+          : mockApplicators[index].dataDesativacao,
+    );
   }
 }

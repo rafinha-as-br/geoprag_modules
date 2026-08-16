@@ -55,6 +55,23 @@ void main() {
   );
 
   blocTest<AdministradoresCubit, AdministradoresState>(
+    'recarregar atualiza a lista sem aviso associado',
+    setUp: () {
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+    },
+    build: () => AdministradoresCubit(repository),
+    act: (cubit) => cubit.recarregar(),
+    skip: 1,
+    expect: () => [
+      isA<AdministradoresLoaded>()
+          .having((s) => s.administradores.length, 'administradores.length', 2)
+          .having((s) => s.avisoAcao, 'avisoAcao', isNull),
+    ],
+  );
+
+  blocTest<AdministradoresCubit, AdministradoresState>(
     'desativar recarrega a lista com aviso de sucesso',
     setUp: () {
       when(

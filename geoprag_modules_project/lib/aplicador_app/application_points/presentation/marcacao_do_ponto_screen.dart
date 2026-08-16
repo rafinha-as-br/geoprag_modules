@@ -7,7 +7,8 @@ import 'marcacao_do_ponto_cubit.dart';
 import 'marcacao_do_ponto_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 
-/// Tela de (re)marcação do ponto inicial do trecho via GPS.
+/// Tela de (re)marcação da localização inicial do ponto de aplicação via
+/// GPS.
 ///
 /// Assume que um [MarcacaoDoPontoCubit] já foi provido acima na árvore de
 /// widgets (ver `AplicadorBootstrap.buildMarcacaoDoPontoCubit` em
@@ -102,7 +103,7 @@ class _MarcacaoDoPontoContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Configure seu Trecho',
+                  'Configure seu Ponto de Aplicação',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -111,7 +112,7 @@ class _MarcacaoDoPontoContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Vá fisicamente até o local de início do seu trecho de aplicação e clique em "Capturar Localização". O ponto será enviado para a prefeitura validar.',
+                  'Vá fisicamente até o local de início do seu ponto de aplicação e clique em "Capturar Localização". O ponto será enviado para a prefeitura validar.',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black54,

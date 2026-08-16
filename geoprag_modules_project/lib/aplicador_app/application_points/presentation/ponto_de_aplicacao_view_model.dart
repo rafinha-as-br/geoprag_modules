@@ -12,14 +12,14 @@ String _formatarData(DateTime data) {
 /// ViewModel do ponto de aplicação atual — usada na tela de visão geral do
 /// aplicador (`VisualizacaoDoPontoScreen`).
 class PontoDeAplicacaoViewModel {
-  final String nomeTrecho;
+  final String nomePonto;
   final String referencia;
   final bool estaNoPrazo;
   final DateTime dataUltimaAplicacao;
   final DateTime dataProximaAplicacaoEstimada;
 
   const PontoDeAplicacaoViewModel({
-    required this.nomeTrecho,
+    required this.nomePonto,
     required this.referencia,
     required this.estaNoPrazo,
     required this.dataUltimaAplicacao,
@@ -34,7 +34,7 @@ class PontoDeAplicacaoViewModel {
 
   factory PontoDeAplicacaoViewModel.fromEntity(PontoDeAplicacao entity) {
     return PontoDeAplicacaoViewModel(
-      nomeTrecho: entity.nomeTrecho,
+      nomePonto: entity.nomePonto,
       referencia: entity.referencia,
       estaNoPrazo: entity.status == 'no_prazo',
       dataUltimaAplicacao: entity.dataUltimaAplicacao,
@@ -43,8 +43,8 @@ class PontoDeAplicacaoViewModel {
   }
 }
 
-/// ViewModel da leitura de GPS capturada ao (re)marcar o ponto inicial do
-/// trecho (`MarcacaoDoPontoScreen`).
+/// ViewModel da leitura de GPS capturada ao (re)marcar a localização
+/// inicial do ponto de aplicação (`MarcacaoDoPontoScreen`).
 class CapturaLocalizacaoViewModel {
   final double latitude;
   final double longitude;

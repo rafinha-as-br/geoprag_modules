@@ -29,11 +29,16 @@ abstract class AdminNavigator {
   void toGerenciamentoAdministradores();
 
   /// Formulário de criação de novo administrador (nasce sempre
-  /// Sub-Administrador).
-  void toCriarAdministrador();
+  /// Sub-Administrador). O `Future` completa quando a tela é fechada, para
+  /// quem chamou poder recarregar dados que ela pode ter alterado
+  /// (GEOPRAG-36, QA GEOPRAG-TC-4).
+  Future<void> toCriarAdministrador();
 
-  /// Tela de Solicitações de Promoção em aberto (votação de 2/3).
-  void toSolicitacoesPromocaoAdministrador();
+  /// Tela de Solicitações de Promoção em aberto (votação de 2/3). O
+  /// `Future` completa quando a tela é fechada, para quem chamou poder
+  /// recarregar dados que ela pode ter alterado (GEOPRAG-36, QA
+  /// GEOPRAG-TC-9).
+  Future<void> toSolicitacoesPromocaoAdministrador();
 
   void toEstoque();
   void toEstoqueFormula();
@@ -55,6 +60,15 @@ abstract class AdminNavigator {
   /// após concluir o fluxo de redefinição de senha).
   void toLoginResetStack();
 
+  /// Volta um passo na pilha de navegação — só faz sentido no fluxo de
+  /// recuperação de senha (`toEsqueciSenha`/`toAguardandoAutorizacao`/
+  /// `toAutorizarRedefinicao`/`toVerificarCodigoSubAdmin`/
+  /// `toVerificarCodigoAdmin`), o único que ainda empilha telas. Nenhuma
+  /// tela pós-login do Portal Administrador deve chamar [back] — todo
+  /// destino ali é alcançado como topo de pilha (implementações usam
+  /// `pushReplacement`), então não há frame anterior para popar; volte
+  /// chamando o método explícito do destino pretendido (ex.:
+  /// `toAplicadores()`) — ver GEOPRAG-72.
   void back();
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'aplicador_view_model.dart';
@@ -50,7 +51,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                   children: [
                     TextField(
                       decoration: InputDecoration(
-                        hintText: 'Buscar por nome, bairro ou status...',
+                        hintText: 'Buscar por nome ou status...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -71,61 +72,8 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                               'Não foi possível carregar os aplicadores: $message',
                             ),
                           ),
-                          AplicadoresLoaded(:final aplicadores) => Table(
-                            border: TableBorder.all(color: Colors.grey[300]!),
-                            columnWidths: const {
-                              0: FlexColumnWidth(2),
-                              1: FlexColumnWidth(2),
-                              2: FlexColumnWidth(1),
-                              3: FlexColumnWidth(1),
-                            },
-                            children: [
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                ),
-                                children: const [
-                                  Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Text(
-                                      'Nome',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Text(
-                                      'Bairro/Trecho',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Text(
-                                      'Status',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Text(
-                                      'Ações',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              for (final aplicador in aplicadores)
-                                _buildTableRow(context, aplicador),
-                            ],
+                          AplicadoresLoaded() => _DashboardConteudo(
+                            state: state,
                           ),
                         };
                       },
@@ -139,45 +87,178 @@ class DashboardAplicadoresScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  TableRow _buildTableRow(
-    BuildContext context,
-    AplicadorResumoViewModel aplicador,
-  ) {
-    final isAtivo = aplicador.ativo;
-    return TableRow(
+class _DashboardConteudo extends StatelessWidget {
+  const _DashboardConteudo({required this.state});
+
+  final AplicadoresLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<AplicadoresCubit>();
+    final aplicadoresFiltrados = state.aplicadoresFiltrados;
+    final idsVisiveis = aplicadoresFiltrados.map((a) => a.id).toSet();
+    final todosVisiveisSelecionados =
+        idsVisiveis.isNotEmpty && idsVisiveis.every(state.selecionados.contains);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(padding: const EdgeInsets.all(12), child: Text(aplicador.nome)),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(aplicador.bairro),
+        Wrap(
+          spacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Todos'),
+              selected: state.filtro == FiltroStatusAplicador.todos,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.todos),
+            ),
+            ChoiceChip(
+              label: const Text('Ativos'),
+              selected: state.filtro == FiltroStatusAplicador.ativos,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.ativos),
+            ),
+            ChoiceChip(
+              label: const Text('Desativados'),
+              selected: state.filtro == FiltroStatusAplicador.desativados,
+              onSelected: (_) =>
+                  cubit.alterarFiltro(FiltroStatusAplicador.desativados),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: GeopragStatusBadge(
-            status: isAtivo ? GeopragStatus.emDia : GeopragStatus.atrasado,
-            label: isAtivo ? 'Ativo' : 'Desativado',
-            dense: true,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.visibility, color: Colors.blue),
-                onPressed: () {
-                  AdminNavigatorScope.of(
-                    context,
-                  ).toAplicadorDetalhes(aplicador.id);
-                },
-                tooltip: 'Visualizar',
+        const SizedBox(height: 16),
+        // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
+        // GeopragDataTable extraído na GEOPRAG-36, em vez de um Table
+        // duplicado localmente. onRowTap substitui a antiga coluna de
+        // "Ações" — clicar em qualquer ponto da linha (fora da célula de
+        // seleção) abre o detalhe do Aplicador.
+        GeopragDataTable<AplicadorResumoViewModel>(
+          items: aplicadoresFiltrados,
+          onRowTap: (aplicador) =>
+              AdminNavigatorScope.of(context).toAplicadorDetalhes(aplicador.id),
+          columns: [
+            GeopragDataColumn(
+              label: 'Selecionar',
+              width: const FixedColumnWidth(48),
+              headerBuilder: (context) => Checkbox(
+                value: todosVisiveisSelecionados,
+                onChanged: state.processandoAcaoEmMassa
+                    ? null
+                    : (_) => cubit.alternarSelecaoDeTodosVisiveis(),
               ),
-            ],
-          ),
+              cellBuilder: (context, aplicador) => Checkbox(
+                value: state.selecionados.contains(aplicador.id),
+                onChanged: state.processandoAcaoEmMassa
+                    ? null
+                    : (_) => cubit.alternarSelecao(aplicador.id),
+              ),
+            ),
+            GeopragDataColumn(
+              label: 'Nome',
+              width: const FlexColumnWidth(2),
+              cellBuilder: (context, aplicador) => Text(aplicador.nome),
+            ),
+            GeopragDataColumn(
+              // GEOPRAG-69: renomeado de "Bairro/Trecho" — esta coluna
+              // sempre exibiu o bairro de residência do Aplicador
+              // (Usuario.bairro, GEOPRAG-70), nunca um "ponto de
+              // aplicação"/"subponto" (conceito não relacionado, sem
+              // vínculo com Aplicador nesta tela — ver GEOPRAG-71).
+              label: 'Bairro',
+              width: const FlexColumnWidth(2),
+              cellBuilder: (context, aplicador) => Text(aplicador.bairro),
+            ),
+            GeopragDataColumn(
+              label: 'Status',
+              width: const FlexColumnWidth(1),
+              cellBuilder: (context, aplicador) => GeopragStatusBadge(
+                status: aplicador.ativo
+                    ? GeopragStatus.emDia
+                    : GeopragStatus.atrasado,
+                label: aplicador.ativo ? 'Ativo' : 'Desativado',
+                dense: true,
+              ),
+            ),
+          ],
         ),
+        if (state.selecionados.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _BarraAcaoEmMassa(state: state, cubit: cubit),
+        ],
       ],
+    );
+  }
+}
+
+class _BarraAcaoEmMassa extends StatelessWidget {
+  const _BarraAcaoEmMassa({required this.state, required this.cubit});
+
+  final AplicadoresLoaded state;
+  final AplicadoresCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final quantidade = state.selecionados.length;
+    final processando = state.processandoAcaoEmMassa;
+    // GEOPRAG-67 (review Rafinha, PR #14): fundo verde escuro (M3
+    // primaryContainer) com texto no estilo padrão (preto) ficava
+    // ilegível — o texto agora usa onPrimaryContainer, o par de contraste
+    // correto definido em GeopragTheme.
+    final onPrimaryContainer = Theme.of(context).colorScheme.onPrimaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
+        children: [
+          Text(
+            '$quantidade selecionado(s)',
+            style: TextStyle(color: onPrimaryContainer),
+          ),
+          OutlinedButton.icon(
+            onPressed: processando ? null : cubit.ativarSelecionados,
+            icon: Icon(Icons.check_circle_outline, color: onPrimaryContainer),
+            label: Text(
+              'Ativar selecionados',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
+            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
+          ),
+          OutlinedButton.icon(
+            onPressed: processando ? null : cubit.desativarSelecionados,
+            icon: Icon(Icons.block, color: onPrimaryContainer),
+            label: Text(
+              'Desativar selecionados',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
+            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
+          ),
+          TextButton(
+            onPressed: processando ? null : cubit.limparSelecao,
+            child: Text(
+              'Limpar seleção',
+              style: TextStyle(color: onPrimaryContainer),
+            ),
+          ),
+          if (processando)
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: onPrimaryContainer,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

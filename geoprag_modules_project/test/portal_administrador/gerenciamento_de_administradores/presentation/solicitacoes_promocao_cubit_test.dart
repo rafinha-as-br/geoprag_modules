@@ -86,6 +86,23 @@ void main() {
   );
 
   blocTest<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
+    'recarregar atualiza a lista sem aviso associado',
+    setUp: () {
+      when(
+        () => repository.listarSolicitacoesAbertas(),
+      ).thenAnswer((_) async => [solicitacaoAberta]);
+    },
+    build: () => SolicitacoesPromocaoCubit(repository, votanteEmail),
+    act: (cubit) => cubit.recarregar(),
+    skip: 1,
+    expect: () => [
+      isA<SolicitacoesPromocaoLoaded>()
+          .having((s) => s.solicitacoes.length, 'length', 1)
+          .having((s) => s.avisoAcao, 'avisoAcao', isNull),
+    ],
+  );
+
+  blocTest<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
     'votar recarrega a lista com aviso de sucesso',
     setUp: () {
       when(
