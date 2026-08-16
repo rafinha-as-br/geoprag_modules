@@ -8,8 +8,9 @@ import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 
-/// Captura a localização GPS do dispositivo e permite salvar o novo ponto
-/// inicial do trecho, para a tela `MarcacaoDoPontoScreen`.
+/// Captura a localização GPS do dispositivo e permite salvar a nova
+/// localização inicial do ponto de aplicação, para a tela
+/// `MarcacaoDoPontoScreen`.
 ///
 /// TODO(GEOPRAG-24): a captura de GPS hoje é simulada via
 /// `PontoDeAplicacaoRepository.capturarLocalizacaoAtual`; falta integrar um

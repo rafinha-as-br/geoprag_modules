@@ -161,7 +161,12 @@ class _DashboardConteudo extends StatelessWidget {
               cellBuilder: (context, aplicador) => Text(aplicador.nome),
             ),
             GeopragDataColumn(
-              label: 'Bairro/Trecho',
+              // GEOPRAG-69: renomeado de "Bairro/Trecho" — esta coluna
+              // sempre exibiu o bairro de residência do Aplicador
+              // (Usuario.bairro, GEOPRAG-70), nunca um "ponto de
+              // aplicação"/"subponto" (conceito não relacionado, sem
+              // vínculo com Aplicador nesta tela — ver GEOPRAG-71).
+              label: 'Bairro',
               width: const FlexColumnWidth(2),
               cellBuilder: (context, aplicador) => Text(aplicador.bairro),
             ),

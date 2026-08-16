@@ -13,7 +13,7 @@ void main() {
     final result = await repository.buscarAtual();
 
     expect(result.id, mockPontoDeAplicacaoAtual.id);
-    expect(result.nomeTrecho, mockPontoDeAplicacaoAtual.nomeTrecho);
+    expect(result.nomePonto, mockPontoDeAplicacaoAtual.nomePonto);
     expect(result.status, mockPontoDeAplicacaoAtual.status);
   });
 

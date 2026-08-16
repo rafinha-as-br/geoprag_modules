@@ -16,7 +16,7 @@ void main() {
 
   final capturado = PontoDeAplicacao(
     id: '1',
-    nomeTrecho: 'Córrego Gasparinho - Trecho 01',
+    nomePonto: 'Córrego Gasparinho - Ponto 01',
     referencia: 'Rua Pedro Simon, Margem Esquerda',
     latitude: -26.9312,
     longitude: -48.9567,

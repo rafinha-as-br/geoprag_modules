@@ -5,7 +5,7 @@ import 'package:geoprag_modules/aplicador_app/application_points/presentation/po
 void main() {
   final entity = PontoDeAplicacao(
     id: '1',
-    nomeTrecho: 'Córrego Gasparinho - Trecho 01',
+    nomePonto: 'Córrego Gasparinho - Ponto 01',
     referencia: 'Rua Pedro Simon, Margem Esquerda',
     latitude: -26.9312,
     longitude: -48.9567,
@@ -19,7 +19,7 @@ void main() {
     test('mapeia todos os campos da entidade sem perda de dados', () {
       final viewModel = PontoDeAplicacaoViewModel.fromEntity(entity);
 
-      expect(viewModel.nomeTrecho, entity.nomeTrecho);
+      expect(viewModel.nomePonto, entity.nomePonto);
       expect(viewModel.referencia, entity.referencia);
       expect(viewModel.dataUltimaAplicacao, entity.dataUltimaAplicacao);
       expect(
@@ -36,7 +36,7 @@ void main() {
     test('estaNoPrazo é false para qualquer outro status (ex: "atrasado")', () {
       final atrasado = PontoDeAplicacao(
         id: entity.id,
-        nomeTrecho: entity.nomeTrecho,
+        nomePonto: entity.nomePonto,
         referencia: entity.referencia,
         latitude: entity.latitude,
         longitude: entity.longitude,
@@ -58,7 +58,7 @@ void main() {
 
     test('preenche os dias/meses com zero à esquerda quando < 10', () {
       final viewModel = PontoDeAplicacaoViewModel(
-        nomeTrecho: entity.nomeTrecho,
+        nomePonto: entity.nomePonto,
         referencia: entity.referencia,
         estaNoPrazo: true,
         dataUltimaAplicacao: DateTime(2026, 1, 5),
