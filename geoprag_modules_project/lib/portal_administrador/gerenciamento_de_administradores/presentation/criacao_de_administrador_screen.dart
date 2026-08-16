@@ -59,10 +59,11 @@ class _CriacaoDeAdministradorScreenState
                 ),
               ),
             );
-            // Esta tela é sempre alcançada por push a partir do dashboard
-            // do módulo (`toCriarAdministrador`) — `.back()` volta pra lá,
-            // onde o cadastro recém-criado já aparece na listagem.
-            AdminNavigatorScope.of(context).back();
+            // GEOPRAG-72: esta tela é alcançada por pushReplacement
+            // (destino de topo, não sub-rota), então não há frame anterior
+            // para `.back()` — volta ao módulo explicitamente, onde o
+            // cadastro recém-criado já aparece na listagem.
+            AdminNavigatorScope.of(context).toGerenciamentoAdministradores();
           } else if (state is CriarAdministradorErro) {
             ScaffoldMessenger.of(
               context,

@@ -80,7 +80,10 @@ class CadastroLicitacaoScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () {
-                        AdminNavigatorScope.of(context).back();
+                        // GEOPRAG-72: rota alcançada por pushReplacement
+                        // (destino de topo, não sub-rota) — não há frame
+                        // anterior para `.back()`.
+                        AdminNavigatorScope.of(context).toEstoque();
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),

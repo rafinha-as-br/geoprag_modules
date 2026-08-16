@@ -83,7 +83,10 @@ class CadastroFormulaScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     ElevatedButton.icon(
                       onPressed: () {
-                        AdminNavigatorScope.of(context).back();
+                        // GEOPRAG-72: rota alcançada por pushReplacement
+                        // (destino de topo, não sub-rota) — não há frame
+                        // anterior para `.back()`.
+                        AdminNavigatorScope.of(context).toEstoque();
                       },
                       icon: const Icon(Icons.save),
                       label: const Text('Salvar Nova Fórmula e Atualizar API'),

@@ -60,6 +60,15 @@ abstract class AdminNavigator {
   /// após concluir o fluxo de redefinição de senha).
   void toLoginResetStack();
 
+  /// Volta um passo na pilha de navegação — só faz sentido no fluxo de
+  /// recuperação de senha (`toEsqueciSenha`/`toAguardandoAutorizacao`/
+  /// `toAutorizarRedefinicao`/`toVerificarCodigoSubAdmin`/
+  /// `toVerificarCodigoAdmin`), o único que ainda empilha telas. Nenhuma
+  /// tela pós-login do Portal Administrador deve chamar [back] — todo
+  /// destino ali é alcançado como topo de pilha (implementações usam
+  /// `pushReplacement`), então não há frame anterior para popar; volte
+  /// chamando o método explícito do destino pretendido (ex.:
+  /// `toAplicadores()`) — ver GEOPRAG-72.
   void back();
 }
 
