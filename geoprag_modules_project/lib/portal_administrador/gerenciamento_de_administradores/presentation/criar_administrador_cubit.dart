@@ -5,6 +5,7 @@ import 'criar_administrador_state.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
+import '../../../src/utils/senha_inicial_generator.dart';
 
 /// Submete o formulário de criação de novo administrador (GEOPRAG-36) — o
 /// resultado sempre nasce Sub-Administrador, ver [AdministradorRepository].
@@ -30,7 +31,11 @@ class CriarAdministradorCubit extends Cubit<CriarAdministradorState> {
         dataNascimento: dataNascimento,
         sexo: sexo,
       );
-      emit(CriarAdministradorSucesso(conta));
+      final senhaGerada = gerarSenhaInicial(
+        nome: nome,
+        dataNascimento: dataNascimento,
+      );
+      emit(CriarAdministradorSucesso(conta, senhaGerada));
     } on EntidadeDuplicadaException catch (e) {
       emit(CriarAdministradorErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {

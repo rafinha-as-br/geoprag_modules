@@ -53,11 +53,9 @@ void main() {
     ),
     expect: () => [
       isA<CriarAdministradorSalvando>(),
-      isA<CriarAdministradorSucesso>().having(
-        (s) => s.conta.role,
-        'conta.role',
-        AdminRole.subAdministrador,
-      ),
+      isA<CriarAdministradorSucesso>()
+          .having((s) => s.conta.role, 'conta.role', AdminRole.subAdministrador)
+          .having((s) => s.senhaGerada, 'senhaGerada', '01011990nc#'),
     ],
   );
 

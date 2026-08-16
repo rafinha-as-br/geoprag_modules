@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../src/widgets/geoprag_data_nascimento_input.dart';
 import '../../../src/widgets/geoprag_email_input.dart';
+import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../../src/widgets/geoprag_sexo_input.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../widgets/admin_scaffold.dart';
@@ -52,18 +53,22 @@ class _CriacaoDeAdministradorScreenState
       body: BlocConsumer<CriarAdministradorCubit, CriarAdministradorState>(
         listener: (context, state) {
           if (state is CriarAdministradorSucesso) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '${state.conta.nome} cadastrado(a) como Sub-Administrador.',
-                ),
-              ),
+            // GEOPRAG-68 (review Rafinha, PR #13): mesmo tratamento da
+            // GEOPRAG-65 — dialog modal reutilizável em vez do painel
+            // sobreposto (cor escura, texto ilegível).
+            GeopragSenhaGeradaDialog.mostrar(
+              context,
+              senha: state.senhaGerada,
+              onConcluir: () {
+                // GEOPRAG-68 (review Rafinha): esta tela passou a ser
+                // alcançada por pushReplacement (destino de topo, não
+                // sub-rota) — não há mais frame anterior para `.back()`,
+                // volta ao dashboard do módulo explicitamente. Navegar só
+                // depois do dialog ser concluído (GEOPRAG-72 navegava
+                // imediatamente, antes de existir o dialog de senha).
+                AdminNavigatorScope.of(context).toGerenciamentoAdministradores();
+              },
             );
-            // GEOPRAG-72: esta tela é alcançada por pushReplacement
-            // (destino de topo, não sub-rota), então não há frame anterior
-            // para `.back()` — volta ao módulo explicitamente, onde o
-            // cadastro recém-criado já aparece na listagem.
-            AdminNavigatorScope.of(context).toGerenciamentoAdministradores();
           } else if (state is CriarAdministradorErro) {
             ScaffoldMessenger.of(
               context,
