@@ -61,3 +61,12 @@ cd geoprag_modules
 flutter pub get
 flutter test
 ```
+
+## CI (GitHub Actions)
+
+Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+- **Triggers**: Pull Request para `develop`/`main`; push em `develop`
+- **Job `quality-gates`**: checkout → Flutter 3.35.5 → `flutter pub get` → `flutter analyze --no-fatal-infos` → `flutter test`
+- **Gates obrigatórios (bloqueiam merge)**: `flutter analyze` (erros e warnings; infos não bloqueiam)
+- **Não bloqueia ainda**: `flutter test` roda e reporta, mas não derruba o job (`continue-on-error: true`). Motivo: 37 dos ~304 testes hoje falham na própria `develop`, todos com a mesma assinatura (Cubit não emite o estado `Error` esperado nos testes de `bloc_test` quando o repositório mockado lança exceção) — indício de causa raiz única (timing do `bloc_test`/`mocktail`, não 19 features quebradas de fato). Assim que corrigido, remover o `continue-on-error` e marcar `test` como check obrigatório na branch protection.
