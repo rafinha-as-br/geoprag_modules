@@ -17,7 +17,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdminScaffold(
       currentRoute: '/aplicadores',
-      appBar: AppBar(title: const Text('Gestão de Aplicadores')),
+      appBar: AppBar(title: const Text('Gerenciamento de Aplicadores')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(

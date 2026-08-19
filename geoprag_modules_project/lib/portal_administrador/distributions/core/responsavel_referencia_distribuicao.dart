@@ -4,7 +4,7 @@
 ///
 /// TODO(GEOPRAG-24): hoje replicado localmente em mock; substituir por uma
 /// consulta real assim que houver integração com o cadastro de aplicadores
-/// (`gestao_de_aplicadores`) ou com o backend.
+/// (`gerenciamento_de_aplicadores`) ou com o backend.
 class ResponsavelReferenciaDistribuicao {
   final String id;
   final String nome;

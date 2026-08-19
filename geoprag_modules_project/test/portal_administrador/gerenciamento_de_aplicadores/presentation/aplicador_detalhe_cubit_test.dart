@@ -1,10 +1,10 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador_repository.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/atuacao_aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicador_detalhe_state.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/atuacao_aplicador.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicador_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/errors/app_error_messages.dart';

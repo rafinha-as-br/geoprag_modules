@@ -12,11 +12,11 @@ import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart
 import 'gerenciamento_de_administradores/presentation/administradores_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/criar_administrador_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/solicitacoes_promocao_cubit.dart';
-import 'gestao_de_aplicadores/core/aplicador_repository.dart';
-import 'gestao_de_aplicadores/data/aplicador_repository_impl.dart';
-import 'gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
-import 'gestao_de_aplicadores/presentation/aplicadores_cubit.dart';
-import 'gestao_de_aplicadores/presentation/criar_aplicador_cubit.dart';
+import 'gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'gerenciamento_de_aplicadores/data/aplicador_repository_impl.dart';
+import 'gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
+import 'gerenciamento_de_aplicadores/presentation/aplicadores_cubit.dart';
+import 'gerenciamento_de_aplicadores/presentation/criar_aplicador_cubit.dart';
 import 'dashboard/core/resumo_geral_repository.dart';
 import 'dashboard/data/resumo_geral_repository_impl.dart';
 import 'dashboard/presentation/dashboard_geral_cubit.dart';
