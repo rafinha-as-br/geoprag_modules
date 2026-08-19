@@ -62,6 +62,9 @@ class AdminPontoDeAplicacao {
   });
 
   AdminPontoDeAplicacao copyWith({
+    String? bairro,
+    double? lat,
+    double? lng,
     StatusPontoDeAplicacao? status,
     bool? ativo,
     String? Function()? aplicadorId,
@@ -70,9 +73,9 @@ class AdminPontoDeAplicacao {
   }) {
     return AdminPontoDeAplicacao(
       id: id,
-      bairro: bairro,
-      lat: lat,
-      lng: lng,
+      bairro: bairro ?? this.bairro,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
       status: status ?? this.status,
       ativo: ativo ?? this.ativo,
       aplicadorId: aplicadorId != null ? aplicadorId() : this.aplicadorId,

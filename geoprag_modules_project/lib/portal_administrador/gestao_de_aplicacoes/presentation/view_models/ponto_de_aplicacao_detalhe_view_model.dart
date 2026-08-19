@@ -16,6 +16,7 @@ class PontoDeAplicacaoDetalheViewModel {
   final DateTime? dataConcluida;
   final bool podeAtribuirAplicador;
   final bool podeDesativar;
+  final bool podeEditar;
 
   const PontoDeAplicacaoDetalheViewModel({
     required this.id,
@@ -30,6 +31,7 @@ class PontoDeAplicacaoDetalheViewModel {
     this.dataConcluida,
     required this.podeAtribuirAplicador,
     required this.podeDesativar,
+    required this.podeEditar,
   });
 
   factory PontoDeAplicacaoDetalheViewModel.fromEntity(
@@ -47,10 +49,11 @@ class PontoDeAplicacaoDetalheViewModel {
       nomeDoAplicador: nomeDoAplicador,
       dataAgendada: ponto.dataAgendada,
       dataConcluida: ponto.dataConcluida,
-      // Só faz sentido (des)atribuir/desativar um ponto ainda ativo; um
-      // ponto desativado é editado (reativação) por outro fluxo.
+      // Só faz sentido (des)atribuir/desativar/editar um ponto ainda ativo;
+      // um ponto desativado é editado (reativação) por outro fluxo.
       podeAtribuirAplicador: ponto.ativo,
       podeDesativar: ponto.ativo,
+      podeEditar: ponto.ativo,
     );
   }
 }

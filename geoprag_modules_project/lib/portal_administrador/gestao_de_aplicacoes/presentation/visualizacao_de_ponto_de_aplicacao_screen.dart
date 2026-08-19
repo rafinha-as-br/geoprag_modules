@@ -89,9 +89,9 @@ class _PontoConteudo extends StatelessWidget {
             Row(
               children: [
                 ElevatedButton.icon(
-                  // TODO(GEOPRAG-38): edição de dados do ponto (bairro,
-                  // lat/lng) ainda não detalhada — item de escopo em aberto.
-                  onPressed: () {},
+                  onPressed: viewModel.podeEditar
+                      ? () => _abrirEdicaoDePonto(context, viewModel)
+                      : null,
                   icon: const Icon(Icons.edit),
                   label: const Text('Editar Ponto'),
                   style: ElevatedButton.styleFrom(
@@ -217,6 +217,135 @@ class _PontoConteudo extends StatelessWidget {
 
   String _formatarData(DateTime data) =>
       '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
+}
+
+Future<void> _abrirEdicaoDePonto(
+  BuildContext context,
+  PontoDeAplicacaoDetalheViewModel viewModel,
+) {
+  final cubit = context.read<PontoDeAplicacaoDetalheCubit>();
+  return showDialog<void>(
+    context: context,
+    builder: (_) => BlocProvider.value(
+      value: cubit,
+      child: _EditarPontoDialog(viewModel: viewModel),
+    ),
+  );
+}
+
+class _EditarPontoDialog extends StatefulWidget {
+  final PontoDeAplicacaoDetalheViewModel viewModel;
+
+  const _EditarPontoDialog({required this.viewModel});
+
+  @override
+  State<_EditarPontoDialog> createState() => _EditarPontoDialogState();
+}
+
+class _EditarPontoDialogState extends State<_EditarPontoDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final _bairroController = TextEditingController(
+    text: widget.viewModel.bairro,
+  );
+  late final _latController = TextEditingController(
+    text: widget.viewModel.lat.toString(),
+  );
+  late final _lngController = TextEditingController(
+    text: widget.viewModel.lng.toString(),
+  );
+
+  @override
+  void dispose() {
+    _bairroController.dispose();
+    _latController.dispose();
+    _lngController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Editar Ponto de Aplicação'),
+      content: Form(
+        key: _formKey,
+        child: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _bairroController,
+                decoration: const InputDecoration(
+                  labelText: 'Bairro',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Informe o bairro.'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _latController,
+                      decoration: const InputDecoration(
+                        labelText: 'Latitude',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                        signed: true,
+                      ),
+                      validator: _validarCoordenada,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _lngController,
+                      decoration: const InputDecoration(
+                        labelText: 'Longitude',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                        signed: true,
+                      ),
+                      validator: _validarCoordenada,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            if (!_formKey.currentState!.validate()) return;
+            await context.read<PontoDeAplicacaoDetalheCubit>().editar(
+              bairro: _bairroController.text,
+              lat: double.parse(_latController.text),
+              lng: double.parse(_lngController.text),
+            );
+            if (context.mounted) Navigator.of(context).pop();
+          },
+          child: const Text('Salvar'),
+        ),
+      ],
+    );
+  }
+
+  String? _validarCoordenada(String? value) {
+    if (value == null || value.isEmpty) return 'Informe a coordenada.';
+    return double.tryParse(value) == null ? 'Coordenada inválida.' : null;
+  }
 }
 
 class _AtribuicaoDeAplicador extends StatefulWidget {

@@ -62,6 +62,23 @@ class AdminPontoDeAplicacaoRepositoryImpl implements AdminPontoDeAplicacaoReposi
     return atualizado;
   }
 
+  @override
+  Future<AdminPontoDeAplicacao> editar(
+    String id, {
+    required String bairro,
+    required double lat,
+    required double lng,
+  }) async {
+    final index = _indexOuFalha(id);
+    final atualizado = mockPontosDeAplicacao[index].copyWith(
+      bairro: bairro,
+      lat: lat,
+      lng: lng,
+    );
+    mockPontosDeAplicacao[index] = atualizado;
+    return atualizado;
+  }
+
   int _indexOuFalha(String id) {
     final index = mockPontosDeAplicacao.indexWhere((ponto) => ponto.id == id);
     if (index == -1) {

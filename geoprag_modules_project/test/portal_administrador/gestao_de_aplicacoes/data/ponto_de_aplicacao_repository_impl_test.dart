@@ -79,4 +79,26 @@ void main() {
       throwsA(isA<EntidadeNaoEncontradaException>()),
     );
   });
+
+  test('editar atualiza bairro, latitude e longitude do ponto', () async {
+    final atualizado = await repository.editar(
+      '4',
+      bairro: 'Bairro Editado',
+      lat: -27.0,
+      lng: -49.0,
+    );
+
+    expect(atualizado.bairro, 'Bairro Editado');
+    expect(atualizado.lat, -27.0);
+    expect(atualizado.lng, -49.0);
+
+    await repository.editar('4', bairro: 'Santa Terezinha', lat: -26.9950, lng: -48.9390);
+  });
+
+  test('editar lança EntidadeNaoEncontradaException para id inexistente', () {
+    expect(
+      () => repository.editar('inexistente', bairro: 'X', lat: 0, lng: 0),
+      throwsA(isA<EntidadeNaoEncontradaException>()),
+    );
+  });
 }

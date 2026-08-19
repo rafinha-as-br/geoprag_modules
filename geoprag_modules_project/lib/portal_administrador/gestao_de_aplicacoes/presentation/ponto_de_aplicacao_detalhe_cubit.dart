@@ -96,4 +96,20 @@ class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
       emit(PontoDeAplicacaoDetalheError(AppErrorMessages.carregamentoGenerico));
     }
   }
+
+  Future<void> editar({
+    required String bairro,
+    required double lat,
+    required double lng,
+  }) async {
+    try {
+      await _repository.editar(_pontoId, bairro: bairro, lat: lat, lng: lng);
+      await _carregar();
+    } on EntidadeNaoEncontradaException catch (e) {
+      emit(PontoDeAplicacaoDetalheError(e.mensagemAmigavel));
+    } catch (e, stackTrace) {
+      AppLogger.error('PontoDeAplicacaoDetalheCubit.editar', e, stackTrace);
+      emit(PontoDeAplicacaoDetalheError(AppErrorMessages.carregamentoGenerico));
+    }
+  }
 }

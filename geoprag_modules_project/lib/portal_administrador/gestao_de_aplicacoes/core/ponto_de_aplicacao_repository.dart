@@ -24,4 +24,13 @@ abstract class AdminPontoDeAplicacaoRepository {
 
   /// Desativação lógica — um ponto nunca é excluído, apenas desativado.
   Future<AdminPontoDeAplicacao> desativar(String id);
+
+  /// Edita os dados de localização do ponto (bairro, latitude, longitude).
+  /// Não altera status, ativo ou aplicador — cada um tem seu próprio fluxo.
+  Future<AdminPontoDeAplicacao> editar(
+    String id, {
+    required String bairro,
+    required double lat,
+    required double lng,
+  });
 }
