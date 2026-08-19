@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_ponto_cubit.dart';
 import 'criar_ponto_state.dart';
+import 'validators/ponto_de_aplicacao_validators.dart';
 import 'view_models/aplicador_opcao_view_model.dart';
 
 class CriacaoDePontoScreen extends StatefulWidget {
@@ -96,9 +97,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                             labelText: 'Bairro',
                             border: OutlineInputBorder(),
                           ),
-                          validator: (value) => (value == null || value.isEmpty)
-                              ? 'Informe o bairro.'
-                              : null,
+                          validator: PontoDeAplicacaoValidators.bairro,
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -114,7 +113,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                                   decimal: true,
                                   signed: true,
                                 ),
-                                validator: _validarCoordenada,
+                                validator: PontoDeAplicacaoValidators.coordenada,
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -129,7 +128,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                                   decimal: true,
                                   signed: true,
                                 ),
-                                validator: _validarCoordenada,
+                                validator: PontoDeAplicacaoValidators.coordenada,
                               ),
                             ),
                           ],
@@ -203,10 +202,5 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
         },
       ),
     );
-  }
-
-  String? _validarCoordenada(String? value) {
-    if (value == null || value.isEmpty) return 'Informe a coordenada.';
-    return double.tryParse(value) == null ? 'Coordenada inválida.' : null;
   }
 }

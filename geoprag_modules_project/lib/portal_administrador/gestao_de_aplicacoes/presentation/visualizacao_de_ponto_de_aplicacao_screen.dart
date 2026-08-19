@@ -6,6 +6,7 @@ import '../../widgets/sidebar_menu.dart';
 import 'ponto_de_aplicacao_detalhe_cubit.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';
 import 'status_ponto_de_aplicacao_badge.dart';
+import 'validators/ponto_de_aplicacao_validators.dart';
 import 'view_models/aplicador_opcao_view_model.dart';
 import 'view_models/ponto_de_aplicacao_detalhe_view_model.dart';
 
@@ -279,9 +280,7 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
                   labelText: 'Bairro',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Informe o bairro.'
-                    : null,
+                validator: PontoDeAplicacaoValidators.bairro,
               ),
               const SizedBox(height: 16),
               Row(
@@ -297,7 +296,7 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
                         decimal: true,
                         signed: true,
                       ),
-                      validator: _validarCoordenada,
+                      validator: PontoDeAplicacaoValidators.coordenada,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -312,7 +311,7 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
                         decimal: true,
                         signed: true,
                       ),
-                      validator: _validarCoordenada,
+                      validator: PontoDeAplicacaoValidators.coordenada,
                     ),
                   ),
                 ],
@@ -340,11 +339,6 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
         ),
       ],
     );
-  }
-
-  String? _validarCoordenada(String? value) {
-    if (value == null || value.isEmpty) return 'Informe a coordenada.';
-    return double.tryParse(value) == null ? 'Coordenada inválida.' : null;
   }
 }
 
