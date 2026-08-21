@@ -17,6 +17,7 @@ abstract class AdminPontoDeAplicacaoRepository {
     required double lat,
     required double lng,
     String? aplicadorId,
+    double distanciaAlertaMetros = 150.0,
   });
 
   /// Atribui (ou remove, passando `null`) o aplicador responsável pelo ponto.
@@ -32,5 +33,6 @@ abstract class AdminPontoDeAplicacaoRepository {
     required String bairro,
     required double lat,
     required double lng,
+    double? distanciaAlertaMetros,
   });
 }

@@ -167,6 +167,63 @@ void main() {
     },
   );
 
+  blocTest<PontoDeAplicacaoDetalheCubit, PontoDeAplicacaoDetalheState>(
+    'editar repassa uma distância de alerta customizada para o repositório',
+    setUp: () {
+      when(
+        () => repository.editar(
+          '1',
+          bairro: 'Novo Bairro',
+          lat: -27.0,
+          lng: -49.0,
+          distanciaAlertaMetros: 80.0,
+        ),
+      ).thenAnswer(
+        (_) async => ponto.copyWith(
+          bairro: 'Novo Bairro',
+          lat: -27.0,
+          lng: -49.0,
+          distanciaAlertaMetros: 80.0,
+        ),
+      );
+      when(() => repository.buscarPorId('1')).thenAnswer(
+        (_) async => ponto.copyWith(
+          bairro: 'Novo Bairro',
+          lat: -27.0,
+          lng: -49.0,
+          distanciaAlertaMetros: 80.0,
+        ),
+      );
+    },
+    build: () =>
+        PontoDeAplicacaoDetalheCubit(repository, aplicadorRepository, '1'),
+    act: (cubit) => cubit.editar(
+      bairro: 'Novo Bairro',
+      lat: -27.0,
+      lng: -49.0,
+      distanciaAlertaMetros: 80.0,
+    ),
+    skip: 1,
+    expect: () => [
+      isA<PontoDeAplicacaoDetalheLoaded>().having(
+        (s) => s.ponto.distanciaAlertaMetros,
+        'ponto.distanciaAlertaMetros',
+        80.0,
+      ),
+    ],
+    verify: (_) {
+      verify(
+        () => repository.editar(
+          '1',
+          bairro: 'Novo Bairro',
+          lat: -27.0,
+          lng: -49.0,
+          distanciaAlertaMetros: 80.0,
+        ),
+      ).called(1);
+    },
+  );
+
   test(
     'editar emite [Error] com mensagem amigável quando o ponto não é encontrado '
     '(nunca expõe a exceção bruta ao usuário)',

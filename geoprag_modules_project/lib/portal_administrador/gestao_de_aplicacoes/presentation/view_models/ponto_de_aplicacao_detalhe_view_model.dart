@@ -14,6 +14,7 @@ class PontoDeAplicacaoDetalheViewModel {
   final String? nomeDoAplicador;
   final DateTime? dataAgendada;
   final DateTime? dataConcluida;
+  final double distanciaAlertaMetros;
   final bool podeAtribuirAplicador;
   final bool podeDesativar;
   final bool podeEditar;
@@ -29,6 +30,7 @@ class PontoDeAplicacaoDetalheViewModel {
     this.nomeDoAplicador,
     this.dataAgendada,
     this.dataConcluida,
+    required this.distanciaAlertaMetros,
     required this.podeAtribuirAplicador,
     required this.podeDesativar,
     required this.podeEditar,
@@ -49,6 +51,7 @@ class PontoDeAplicacaoDetalheViewModel {
       nomeDoAplicador: nomeDoAplicador,
       dataAgendada: ponto.dataAgendada,
       dataConcluida: ponto.dataConcluida,
+      distanciaAlertaMetros: ponto.distanciaAlertaMetros,
       // Só faz sentido (des)atribuir/desativar/editar um ponto ainda ativo;
       // um ponto desativado é editado (reativação) por outro fluxo.
       podeAtribuirAplicador: ponto.ativo,

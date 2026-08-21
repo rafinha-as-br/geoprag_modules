@@ -11,4 +11,13 @@ class PontoDeAplicacaoValidators {
     if (value == null || value.isEmpty) return 'Informe a coordenada.';
     return double.tryParse(value) == null ? 'Coordenada inválida.' : null;
   }
+
+  /// Distância (em metros) que dispara o alerta de subponto (GEOPRAG-74) —
+  /// precisa ser um número positivo.
+  static String? distanciaAlertaMetros(String? value) {
+    if (value == null || value.isEmpty) return 'Informe a distância.';
+    final numero = double.tryParse(value);
+    if (numero == null) return 'Distância inválida.';
+    return numero <= 0 ? 'Distância deve ser maior que zero.' : null;
+  }
 }

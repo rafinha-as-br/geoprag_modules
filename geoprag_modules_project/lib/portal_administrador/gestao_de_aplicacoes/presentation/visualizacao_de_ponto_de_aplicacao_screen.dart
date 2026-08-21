@@ -147,6 +147,12 @@ class _PontoConteudo extends StatelessWidget {
                             '${viewModel.lat.toStringAsFixed(4)}, ${viewModel.lng.toStringAsFixed(4)}',
                           ),
                         ),
+                        ListTile(
+                          title: const Text('Distância do alerta de subponto'),
+                          subtitle: Text(
+                            '${viewModel.distanciaAlertaMetros.toStringAsFixed(0)}m',
+                          ),
+                        ),
                         if (viewModel.dataAgendada != null)
                           ListTile(
                             title: const Text('Data Agendada'),
@@ -254,12 +260,16 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
   late final _lngController = TextEditingController(
     text: widget.viewModel.lng.toString(),
   );
+  late final _distanciaAlertaController = TextEditingController(
+    text: widget.viewModel.distanciaAlertaMetros.toString(),
+  );
 
   @override
   void dispose() {
     _bairroController.dispose();
     _latController.dispose();
     _lngController.dispose();
+    _distanciaAlertaController.dispose();
     super.dispose();
   }
 
@@ -316,6 +326,18 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _distanciaAlertaController,
+                decoration: const InputDecoration(
+                  labelText: 'Distância do alerta de subponto (m)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                validator: PontoDeAplicacaoValidators.distanciaAlertaMetros,
+              ),
             ],
           ),
         ),
@@ -332,6 +354,9 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
               bairro: _bairroController.text,
               lat: double.parse(_latController.text),
               lng: double.parse(_lngController.text),
+              distanciaAlertaMetros: double.parse(
+                _distanciaAlertaController.text,
+              ),
             );
             if (context.mounted) Navigator.of(context).pop();
           },

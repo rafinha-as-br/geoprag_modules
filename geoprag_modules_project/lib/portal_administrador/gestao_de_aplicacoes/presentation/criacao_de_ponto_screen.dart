@@ -19,6 +19,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
   final _bairroController = TextEditingController();
   final _latController = TextEditingController();
   final _lngController = TextEditingController();
+  final _distanciaAlertaController = TextEditingController(text: '150');
 
   String? _aplicadorIdSelecionado;
   late Future<List<AplicadorOpcaoViewModel>> _opcoesDeAplicador;
@@ -36,6 +37,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
     _bairroController.dispose();
     _latController.dispose();
     _lngController.dispose();
+    _distanciaAlertaController.dispose();
     super.dispose();
   }
 
@@ -134,6 +136,22 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _distanciaAlertaController,
+                          decoration: const InputDecoration(
+                            labelText: 'Distância do alerta de subponto (m)',
+                            border: OutlineInputBorder(),
+                            helperText:
+                                'Distância percorrida pelo aplicador dentro '
+                                'do ponto que dispara o alerta de subponto.',
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator:
+                              PontoDeAplicacaoValidators.distanciaAlertaMetros,
+                        ),
+                        const SizedBox(height: 16),
                         // Ponto criado sempre como "planejada" e sem
                         // aplicador obrigatório — atribuição pode ficar
                         // para depois.
@@ -177,6 +195,9 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                                     lat: double.parse(_latController.text),
                                     lng: double.parse(_lngController.text),
                                     aplicadorId: _aplicadorIdSelecionado,
+                                    distanciaAlertaMetros: double.parse(
+                                      _distanciaAlertaController.text,
+                                    ),
                                   );
                                 },
                           style: ElevatedButton.styleFrom(

@@ -55,6 +55,56 @@ void main() {
   );
 
   blocTest<CriarPontoCubit, CriarPontoState>(
+    'repassa uma distância de alerta customizada para o repositório',
+    setUp: () {
+      when(
+        () => repository.criar(
+          bairro: 'Belchior',
+          lat: -26.99,
+          lng: -48.95,
+          aplicadorId: null,
+          distanciaAlertaMetros: 80.0,
+        ),
+      ).thenAnswer(
+        (_) async => const AdminPontoDeAplicacao(
+          id: '7',
+          bairro: 'Belchior',
+          lat: -26.99,
+          lng: -48.95,
+          status: StatusPontoDeAplicacao.planejada,
+          distanciaAlertaMetros: 80.0,
+        ),
+      );
+    },
+    build: () => CriarPontoCubit(repository, aplicadorRepository),
+    act: (cubit) => cubit.submit(
+      bairro: 'Belchior',
+      lat: -26.99,
+      lng: -48.95,
+      distanciaAlertaMetros: 80.0,
+    ),
+    expect: () => [
+      isA<CriarPontoSalvando>(),
+      isA<CriarPontoSucesso>().having(
+        (s) => s.ponto.distanciaAlertaMetros,
+        'ponto.distanciaAlertaMetros',
+        80.0,
+      ),
+    ],
+    verify: (_) {
+      verify(
+        () => repository.criar(
+          bairro: 'Belchior',
+          lat: -26.99,
+          lng: -48.95,
+          aplicadorId: null,
+          distanciaAlertaMetros: 80.0,
+        ),
+      ).called(1);
+    },
+  );
+
+  blocTest<CriarPontoCubit, CriarPontoState>(
     'emite [Salvando, Erro] com mensagem genérica quando a criação falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {

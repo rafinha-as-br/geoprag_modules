@@ -44,6 +44,31 @@ void main() {
     mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
   });
 
+  test('criar usa 150m como distância padrão do alerta de subponto', () async {
+    final ponto = await repository.criar(
+      bairro: 'Novo Bairro',
+      lat: -26.99,
+      lng: -48.95,
+    );
+
+    expect(ponto.distanciaAlertaMetros, 150.0);
+
+    mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
+  });
+
+  test('criar aceita uma distância de alerta customizada', () async {
+    final ponto = await repository.criar(
+      bairro: 'Novo Bairro',
+      lat: -26.99,
+      lng: -48.95,
+      distanciaAlertaMetros: 80.0,
+    );
+
+    expect(ponto.distanciaAlertaMetros, 80.0);
+
+    mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
+  });
+
   test('atribuirAplicador atualiza o aplicadorId do ponto', () async {
     final atualizado = await repository.atribuirAplicador('4', '2');
 
@@ -94,6 +119,42 @@ void main() {
 
     await repository.editar('4', bairro: 'Santa Terezinha', lat: -26.9950, lng: -48.9390);
   });
+
+  test('editar atualiza a distância do alerta de subponto quando informada', () async {
+    final atualizado = await repository.editar(
+      '4',
+      bairro: 'Santa Terezinha',
+      lat: -26.9950,
+      lng: -48.9390,
+      distanciaAlertaMetros: 100.0,
+    );
+
+    expect(atualizado.distanciaAlertaMetros, 100.0);
+
+    await repository.editar(
+      '4',
+      bairro: 'Santa Terezinha',
+      lat: -26.9950,
+      lng: -48.9390,
+      distanciaAlertaMetros: 150.0,
+    );
+  });
+
+  test(
+    'editar preserva a distância do alerta de subponto quando não informada',
+    () async {
+      final antes = await repository.buscarPorId('4');
+
+      final atualizado = await repository.editar(
+        '4',
+        bairro: antes.bairro,
+        lat: antes.lat,
+        lng: antes.lng,
+      );
+
+      expect(atualizado.distanciaAlertaMetros, antes.distanciaAlertaMetros);
+    },
+  );
 
   test('editar lança EntidadeNaoEncontradaException para id inexistente', () {
     expect(

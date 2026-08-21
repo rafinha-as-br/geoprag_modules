@@ -38,6 +38,11 @@ extension StatusPontoDeAplicacaoStyle on StatusPontoDeAplicacao {
 /// [ativo] é uma desativação lógica — um ponto nunca é deletado, apenas
 /// marcado como inativo. [aplicadorId] é nullable: um ponto pode existir
 /// sem aplicador atribuído (ex.: recém-criado).
+///
+/// [distanciaAlertaMetros] é a distância (em metros) percorrida pelo
+/// aplicador dentro deste ponto que dispara o alerta de subponto — antes
+/// da GEOPRAG-74 esse valor era fixo em 150m para todo o sistema; passa a
+/// ser configurável por ponto (RN "Georreferenciamento e Validação").
 class AdminPontoDeAplicacao {
   final String id;
   final String bairro;
@@ -48,6 +53,7 @@ class AdminPontoDeAplicacao {
   final String? aplicadorId;
   final DateTime? dataAgendada;
   final DateTime? dataConcluida;
+  final double distanciaAlertaMetros;
 
   const AdminPontoDeAplicacao({
     required this.id,
@@ -59,6 +65,7 @@ class AdminPontoDeAplicacao {
     this.aplicadorId,
     this.dataAgendada,
     this.dataConcluida,
+    this.distanciaAlertaMetros = 150.0,
   });
 
   AdminPontoDeAplicacao copyWith({
@@ -70,6 +77,7 @@ class AdminPontoDeAplicacao {
     String? Function()? aplicadorId,
     DateTime? Function()? dataAgendada,
     DateTime? Function()? dataConcluida,
+    double? distanciaAlertaMetros,
   }) {
     return AdminPontoDeAplicacao(
       id: id,
@@ -83,6 +91,8 @@ class AdminPontoDeAplicacao {
       dataConcluida: dataConcluida != null
           ? dataConcluida()
           : this.dataConcluida,
+      distanciaAlertaMetros:
+          distanciaAlertaMetros ?? this.distanciaAlertaMetros,
     );
   }
 }

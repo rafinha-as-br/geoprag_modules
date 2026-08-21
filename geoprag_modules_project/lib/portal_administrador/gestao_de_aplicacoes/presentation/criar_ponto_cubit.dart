@@ -33,6 +33,7 @@ class CriarPontoCubit extends Cubit<CriarPontoState> {
     required double lat,
     required double lng,
     String? aplicadorId,
+    double distanciaAlertaMetros = 150.0,
   }) async {
     emit(const CriarPontoSalvando());
     try {
@@ -41,6 +42,7 @@ class CriarPontoCubit extends Cubit<CriarPontoState> {
         lat: lat,
         lng: lng,
         aplicadorId: aplicadorId,
+        distanciaAlertaMetros: distanciaAlertaMetros,
       );
       emit(CriarPontoSucesso(ponto));
     } catch (e, stackTrace) {

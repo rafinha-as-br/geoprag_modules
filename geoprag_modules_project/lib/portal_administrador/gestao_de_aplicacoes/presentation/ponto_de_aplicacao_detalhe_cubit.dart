@@ -97,9 +97,16 @@ class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
     required String bairro,
     required double lat,
     required double lng,
+    double? distanciaAlertaMetros,
   }) async {
     try {
-      await _repository.editar(_pontoId, bairro: bairro, lat: lat, lng: lng);
+      await _repository.editar(
+        _pontoId,
+        bairro: bairro,
+        lat: lat,
+        lng: lng,
+        distanciaAlertaMetros: distanciaAlertaMetros,
+      );
       await _carregar();
     } on EntidadeNaoEncontradaException catch (e) {
       emit(PontoDeAplicacaoDetalheError(e.mensagemAmigavel));
