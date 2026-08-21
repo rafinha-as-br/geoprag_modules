@@ -42,7 +42,7 @@ void main() {
     'emite [Error] com mensagem amigável quando falha ao carregar as opções '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.listarProdutosDisponiveis()).thenThrow(Exception('offline'));
+      when(() => repository.listarProdutosDisponiveis()).thenAnswer((_) async => throw Exception('offline'));
       when(() => repository.listarResponsaveisDisponiveis()).thenAnswer((_) async => []);
     },
     build: () => CadastroSaidaCubit(repository),

@@ -76,7 +76,7 @@ void main() {
     'emite [Error] com mensagem amigável quando o id não é encontrado '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.buscarPorId('inexistente')).thenThrow(
+      when(() => repository.buscarPorId('inexistente')).thenAnswer((_) async => throw 
         const EntidadeNaoEncontradaException(
           'Aplicador "inexistente" não encontrado.',
         ),
@@ -98,7 +98,7 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(Exception('offline'));
+      ).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => AplicadorDetalheCubit(repository, 'inexistente'),
     expect: () => [
