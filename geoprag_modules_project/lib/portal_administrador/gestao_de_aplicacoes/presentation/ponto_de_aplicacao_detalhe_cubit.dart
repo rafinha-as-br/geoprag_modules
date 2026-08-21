@@ -98,6 +98,7 @@ class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
     required double lat,
     required double lng,
     double? distanciaAlertaMetros,
+    int? intervaloDiasEntreAplicacoes,
   }) async {
     try {
       await _repository.editar(
@@ -106,6 +107,7 @@ class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
         lat: lat,
         lng: lng,
         distanciaAlertaMetros: distanciaAlertaMetros,
+        intervaloDiasEntreAplicacoes: intervaloDiasEntreAplicacoes,
       );
       await _carregar();
     } on EntidadeNaoEncontradaException catch (e) {

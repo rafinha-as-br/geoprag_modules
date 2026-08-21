@@ -15,7 +15,7 @@ class PontoDeAplicacaoViewModel {
   final String nomePonto;
   final String referencia;
   final bool estaNoPrazo;
-  final DateTime dataUltimaAplicacao;
+  final DateTime? dataUltimaAplicacao;
   final DateTime dataProximaAplicacaoEstimada;
 
   const PontoDeAplicacaoViewModel({
@@ -26,8 +26,15 @@ class PontoDeAplicacaoViewModel {
     required this.dataProximaAplicacaoEstimada,
   });
 
-  String get dataUltimaAplicacaoFormatada =>
-      _formatarData(dataUltimaAplicacao);
+  /// `true` quando nenhuma aplicação ainda ocorreu neste ponto (GEOPRAG-75)
+  /// — a próxima aplicação exige o fluxo completo de georreferenciamento em
+  /// vez de reaproveitar coordenadas já registradas.
+  bool get primeiraAplicacao => dataUltimaAplicacao == null;
+
+  String get dataUltimaAplicacaoFormatada {
+    final data = dataUltimaAplicacao;
+    return data == null ? 'Nenhuma ainda' : _formatarData(data);
+  }
 
   String get dataProximaAplicacaoEstimadaFormatada =>
       _formatarData(dataProximaAplicacaoEstimada);

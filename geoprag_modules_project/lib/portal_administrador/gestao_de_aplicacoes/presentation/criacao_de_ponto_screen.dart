@@ -20,6 +20,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
   final _latController = TextEditingController();
   final _lngController = TextEditingController();
   final _distanciaAlertaController = TextEditingController(text: '150');
+  final _intervaloDiasController = TextEditingController(text: '15');
 
   String? _aplicadorIdSelecionado;
   late Future<List<AplicadorOpcaoViewModel>> _opcoesDeAplicador;
@@ -38,6 +39,7 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
     _latController.dispose();
     _lngController.dispose();
     _distanciaAlertaController.dispose();
+    _intervaloDiasController.dispose();
     super.dispose();
   }
 
@@ -152,6 +154,21 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                               PontoDeAplicacaoValidators.distanciaAlertaMetros,
                         ),
                         const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _intervaloDiasController,
+                          decoration: const InputDecoration(
+                            labelText:
+                                'Intervalo entre aplicações (dias)',
+                            border: OutlineInputBorder(),
+                            helperText:
+                                'Intervalo mínimo de dias entre uma '
+                                'aplicação e a próxima neste ponto.',
+                          ),
+                          keyboardType: TextInputType.number,
+                          validator: PontoDeAplicacaoValidators
+                              .intervaloDiasEntreAplicacoes,
+                        ),
+                        const SizedBox(height: 16),
                         // Ponto criado sempre como "planejada" e sem
                         // aplicador obrigatório — atribuição pode ficar
                         // para depois.
@@ -197,6 +214,9 @@ class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen> {
                                     aplicadorId: _aplicadorIdSelecionado,
                                     distanciaAlertaMetros: double.parse(
                                       _distanciaAlertaController.text,
+                                    ),
+                                    intervaloDiasEntreAplicacoes: int.parse(
+                                      _intervaloDiasController.text,
                                     ),
                                   );
                                 },

@@ -67,6 +67,37 @@ void main() {
 
       expect(viewModel.dataUltimaAplicacaoFormatada, '05/01/2026');
     });
+
+    test(
+      'primeiraAplicacao é false quando dataUltimaAplicacao já foi registrada',
+      () {
+        final viewModel = PontoDeAplicacaoViewModel.fromEntity(entity);
+        expect(viewModel.primeiraAplicacao, isFalse);
+      },
+    );
+
+    test(
+      'primeiraAplicacao é true e dataUltimaAplicacaoFormatada mostra '
+      '"Nenhuma ainda" quando dataUltimaAplicacao é nula',
+      () {
+        final semAplicacao = PontoDeAplicacao(
+          id: entity.id,
+          nomePonto: entity.nomePonto,
+          referencia: entity.referencia,
+          latitude: entity.latitude,
+          longitude: entity.longitude,
+          precisaoMetros: entity.precisaoMetros,
+          status: entity.status,
+          dataUltimaAplicacao: null,
+          dataProximaAplicacaoEstimada: entity.dataProximaAplicacaoEstimada,
+        );
+
+        final viewModel = PontoDeAplicacaoViewModel.fromEntity(semAplicacao);
+
+        expect(viewModel.primeiraAplicacao, isTrue);
+        expect(viewModel.dataUltimaAplicacaoFormatada, 'Nenhuma ainda');
+      },
+    );
   });
 
   group('CapturaLocalizacaoViewModel.fromEntity', () {

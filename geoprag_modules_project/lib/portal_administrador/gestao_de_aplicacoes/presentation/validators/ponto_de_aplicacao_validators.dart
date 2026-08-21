@@ -20,4 +20,13 @@ class PontoDeAplicacaoValidators {
     if (numero == null) return 'Distância inválida.';
     return numero <= 0 ? 'Distância deve ser maior que zero.' : null;
   }
+
+  /// Intervalo mínimo de dias entre uma aplicação e a próxima neste ponto
+  /// (GEOPRAG-75) — precisa ser um número inteiro positivo.
+  static String? intervaloDiasEntreAplicacoes(String? value) {
+    if (value == null || value.isEmpty) return 'Informe o intervalo.';
+    final numero = int.tryParse(value);
+    if (numero == null) return 'Intervalo inválido.';
+    return numero <= 0 ? 'Intervalo deve ser maior que zero.' : null;
+  }
 }

@@ -28,6 +28,7 @@ class AdminPontoDeAplicacaoRepositoryImpl implements AdminPontoDeAplicacaoReposi
     required double lng,
     String? aplicadorId,
     double distanciaAlertaMetros = 150.0,
+    int intervaloDiasEntreAplicacoes = 15,
   }) async {
     final proximoId = (mockPontosDeAplicacao.length + 1).toString();
     final ponto = AdminPontoDeAplicacao(
@@ -38,6 +39,7 @@ class AdminPontoDeAplicacaoRepositoryImpl implements AdminPontoDeAplicacaoReposi
       status: StatusPontoDeAplicacao.planejada,
       aplicadorId: aplicadorId,
       distanciaAlertaMetros: distanciaAlertaMetros,
+      intervaloDiasEntreAplicacoes: intervaloDiasEntreAplicacoes,
     );
     mockPontosDeAplicacao.add(ponto);
     return ponto;
@@ -71,6 +73,7 @@ class AdminPontoDeAplicacaoRepositoryImpl implements AdminPontoDeAplicacaoReposi
     required double lat,
     required double lng,
     double? distanciaAlertaMetros,
+    int? intervaloDiasEntreAplicacoes,
   }) async {
     final index = _indexOuFalha(id);
     final atualizado = mockPontosDeAplicacao[index].copyWith(
@@ -78,6 +81,7 @@ class AdminPontoDeAplicacaoRepositoryImpl implements AdminPontoDeAplicacaoReposi
       lat: lat,
       lng: lng,
       distanciaAlertaMetros: distanciaAlertaMetros,
+      intervaloDiasEntreAplicacoes: intervaloDiasEntreAplicacoes,
     );
     mockPontosDeAplicacao[index] = atualizado;
     return atualizado;

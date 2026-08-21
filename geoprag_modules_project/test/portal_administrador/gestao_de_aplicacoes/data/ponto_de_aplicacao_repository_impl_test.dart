@@ -69,6 +69,31 @@ void main() {
     mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
   });
 
+  test('criar usa 15 dias como intervalo padrão entre aplicações', () async {
+    final ponto = await repository.criar(
+      bairro: 'Novo Bairro',
+      lat: -26.99,
+      lng: -48.95,
+    );
+
+    expect(ponto.intervaloDiasEntreAplicacoes, 15);
+
+    mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
+  });
+
+  test('criar aceita um intervalo entre aplicações customizado', () async {
+    final ponto = await repository.criar(
+      bairro: 'Novo Bairro',
+      lat: -26.99,
+      lng: -48.95,
+      intervaloDiasEntreAplicacoes: 30,
+    );
+
+    expect(ponto.intervaloDiasEntreAplicacoes, 30);
+
+    mockPontosDeAplicacao.removeWhere((p) => p.id == ponto.id);
+  });
+
   test('atribuirAplicador atualiza o aplicadorId do ponto', () async {
     final atualizado = await repository.atribuirAplicador('4', '2');
 
@@ -153,6 +178,45 @@ void main() {
       );
 
       expect(atualizado.distanciaAlertaMetros, antes.distanciaAlertaMetros);
+    },
+  );
+
+  test('editar atualiza o intervalo entre aplicações quando informado', () async {
+    final atualizado = await repository.editar(
+      '4',
+      bairro: 'Santa Terezinha',
+      lat: -26.9950,
+      lng: -48.9390,
+      intervaloDiasEntreAplicacoes: 20,
+    );
+
+    expect(atualizado.intervaloDiasEntreAplicacoes, 20);
+
+    await repository.editar(
+      '4',
+      bairro: 'Santa Terezinha',
+      lat: -26.9950,
+      lng: -48.9390,
+      intervaloDiasEntreAplicacoes: 15,
+    );
+  });
+
+  test(
+    'editar preserva o intervalo entre aplicações quando não informado',
+    () async {
+      final antes = await repository.buscarPorId('4');
+
+      final atualizado = await repository.editar(
+        '4',
+        bairro: antes.bairro,
+        lat: antes.lat,
+        lng: antes.lng,
+      );
+
+      expect(
+        atualizado.intervaloDiasEntreAplicacoes,
+        antes.intervaloDiasEntreAplicacoes,
+      );
     },
   );
 
