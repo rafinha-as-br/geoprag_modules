@@ -1,0 +1,58 @@
+import '../core/ponto_de_aplicacao.dart';
+
+final List<AdminPontoDeAplicacao> mockPontosDeAplicacao = [
+  AdminPontoDeAplicacao(
+    id: '1',
+    bairro: 'Belchior',
+    lat: -26.9910,
+    lng: -48.9520,
+    status: StatusPontoDeAplicacao.feita,
+    aplicadorId: '1',
+    dataConcluida: DateTime(2026, 7, 15),
+  ),
+  AdminPontoDeAplicacao(
+    id: '2',
+    bairro: 'Poço Grande',
+    lat: -26.9855,
+    lng: -48.9470,
+    status: StatusPontoDeAplicacao.planejada,
+    aplicadorId: '2',
+    dataAgendada: DateTime(2026, 7, 25),
+  ),
+  AdminPontoDeAplicacao(
+    id: '3',
+    bairro: 'Gasparinho',
+    lat: -26.9790,
+    lng: -48.9605,
+    status: StatusPontoDeAplicacao.atrasada,
+    aplicadorId: '3',
+    dataAgendada: DateTime(2026, 7, 10),
+  ),
+  AdminPontoDeAplicacao(
+    id: '4',
+    bairro: 'Santa Terezinha',
+    lat: -26.9950,
+    lng: -48.9390,
+    status: StatusPontoDeAplicacao.planejada,
+    dataAgendada: DateTime(2026, 7, 28),
+  ),
+  AdminPontoDeAplicacao(
+    id: '5',
+    bairro: 'Macucos',
+    lat: -27.0020,
+    lng: -48.9650,
+    status: StatusPontoDeAplicacao.feita,
+    aplicadorId: '5',
+    dataConcluida: DateTime(2026, 7, 18),
+  ),
+  AdminPontoDeAplicacao(
+    id: '6',
+    bairro: 'Belchior',
+    lat: -26.9925,
+    lng: -48.9500,
+    status: StatusPontoDeAplicacao.feita,
+    ativo: false,
+    aplicadorId: '1',
+    dataConcluida: DateTime(2026, 6, 30),
+  ),
+];
