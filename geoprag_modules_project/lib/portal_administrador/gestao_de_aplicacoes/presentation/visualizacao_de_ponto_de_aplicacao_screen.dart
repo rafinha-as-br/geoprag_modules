@@ -153,6 +153,12 @@ class _PontoConteudo extends StatelessWidget {
                             '${viewModel.distanciaAlertaMetros.toStringAsFixed(0)}m',
                           ),
                         ),
+                        ListTile(
+                          title: const Text('Intervalo entre aplicações'),
+                          subtitle: Text(
+                            '${viewModel.intervaloDiasEntreAplicacoes} dias',
+                          ),
+                        ),
                         if (viewModel.dataAgendada != null)
                           ListTile(
                             title: const Text('Data Agendada'),
@@ -263,6 +269,9 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
   late final _distanciaAlertaController = TextEditingController(
     text: widget.viewModel.distanciaAlertaMetros.toString(),
   );
+  late final _intervaloDiasController = TextEditingController(
+    text: widget.viewModel.intervaloDiasEntreAplicacoes.toString(),
+  );
 
   @override
   void dispose() {
@@ -270,6 +279,7 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
     _latController.dispose();
     _lngController.dispose();
     _distanciaAlertaController.dispose();
+    _intervaloDiasController.dispose();
     super.dispose();
   }
 
@@ -338,6 +348,17 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
                 ),
                 validator: PontoDeAplicacaoValidators.distanciaAlertaMetros,
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _intervaloDiasController,
+                decoration: const InputDecoration(
+                  labelText: 'Intervalo entre aplicações (dias)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                validator:
+                    PontoDeAplicacaoValidators.intervaloDiasEntreAplicacoes,
+              ),
             ],
           ),
         ),
@@ -356,6 +377,9 @@ class _EditarPontoDialogState extends State<_EditarPontoDialog> {
               lng: double.parse(_lngController.text),
               distanciaAlertaMetros: double.parse(
                 _distanciaAlertaController.text,
+              ),
+              intervaloDiasEntreAplicacoes: int.parse(
+                _intervaloDiasController.text,
               ),
             );
             if (context.mounted) Navigator.of(context).pop();

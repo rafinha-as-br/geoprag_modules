@@ -43,6 +43,13 @@ extension StatusPontoDeAplicacaoStyle on StatusPontoDeAplicacao {
 /// aplicador dentro deste ponto que dispara o alerta de subponto — antes
 /// da GEOPRAG-74 esse valor era fixo em 150m para todo o sistema; passa a
 /// ser configurável por ponto (RN "Georreferenciamento e Validação").
+///
+/// [intervaloDiasEntreAplicacoes] é o intervalo mínimo de dias entre uma
+/// aplicação e a próxima neste ponto (GEOPRAG-75), também configurável por
+/// ponto. [primeiraAplicacaoFeita] distingue a 1ª aplicação (dispara o
+/// fluxo completo de georreferenciamento) das seguintes no mesmo ponto
+/// (direcionam o aplicador pelas coordenadas já registradas em [lat]/[lng],
+/// sem repetir o georreferenciamento).
 class AdminPontoDeAplicacao {
   final String id;
   final String bairro;
@@ -54,6 +61,8 @@ class AdminPontoDeAplicacao {
   final DateTime? dataAgendada;
   final DateTime? dataConcluida;
   final double distanciaAlertaMetros;
+  final int intervaloDiasEntreAplicacoes;
+  final bool primeiraAplicacaoFeita;
 
   const AdminPontoDeAplicacao({
     required this.id,
@@ -66,6 +75,8 @@ class AdminPontoDeAplicacao {
     this.dataAgendada,
     this.dataConcluida,
     this.distanciaAlertaMetros = 150.0,
+    this.intervaloDiasEntreAplicacoes = 15,
+    this.primeiraAplicacaoFeita = false,
   });
 
   AdminPontoDeAplicacao copyWith({
@@ -78,6 +89,8 @@ class AdminPontoDeAplicacao {
     DateTime? Function()? dataAgendada,
     DateTime? Function()? dataConcluida,
     double? distanciaAlertaMetros,
+    int? intervaloDiasEntreAplicacoes,
+    bool? primeiraAplicacaoFeita,
   }) {
     return AdminPontoDeAplicacao(
       id: id,
@@ -93,6 +106,10 @@ class AdminPontoDeAplicacao {
           : this.dataConcluida,
       distanciaAlertaMetros:
           distanciaAlertaMetros ?? this.distanciaAlertaMetros,
+      intervaloDiasEntreAplicacoes:
+          intervaloDiasEntreAplicacoes ?? this.intervaloDiasEntreAplicacoes,
+      primeiraAplicacaoFeita:
+          primeiraAplicacaoFeita ?? this.primeiraAplicacaoFeita,
     );
   }
 }

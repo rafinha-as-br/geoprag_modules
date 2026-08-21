@@ -34,6 +34,7 @@ class CriarPontoCubit extends Cubit<CriarPontoState> {
     required double lng,
     String? aplicadorId,
     double distanciaAlertaMetros = 150.0,
+    int intervaloDiasEntreAplicacoes = 15,
   }) async {
     emit(const CriarPontoSalvando());
     try {
@@ -43,6 +44,7 @@ class CriarPontoCubit extends Cubit<CriarPontoState> {
         lng: lng,
         aplicadorId: aplicadorId,
         distanciaAlertaMetros: distanciaAlertaMetros,
+        intervaloDiasEntreAplicacoes: intervaloDiasEntreAplicacoes,
       );
       emit(CriarPontoSucesso(ponto));
     } catch (e, stackTrace) {

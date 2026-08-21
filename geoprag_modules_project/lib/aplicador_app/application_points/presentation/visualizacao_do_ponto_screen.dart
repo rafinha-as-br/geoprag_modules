@@ -233,9 +233,19 @@ class _PontoDeAplicacaoContent extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              AplicadorNavigatorScope.of(
+                              final navigator = AplicadorNavigatorScope.of(
                                 context,
-                              ).toAplicacaoInfo();
+                              );
+                              // 1ª aplicação no ponto: fluxo completo de
+                              // georreferenciamento (info + validação de
+                              // chegada). Aplicações seguintes: coordenadas
+                              // já registradas, direto para o registro
+                              // (GEOPRAG-75).
+                              if (ponto.primeiraAplicacao) {
+                                navigator.toAplicacaoInfo();
+                              } else {
+                                navigator.toAplicacaoRegistrar();
+                              }
                             },
                             icon: const Icon(Icons.water_drop),
                             label: const Text('Registrar Aplicação'),
