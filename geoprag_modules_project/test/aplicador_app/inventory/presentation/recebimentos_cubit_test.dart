@@ -66,7 +66,7 @@ void main() {
     'emite [Error] com mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.listarPendentes()).thenThrow(Exception('offline'));
+      when(() => repository.listarPendentes()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => RecebimentosCubit(repository),
     expect: () => [
