@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/geoprag_kpi_card.dart';
+import '../../../src/widgets/geoprag_log_panel.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'dashboard_geral_cubit.dart';
 import 'dashboard_geral_state.dart';
@@ -64,25 +66,31 @@ class _DashboardConteudo extends StatelessWidget {
         // Top Row: KPIs
         Row(
           children: [
-            _buildKpiCard(
-              'Estoque Crítico',
-              resumo.estoqueCriticoResumo,
-              Icons.warning,
-              GeopragColors.statusDenuncia,
+            Expanded(
+              child: GeopragKpiCard(
+                title: 'Estoque Crítico',
+                value: resumo.estoqueCriticoResumo,
+                icon: Icons.warning,
+                color: GeopragColors.statusDenuncia,
+              ),
             ),
             const SizedBox(width: 16),
-            _buildKpiCard(
-              'Aplicações Atrasadas',
-              resumo.aplicacoesAtrasadasResumo,
-              Icons.timer_off,
-              GeopragColors.statusAtrasado,
+            Expanded(
+              child: GeopragKpiCard(
+                title: 'Aplicações Atrasadas',
+                value: resumo.aplicacoesAtrasadasResumo,
+                icon: Icons.timer_off,
+                color: GeopragColors.statusAtrasado,
+              ),
             ),
             const SizedBox(width: 16),
-            _buildKpiCard(
-              'Denúncias Abertas',
-              resumo.denunciasAbertasTotal,
-              Icons.report,
-              GeopragColors.statusDenuncia,
+            Expanded(
+              child: GeopragKpiCard(
+                title: 'Denúncias Abertas',
+                value: resumo.denunciasAbertasTotal,
+                icon: Icons.report,
+                color: GeopragColors.statusDenuncia,
+              ),
             ),
           ],
         ),
@@ -97,16 +105,20 @@ class _DashboardConteudo extends StatelessWidget {
                 flex: 1,
                 child: Column(
                   children: [
-                    _buildLogPanel(
-                      'Atualizações de Estoque',
-                      resumo.atualizacoesEstoque,
-                      Icons.inventory_2,
+                    Expanded(
+                      child: GeopragLogPanel(
+                        title: 'Atualizações de Estoque',
+                        logs: resumo.atualizacoesEstoque,
+                        icon: Icons.inventory_2,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    _buildLogPanel(
-                      'Últimas Aplicações',
-                      resumo.ultimasAplicacoes,
-                      Icons.water_drop,
+                    Expanded(
+                      child: GeopragLogPanel(
+                        title: 'Últimas Aplicações',
+                        logs: resumo.ultimasAplicacoes,
+                        icon: Icons.water_drop,
+                      ),
                     ),
                   ],
                 ),
@@ -173,112 +185,6 @@ class _DashboardConteudo extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: color.withOpacity(0.2),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogPanel(String title, List<String> logs, IconData icon) {
-    return Expanded(
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: GeopragColors.green900),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: logs.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '• ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              logs[index],
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
