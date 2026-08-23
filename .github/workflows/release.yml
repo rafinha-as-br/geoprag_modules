@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate & publish release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: geoprag_modules_project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.5'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Static analysis
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        # Sem continue-on-error aqui: release.yml responde "está pronto pra
+        # virar versão oficial?", uma régua mais rígida que a do ci.yml.
+        run: flutter test
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
