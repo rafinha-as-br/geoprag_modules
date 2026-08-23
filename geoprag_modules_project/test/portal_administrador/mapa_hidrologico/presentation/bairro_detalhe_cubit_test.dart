@@ -57,7 +57,7 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarBairroPorId('inexistente'),
-      ).thenThrow(const EntidadeNaoEncontradaException('Bairro "inexistente" não encontrado.'));
+      ).thenAnswer((_) async => throw const EntidadeNaoEncontradaException('Bairro "inexistente" não encontrado.'));
     },
     build: () => BairroDetalheCubit(repository, 'inexistente'),
     expect: () => [
@@ -73,7 +73,7 @@ void main() {
     'emite [Error] com mensagem genérica (e loga) quando a exceção é '
     'inesperada, sem vazar detalhe técnico',
     setUp: () {
-      when(() => repository.buscarBairroPorId('inexistente')).thenThrow(Exception('offline'));
+      when(() => repository.buscarBairroPorId('inexistente')).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => BairroDetalheCubit(repository, 'inexistente'),
     expect: () => [

@@ -59,7 +59,7 @@ void main() {
     setUp: () {
       when(
         () => repository.buscarPorId('inexistente'),
-      ).thenThrow(const EntidadeNaoEncontradaException('Denúncia "inexistente" não encontrada.'));
+      ).thenAnswer((_) async => throw const EntidadeNaoEncontradaException('Denúncia "inexistente" não encontrada.'));
     },
     build: () => DenunciaDetalheCubit(repository, 'inexistente'),
     expect: () => [
@@ -75,7 +75,7 @@ void main() {
     'emite [Error] com mensagem genérica (e loga) quando a exceção é '
     'inesperada, sem vazar detalhe técnico',
     setUp: () {
-      when(() => repository.buscarPorId('inexistente')).thenThrow(Exception('offline'));
+      when(() => repository.buscarPorId('inexistente')).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => DenunciaDetalheCubit(repository, 'inexistente'),
     expect: () => [
