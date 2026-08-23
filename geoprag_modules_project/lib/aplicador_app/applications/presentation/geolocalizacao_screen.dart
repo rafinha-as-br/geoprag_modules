@@ -7,6 +7,20 @@ import 'aplicacao_view_model.dart';
 import 'geolocalizacao_cubit.dart';
 import 'geolocalizacao_state.dart';
 
+/// Distância (em metros) usada nesta tela para explicar por que o aplicador
+/// está "fora do raio" do ponto.
+///
+/// GEOPRAG-74 tornou essa distância configurável por ponto de aplicação no
+/// modelo do Portal Administrador (`AdminPontoDeAplicacao.distanciaAlertaMetros`),
+/// mas esta tela não tem hoje como saber qual ponto de aplicação corresponde
+/// à [Aplicacao] em andamento — `dentroDoRaio` é um mock fixo (alternado por
+/// [GeolocalizacaoCubit.confirmarChegada]), sem nenhum cálculo real de
+/// distância percorrida (ver TODO(GEOPRAG-24) no Cubit). Continua fixa em
+/// 150m até que a app do aplicador tenha, de fato, um ponto de aplicação
+/// atribuído com essa configuração e uma leitura de GPS contínua para
+/// comparar contra ela.
+const double _distanciaAlertaMetrosPadrao = 150.0;
+
 class GeolocalizacaoScreen extends StatelessWidget {
   const GeolocalizacaoScreen({super.key});
 
@@ -126,7 +140,7 @@ class _GeolocalizacaoContent extends StatelessWidget {
                             'prosseguir com o registro da aplicação.'
                       : 'Você está fora do raio de cobertura permitido do '
                             'ponto em ${aplicacao.localizacaoFormatada} '
-                            '(aprox. 150m de distância).',
+                            '(aprox. ${_distanciaAlertaMetrosPadrao.toStringAsFixed(0)}m de distância).',
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,

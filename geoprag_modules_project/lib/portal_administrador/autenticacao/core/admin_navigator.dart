@@ -24,6 +24,20 @@ abstract class AdminNavigator {
   /// Formulário de criação de novo Aplicador (GEOPRAG-65).
   void toCriarAplicador();
 
+  /// Dashboard do módulo `gestao_de_aplicacoes` — mapa geral de bairros
+  /// (GEOPRAG-38).
+  void toAplicacoes();
+
+  /// Mapa + lista de aplicações de um bairro (GEOPRAG-38).
+  void toAplicacaoBairro(String bairro);
+
+  /// Detalhe de um ponto de aplicação — desativar, atribuir aplicador,
+  /// editar (GEOPRAG-38).
+  void toAplicacaoDetalhes(String pontoId);
+
+  /// Formulário de criação de novo ponto de aplicação (GEOPRAG-38).
+  void toAplicacaoCriarPonto();
+
   /// Dashboard do módulo `gerenciamento_de_administradores` — listagem,
   /// busca, desativação e solicitação de promoção (GEOPRAG-36).
   void toGerenciamentoAdministradores();

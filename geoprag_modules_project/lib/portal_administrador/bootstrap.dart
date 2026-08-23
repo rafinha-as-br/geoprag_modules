@@ -17,6 +17,11 @@ import 'gestao_de_aplicadores/data/aplicador_repository_impl.dart';
 import 'gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'gestao_de_aplicadores/presentation/aplicadores_cubit.dart';
 import 'gestao_de_aplicadores/presentation/criar_aplicador_cubit.dart';
+import 'gestao_de_aplicacoes/core/ponto_de_aplicacao_repository.dart';
+import 'gestao_de_aplicacoes/data/ponto_de_aplicacao_repository_impl.dart';
+import 'gestao_de_aplicacoes/presentation/criar_ponto_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/pontos_de_aplicacao_cubit.dart';
 import 'dashboard/core/resumo_geral_repository.dart';
 import 'dashboard/data/resumo_geral_repository_impl.dart';
 import 'dashboard/presentation/dashboard_geral_cubit.dart';
@@ -60,6 +65,8 @@ class AdminBootstrap {
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
   AdministradorRepository buildAdministradorRepository() =>
       AdministradorRepositoryImpl();
+  AdminPontoDeAplicacaoRepository buildPontoDeAplicacaoRepository() =>
+      AdminPontoDeAplicacaoRepositoryImpl();
   ResumoGeralRepository buildResumoGeralRepository() =>
       ResumoGeralRepositoryImpl();
   DistribuicaoRepository buildDistribuicaoRepository() =>
@@ -93,6 +100,19 @@ class AdminBootstrap {
   ) => SolicitacoesPromocaoCubit(
     buildAdministradorRepository(),
     usuarioAtualEmail,
+  );
+  PontosDeAplicacaoCubit buildPontosDeAplicacaoCubit({String? bairro}) =>
+      PontosDeAplicacaoCubit(buildPontoDeAplicacaoRepository(), bairro: bairro);
+  PontoDeAplicacaoDetalheCubit buildPontoDeAplicacaoDetalheCubit(
+    String pontoId,
+  ) => PontoDeAplicacaoDetalheCubit(
+    buildPontoDeAplicacaoRepository(),
+    buildAplicadorRepository(),
+    pontoId,
+  );
+  CriarPontoCubit buildCriarPontoCubit() => CriarPontoCubit(
+    buildPontoDeAplicacaoRepository(),
+    buildAplicadorRepository(),
   );
   DashboardGeralCubit buildDashboardGeralCubit() =>
       DashboardGeralCubit(buildResumoGeralRepository());
