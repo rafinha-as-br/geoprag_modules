@@ -49,7 +49,7 @@ void main() {
     setUp: () {
       when(
         () => repository.capturarLocalizacaoAtual(),
-      ).thenThrow(Exception('GPS indisponível'));
+      ).thenAnswer((_) async => throw Exception('GPS indisponível'));
     },
     build: () => MarcacaoDoPontoCubit(repository),
     expect: () => [
@@ -96,7 +96,7 @@ void main() {
       ).thenAnswer((_) async => capturado);
       when(
         () => repository.marcarPontoInicial(any()),
-      ).thenThrow(Exception('falha ao enviar para a prefeitura'));
+      ).thenAnswer((_) async => throw Exception('falha ao enviar para a prefeitura'));
     },
     build: () => MarcacaoDoPontoCubit(repository),
     act: (cubit) async {

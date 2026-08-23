@@ -44,7 +44,7 @@ void main() {
     'emite [Error] com mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.listarFormulas()).thenThrow(Exception('offline'));
+      when(() => repository.listarFormulas()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => FormulasDosagemCubit(repository),
     expect: () => [

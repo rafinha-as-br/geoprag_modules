@@ -59,7 +59,7 @@ void main() {
     'emite [Loading, Failure] com mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.findByEmail(any())).thenThrow(Exception('offline'));
+      when(() => repository.findByEmail(any())).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => AdminEsqueciSenhaCubit(repository),
     act: (cubit) => cubit.submit(email: 'admin@gaspar.sc.gov.br'),
