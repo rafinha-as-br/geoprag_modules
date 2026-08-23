@@ -78,7 +78,7 @@ void main() {
   blocTest<InventarioCubit, InventarioState>(
     'emite [Error] quando a busca de insumos falha',
     setUp: () {
-      when(() => insumoRepository.listar()).thenThrow(Exception('offline'));
+      when(() => insumoRepository.listar()).thenAnswer((_) async => throw Exception('offline'));
       when(
         () => recebimentoRepository.listarPendentes(),
       ).thenAnswer((_) async => []);
