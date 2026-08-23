@@ -48,7 +48,7 @@ void main() {
     'emite [Error] com mensagem amigável quando buscarAtual falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.buscarAtual()).thenThrow(Exception('offline'));
+      when(() => repository.buscarAtual()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => PontoDeAplicacaoCubit(repository),
     expect: () => [
