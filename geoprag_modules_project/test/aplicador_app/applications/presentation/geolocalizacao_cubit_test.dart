@@ -43,7 +43,7 @@ void main() {
     'emite [Error] com mensagem amigável quando falha ao carregar '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.buscarAtual('1')).thenThrow(Exception('offline'));
+      when(() => repository.buscarAtual('1')).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => GeolocalizacaoCubit(repository, '1'),
     expect: () => [
@@ -77,7 +77,7 @@ void main() {
     'confirmarChegada não emite nada se o estado atual não for Loaded '
     '(ex: ainda carregando ou em erro)',
     setUp: () {
-      when(() => repository.buscarAtual('1')).thenThrow(Exception('offline'));
+      when(() => repository.buscarAtual('1')).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => GeolocalizacaoCubit(repository, '1'),
     act: (cubit) async {

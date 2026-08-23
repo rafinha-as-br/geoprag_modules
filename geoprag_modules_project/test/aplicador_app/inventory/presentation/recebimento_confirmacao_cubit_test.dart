@@ -115,7 +115,7 @@ void main() {
     'emite [Error] com mensagem genérica (e loga) quando a exceção é '
     'inesperada, sem vazar detalhe técnico',
     setUp: () {
-      when(() => repository.listarPendentes()).thenThrow(Exception('offline'));
+      when(() => repository.listarPendentes()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => RecebimentoConfirmacaoCubit(repository),
     expect: () => [
