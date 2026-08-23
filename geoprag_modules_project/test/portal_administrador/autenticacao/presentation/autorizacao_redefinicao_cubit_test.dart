@@ -42,7 +42,7 @@ void main() {
     'emite [Error] com mensagem amigável quando buscarPendente falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.buscarPendente()).thenThrow(Exception('offline'));
+      when(() => repository.buscarPendente()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => AutorizacaoRedefinicaoCubit(repository),
     expect: () => [

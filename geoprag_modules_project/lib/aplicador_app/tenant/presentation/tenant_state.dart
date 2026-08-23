@@ -11,6 +11,16 @@ class TenantInitial extends TenantState {
 class TenantDownloading extends TenantState {
   final double progress;
   const TenantDownloading(this.progress);
+
+  // Sobrescrito para comparações de estado em blocTest (GEOPRAG-100) —
+  // sem isso, duas instâncias com o mesmo progress nunca são iguais.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TenantDownloading && other.progress == progress);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, progress);
 }
 
 class TenantReady extends TenantState {

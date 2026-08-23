@@ -91,7 +91,7 @@ void main() {
       when(() => repository.readCached()).thenAnswer((_) async => null);
       when(
         () => repository.fetchByTenantId('tenant-invalido'),
-      ).thenThrow(
+      ).thenAnswer((_) async => throw 
         const EntidadeNaoEncontradaException('Tenant "tenant-invalido" não encontrado.'),
       );
     },
@@ -113,7 +113,7 @@ void main() {
       when(() => repository.readCached()).thenAnswer((_) async => null);
       when(
         () => repository.fetchByTenantId('tenant-instavel'),
-      ).thenThrow(Exception('timeout'));
+      ).thenAnswer((_) async => throw Exception('timeout'));
     },
     build: () => TenantCubit(repository, downloader),
     act: (cubit) => cubit.load('tenant-instavel'),
