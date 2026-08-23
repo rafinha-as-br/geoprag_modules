@@ -42,7 +42,7 @@ void main() {
     'emite [Error] com mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.listarBairros()).thenThrow(Exception('offline'));
+      when(() => repository.listarBairros()).thenAnswer((_) async => throw Exception('offline'));
     },
     build: () => BairrosCubit(repository),
     expect: () => [

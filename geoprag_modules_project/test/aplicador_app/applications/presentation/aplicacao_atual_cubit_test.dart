@@ -48,7 +48,7 @@ void main() {
     'emite [Error] com mensagem amigável quando não há aplicação em andamento '
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
-      when(() => repository.buscarAtual('5')).thenThrow(
+      when(() => repository.buscarAtual('5')).thenAnswer((_) async => throw 
         const EntidadeNaoEncontradaException(
           'Nenhuma aplicação em andamento para o aplicador "5".',
         ),
@@ -68,7 +68,7 @@ void main() {
     'emite [Error] com mensagem genérica (e loga) quando a exceção é '
     'inesperada, sem vazar detalhe técnico',
     setUp: () {
-      when(() => repository.buscarAtual('9')).thenThrow(Exception('falha de rede'));
+      when(() => repository.buscarAtual('9')).thenAnswer((_) async => throw Exception('falha de rede'));
     },
     build: () => AplicacaoAtualCubit(repository, '9'),
     expect: () => [
