@@ -15,7 +15,7 @@ import '../../../src/errors/app_logger.dart';
 /// consumidor ao montar este Cubit em `bootstrap.dart`; falta o roteamento
 /// real repassar qual bairro foi selecionado no mapa/listagem. Mesma
 /// limitação já registrada em
-/// `gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart`.
+/// `gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart`.
 class BairroDetalheCubit extends Cubit<BairroDetalheState> {
   BairroDetalheCubit(this._repository, this._bairroId)
     : super(const BairroDetalheLoading()) {
