@@ -29,13 +29,13 @@ lib/
     auth/                        # autenticação
     dashboard/                   # dashboard geral
     map_monitoring/              # monitoramento hidrológico via mapa
-    applicators_management/      # gestão de aplicadores
+    gerenciamento_de_aplicadores/ # gerenciamento de aplicadores
     inventory_and_bidding/       # estoque, produtos, fórmulas e licitação
     distributions/                # distribuições/saídas de insumos
     reports_management/          # gestão de denúncias
 ```
 
-Cada módulo expõe um arquivo "fachada" (ex.: `autenticacao.dart`, `dashboard.dart`, `gestao_de_aplicadores.dart`) que é reexportado centralmente em `lib/geoprag_modules.dart` — esse é o único ponto de importação que os apps consumidores devem usar (`import 'package:geoprag_modules/geoprag_modules.dart'`).
+Cada módulo expõe um arquivo "fachada" (ex.: `autenticacao.dart`, `dashboard.dart`, `gerenciamento_de_aplicadores.dart`) que é reexportado centralmente em `lib/geoprag_modules.dart` — esse é o único ponto de importação que os apps consumidores devem usar (`import 'package:geoprag_modules/geoprag_modules.dart'`).
 
 ## Por que um pacote compartilhado, e não duplicação
 
