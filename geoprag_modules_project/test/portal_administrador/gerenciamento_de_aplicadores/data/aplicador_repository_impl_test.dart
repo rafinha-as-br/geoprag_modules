@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/data/aplicador_repository_impl.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/data/mock_aplicadores.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/data/aplicador_repository_impl.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/data/mock_aplicadores.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
