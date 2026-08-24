@@ -15,7 +15,7 @@ import '../../../src/errors/app_logger.dart';
 /// `core/admin_navigator.dart`) — o `corregoId` é passado pelo app
 /// consumidor ao montar este Cubit em `bootstrap.dart`. Mesma limitação já
 /// registrada em
-/// `gestao_de_aplicadores/presentation/aplicador_detalhe_cubit.dart`.
+/// `gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart`.
 class CorregoDetalheCubit extends Cubit<CorregoDetalheState> {
   CorregoDetalheCubit(this._repository, this._corregoId)
     : super(const CorregoDetalheLoading()) {

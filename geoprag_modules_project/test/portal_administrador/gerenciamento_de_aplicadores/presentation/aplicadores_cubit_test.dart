@@ -1,9 +1,9 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/core/aplicador_repository.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicadores_cubit.dart';
-import 'package:geoprag_modules/portal_administrador/gestao_de_aplicadores/presentation/aplicadores_state.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicadores_cubit.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicadores_state.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 
