@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_cubit.dart';
@@ -50,32 +51,23 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
                       SolicitacoesPromocaoState
                     >(
                       builder: (context, state) {
-                        return switch (state) {
-                          SolicitacoesPromocaoLoading() => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          SolicitacoesPromocaoError(:final message) => Center(
-                            child: Text(
-                              'Não foi possível carregar as solicitações: $message',
-                            ),
-                          ),
-                          SolicitacoesPromocaoLoaded(:final solicitacoes) =>
-                            solicitacoes.isEmpty
-                                ? const Center(
-                                    child: Text(
-                                      'Nenhuma solicitação de promoção em aberto.',
-                                    ),
-                                  )
-                                : ListView.separated(
-                                    itemCount: solicitacoes.length,
-                                    separatorBuilder: (context, index) =>
-                                        const SizedBox(height: 12),
-                                    itemBuilder: (context, index) =>
-                                        _SolicitacaoCard(
-                                          solicitacao: solicitacoes[index],
-                                        ),
-                                  ),
-                        };
+                        return BaseCardListScreen<
+                          SolicitacaoPromocaoViewModel
+                        >(
+                          isLoading: state is SolicitacoesPromocaoLoading,
+                          errorMessage: state is SolicitacoesPromocaoError
+                              ? 'Não foi possível carregar as solicitações: ${state.message}'
+                              : null,
+                          items: state is SolicitacoesPromocaoLoaded
+                              ? state.solicitacoes
+                              : null,
+                          itemBuilder: (context, solicitacao) =>
+                              _SolicitacaoCard(solicitacao: solicitacao),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
+                          emptyStateMessage:
+                              'Nenhuma solicitação de promoção em aberto.',
+                        );
                       },
                     ),
               ),

@@ -47,7 +47,12 @@ class BaseCardListScreen<T> extends StatelessWidget {
     }
 
     if (errorMessage != null) {
-      return Center(child: Text(errorMessage!));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(errorMessage!),
+        ),
+      );
     }
 
     final resolvedItems = items ?? const [];

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/aplicador_bottom_nav.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'ponto_de_aplicacao_cubit.dart';
 import 'ponto_de_aplicacao_state.dart';
@@ -12,16 +14,8 @@ import 'ponto_de_aplicacao_view_model.dart';
 /// Assume que um [PontoDeAplicacaoCubit] já foi provido acima na árvore de
 /// widgets (ver `AplicadorBootstrap.buildPontoDeAplicacaoCubit` em
 /// `bootstrap.dart`).
-class VisualizacaoDoPontoScreen extends StatefulWidget {
+class VisualizacaoDoPontoScreen extends StatelessWidget {
   const VisualizacaoDoPontoScreen({super.key});
-
-  @override
-  State<VisualizacaoDoPontoScreen> createState() =>
-      _VisualizacaoDoPontoScreenState();
-}
-
-class _VisualizacaoDoPontoScreenState extends State<VisualizacaoDoPontoScreen> {
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -34,44 +28,19 @@ class _VisualizacaoDoPontoScreenState extends State<VisualizacaoDoPontoScreen> {
       ),
       body: BlocBuilder<PontoDeAplicacaoCubit, PontoDeAplicacaoState>(
         builder: (context, state) {
-          return switch (state) {
-            PontoDeAplicacaoLoading() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            PontoDeAplicacaoError(:final message) => Center(
-              child: Text('Não foi possível carregar o ponto: $message'),
-            ),
-            PontoDeAplicacaoLoaded(:final ponto) => _PontoDeAplicacaoContent(
-              ponto: ponto,
-            ),
-          };
+          return BaseCardListScreen<PontoDeAplicacaoViewModel>(
+            isLoading: state is PontoDeAplicacaoLoading,
+            errorMessage: state is PontoDeAplicacaoError
+                ? 'Não foi possível carregar o ponto: ${state.message}'
+                : null,
+            items: state is PontoDeAplicacaoLoaded ? [state.ponto] : null,
+            itemBuilder: (context, ponto) =>
+                _PontoDeAplicacaoContent(ponto: ponto),
+            separatorBuilder: (context, index) => const SizedBox(),
+          );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // MVP routing simulation
-          final navigator = AplicadorNavigatorScope.of(context);
-          if (index == 1) navigator.toInventario();
-          if (index == 2) navigator.toDenuncias();
-        },
-        selectedItemColor: GeopragColors.green900,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Insumos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report_problem_outlined),
-            label: 'Denúncias',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const AplicadorBottomNav(currentIndex: 0),
     );
   }
 }
