@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'denuncia_detalhe_cubit.dart';
 import 'denuncia_detalhe_state.dart';
@@ -103,21 +104,14 @@ class _DenunciaDetalheContent extends StatelessWidget {
                         subtitle: Text(denuncia.observacoes),
                       ),
                       const SizedBox(height: 16),
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.blue[200]!),
-                        ),
-                        child: Center(
-                          child: Text(
+                      GeopragMapPlaceholder(
+                        message:
                             '[Mapa estático com Pin GPS: '
                             '${denuncia.lat}, ${denuncia.lng}]',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.blueGrey),
-                          ),
-                        ),
+                        backgroundColor: Colors.blue[50]!,
+                        borderColor: Colors.blue[200]!,
+                        textColor: Colors.blueGrey,
+                        height: 150,
                       ),
                     ],
                   ),

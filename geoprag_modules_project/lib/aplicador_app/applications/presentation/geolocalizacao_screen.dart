@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../core/aplicador_navigator.dart';
 import 'aplicacao_view_model.dart';
 import 'geolocalizacao_cubit.dart';
@@ -56,19 +57,18 @@ class _GeolocalizacaoContent extends StatelessWidget {
       children: [
         Expanded(
           flex: 2,
-          child: Container(
+          child: SizedBox(
             width: double.infinity,
-            color: Colors.grey[200],
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Image.network(
-                  'https://static.vecteezy.com/system/resources/previews/000/153/588/original/vector-map-of-city-with-river.jpg',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(child: Text('Carregando mapa...'));
-                  },
+                const Positioned.fill(
+                  child: GeopragMapPlaceholder(
+                    message: '[Mapa Interativo]',
+                    backgroundColor: Colors.grey,
+                    borderColor: Colors.grey,
+                    textColor: Colors.black54,
+                  ),
                 ),
                 // Mock radar / distance
                 Container(

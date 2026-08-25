@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'bairro_view_model.dart';
@@ -86,29 +87,21 @@ class _MapaContent extends StatelessWidget {
         // Left: Map
         Expanded(
           flex: 3,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green[200]!),
-            ),
-            child: Stack(
-              children: [
-                const Center(
-                  child: Text(
-                    '[Mapa Interativo de Gaspar]\nBairros clicáveis',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.green, fontSize: 18),
-                  ),
+          child: Stack(
+            children: [
+              GeopragMapPlaceholder(
+                message: '[Mapa Interativo de Gaspar]\nBairros clicáveis',
+                backgroundColor: Colors.green[50]!,
+                borderColor: Colors.green[200]!,
+                textColor: Colors.green,
+              ),
+              for (var i = 0; i < bairros.length; i++)
+                Positioned(
+                  top: _posicoesPinsMock[i % _posicoesPinsMock.length].dy,
+                  left: _posicoesPinsMock[i % _posicoesPinsMock.length].dx,
+                  child: _BairroPin(bairro: bairros[i]),
                 ),
-                for (var i = 0; i < bairros.length; i++)
-                  Positioned(
-                    top: _posicoesPinsMock[i % _posicoesPinsMock.length].dy,
-                    left: _posicoesPinsMock[i % _posicoesPinsMock.length].dx,
-                    child: _BairroPin(bairro: bairros[i]),
-                  ),
-              ],
-            ),
+            ],
           ),
         ),
         const SizedBox(width: 24),

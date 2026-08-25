@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'aplicacao_mapa_cubit.dart';
 import 'aplicacao_mapa_state.dart';
@@ -73,26 +74,14 @@ class _AplicacaoDetalheContent extends StatelessWidget {
             // Placeholder de mapa com o ponto da aplicação
             Expanded(
               flex: 2,
-              child: Container(
+              child: GeopragMapPlaceholder(
+                message: '[Mapa Interativo]\nPonto da aplicação',
+                backgroundColor: Colors.green[50]!,
+                borderColor: Colors.green[200]!,
+                textColor: Colors.green,
+                icon: Icons.location_on,
+                iconColor: Colors.blue,
                 height: 260,
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green[200]!),
-                ),
-                child: const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.location_on, color: Colors.blue, size: 48),
-                      Text(
-                        '[Mapa Interativo]\nPonto da aplicação',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.green),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
             const SizedBox(width: 24),

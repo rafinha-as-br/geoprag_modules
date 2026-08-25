@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../core/aplicador_navigator.dart';
 import 'marcacao_do_ponto_cubit.dart';
 import 'marcacao_do_ponto_state.dart';
@@ -67,19 +68,18 @@ class _MarcacaoDoPontoContent extends StatelessWidget {
         // Área de mapa (posição capturada pelo GPS).
         Expanded(
           flex: 2,
-          child: Container(
+          child: SizedBox(
             width: double.infinity,
-            color: Colors.grey[200],
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Image.network(
-                  'https://static.vecteezy.com/system/resources/previews/000/153/588/original/vector-map-of-city-with-river.jpg',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(child: Text('Carregando mapa...'));
-                  },
+                const Positioned.fill(
+                  child: GeopragMapPlaceholder(
+                    message: '[Mapa Interativo]',
+                    backgroundColor: Colors.grey,
+                    borderColor: Colors.grey,
+                    textColor: Colors.black54,
+                  ),
                 ),
                 Container(
                   width: 200,

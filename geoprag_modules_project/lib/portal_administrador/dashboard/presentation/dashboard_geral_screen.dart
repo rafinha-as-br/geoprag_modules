@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_kpi_card.dart';
 import '../../../src/widgets/geoprag_log_panel.dart';
+import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'dashboard_geral_cubit.dart';
 import 'dashboard_geral_state.dart';
@@ -146,19 +147,12 @@ class _DashboardConteudo extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue[50],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.blue[200]!),
-                            ),
-                            child: const Center(
-                              child: Text(
+                          child: GeopragMapPlaceholder(
+                            message:
                                 '[Componente de Mapa Aqui]\nExibindo divisas de bairros e\nmarcações espaciais dos focos',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.blueGrey),
-                              ),
-                            ),
+                            backgroundColor: Colors.blue[50]!,
+                            borderColor: Colors.blue[200]!,
+                            textColor: Colors.blueGrey,
                           ),
                         ),
                         const SizedBox(height: 16),
