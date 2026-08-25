@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
 import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
 import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
 
-/// Controller de teste: exercita exatamente o que uma tela concreta declara
-/// ao estender [BaseFormController].
+/// Controller de teste: exercita exatamente o que o Cubit de uma tela real
+/// faz ao estender [BaseFormController].
 class _CadastroController extends BaseFormController {
-  final nomeController = TextEditingController();
-  final String? _description;
+  static final nomeController = TextEditingController();
 
   int submitCount = 0;
   Object? erroDoSubmit;
@@ -20,28 +20,24 @@ class _CadastroController extends BaseFormController {
   /// teste — permite observar o estado "enviando" em cena.
   Completer<void>? envioPendente;
 
-  _CadastroController({String? description}) : _description = description;
-
-  @override
-  String get title => 'Novo Produto';
-
-  @override
-  String? get description => _description;
-
-  @override
-  String get submitLabel => 'Registrar Produto';
-
-  @override
-  List<BaseFormField> get fields => [
-    BaseFormField(
-      label: 'Nome do produto',
-      field: TextFormField(
-        controller: nomeController,
-        validator: (value) =>
-            (value == null || value.isEmpty) ? 'Informe o nome.' : null,
-      ),
-    ),
-  ];
+  _CadastroController({String? description})
+    : super(
+        BaseFormModel(
+          title: 'Novo Produto',
+          description: description,
+          submitLabel: 'Registrar Produto',
+          fields: [
+            BaseFormField(
+              label: 'Nome do produto',
+              field: TextFormField(
+                controller: nomeController,
+                validator: (value) =>
+                    (value == null || value.isEmpty) ? 'Informe o nome.' : null,
+              ),
+            ),
+          ],
+        ),
+      );
 
   @override
   Future<void> onSubmit() async {
@@ -52,8 +48,15 @@ class _CadastroController extends BaseFormController {
 }
 
 void main() {
+  setUp(() => _CadastroController.nomeController.clear());
+
   Widget wrap(BaseFormController controller) => MaterialApp(
-    home: Scaffold(body: BaseFormScreen(controller: controller)),
+    home: Scaffold(
+      body: BlocProvider<BaseFormController>.value(
+        value: controller,
+        child: const BaseFormScreen<BaseFormController>(),
+      ),
+    ),
   );
 
   group('BaseFormScreen', () {
@@ -67,7 +70,7 @@ void main() {
       expect(find.text('Registrar Produto'), findsOneWidget);
     });
 
-    testWidgets('renderiza a description quando o controller informa uma', (
+    testWidgets('renderiza a description quando o model informa uma', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -147,14 +150,15 @@ void main() {
     testWidgets('libera isSubmitting mesmo quando onSubmit lança', (
       tester,
     ) async {
-      final controller = _CadastroController()..erroDoSubmit = Exception('rede');
+      final controller = _CadastroController()
+        ..erroDoSubmit = Exception('rede');
       await tester.pumpWidget(wrap(controller));
       await tester.enterText(find.byType(TextFormField), 'Larvicida');
 
       await expectLater(controller.submit(), throwsException);
       await tester.pump();
 
-      expect(controller.isSubmitting, isFalse);
+      expect(controller.state.isSubmitting, isFalse);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
@@ -163,7 +167,7 @@ void main() {
     ) async {
       final controller = _CadastroController()
         ..envioPendente = Completer<void>()
-        ..setFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
+        ..emitFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
       await tester.pumpWidget(wrap(controller));
       await tester.enterText(find.byType(TextFormField), 'Larvicida');
       expect(find.text('Não foi possível cadastrar.'), findsOneWidget);
@@ -181,7 +185,7 @@ void main() {
       tester,
     ) async {
       final controller = _CadastroController()
-        ..setFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
+        ..emitFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
       await tester.pumpWidget(wrap(controller));
 
       final texto = tester.widget<Text>(find.text('Produto cadastrado.'));
@@ -192,7 +196,7 @@ void main() {
       tester,
     ) async {
       final controller = _CadastroController()
-        ..setFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
+        ..emitFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
       await tester.pumpWidget(wrap(controller));
 
       final texto = tester.widget<Text>(
@@ -207,24 +211,28 @@ void main() {
       expect(find.byType(BaseScreenFeedback), findsNothing);
     });
 
-    testWidgets('rerenderiza quando o controller notifica', (tester) async {
+    testWidgets('rerenderiza quando o controller emite novo estado', (
+      tester,
+    ) async {
       final controller = _CadastroController();
       await tester.pumpWidget(wrap(controller));
       expect(find.byType(BaseScreenFeedback), findsNothing);
 
-      controller.setFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
+      controller.emitFeedback(
+        const AcaoFeedbackSucesso('Produto cadastrado.'),
+      );
       await tester.pump();
 
       expect(find.byType(BaseScreenFeedback), findsOneWidget);
     });
 
-    testWidgets('usa a largura declarada pelo controller', (tester) async {
+    testWidgets('usa a largura declarada pelo model', (tester) async {
       await tester.pumpWidget(wrap(_CadastroController()));
 
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(BaseFormScreen),
+              of: find.byType(BaseFormScreen<BaseFormController>),
               matching: find.byType(Container),
             )
             .first,
