@@ -1,114 +1,161 @@
 import 'package:flutter/material.dart';
 
 import '../../portal_administrador/gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
-import '../../portal_administrador/widgets/admin_scaffold.dart';
 import '../state/acao_feedback.dart';
-import '../theme/geoprag_colors.dart';
+import 'base_screen_feedback.dart';
 
-/// Template de tela para o arquétipo "lista/dashboard tabular
-/// administrativo", repetido hoje quase char-a-char em
-/// `dashboard_aplicadores`, `dashboard_administradores`, `dashboard_estoque`,
+/// Contrato de tudo que uma tela do arquétipo "lista/dashboard tabular
+/// administrativo" exibe: título, ações do cabeçalho, barra de filtro,
+/// colunas, itens, estado de carregamento/erro, empty-state e feedback
+/// pós-ação.
+///
+/// O arquétipo é repetido hoje quase char-a-char em `dashboard_aplicadores`,
+/// `dashboard_administradores`, `dashboard_estoque`,
 /// `dashboard_denuncias_admin`, `listagem_de_denuncias` e
-/// `formula_de_dosagem`: `AdminScaffold` + título 28/bold + `Card(elevation:
-/// 3, radius: 12)` envolvendo um card de filtro + switch
-/// Loading/Error/Loaded, hoje com apenas 2 das 6 telas tratando lista vazia
-/// e duas tabelas concorrentes coexistindo (`GeopragDataTable` genérico vs.
+/// `formula_de_dosagem`, com apenas 2 das 6 telas tratando lista vazia e
+/// duas tabelas concorrentes coexistindo (`GeopragDataTable` genérico vs.
 /// `Table`/`TableRow` cru duplicado em 3 telas).
 ///
-/// Diferente dos demais templates deste pacote (`BaseCardListScreen`,
-/// `BaseDetailScreen`, `BaseInterstitialScreen`, que só cobrem o corpo da
-/// tela), este monta o `AdminScaffold` inteiro — decisão explícita da
-/// GEOPRAG-83, já que as 6 telas de origem são exclusivas do Portal
-/// Administrador (web) e sempre o envolvem. Por isso este arquivo, embora
-/// viva em `lib/src/widgets/`, importa `AdminScaffold` e `GeopragDataTable`
-/// de dentro de `lib/portal_administrador/` — uma exceção deliberada à
-/// separação usual entre `src` (compartilhado) e `portal_administrador`
-/// (específico de plataforma).
-///
-/// `GeopragDataTable` é a única forma de tabela suportada pelo template —
-/// não há slot para um `Table`/`TableRow` customizado. O empty-state
-/// ([emptyStateBuilder]) é obrigatório (não tem default), para que nenhuma
-/// tela migrada esqueça de tratar lista vazia. A mensagem de erro segue por
-/// padrão a convenção "Não foi possível carregar $entityLabel: $message" já
-/// usada nas 6 telas, sobrescrevível via [errorMessageBuilder] para os casos
-/// que precisem de outra frase. O feedback pós-ação ([feedback]) segue o
-/// contrato único decidido na GEOPRAG-77 ([AcaoFeedback]), exibido como
-/// `SnackBar` colorido conforme [AcaoFeedbackSucesso]/[AcaoFeedbackErro] sem
-/// inspecionar a mensagem.
-///
-/// Esta issue (GEOPRAG-83) só cria o template — a migração das 6 telas é
-/// escopo da GEOPRAG-90.
-class BaseListScreen<T> extends StatefulWidget {
-  final String currentRoute;
-  final String appBarTitle;
-  final String title;
-  final List<Widget> actions;
-  final Widget filterBar;
-  final bool isLoading;
-  final String? errorMessage;
-  final String entityLabel;
-  final String Function(String message)? errorMessageBuilder;
-  final List<T>? items;
-  final List<GeopragDataColumn<T>> columns;
-  final void Function(T item)? onRowTap;
-  final WidgetBuilder emptyStateBuilder;
-  final AcaoFeedback? feedback;
+/// Quem implementa este contrato na prática é [BaseListScreenController] —
+/// cada tela estende o controller e declara aqui o que é específico dela.
+abstract class BaseListScreenModel<T> {
+  /// Título 28/bold no topo do corpo da tela.
+  String get title;
 
-  const BaseListScreen({
-    super.key,
-    required this.currentRoute,
-    required this.appBarTitle,
-    required this.title,
-    this.actions = const [],
-    required this.filterBar,
-    required this.isLoading,
-    this.errorMessage,
-    required this.entityLabel,
-    this.errorMessageBuilder,
-    required this.items,
-    required this.columns,
-    this.onRowTap,
-    required this.emptyStateBuilder,
-    this.feedback,
-  });
+  /// Botões do cabeçalho, à direita do [title].
+  List<Widget> get actions;
 
-  @override
-  State<BaseListScreen<T>> createState() => _BaseListScreenState<T>();
+  /// Campo de busca/filtro exibido no topo do card. `null` para telas sem
+  /// filtro — não existe filtro decorativo neste template: ou a tela informa
+  /// um filtro que de fato filtra [items], ou não informa nenhum.
+  Widget? get filter;
+
+  /// Colunas da tabela. `GeopragDataTable` é a única forma de tabela do
+  /// template — não há slot para `Table`/`TableRow` customizado.
+  List<GeopragDataColumn<T>> get columns;
+
+  /// Itens já filtrados, prontos para renderizar.
+  List<T> get items;
+
+  bool get isLoading;
+
+  /// Mensagem crua do erro de carregamento, ou `null` se não houve erro.
+  String? get errorMessage;
+
+  /// Nome da entidade listada, usado pela frase padrão de [errorText]
+  /// (ex.: "os administradores").
+  String get entityLabel;
+
+  /// O que exibir quando [items] está vazio. Obrigatório justamente para que
+  /// nenhuma tela migrada esqueça de tratar lista vazia.
+  Widget get emptyState;
+
+  /// Resultado da última ação do usuário, no contrato único da GEOPRAG-77.
+  AcaoFeedback? get feedback;
+
+  /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis.
+  void Function(T item)? get onRowTap;
+
+  /// Frase de erro exibida ao usuário. O default é a convenção já usada nas
+  /// 6 telas de origem; sobrescreva apenas nas telas que precisem de outra.
+  String errorText(String message) =>
+      'Não foi possível carregar $entityLabel: $message';
 }
 
-class _BaseListScreenState<T> extends State<BaseListScreen<T>> {
+/// Controller reutilizável do arquétipo de lista tabular administrativa:
+/// estende [BaseListScreenModel] e passa a notificar a tela a cada mudança,
+/// de modo que [BaseListScreen] possa ser um `StatelessWidget`.
+///
+/// A tela concreta estende este controller, declara o que é específico dela
+/// ([title], [columns], [emptyState], [entityLabel] e o que mais quiser
+/// sobrescrever) e dirige o ciclo de carregamento por [setLoading],
+/// [setItems], [setError] e [setFeedback].
+///
+/// O controller é um `ChangeNotifier`: quem o cria é responsável por chamá-lo
+/// em `dispose()` — [BaseListScreen] apenas o consome, nunca assume sua posse.
+abstract class BaseListScreenController<T> extends BaseListScreenModel<T>
+    with ChangeNotifier {
+  List<T> _items = const [];
+
+  /// A lista nasce carregando: sem isso, uma tela que ainda não chamou
+  /// [setLoading] exibiria o empty-state ("nenhum registro") no primeiro
+  /// frame, dando ao usuário a informação errada sobre um dado que só está
+  /// a caminho.
+  bool _isLoading = true;
+
+  String? _errorMessage;
+  AcaoFeedback? _feedback;
+
   @override
-  void didUpdateWidget(covariant BaseListScreen<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final feedback = widget.feedback;
-    // Comparação por identidade, não por valor: `AcaoFeedback` sobrescreve
-    // `==` por (runtimeType, mensagem), então duas ações distintas com a
-    // mesma mensagem genérica (ex.: "Aplicador ativado com sucesso." em dois
-    // registros diferentes) seriam consideradas o mesmo feedback e a segunda
-    // SnackBar nunca apareceria.
-    if (feedback != null && !identical(feedback, oldWidget.feedback)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _mostrarFeedback(feedback);
-      });
-    }
+  List<T> get items => _items;
+
+  @override
+  bool get isLoading => _isLoading;
+
+  @override
+  String? get errorMessage => _errorMessage;
+
+  @override
+  AcaoFeedback? get feedback => _feedback;
+
+  @override
+  List<Widget> get actions => const [];
+
+  @override
+  Widget? get filter => null;
+
+  @override
+  void Function(T item)? get onRowTap => null;
+
+  void setLoading() {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
   }
 
-  void _mostrarFeedback(AcaoFeedback feedback) {
-    final cor = switch (feedback) {
-      AcaoFeedbackSucesso() => GeopragColors.statusEmDia,
-      AcaoFeedbackErro() => GeopragColors.statusAtrasado,
-    };
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(feedback.mensagem), backgroundColor: cor));
+  void setItems(List<T> items) {
+    _items = List.unmodifiable(items);
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
   }
+
+  void setError(String message) {
+    _errorMessage = message;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void setFeedback(AcaoFeedback? feedback) {
+    _feedback = feedback;
+    notifyListeners();
+  }
+}
+
+/// Template de corpo de tela para o arquétipo "lista/dashboard tabular
+/// administrativo", renderizado inteiramente a partir de um
+/// [BaseListScreenController].
+///
+/// Como os demais templates do pacote (`BaseCardListScreen`,
+/// `BaseDetailScreen`, `BaseInterstitialScreen`), cobre só o corpo da tela:
+/// `AdminScaffold`, `AppBar` e rota atual ficam com a tela que compõe este
+/// template, não aqui dentro.
+///
+/// Este arquivo vive em `lib/src/` mas importa `GeopragDataTable` de
+/// `lib/portal_administrador/` — um import que sobe de camada, herdado do
+/// lugar onde a tabela genérica nasceu (módulo de Administradores). Mover a
+/// tabela para `lib/src/widgets/` resolveria, mas atinge consumidores fora do
+/// escopo deste template.
+class BaseListScreen<T> extends StatelessWidget {
+  final BaseListScreenController<T> controller;
+
+  const BaseListScreen({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: widget.currentRoute,
-      appBar: AppBar(title: Text(widget.appBarTitle)),
-      body: Padding(
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -118,25 +165,38 @@ class _BaseListScreenState<T> extends State<BaseListScreen<T>> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.title,
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    controller.title,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                if (widget.actions.isNotEmpty)
-                  Row(mainAxisSize: MainAxisSize.min, children: widget.actions),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: controller.actions,
+                ),
               ],
             ),
             const SizedBox(height: 24),
             Card(
               elevation: 3,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    widget.filterBar,
-                    const SizedBox(height: 16),
-                    _buildEstado(context),
+                    if (controller.filter != null) ...[
+                      controller.filter!,
+                      const SizedBox(height: 16),
+                    ],
+                    if (controller.feedback != null) ...[
+                      BaseScreenFeedback(feedback: controller.feedback!),
+                      const SizedBox(height: 16),
+                    ],
+                    _buildContent(),
                   ],
                 ),
               ),
@@ -147,31 +207,30 @@ class _BaseListScreenState<T> extends State<BaseListScreen<T>> {
     );
   }
 
-  Widget _buildEstado(BuildContext context) {
-    if (widget.isLoading) {
+  Widget _buildContent() {
+    if (controller.isLoading) {
       return const Padding(
         padding: EdgeInsets.all(24),
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final errorMessage = widget.errorMessage;
+    final errorMessage = controller.errorMessage;
     if (errorMessage != null) {
-      final texto = widget.errorMessageBuilder != null
-          ? widget.errorMessageBuilder!(errorMessage)
-          : 'Não foi possível carregar ${widget.entityLabel}: $errorMessage';
-      return Padding(padding: const EdgeInsets.all(24), child: Text(texto));
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(controller.errorText(errorMessage)),
+      );
     }
 
-    final items = widget.items ?? const [];
-    if (items.isEmpty) {
-      return widget.emptyStateBuilder(context);
+    if (controller.items.isEmpty) {
+      return controller.emptyState;
     }
 
     return GeopragDataTable<T>(
-      items: items,
-      columns: widget.columns,
-      onRowTap: widget.onRowTap,
+      items: controller.items,
+      columns: controller.columns,
+      onRowTap: controller.onRowTap,
     );
   }
 }
