@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
@@ -6,58 +7,58 @@ import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
 import 'package:geoprag_modules/src/widgets/base_list_screen.dart';
 import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
 
-/// Controller de teste: exercita exatamente o que uma tela concreta declara
-/// ao estender [BaseListScreenController].
-class _AplicadoresController extends BaseListScreenController<String> {
-  final List<Widget> _actions;
-  final Widget? _filter;
-  final void Function(String item)? _onRowTap;
-
-  _AplicadoresController({
-    List<Widget> actions = const [],
-    Widget? filter,
-    void Function(String item)? onRowTap,
-  }) : _actions = actions,
-       _filter = filter,
-       _onRowTap = onRowTap;
-
-  @override
-  String get title => 'Voluntários Cadastrados';
-
-  @override
-  String get entityLabel => 'os aplicadores';
-
-  @override
-  List<Widget> get actions => _actions;
-
-  @override
-  Widget? get filter => _filter;
-
-  @override
-  void Function(String item)? get onRowTap => _onRowTap;
-
-  @override
-  List<GeopragDataColumn<String>> get columns => [
+BaseListScreenModel<String> _model({
+  List<Widget> actions = const [],
+  Widget? filter,
+  void Function(String item)? onRowTap,
+}) => BaseListScreenModel<String>(
+  title: 'Voluntários Cadastrados',
+  entityLabel: 'os aplicadores',
+  columns: [
     GeopragDataColumn<String>(
       label: 'Nome',
       width: const FlexColumnWidth(1),
       cellBuilder: (context, item) => Text(item),
     ),
-  ];
+  ],
+  emptyState: const Text('Nenhum aplicador encontrado.'),
+  actions: actions,
+  filter: filter,
+  onRowTap: onRowTap,
+);
 
-  @override
-  Widget get emptyState => const Text('Nenhum aplicador encontrado.');
+/// Controller de teste: exercita exatamente o que o Cubit de uma tela real
+/// faz ao estender [BaseListScreenController].
+class _AplicadoresController extends BaseListScreenController<String> {
+  _AplicadoresController({
+    List<Widget> actions = const [],
+    Widget? filter,
+    void Function(String item)? onRowTap,
+  }) : super(_model(actions: actions, filter: filter, onRowTap: onRowTap));
 }
 
-/// Controller que sobrescreve a frase padrão de erro.
-class _ControllerComErroCustomizado extends _AplicadoresController {
-  @override
-  String errorText(String message) => 'Falha customizada: $message';
+/// Controller cujo model troca a frase padrão de erro.
+class _ControllerComErroCustomizado extends BaseListScreenController<String> {
+  _ControllerComErroCustomizado()
+    : super(
+        BaseListScreenModel<String>(
+          title: 'Voluntários Cadastrados',
+          entityLabel: 'os aplicadores',
+          columns: const [],
+          emptyState: const SizedBox.shrink(),
+          errorTextBuilder: (message) => 'Falha customizada: $message',
+        ),
+      );
 }
 
 void main() {
   Widget wrap(BaseListScreenController<String> controller) => MaterialApp(
-    home: Scaffold(body: BaseListScreen<String>(controller: controller)),
+    home: Scaffold(
+      body: BlocProvider<BaseListScreenController<String>>.value(
+        value: controller,
+        child: const BaseListScreen<BaseListScreenController<String>, String>(),
+      ),
+    ),
   );
 
   group('BaseListScreen', () {
@@ -85,9 +86,7 @@ void main() {
       expect(find.byType(AppBar), findsNothing);
     });
 
-    testWidgets('renderiza o filter quando o controller informa um', (
-      tester,
-    ) async {
+    testWidgets('renderiza o filter quando o model informa um', (tester) async {
       await tester.pumpWidget(
         wrap(
           _AplicadoresController(filter: const TextField(key: Key('filter'))),
@@ -97,7 +96,7 @@ void main() {
       expect(find.byKey(const Key('filter')), findsOneWidget);
     });
 
-    testWidgets('não renderiza filter quando o controller não informa um', (
+    testWidgets('não renderiza filter quando o model não informa um', (
       tester,
     ) async {
       await tester.pumpWidget(wrap(_AplicadoresController()));
@@ -126,8 +125,8 @@ void main() {
       expect(find.text('Nenhum aplicador encontrado.'), findsNothing);
     });
 
-    testWidgets('mostra spinner em setLoading, sem tabela', (tester) async {
-      final controller = _AplicadoresController()..setLoading();
+    testWidgets('mostra spinner em emitLoading, sem tabela', (tester) async {
+      final controller = _AplicadoresController()..emitLoading();
       await tester.pumpWidget(wrap(controller));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -137,7 +136,7 @@ void main() {
     testWidgets(
       'usa a frase padrão "Não foi possível carregar <entityLabel>: <message>"',
       (tester) async {
-        final controller = _AplicadoresController()..setError('falha de rede');
+        final controller = _AplicadoresController()..emitError('falha de rede');
         await tester.pumpWidget(wrap(controller));
 
         expect(
@@ -147,10 +146,10 @@ void main() {
       },
     );
 
-    testWidgets('permite ao controller sobrescrever a frase de erro', (
+    testWidgets('errorTextBuilder sobrevive à emissão de novo estado', (
       tester,
     ) async {
-      final controller = _ControllerComErroCustomizado()..setError('timeout');
+      final controller = _ControllerComErroCustomizado()..emitError('timeout');
       await tester.pumpWidget(wrap(controller));
 
       expect(find.text('Falha customizada: timeout'), findsOneWidget);
@@ -159,7 +158,7 @@ void main() {
     testWidgets('mostra o empty-state obrigatório quando items está vazio', (
       tester,
     ) async {
-      final controller = _AplicadoresController()..setItems(const []);
+      final controller = _AplicadoresController()..emitItems(const []);
       await tester.pumpWidget(wrap(controller));
 
       expect(find.text('Nenhum aplicador encontrado.'), findsOneWidget);
@@ -170,7 +169,7 @@ void main() {
       tester,
     ) async {
       final controller = _AplicadoresController()
-        ..setItems(const ['Item A', 'Item B']);
+        ..emitItems(const ['Item A', 'Item B']);
       await tester.pumpWidget(wrap(controller));
 
       expect(find.byType(GeopragDataTable<String>), findsOneWidget);
@@ -182,7 +181,7 @@ void main() {
       String? tocado;
       final controller = _AplicadoresController(
         onRowTap: (item) => tocado = item,
-      )..setItems(const ['Item A']);
+      )..emitItems(const ['Item A']);
       await tester.pumpWidget(wrap(controller));
 
       await tester.tap(find.text('Item A'));
@@ -190,15 +189,32 @@ void main() {
       expect(tocado, 'Item A');
     });
 
-    testWidgets('rerenderiza quando o controller notifica', (tester) async {
-      final controller = _AplicadoresController()..setLoading();
+    testWidgets('rerenderiza quando o controller emite novo estado', (
+      tester,
+    ) async {
+      final controller = _AplicadoresController()..emitLoading();
       await tester.pumpWidget(wrap(controller));
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      controller.setItems(const ['Item A']);
+      controller.emitItems(const ['Item A']);
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.text('Item A'), findsOneWidget);
+    });
+
+    testWidgets('emitItems limpa o erro anterior', (tester) async {
+      final controller = _AplicadoresController()..emitError('falha de rede');
+      await tester.pumpWidget(wrap(controller));
+      expect(
+        find.text('Não foi possível carregar os aplicadores: falha de rede'),
+        findsOneWidget,
+      );
+
+      controller.emitItems(const ['Item A']);
+      await tester.pump();
+
+      expect(find.textContaining('Não foi possível carregar'), findsNothing);
       expect(find.text('Item A'), findsOneWidget);
     });
 
@@ -206,10 +222,9 @@ void main() {
       tester,
     ) async {
       final controller = _AplicadoresController()
-        ..setFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
+        ..emitFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
       await tester.pumpWidget(wrap(controller));
 
-      expect(find.text('Aplicador ativado.'), findsOneWidget);
       final texto = tester.widget<Text>(find.text('Aplicador ativado.'));
       expect(texto.style?.color, GeopragColors.statusEmDia);
     });
@@ -218,7 +233,7 @@ void main() {
       tester,
     ) async {
       final controller = _AplicadoresController()
-        ..setFeedback(const AcaoFeedbackErro('Não foi possível ativar.'));
+        ..emitFeedback(const AcaoFeedbackErro('Não foi possível ativar.'));
       await tester.pumpWidget(wrap(controller));
 
       final texto = tester.widget<Text>(find.text('Não foi possível ativar.'));
@@ -231,23 +246,23 @@ void main() {
       expect(find.byType(BaseScreenFeedback), findsNothing);
     });
 
-    testWidgets(
-      'duas ações com a mesma mensagem continuam sendo exibidas — o feedback '
-      'faz parte do estado do controller, não de um disparo pontual',
-      (tester) async {
-        final controller = _AplicadoresController()
-          ..setFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
-        await tester.pumpWidget(wrap(controller));
-        expect(find.text('Aplicador ativado.'), findsOneWidget);
+    testWidgets('emitFeedback(null) remove o aviso em cena', (tester) async {
+      final controller = _AplicadoresController()
+        ..emitFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
+      await tester.pumpWidget(wrap(controller));
+      expect(find.byType(BaseScreenFeedback), findsOneWidget);
 
-        controller.setFeedback(null);
-        await tester.pump();
-        expect(find.text('Aplicador ativado.'), findsNothing);
+      controller.emitFeedback(null);
+      await tester.pump();
 
-        controller.setFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
-        await tester.pump();
-        expect(find.text('Aplicador ativado.'), findsOneWidget);
-      },
-    );
+      expect(find.byType(BaseScreenFeedback), findsNothing);
+    });
+
+    test('items do model é imutável', () {
+      final mutavel = ['Item A'];
+      final model = _model().copyWith(items: mutavel);
+
+      expect(() => model.items.add('Item B'), throwsUnsupportedError);
+    });
   });
 }
