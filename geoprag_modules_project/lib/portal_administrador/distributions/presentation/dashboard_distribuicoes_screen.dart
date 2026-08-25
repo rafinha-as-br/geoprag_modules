@@ -50,16 +50,18 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
                   child: BlocBuilder<DistribuicoesCubit, DistribuicoesState>(
                     builder: (context, state) {
                       return BaseCardListScreen<DistribuicaoResumoViewModel>(
-                        isLoading: state is DistribuicoesLoading,
-                        errorMessage: state is DistribuicoesError
-                            ? 'Não foi possível carregar as distribuições: ${state.message}'
-                            : null,
-                        items: state is DistribuicoesLoaded
-                            ? state.distribuicoes
-                            : null,
-                        itemBuilder: (context, distribuicao) =>
-                            _buildListTile(context, distribuicao),
-                        emptyStateMessage: 'Nenhuma distribuição encontrada.',
+                        model: BaseCardListScreenModel(
+                          isLoading: state is DistribuicoesLoading,
+                          errorMessage: state is DistribuicoesError
+                              ? 'Não foi possível carregar as distribuições: ${state.message}'
+                              : null,
+                          items: state is DistribuicoesLoaded
+                              ? state.distribuicoes
+                              : null,
+                          itemBuilder: (context, distribuicao) =>
+                              _buildListTile(context, distribuicao),
+                          emptyStateMessage: 'Nenhuma distribuição encontrada.',
+                        ),
                       );
                     },
                   ),

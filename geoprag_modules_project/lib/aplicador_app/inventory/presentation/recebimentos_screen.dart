@@ -29,21 +29,23 @@ class RecebimentosScreen extends StatelessWidget {
                 ),
               Expanded(
                 child: BaseCardListScreen<RecebimentoResumoViewModel>(
-                  isLoading: state is RecebimentosLoading,
-                  errorMessage: state is RecebimentosError
-                      ? 'Não foi possível carregar os recebimentos: ${state.message}'
-                      : null,
-                  items: state is RecebimentosLoaded
-                      ? state.recebimentos
-                      : null,
-                  itemBuilder: (context, recebimento) =>
-                      _RecebimentoCard(recebimento: recebimento),
-                  separatorBuilder: (context, index) => const SizedBox(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+                  model: BaseCardListScreenModel(
+                    isLoading: state is RecebimentosLoading,
+                    errorMessage: state is RecebimentosError
+                        ? 'Não foi possível carregar os recebimentos: ${state.message}'
+                        : null,
+                    items: state is RecebimentosLoaded
+                        ? state.recebimentos
+                        : null,
+                    itemBuilder: (context, recebimento) =>
+                        _RecebimentoCard(recebimento: recebimento),
+                    separatorBuilder: (context, index) => const SizedBox(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    emptyStateMessage: 'Nenhum recebimento pendente.',
                   ),
-                  emptyStateMessage: 'Nenhum recebimento pendente.',
                 ),
               ),
             ],

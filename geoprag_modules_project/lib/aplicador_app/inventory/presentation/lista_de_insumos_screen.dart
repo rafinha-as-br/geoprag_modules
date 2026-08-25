@@ -19,14 +19,16 @@ class ListaDeInsumosScreen extends StatelessWidget {
       body: BlocBuilder<InventarioCubit, InventarioState>(
         builder: (context, state) {
           return BaseCardListScreen<EstoqueAtualViewModel>(
-            isLoading: state is InventarioLoading,
-            errorMessage: state is InventarioError
-                ? 'Não foi possível carregar o inventário: ${state.message}'
-                : null,
-            items: state is InventarioLoaded ? [state.estoqueAtual] : null,
-            itemBuilder: (context, estoqueAtual) =>
-                _InventarioConteudo(estoqueAtual: estoqueAtual),
-            separatorBuilder: (context, index) => const SizedBox(),
+            model: BaseCardListScreenModel(
+              isLoading: state is InventarioLoading,
+              errorMessage: state is InventarioError
+                  ? 'Não foi possível carregar o inventário: ${state.message}'
+                  : null,
+              items: state is InventarioLoaded ? [state.estoqueAtual] : null,
+              itemBuilder: (context, estoqueAtual) =>
+                  _InventarioConteudo(estoqueAtual: estoqueAtual),
+              separatorBuilder: (context, index) => const SizedBox(),
+            ),
           );
         },
       ),

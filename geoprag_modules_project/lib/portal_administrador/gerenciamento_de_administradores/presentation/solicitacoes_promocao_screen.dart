@@ -54,19 +54,21 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
                         return BaseCardListScreen<
                           SolicitacaoPromocaoViewModel
                         >(
-                          isLoading: state is SolicitacoesPromocaoLoading,
-                          errorMessage: state is SolicitacoesPromocaoError
-                              ? 'Não foi possível carregar as solicitações: ${state.message}'
-                              : null,
-                          items: state is SolicitacoesPromocaoLoaded
-                              ? state.solicitacoes
-                              : null,
-                          itemBuilder: (context, solicitacao) =>
-                              _SolicitacaoCard(solicitacao: solicitacao),
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 12),
-                          emptyStateMessage:
-                              'Nenhuma solicitação de promoção em aberto.',
+                          model: BaseCardListScreenModel(
+                            isLoading: state is SolicitacoesPromocaoLoading,
+                            errorMessage: state is SolicitacoesPromocaoError
+                                ? 'Não foi possível carregar as solicitações: ${state.message}'
+                                : null,
+                            items: state is SolicitacoesPromocaoLoaded
+                                ? state.solicitacoes
+                                : null,
+                            itemBuilder: (context, solicitacao) =>
+                                _SolicitacaoCard(solicitacao: solicitacao),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            emptyStateMessage:
+                                'Nenhuma solicitação de promoção em aberto.',
+                          ),
                         );
                       },
                     ),

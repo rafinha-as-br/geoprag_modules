@@ -57,22 +57,24 @@ class DashboardDeFocosScreen extends StatelessWidget {
                       ),
                     Expanded(
                       child: BaseCardListScreen<DenunciaDeFocoViewModel>(
-                        isLoading: state is DenunciasDeFocoLoading,
-                        errorMessage: state is DenunciasDeFocoError
-                            ? 'Não foi possível carregar suas denúncias: ${state.message}'
-                            : null,
-                        items: state is DenunciasDeFocoLoaded
-                            ? state.denuncias
-                            : null,
-                        itemBuilder: (context, denuncia) =>
-                            _buildDenunciaCard(denuncia),
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        model: BaseCardListScreenModel(
+                          isLoading: state is DenunciasDeFocoLoading,
+                          errorMessage: state is DenunciasDeFocoError
+                              ? 'Não foi possível carregar suas denúncias: ${state.message}'
+                              : null,
+                          items: state is DenunciasDeFocoLoaded
+                              ? state.denuncias
+                              : null,
+                          itemBuilder: (context, denuncia) =>
+                              _buildDenunciaCard(denuncia),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          emptyStateMessage: 'Nenhuma denúncia registrada.',
                         ),
-                        emptyStateMessage: 'Nenhuma denúncia registrada.',
                       ),
                     ),
                   ],

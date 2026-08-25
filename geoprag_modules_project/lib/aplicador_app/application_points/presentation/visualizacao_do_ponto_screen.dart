@@ -29,14 +29,16 @@ class VisualizacaoDoPontoScreen extends StatelessWidget {
       body: BlocBuilder<PontoDeAplicacaoCubit, PontoDeAplicacaoState>(
         builder: (context, state) {
           return BaseCardListScreen<PontoDeAplicacaoViewModel>(
-            isLoading: state is PontoDeAplicacaoLoading,
-            errorMessage: state is PontoDeAplicacaoError
-                ? 'Não foi possível carregar o ponto: ${state.message}'
-                : null,
-            items: state is PontoDeAplicacaoLoaded ? [state.ponto] : null,
-            itemBuilder: (context, ponto) =>
-                _PontoDeAplicacaoContent(ponto: ponto),
-            separatorBuilder: (context, index) => const SizedBox(),
+            model: BaseCardListScreenModel(
+              isLoading: state is PontoDeAplicacaoLoading,
+              errorMessage: state is PontoDeAplicacaoError
+                  ? 'Não foi possível carregar o ponto: ${state.message}'
+                  : null,
+              items: state is PontoDeAplicacaoLoaded ? [state.ponto] : null,
+              itemBuilder: (context, ponto) =>
+                  _PontoDeAplicacaoContent(ponto: ponto),
+              separatorBuilder: (context, index) => const SizedBox(),
+            ),
           );
         },
       ),

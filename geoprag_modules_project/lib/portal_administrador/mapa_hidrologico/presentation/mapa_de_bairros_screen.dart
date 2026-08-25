@@ -44,15 +44,17 @@ class MapaDeBairrosScreen extends StatelessWidget {
                 child: BlocBuilder<BairrosCubit, BairrosState>(
                   builder: (context, state) {
                     return BaseCardListScreen<BairroResumoViewModel>(
-                      isLoading: state is BairrosLoading,
-                      errorMessage: state is BairrosError
-                          ? 'Não foi possível carregar os bairros: ${state.message}'
-                          : null,
-                      items: state is BairrosLoaded ? state.bairros : null,
-                      itemBuilder: (context, bairro) =>
-                          _BairroListTile(bairro: bairro),
-                      padding: const EdgeInsets.all(8),
-                      emptyStateMessage: 'Nenhum bairro encontrado.',
+                      model: BaseCardListScreenModel(
+                        isLoading: state is BairrosLoading,
+                        errorMessage: state is BairrosError
+                            ? 'Não foi possível carregar os bairros: ${state.message}'
+                            : null,
+                        items: state is BairrosLoaded ? state.bairros : null,
+                        itemBuilder: (context, bairro) =>
+                            _BairroListTile(bairro: bairro),
+                        padding: const EdgeInsets.all(8),
+                        emptyStateMessage: 'Nenhum bairro encontrado.',
+                      ),
                     );
                   },
                 ),
