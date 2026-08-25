@@ -1,276 +1,235 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
+import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
 import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
+import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
+
+/// Controller de teste: exercita exatamente o que uma tela concreta declara
+/// ao estender [BaseFormController].
+class _CadastroController extends BaseFormController {
+  final nomeController = TextEditingController();
+  final String? _description;
+
+  int submitCount = 0;
+  Object? erroDoSubmit;
+
+  /// Quando informado, [onSubmit] fica pendente até ser completado pelo
+  /// teste — permite observar o estado "enviando" em cena.
+  Completer<void>? envioPendente;
+
+  _CadastroController({String? description}) : _description = description;
+
+  @override
+  String get title => 'Novo Produto';
+
+  @override
+  String? get description => _description;
+
+  @override
+  String get submitLabel => 'Registrar Produto';
+
+  @override
+  List<BaseFormField> get fields => [
+    BaseFormField(
+      label: 'Nome do produto',
+      field: TextFormField(
+        controller: nomeController,
+        validator: (value) =>
+            (value == null || value.isEmpty) ? 'Informe o nome.' : null,
+      ),
+    ),
+  ];
+
+  @override
+  Future<void> onSubmit() async {
+    submitCount++;
+    if (envioPendente != null) await envioPendente!.future;
+    if (erroDoSubmit != null) throw erroDoSubmit!;
+  }
+}
 
 void main() {
-  Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+  Widget wrap(BaseFormController controller) => MaterialApp(
+    home: Scaffold(body: BaseFormScreen(controller: controller)),
+  );
 
   group('BaseFormScreen', () {
-    testWidgets('mostra título, fields e botão de envio com submitLabel', (
+    testWidgets('renderiza título, rótulo de cada campo e botão de envio', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap(_CadastroController()));
+
+      expect(find.text('Novo Produto'), findsOneWidget);
+      expect(find.text('Nome do produto'), findsOneWidget);
+      expect(find.text('Registrar Produto'), findsOneWidget);
+    });
+
+    testWidgets('renderiza a description quando o controller informa uma', (
       tester,
     ) async {
       await tester.pumpWidget(
-        wrap(
-          BaseFormScreen(
-            formKey: GlobalKey<FormState>(),
-            title: 'Novo cadastro',
-            fields: const Text('campos do formulário'),
-            onSubmit: () async {},
-            submitLabel: 'Salvar',
-          ),
-        ),
+        wrap(_CadastroController(description: 'Nasce como rascunho.')),
       );
 
-      expect(find.text('Novo cadastro'), findsOneWidget);
-      expect(find.text('campos do formulário'), findsOneWidget);
-      expect(find.text('Salvar'), findsOneWidget);
-      expect(find.byType(Form), findsOneWidget);
+      expect(find.text('Nasce como rascunho.'), findsOneWidget);
     });
 
-    testWidgets(
-      'envolve em Container(600) + Card(elevation:4, radius:16) por padrão',
-      (tester) async {
-        await tester.pumpWidget(
-          wrap(
-            BaseFormScreen(
-              formKey: GlobalKey<FormState>(),
-              title: 'Novo cadastro',
-              fields: const SizedBox.shrink(),
-              onSubmit: () async {},
-              submitLabel: 'Salvar',
-            ),
-          ),
-        );
-
-        final container = tester.widget<Container>(find.byType(Container));
-        expect(container.constraints?.maxWidth, 600);
-
-        final card = tester.widget<Card>(find.byType(Card));
-        expect(card.elevation, 4);
-        expect(
-          (card.shape as RoundedRectangleBorder).borderRadius,
-          BorderRadius.circular(16),
-        );
-      },
-    );
-
-    testWidgets('aplica width customizado quando informado', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          BaseFormScreen(
-            formKey: GlobalKey<FormState>(),
-            title: 'Novo cadastro',
-            fields: const SizedBox.shrink(),
-            onSubmit: () async {},
-            submitLabel: 'Salvar',
-            width: 700,
-          ),
-        ),
-      );
-
-      final container = tester.widget<Container>(find.byType(Container));
-      expect(container.constraints?.maxWidth, 700);
-    });
-
-    testWidgets(
-      'não chama onSubmit quando a validação do formulário falha',
-      (tester) async {
-        var submitted = false;
-        final formKey = GlobalKey<FormState>();
-
-        await tester.pumpWidget(
-          wrap(
-            BaseFormScreen(
-              formKey: formKey,
-              title: 'Novo cadastro',
-              fields: TextFormField(
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Obrigatório.' : null,
-              ),
-              onSubmit: () async => submitted = true,
-              submitLabel: 'Salvar',
-            ),
-          ),
-        );
-
-        await tester.tap(find.text('Salvar'));
-        await tester.pump();
-
-        expect(submitted, isFalse);
-        expect(find.text('Obrigatório.'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'chama onSubmit somente depois que a validação do formulário passa',
-      (tester) async {
-        var submitted = false;
-        final formKey = GlobalKey<FormState>();
-
-        await tester.pumpWidget(
-          wrap(
-            BaseFormScreen(
-              formKey: formKey,
-              title: 'Novo cadastro',
-              fields: TextFormField(
-                initialValue: 'preenchido',
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Obrigatório.' : null,
-              ),
-              onSubmit: () async => submitted = true,
-              submitLabel: 'Salvar',
-            ),
-          ),
-        );
-
-        await tester.tap(find.text('Salvar'));
-        await tester.pump();
-
-        expect(submitted, isTrue);
-      },
-    );
-
-    testWidgets('mostra spinner e desabilita o botão quando isSubmitting é true', (
+    testWidgets('não monta Scaffold nem AppBar — corpo de tela apenas', (
       tester,
     ) async {
-      var submitted = false;
+      await tester.pumpWidget(wrap(_CadastroController()));
 
-      await tester.pumpWidget(
-        wrap(
-          BaseFormScreen(
-            formKey: GlobalKey<FormState>(),
-            title: 'Novo cadastro',
-            fields: const SizedBox.shrink(),
-            onSubmit: () async => submitted = true,
-            submitLabel: 'Salvar',
-            isSubmitting: true,
-          ),
-        ),
-      );
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(AppBar), findsNothing);
+    });
 
-      expect(find.text('Salvar'), findsNothing);
+    testWidgets('não chama onSubmit quando a validação reprova', (
+      tester,
+    ) async {
+      final controller = _CadastroController();
+      await tester.pumpWidget(wrap(controller));
+
+      await tester.tap(find.text('Registrar Produto'));
+      await tester.pump();
+
+      expect(controller.submitCount, 0);
+      expect(find.text('Informe o nome.'), findsOneWidget);
+    });
+
+    testWidgets('chama onSubmit quando a validação passa', (tester) async {
+      final controller = _CadastroController();
+      await tester.pumpWidget(wrap(controller));
+
+      await tester.enterText(find.byType(TextFormField), 'Larvicida');
+      await tester.tap(find.text('Registrar Produto'));
+      await tester.pumpAndSettle();
+
+      expect(controller.submitCount, 1);
+    });
+
+    testWidgets('submit retorna false sem executar onSubmit se reprovar', (
+      tester,
+    ) async {
+      final controller = _CadastroController();
+      await tester.pumpWidget(wrap(controller));
+
+      expect(await controller.submit(), isFalse);
+      expect(controller.submitCount, 0);
+    });
+
+    testWidgets('mostra spinner e desabilita o botão enquanto envia', (
+      tester,
+    ) async {
+      final controller = _CadastroController()
+        ..envioPendente = Completer<void>();
+      await tester.pumpWidget(wrap(controller));
+      await tester.enterText(find.byType(TextFormField), 'Larvicida');
+
+      final envio = controller.submit();
+      await tester.pump();
+
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(
+        tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+        isNull,
+      );
 
-      await tester.tap(find.byType(ElevatedButton), warnIfMissed: false);
-      expect(submitted, isFalse);
+      controller.envioPendente!.complete();
+      await envio;
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
-    testWidgets(
-      'mostra SnackBar verde quando acaoFeedback muda para AcaoFeedbackSucesso',
-      (tester) async {
-        final formKey = GlobalKey<FormState>();
-        AcaoFeedback? feedback;
+    testWidgets('libera isSubmitting mesmo quando onSubmit lança', (
+      tester,
+    ) async {
+      final controller = _CadastroController()..erroDoSubmit = Exception('rede');
+      await tester.pumpWidget(wrap(controller));
+      await tester.enterText(find.byType(TextFormField), 'Larvicida');
 
-        await tester.pumpWidget(
-          StatefulBuilder(
-            builder: (context, setState) {
-              return wrap(
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => setState(
-                        () => feedback = const AcaoFeedbackSucesso(
-                          'Cadastro salvo com sucesso.',
-                        ),
-                      ),
-                      child: const Text('disparar sucesso'),
-                    ),
-                    Expanded(
-                      child: BaseFormScreen(
-                        formKey: formKey,
-                        title: 'Novo cadastro',
-                        fields: const SizedBox.shrink(),
-                        onSubmit: () async {},
-                        submitLabel: 'Salvar',
-                        acaoFeedback: feedback,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
+      await expectLater(controller.submit(), throwsException);
+      await tester.pump();
 
-        await tester.tap(find.text('disparar sucesso'));
-        await tester.pump();
-        await tester.pump();
+      expect(controller.isSubmitting, isFalse);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
 
-        expect(find.text('Cadastro salvo com sucesso.'), findsOneWidget);
-        final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
-        expect(snackBar.backgroundColor, Colors.green.shade700);
-      },
-    );
+    testWidgets('limpa o feedback anterior ao iniciar um novo envio', (
+      tester,
+    ) async {
+      final controller = _CadastroController()
+        ..envioPendente = Completer<void>()
+        ..setFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
+      await tester.pumpWidget(wrap(controller));
+      await tester.enterText(find.byType(TextFormField), 'Larvicida');
+      expect(find.text('Não foi possível cadastrar.'), findsOneWidget);
 
-    testWidgets(
-      'mostra SnackBar vermelho quando acaoFeedback muda para AcaoFeedbackErro',
-      (tester) async {
-        final formKey = GlobalKey<FormState>();
-        AcaoFeedback? feedback;
+      final envio = controller.submit();
+      await tester.pump();
 
-        await tester.pumpWidget(
-          StatefulBuilder(
-            builder: (context, setState) {
-              return wrap(
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => setState(
-                        () => feedback = const AcaoFeedbackErro(
-                          'Não foi possível salvar o cadastro.',
-                        ),
-                      ),
-                      child: const Text('disparar erro'),
-                    ),
-                    Expanded(
-                      child: BaseFormScreen(
-                        formKey: formKey,
-                        title: 'Novo cadastro',
-                        fields: const SizedBox.shrink(),
-                        onSubmit: () async {},
-                        submitLabel: 'Salvar',
-                        acaoFeedback: feedback,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
+      expect(find.text('Não foi possível cadastrar.'), findsNothing);
 
-        await tester.tap(find.text('disparar erro'));
-        await tester.pump();
-        await tester.pump();
+      controller.envioPendente!.complete();
+      await envio;
+    });
 
-        expect(find.text('Não foi possível salvar o cadastro.'), findsOneWidget);
-        final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
-        expect(snackBar.backgroundColor, Colors.red.shade700);
-      },
-    );
+    testWidgets('exibe feedback de sucesso na cor de status em dia', (
+      tester,
+    ) async {
+      final controller = _CadastroController()
+        ..setFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
+      await tester.pumpWidget(wrap(controller));
 
-    testWidgets(
-      'não mostra SnackBar no build inicial mesmo com acaoFeedback já preenchido',
-      (tester) async {
-        const feedback = AcaoFeedbackSucesso('Cadastro salvo com sucesso.');
+      final texto = tester.widget<Text>(find.text('Produto cadastrado.'));
+      expect(texto.style?.color, GeopragColors.statusEmDia);
+    });
 
-        await tester.pumpWidget(
-          wrap(
-            BaseFormScreen(
-              formKey: GlobalKey<FormState>(),
-              title: 'Novo cadastro',
-              fields: const SizedBox.shrink(),
-              onSubmit: () async {},
-              submitLabel: 'Salvar',
-              acaoFeedback: feedback,
-            ),
-          ),
-        );
-        await tester.pump();
+    testWidgets('exibe feedback de erro na cor de status atrasado', (
+      tester,
+    ) async {
+      final controller = _CadastroController()
+        ..setFeedback(const AcaoFeedbackErro('Não foi possível cadastrar.'));
+      await tester.pumpWidget(wrap(controller));
 
-        expect(find.byType(SnackBar), findsNothing);
-      },
-    );
+      final texto = tester.widget<Text>(
+        find.text('Não foi possível cadastrar.'),
+      );
+      expect(texto.style?.color, GeopragColors.statusAtrasado);
+    });
+
+    testWidgets('não exibe feedback quando não há nenhum', (tester) async {
+      await tester.pumpWidget(wrap(_CadastroController()));
+
+      expect(find.byType(BaseScreenFeedback), findsNothing);
+    });
+
+    testWidgets('rerenderiza quando o controller notifica', (tester) async {
+      final controller = _CadastroController();
+      await tester.pumpWidget(wrap(controller));
+      expect(find.byType(BaseScreenFeedback), findsNothing);
+
+      controller.setFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
+      await tester.pump();
+
+      expect(find.byType(BaseScreenFeedback), findsOneWidget);
+    });
+
+    testWidgets('usa a largura declarada pelo controller', (tester) async {
+      await tester.pumpWidget(wrap(_CadastroController()));
+
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(BaseFormScreen),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(container.constraints?.maxWidth, 600);
+    });
   });
 }
