@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_interstitial_screen.dart';
 import '../../core/aplicador_navigator.dart';
 
 class TelaInformativaScreen extends StatelessWidget {
@@ -10,27 +11,13 @@ class TelaInformativaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Registro de Aplicação')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+      body: BaseInterstitialScreen(
+        icon: Icons.info_outline_rounded,
+        iconColor: GeopragColors.blue600, // Blue for information
+        title: 'Atenção',
+        body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              Icons.info_outline_rounded,
-              size: 80,
-              color: GeopragColors.blue600, // Blue for information
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Atenção',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -61,31 +48,16 @@ class TelaInformativaScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 48),
-            ElevatedButton(
-              onPressed: () {
-                AplicadorNavigatorScope.of(context).toAplicacaoGeo();
-              },
-              child: const Text(
-                'Estou ciente, continuar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                AplicadorNavigatorScope.of(context).back();
-              },
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
           ],
         ),
+        primaryLabel: 'Estou ciente, continuar',
+        onPrimary: () {
+          AplicadorNavigatorScope.of(context).toAplicacaoGeo();
+        },
+        secondaryLabel: 'Cancelar',
+        onSecondary: () {
+          AplicadorNavigatorScope.of(context).back();
+        },
       ),
     );
   }
