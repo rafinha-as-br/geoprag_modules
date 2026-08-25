@@ -90,7 +90,10 @@ class BaseDetailScreen extends StatelessWidget {
               Row(mainAxisSize: MainAxisSize.min, children: actions),
           ],
         ),
-        const SizedBox(height: 24),
+        if (variant == BaseDetailScreenVariant.cartaoCentralizado)
+          const Divider(height: 32)
+        else
+          const SizedBox(height: 24),
         contentBuilder(context),
       ],
     );

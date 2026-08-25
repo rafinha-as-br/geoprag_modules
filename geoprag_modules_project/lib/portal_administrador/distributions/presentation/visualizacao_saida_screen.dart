@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_detail_screen.dart';
 import 'distribuicao_detalhe_cubit.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
@@ -13,41 +14,38 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ficha de Distribuição')),
-      body: Center(
-        child: Container(
-          width: 600,
-          padding: const EdgeInsets.all(32.0),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child:
-                  BlocBuilder<
-                    DistribuicaoDetalheCubit,
-                    DistribuicaoDetalheState
-                  >(
-                    builder: (context, state) {
-                      return switch (state) {
-                        DistribuicaoDetalheLoading() => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        DistribuicaoDetalheError(:final message) => Text(
-                          'Não foi possível carregar a distribuição: $message',
-                        ),
-                        DistribuicaoDetalheLoaded(:final distribuicao) =>
-                          _DistribuicaoDetalheContent(
-                            distribuicao: distribuicao,
-                          ),
-                      };
-                    },
+      body:
+          BlocBuilder<DistribuicaoDetalheCubit, DistribuicaoDetalheState>(
+            builder: (context, state) {
+              return BaseDetailScreen(
+                variant: BaseDetailScreenVariant.cartaoCentralizado,
+                title: 'Comprovante de Saída',
+                isLoading: state is DistribuicaoDetalheLoading,
+                errorMessage: switch (state) {
+                  DistribuicaoDetalheError(:final message) =>
+                    'Não foi possível carregar a distribuição: $message',
+                  _ => null,
+                },
+                actions: [
+                  IconButton(
+                    tooltip: 'Imprimir',
+                    icon: const Icon(Icons.print),
+                    onPressed: () {},
                   ),
-            ),
+                  OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar Registro'),
+                  ),
+                ],
+                contentBuilder: (context) => switch (state) {
+                  DistribuicaoDetalheLoaded(:final distribuicao) =>
+                    _DistribuicaoDetalheContent(distribuicao: distribuicao),
+                  _ => const SizedBox.shrink(),
+                },
+              );
+            },
           ),
-        ),
-      ),
     );
   }
 }
@@ -64,17 +62,6 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Comprovante de Saída',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            IconButton(icon: const Icon(Icons.print), onPressed: () {}),
-          ],
-        ),
-        const Divider(height: 32),
         ListTile(
           title: const Text(
             'Data da Entrega',
@@ -130,12 +117,6 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
         const Text(
           'Nota: Este documento de saída permite edição apenas em campos não-críticos e não pode ser excluído.',
           style: TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.edit),
-          label: const Text('Editar Registro'),
         ),
       ],
     );

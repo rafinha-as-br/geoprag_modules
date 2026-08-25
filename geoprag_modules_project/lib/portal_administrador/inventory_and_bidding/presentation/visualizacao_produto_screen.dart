@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_detail_screen.dart';
 import '../core/movimentacao_produto.dart';
 import 'produto_detalhe_cubit.dart';
 import 'produto_detalhe_state.dart';
@@ -14,34 +15,43 @@ class VisualizacaoProdutoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Detalhes do Produto no Estoque')),
-      body: Center(
-        child: Container(
-          width: 600,
-          padding: const EdgeInsets.all(32.0),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: BlocBuilder<ProdutoDetalheCubit, ProdutoDetalheState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    ProdutoDetalheLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    ProdutoDetalheError(:final message) => Text(
-                      'Não foi possível carregar o produto: $message',
-                    ),
-                    ProdutoDetalheLoaded(:final produto) =>
-                      _ProdutoDetalheContent(produto: produto),
-                  };
-                },
+      body: BlocBuilder<ProdutoDetalheCubit, ProdutoDetalheState>(
+        builder: (context, state) {
+          return BaseDetailScreen(
+            variant: BaseDetailScreenVariant.cartaoCentralizado,
+            title: switch (state) {
+              ProdutoDetalheLoaded(:final produto) =>
+                '${produto.nome} - Lote ${produto.lote}',
+              _ => '',
+            },
+            isLoading: state is ProdutoDetalheLoading,
+            errorMessage: switch (state) {
+              ProdutoDetalheError(:final message) =>
+                'Não foi possível carregar o produto: $message',
+              _ => null,
+            },
+            actions: [
+              IconButton(
+                tooltip: 'Editar',
+                icon: const Icon(Icons.edit, color: Colors.blue),
+                onPressed: () {},
               ),
-            ),
-          ),
-        ),
+              IconButton(
+                tooltip: 'Excluir',
+                icon: const Icon(
+                  Icons.delete,
+                  color: GeopragColors.statusAtrasado,
+                ),
+                onPressed: () {},
+              ),
+            ],
+            contentBuilder: (context) => switch (state) {
+              ProdutoDetalheLoaded(:final produto) =>
+                _ProdutoDetalheContent(produto: produto),
+              _ => const SizedBox.shrink(),
+            },
+          );
+        },
       ),
     );
   }
@@ -58,31 +68,6 @@ class _ProdutoDetalheContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${produto.nome} - Lote ${produto.lote}',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete,
-                    color: GeopragColors.statusAtrasado,
-                  ),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ],
-        ),
-        const Divider(height: 32),
         ListTile(
           title: const Text(
             'Licitação Vinculada',
@@ -132,6 +117,11 @@ class _ProdutoDetalheContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 32),
+        const Text(
+          'Nota: Este produto permite edição apenas em campos não-críticos e não pode ser excluído.',
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+        const SizedBox(height: 16),
         const Text(
           'Histórico de Movimentações',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),

@@ -92,8 +92,15 @@ void main() {
           BorderRadius.circular(16),
         );
 
-        final container = tester.widget<Container>(find.byType(Container));
+        // .first: a variante também insere um Divider entre o header e o
+        // conteúdo, e Divider é internamente renderizado com um Container
+        // próprio — o wrapper de largura 600 é o primeiro na árvore.
+        final container = tester.widget<Container>(
+          find.byType(Container).first,
+        );
         expect(container.constraints?.maxWidth, 600);
+
+        expect(find.byType(Divider), findsOneWidget);
       },
     );
 
