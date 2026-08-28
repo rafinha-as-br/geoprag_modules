@@ -7,6 +7,8 @@ import 'autenticacao/presentation/admin_login_cubit.dart';
 import 'autenticacao/presentation/admin_recriar_senha_cubit.dart';
 import 'autenticacao/presentation/admin_session_cubit.dart';
 import 'autenticacao/presentation/autorizacao_redefinicao_cubit.dart';
+import 'autenticacao/presentation/verificar_codigo_admin_cubit.dart';
+import 'autenticacao/presentation/verificar_codigo_sub_admin_cubit.dart';
 import 'gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart';
 import 'gerenciamento_de_administradores/presentation/administradores_cubit.dart';
@@ -76,8 +78,13 @@ class AdminBootstrap {
       AdminEsqueciSenhaCubit(buildAdminAuthRepository());
   AdminRecriarSenhaCubit buildAdminRecriarSenhaCubit() =>
       AdminRecriarSenhaCubit(buildAdminAuthRepository());
-  AutorizacaoRedefinicaoCubit buildAutorizacaoRedefinicaoCubit() =>
-      AutorizacaoRedefinicaoCubit(buildSolicitacaoRedefinicaoRepository());
+  AutorizacaoRedefinicaoCubit buildAutorizacaoRedefinicaoCubit(
+    SolicitacaoRedefinicaoRepository repository,
+  ) => AutorizacaoRedefinicaoCubit(repository);
+  VerificarCodigoAdminCubit buildVerificarCodigoAdminCubit() =>
+      VerificarCodigoAdminCubit(buildAdminAuthRepository());
+  VerificarCodigoSubAdminCubit buildVerificarCodigoSubAdminCubit() =>
+      VerificarCodigoSubAdminCubit(buildAdminAuthRepository());
   AplicadoresCubit buildAplicadoresCubit() =>
       AplicadoresCubit(buildAplicadorRepository());
   AplicadorDetalheCubit buildAplicadorDetalheCubit(String aplicadorId) =>
