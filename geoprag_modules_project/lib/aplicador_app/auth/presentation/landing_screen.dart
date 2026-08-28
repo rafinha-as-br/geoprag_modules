@@ -4,6 +4,10 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_logo.dart';
 import '../../core/aplicador_navigator.dart';
 
+// Não migrada para BaseInterstitialScreen (GEOPRAG-96): hero image de fundo
+// e ausência de AppBar não cabem no template ícone+título+corpo, por ser a
+// porta de entrada do app, sem contexto de navegação anterior. Exceção
+// intencional, documentada também em base_interstitial_screen.dart.
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 

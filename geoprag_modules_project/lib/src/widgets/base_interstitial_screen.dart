@@ -16,6 +16,11 @@ import 'package:flutter/material.dart';
 /// `fontWeight: bold`, a outra não); tratado aqui como inconsistência a
 /// resolver, não como variação intencional.
 ///
+/// O espaçamento entre [body] e o botão primário é fixo em 32 —
+/// `tela_informativa_screen.dart` usava 48 antes da migração,
+/// `tela_educativa_screen.dart` já usava 32; mesmo critério acima:
+/// inconsistência resolvida para um valor único, não regressão visual.
+///
 /// `landing_screen.dart` é exceção intencional (hero image de fundo, sem
 /// AppBar, por ser a porta de entrada sem contexto de navegação anterior)
 /// e não é coberta por este template — não é um bug, é uma composição
