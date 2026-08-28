@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/widgets/base_detail_screen.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'corrego_detalhe_cubit.dart';
 import 'corrego_detalhe_state.dart';
@@ -20,17 +21,21 @@ class VisualizacaoDeCorregoScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: BlocBuilder<CorregoDetalheCubit, CorregoDetalheState>(
           builder: (context, state) {
-            return switch (state) {
-              CorregoDetalheLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              CorregoDetalheError(:final message) => Center(
-                child: Text('Não foi possível carregar o córrego: $message'),
-              ),
-              CorregoDetalheLoaded(:final corrego) => _CorregoDetalheContent(
-                corrego: corrego,
-              ),
-            };
+            final corrego = state is CorregoDetalheLoaded
+                ? state.corrego
+                : null;
+
+            return BaseDetailScreen(
+              variant: BaseDetailScreenVariant.duasColunas,
+              title: corrego?.nome ?? '',
+              isLoading: state is CorregoDetalheLoading,
+              errorMessage: state is CorregoDetalheError
+                  ? 'Não foi possível carregar o córrego: ${state.message}'
+                  : null,
+              contentBuilder: (context) => corrego == null
+                  ? const SizedBox.shrink()
+                  : _CorregoDetalheContent(corrego: corrego),
+            );
           },
         ),
       ),
@@ -48,11 +53,6 @@ class _CorregoDetalheContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          corrego.nome,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
         Text(
           'Bairro: ${corrego.bairro}',
           style: const TextStyle(color: Colors.black54, fontSize: 16),
