@@ -140,5 +140,32 @@ void main() {
 
       expect(find.byType(ElevatedButton), findsNothing);
     });
+
+    for (final variant in BaseDetailScreenVariant.values) {
+      testWidgets(
+        'conteúdo mais alto que a viewport rola em vez de estourar '
+        '(${variant.name}) — regressão GEOPRAG-92/93/95',
+        (tester) async {
+          tester.view.physicalSize = const Size(800, 400);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+
+          await tester.pumpWidget(
+            wrap(
+              BaseDetailScreen(
+                variant: variant,
+                title: 'Título',
+                isLoading: false,
+                contentBuilder: (context) => const SizedBox(height: 1000),
+              ),
+            ),
+          );
+
+          expect(find.byType(SingleChildScrollView), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
   });
 }
