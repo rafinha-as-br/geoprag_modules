@@ -79,23 +79,29 @@ class BaseDetailScreen extends StatelessWidget {
       fontWeight: FontWeight.bold,
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(child: Text(title, style: titleStyle)),
-            if (actions.isNotEmpty)
-              Row(mainAxisSize: MainAxisSize.min, children: actions),
-          ],
-        ),
-        if (variant == BaseDetailScreenVariant.cartaoCentralizado)
-          const Divider(height: 32)
-        else
-          const SizedBox(height: 24),
-        contentBuilder(context),
-      ],
+    // Scrollable: o corpo é limitado à altura da viewport (Scaffold/Card),
+    // mas o conteúdo varia por tela (listas, históricos, mapa com altura
+    // fixa) e pode ultrapassá-la — sem isso, RenderFlex estoura.
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text(title, style: titleStyle)),
+              if (actions.isNotEmpty)
+                Row(mainAxisSize: MainAxisSize.min, children: actions),
+            ],
+          ),
+          if (variant == BaseDetailScreenVariant.cartaoCentralizado)
+            const Divider(height: 32)
+          else
+            const SizedBox(height: 24),
+          contentBuilder(context),
+        ],
+      ),
     );
   }
 }
