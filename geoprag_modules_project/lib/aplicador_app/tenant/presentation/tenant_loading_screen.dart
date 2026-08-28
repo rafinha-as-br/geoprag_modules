@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/geoprag_tenant_loading_screen.dart';
 import 'tenant_cubit.dart';
 import 'tenant_state.dart';
 
@@ -13,36 +13,14 @@ class TenantLoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: BlocBuilder<TenantCubit, TenantState>(
-          builder: (context, state) {
-            if (state is TenantError) {
-              return Text(
-                'Não foi possível carregar a prefeitura: ${state.message}',
-                style: TextStyle(color: GeopragColors.statusAtrasado),
-                textAlign: TextAlign.center,
-              );
-            }
-            final progress = state is TenantDownloading ? state.progress : null;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: GeopragColors.green900,
-                  value: progress,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  progress != null
-                      ? 'Baixando mapa da prefeitura... ${(progress * 100).round()}%'
-                      : 'Carregando dados da prefeitura...',
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+    return BlocBuilder<TenantCubit, TenantState>(
+      builder: (context, state) {
+        return GeopragTenantLoadingScreen(
+          isError: state is TenantError,
+          errorMessage: state is TenantError ? state.message : null,
+          progress: state is TenantDownloading ? state.progress : null,
+        );
+      },
     );
   }
 }
