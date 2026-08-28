@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/aplicador_bottom_nav.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'denuncia_de_foco_view_model.dart';
 import 'denuncias_de_foco_cubit.dart';
@@ -39,23 +41,11 @@ class DashboardDeFocosScreen extends StatelessWidget {
           Expanded(
             child: BlocBuilder<DenunciasDeFocoCubit, DenunciasDeFocoState>(
               builder: (context, state) {
-                return switch (state) {
-                  DenunciasDeFocoLoading() => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  DenunciasDeFocoError(:final message) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        'Não foi possível carregar suas denúncias: $message',
-                      ),
-                    ),
-                  ),
-                  DenunciasDeFocoLoaded(:final denuncias) => ListView(
-                    padding: const EdgeInsets.all(16.0),
-                    children: [
+                return Column(
+                  children: [
+                    if (state is DenunciasDeFocoLoaded)
                       const Padding(
-                        padding: EdgeInsets.only(bottom: 16.0),
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                         child: Text(
                           'Suas denúncias recentes',
                           style: TextStyle(
@@ -65,37 +55,36 @@ class DashboardDeFocosScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      for (final denuncia in denuncias)
-                        _buildDenunciaCard(denuncia),
-                    ],
-                  ),
-                };
+                    Expanded(
+                      child: BaseCardListScreen<DenunciaDeFocoViewModel>(
+                        model: BaseCardListScreenModel(
+                          isLoading: state is DenunciasDeFocoLoading,
+                          errorMessage: state is DenunciasDeFocoError
+                              ? 'Não foi possível carregar suas denúncias: ${state.message}'
+                              : null,
+                          items: state is DenunciasDeFocoLoaded
+                              ? state.denuncias
+                              : null,
+                          itemBuilder: (context, denuncia) =>
+                              _buildDenunciaCard(denuncia),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          emptyStateMessage: 'Nenhuma denúncia registrada.',
+                        ),
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Denúncias tab
-        onTap: (index) {
-          final navigator = AplicadorNavigatorScope.of(context);
-          if (index == 0) navigator.toPonto();
-          if (index == 1) navigator.toInventario();
-        },
-        selectedItemColor: GeopragColors.green900,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Insumos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report_problem_outlined),
-            label: 'Denúncias',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const AplicadorBottomNav(currentIndex: 2),
     );
   }
 

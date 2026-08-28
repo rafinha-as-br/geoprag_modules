@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
@@ -42,23 +43,19 @@ class MapaDeBairrosScreen extends StatelessWidget {
                 ),
                 child: BlocBuilder<BairrosCubit, BairrosState>(
                   builder: (context, state) {
-                    return switch (state) {
-                      BairrosLoading() => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      BairrosError(:final message) => Center(
-                        child: Text(
-                          'Não foi possível carregar os bairros: $message',
-                        ),
-                      ),
-                      BairrosLoaded(:final bairros) => ListView.separated(
+                    return BaseCardListScreen<BairroResumoViewModel>(
+                      model: BaseCardListScreenModel(
+                        isLoading: state is BairrosLoading,
+                        errorMessage: state is BairrosError
+                            ? 'Não foi possível carregar os bairros: ${state.message}'
+                            : null,
+                        items: state is BairrosLoaded ? state.bairros : null,
+                        itemBuilder: (context, bairro) =>
+                            _BairroListTile(bairro: bairro),
                         padding: const EdgeInsets.all(8),
-                        itemCount: bairros.length,
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemBuilder: (context, index) =>
-                            _BairroListTile(bairro: bairros[index]),
+                        emptyStateMessage: 'Nenhum bairro encontrado.',
                       ),
-                    };
+                    );
                   },
                 ),
               ),

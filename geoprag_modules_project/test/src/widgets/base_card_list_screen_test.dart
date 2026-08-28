@@ -3,15 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/src/widgets/base_card_list_screen.dart';
 
 void main() {
-  Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+  Widget wrap(BaseCardListScreenModel<String> model) => MaterialApp(
+    home: Scaffold(body: BaseCardListScreen<String>(model: model)),
+  );
 
   group('BaseCardListScreen', () {
     testWidgets('mostra spinner quando isLoading é true', (tester) async {
       await tester.pumpWidget(
         wrap(
-          BaseCardListScreen<String>(
+          BaseCardListScreenModel<String>(
             isLoading: true,
-            items: null,
             itemBuilder: (context, item) => Text(item),
           ),
         ),
@@ -26,10 +27,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         wrap(
-          BaseCardListScreen<String>(
-            isLoading: false,
+          BaseCardListScreenModel<String>(
             errorMessage: 'Não foi possível carregar a lista: falha de rede',
-            items: null,
             itemBuilder: (context, item) => Text(item),
           ),
         ),
@@ -41,13 +40,10 @@ void main() {
       );
     });
 
-    testWidgets('mostra o empty-state quando items está vazio', (
-      tester,
-    ) async {
+    testWidgets('mostra o empty-state quando items está vazio', (tester) async {
       await tester.pumpWidget(
         wrap(
-          BaseCardListScreen<String>(
-            isLoading: false,
+          BaseCardListScreenModel<String>(
             items: const [],
             itemBuilder: (context, item) => Text(item),
             emptyStateMessage: 'Nenhuma solicitação em aberto.',
@@ -59,13 +55,25 @@ void main() {
       expect(find.byType(ListView), findsNothing);
     });
 
+    testWidgets('trata items null como lista vazia', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          BaseCardListScreenModel<String>(
+            itemBuilder: (context, item) => Text(item),
+            emptyStateMessage: 'Nenhum item.',
+          ),
+        ),
+      );
+
+      expect(find.text('Nenhum item.'), findsOneWidget);
+    });
+
     testWidgets('renderiza a lista com itemBuilder e separador padrão', (
       tester,
     ) async {
       await tester.pumpWidget(
         wrap(
-          BaseCardListScreen<String>(
-            isLoading: false,
+          BaseCardListScreenModel<String>(
             items: const ['Item A', 'Item B'],
             itemBuilder: (context, item) => Text(item),
           ),
@@ -82,8 +90,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         wrap(
-          BaseCardListScreen<String>(
-            isLoading: false,
+          BaseCardListScreenModel<String>(
             items: const ['Item A', 'Item B'],
             itemBuilder: (context, item) => Text(item),
             separatorBuilder: (context, index) =>
@@ -94,6 +101,15 @@ void main() {
 
       expect(find.byKey(const Key('custom-separator')), findsOneWidget);
       expect(find.byType(Divider), findsNothing);
+    });
+
+    test('items do model é imutável', () {
+      final model = BaseCardListScreenModel<String>(
+        items: ['Item A'],
+        itemBuilder: (context, item) => Text(item),
+      );
+
+      expect(() => model.items.add('Item B'), throwsUnsupportedError);
     });
   });
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/aplicador_bottom_nav.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'insumo_view_model.dart';
 import 'inventario_cubit.dart';
@@ -16,45 +18,21 @@ class ListaDeInsumosScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Inventário')),
       body: BlocBuilder<InventarioCubit, InventarioState>(
         builder: (context, state) {
-          return switch (state) {
-            InventarioLoading() => const Center(
-              child: CircularProgressIndicator(),
+          return BaseCardListScreen<EstoqueAtualViewModel>(
+            model: BaseCardListScreenModel(
+              isLoading: state is InventarioLoading,
+              errorMessage: state is InventarioError
+                  ? 'Não foi possível carregar o inventário: ${state.message}'
+                  : null,
+              items: state is InventarioLoaded ? [state.estoqueAtual] : null,
+              itemBuilder: (context, estoqueAtual) =>
+                  _InventarioConteudo(estoqueAtual: estoqueAtual),
+              separatorBuilder: (context, index) => const SizedBox(),
             ),
-            InventarioError(:final message) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Não foi possível carregar o inventário: $message',
-                ),
-              ),
-            ),
-            InventarioLoaded(:final estoqueAtual) => _InventarioConteudo(
-              estoqueAtual: estoqueAtual,
-            ),
-          };
+          );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Inventário tab
-        onTap: (index) {
-          final navigator = AplicadorNavigatorScope.of(context);
-          if (index == 0) navigator.toPonto();
-          if (index == 2) navigator.toDenuncias();
-        },
-        selectedItemColor: GeopragColors.green900,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Insumos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report_problem_outlined),
-            label: 'Denúncias',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const AplicadorBottomNav(currentIndex: 1),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'aplicacao_mapa_cubit.dart';
@@ -23,17 +24,21 @@ class VisualizacaoDeAplicacaoScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: BlocBuilder<AplicacaoMapaCubit, AplicacaoMapaState>(
           builder: (context, state) {
-            return switch (state) {
-              AplicacaoMapaLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              AplicacaoMapaError(:final message) => Center(
-                child: Text('Não foi possível carregar a aplicação: $message'),
-              ),
-              AplicacaoMapaLoaded(:final aplicacao) => _AplicacaoDetalheContent(
-                aplicacao: aplicacao,
-              ),
-            };
+            final aplicacao = state is AplicacaoMapaLoaded
+                ? state.aplicacao
+                : null;
+
+            return BaseDetailScreen(
+              variant: BaseDetailScreenVariant.duasColunas,
+              title: 'Aplicação Registrada',
+              isLoading: state is AplicacaoMapaLoading,
+              errorMessage: state is AplicacaoMapaError
+                  ? 'Não foi possível carregar a aplicação: ${state.message}'
+                  : null,
+              contentBuilder: (context) => aplicacao == null
+                  ? const SizedBox.shrink()
+                  : _AplicacaoDetalheContent(aplicacao: aplicacao),
+            );
           },
         ),
       ),
@@ -58,11 +63,6 @@ class _AplicacaoDetalheContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Aplicação Registrada',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
         Text(
           'Registrada em $_dataFormatada',
           style: const TextStyle(color: Colors.black54, fontSize: 16),
