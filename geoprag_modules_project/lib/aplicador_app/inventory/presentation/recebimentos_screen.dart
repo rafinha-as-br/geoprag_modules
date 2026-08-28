@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'recebimento_view_model.dart';
 import 'recebimentos_cubit.dart';
@@ -16,31 +17,39 @@ class RecebimentosScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Recebimentos Pendentes')),
       body: BlocBuilder<RecebimentosCubit, RecebimentosState>(
         builder: (context, state) {
-          return switch (state) {
-            RecebimentosLoading() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            RecebimentosError(:final message) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Não foi possível carregar os recebimentos: $message',
+          return Column(
+            children: [
+              if (state is RecebimentosLoaded)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Text(
+                    'Selecione o produto para confirmar o recebimento:',
+                    style: TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                ),
+              Expanded(
+                child: BaseCardListScreen<RecebimentoResumoViewModel>(
+                  model: BaseCardListScreenModel(
+                    isLoading: state is RecebimentosLoading,
+                    errorMessage: state is RecebimentosError
+                        ? 'Não foi possível carregar os recebimentos: ${state.message}'
+                        : null,
+                    items: state is RecebimentosLoaded
+                        ? state.recebimentos
+                        : null,
+                    itemBuilder: (context, recebimento) =>
+                        _RecebimentoCard(recebimento: recebimento),
+                    separatorBuilder: (context, index) => const SizedBox(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    emptyStateMessage: 'Nenhum recebimento pendente.',
+                  ),
                 ),
               ),
-            ),
-            RecebimentosLoaded(:final recebimentos) => ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: [
-                const Text(
-                  'Selecione o produto para confirmar o recebimento:',
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-                const SizedBox(height: 16),
-                for (final recebimento in recebimentos)
-                  _RecebimentoCard(recebimento: recebimento),
-              ],
-            ),
-          };
+            ],
+          );
         },
       ),
     );

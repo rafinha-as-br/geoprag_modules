@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
+import '../../../src/widgets/base_card_list_screen.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'distribuicao_view_model.dart';
@@ -48,24 +49,20 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: BlocBuilder<DistribuicoesCubit, DistribuicoesState>(
                     builder: (context, state) {
-                      return switch (state) {
-                        DistribuicoesLoading() => const Center(
-                          child: CircularProgressIndicator(),
+                      return BaseCardListScreen<DistribuicaoResumoViewModel>(
+                        model: BaseCardListScreenModel(
+                          isLoading: state is DistribuicoesLoading,
+                          errorMessage: state is DistribuicoesError
+                              ? 'Não foi possível carregar as distribuições: ${state.message}'
+                              : null,
+                          items: state is DistribuicoesLoaded
+                              ? state.distribuicoes
+                              : null,
+                          itemBuilder: (context, distribuicao) =>
+                              _buildListTile(context, distribuicao),
+                          emptyStateMessage: 'Nenhuma distribuição encontrada.',
                         ),
-                        DistribuicoesError(:final message) => Center(
-                          child: Text(
-                            'Não foi possível carregar as distribuições: $message',
-                          ),
-                        ),
-                        DistribuicoesLoaded(:final distribuicoes) =>
-                          ListView.separated(
-                            itemCount: distribuicoes.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(),
-                            itemBuilder: (context, index) =>
-                                _buildListTile(context, distribuicoes[index]),
-                          ),
-                      };
+                      );
                     },
                   ),
                 ),
