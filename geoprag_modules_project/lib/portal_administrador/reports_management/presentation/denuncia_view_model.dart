@@ -1,5 +1,27 @@
+import 'package:flutter/material.dart';
+
+import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/theme/geoprag_status.dart';
 import '../core/denuncia.dart';
 import '../core/historico_denuncia.dart';
+
+/// Cor de destaque do nível de infestação nas listagens (dashboard de
+/// triagem e listagem completa de Denúncias).
+Color corNivelInfestacao(String nivel) {
+  switch (nivel) {
+    case 'Alto':
+      return GeopragColors.statusAtrasado;
+    case 'Médio':
+      return GeopragColors.statusDenuncia;
+    default:
+      return GeopragColors.statusEmDia;
+  }
+}
+
+/// Status de badge derivado do status textual da Denúncia, usado nas
+/// mesmas listagens.
+GeopragStatus statusParaBadge(String status) =>
+    status == 'Resolvido' ? GeopragStatus.emDia : GeopragStatus.denuncia;
 
 String _formatarData(DateTime data) {
   final dia = data.day.toString().padLeft(2, '0');

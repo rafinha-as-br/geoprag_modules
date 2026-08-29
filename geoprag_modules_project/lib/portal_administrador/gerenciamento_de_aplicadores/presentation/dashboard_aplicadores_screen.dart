@@ -10,8 +10,45 @@ import 'aplicador_view_model.dart';
 import 'aplicadores_cubit.dart';
 import 'aplicadores_state.dart';
 
-class DashboardAplicadoresScreen extends StatelessWidget {
+class DashboardAplicadoresScreen extends StatefulWidget {
   const DashboardAplicadoresScreen({super.key});
+
+  @override
+  State<DashboardAplicadoresScreen> createState() =>
+      _DashboardAplicadoresScreenState();
+}
+
+class _DashboardAplicadoresScreenState
+    extends State<DashboardAplicadoresScreen> {
+  final _buscaController = TextEditingController();
+  String _busca = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _buscaController.addListener(() {
+      setState(() => _busca = _buscaController.text.trim().toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _buscaController.dispose();
+    super.dispose();
+  }
+
+  List<AplicadorResumoViewModel> _filtrarPorBusca(
+    List<AplicadorResumoViewModel> lista,
+  ) {
+    if (_busca.isEmpty) return lista;
+    return lista
+        .where(
+          (a) =>
+              a.nome.toLowerCase().contains(_busca) ||
+              (a.ativo ? 'ativo' : 'desativado').contains(_busca),
+        )
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +87,7 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     TextField(
+                      controller: _buscaController,
                       decoration: InputDecoration(
                         hintText: 'Buscar por nome ou status...',
                         prefixIcon: const Icon(Icons.search),
@@ -74,6 +112,9 @@ class DashboardAplicadoresScreen extends StatelessWidget {
                           ),
                           AplicadoresLoaded() => _DashboardConteudo(
                             state: state,
+                            aplicadoresFiltrados: _filtrarPorBusca(
+                              state.aplicadoresFiltrados,
+                            ),
                           ),
                         };
                       },
@@ -90,14 +131,23 @@ class DashboardAplicadoresScreen extends StatelessWidget {
 }
 
 class _DashboardConteudo extends StatelessWidget {
-  const _DashboardConteudo({required this.state});
+  const _DashboardConteudo({
+    required this.state,
+    required this.aplicadoresFiltrados,
+  });
 
   final AplicadoresLoaded state;
+  final List<AplicadorResumoViewModel> aplicadoresFiltrados;
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AplicadoresCubit>();
-    final aplicadoresFiltrados = state.aplicadoresFiltrados;
+    if (aplicadoresFiltrados.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: Text('Nenhum aplicador encontrado.'),
+      );
+    }
     final idsVisiveis = aplicadoresFiltrados.map((a) => a.id).toSet();
     final todosVisiveisSelecionados =
         idsVisiveis.isNotEmpty && idsVisiveis.every(state.selecionados.contains);
