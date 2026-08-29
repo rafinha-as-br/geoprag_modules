@@ -47,6 +47,28 @@ class _CadastroController extends BaseFormController {
   }
 }
 
+/// Controller de teste com muitos campos — reproduz um formulário grande o
+/// bastante para estourar a altura de um viewport pequeno sem rolagem.
+class _ManyFieldsController extends BaseFormController {
+  _ManyFieldsController()
+    : super(
+        BaseFormModel(
+          title: 'Novo Aplicador',
+          submitLabel: 'Registrar Produto',
+          fields: List.generate(
+            15,
+            (i) => BaseFormField(
+              label: 'Campo $i',
+              field: TextFormField(key: ValueKey('campo-$i')),
+            ),
+          ),
+        ),
+      );
+
+  @override
+  Future<void> onSubmit() async {}
+}
+
 void main() {
   setUp(() => _CadastroController.nomeController.clear());
 
@@ -218,9 +240,7 @@ void main() {
       await tester.pumpWidget(wrap(controller));
       expect(find.byType(BaseScreenFeedback), findsNothing);
 
-      controller.emitFeedback(
-        const AcaoFeedbackSucesso('Produto cadastrado.'),
-      );
+      controller.emitFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
       await tester.pump();
 
       expect(find.byType(BaseScreenFeedback), findsOneWidget);
@@ -239,5 +259,25 @@ void main() {
       );
       expect(container.constraints?.maxWidth, 600);
     });
+
+    testWidgets(
+      'rola verticalmente sem estourar em formulários com muitos campos',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 400));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final controller = _ManyFieldsController();
+        await tester.pumpWidget(wrap(controller));
+
+        expect(tester.takeException(), isNull);
+
+        await tester.scrollUntilVisible(
+          find.text('Registrar Produto'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('Registrar Produto'), findsOneWidget);
+      },
+    );
   });
 }
