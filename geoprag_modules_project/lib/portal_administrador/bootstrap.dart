@@ -43,7 +43,8 @@ import 'mapa_hidrologico/presentation/corrego_detalhe_cubit.dart';
 import 'reports_management/core/denuncia_repository.dart';
 import 'reports_management/data/denuncia_repository_impl.dart';
 import 'reports_management/presentation/denuncia_detalhe_cubit.dart';
-import 'reports_management/presentation/denuncias_cubit.dart';
+import 'reports_management/presentation/listagem_denuncias_controller.dart';
+import 'reports_management/presentation/triagem_denuncias_controller.dart';
 import '../src/entities/tenant_config.dart';
 import 'tenant/data/tenant_repository_impl.dart';
 import 'tenant/presentation/tenant_cubit.dart';
@@ -122,8 +123,10 @@ class AdminBootstrap {
       CorregoDetalheCubit(buildCorregoRepository(), corregoId);
   AplicacaoMapaCubit buildAplicacaoMapaCubit(String aplicacaoId) =>
       AplicacaoMapaCubit(buildAplicacaoMapaRepository(), aplicacaoId);
-  DenunciasCubit buildDenunciasCubit() =>
-      DenunciasCubit(buildDenunciaRepository());
+  TriagemDenunciasController buildTriagemDenunciasController() =>
+      TriagemDenunciasController(buildDenunciaRepository());
+  ListagemDenunciasController buildListagemDenunciasController() =>
+      ListagemDenunciasController(buildDenunciaRepository());
   DenunciaDetalheCubit buildDenunciaDetalheCubit(String denunciaId) =>
       DenunciaDetalheCubit(buildDenunciaRepository(), denunciaId);
 
