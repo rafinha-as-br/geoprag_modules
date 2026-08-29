@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
 import '../../core/aplicador_navigator.dart';
@@ -49,7 +50,7 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<VerificarCodigoCubit, AuthActionState<Null>>(
+    return BlocConsumer<VerificarCodigoCubit, AuthActionState<Null>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Null>) {
           AplicadorNavigatorScope.of(context).toRecriarSenha();
@@ -59,11 +60,33 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Verifique seu e-mail')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Null>;
+
+        final String actionLabel;
+        final VoidCallback? onAction;
+        final bool actionLoading;
+        if (_bloqueado) {
+          actionLabel = 'Voltar ao login';
+          onAction = () =>
+              AplicadorNavigatorScope.of(context).toLoginResetStack();
+          actionLoading = false;
+        } else if (_expirado) {
+          actionLabel = 'Reenviar código (2ª tentativa)';
+          onAction = _reenviarCodigo;
+          actionLoading = false;
+        } else {
+          actionLabel = 'Confirmar código';
+          onAction = _codigo.length == 6 && !isLoading
+              ? () =>
+                    context.read<VerificarCodigoCubit>().submit(code: _codigo)
+              : null;
+          actionLoading = isLoading;
+        }
+
+        return BaseAuthStepScreen(
+          title: 'Verifique seu e-mail',
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 8),
@@ -108,41 +131,14 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
                           onExpired: _onExpirado,
                         ),
                 ),
-                const SizedBox(height: 24),
-                if (_expirado)
-                  OutlinedButton(
-                    onPressed: _reenviarCodigo,
-                    child: const Text('Reenviar código (2ª tentativa)'),
-                  )
-                else
-                  BlocBuilder<VerificarCodigoCubit, AuthActionState<Null>>(
-                    builder: (context, state) {
-                      return ElevatedButton(
-                        onPressed:
-                            _codigo.length == 6 &&
-                                state is! AuthActionLoading<Null>
-                            ? () => context.read<VerificarCodigoCubit>().submit(
-                                code: _codigo,
-                              )
-                            : null,
-                        child: state is AuthActionLoading<Null>
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Confirmar código'),
-                      );
-                    },
-                  ),
               ],
             ],
           ),
-        ),
-      ),
+          actionLabel: actionLabel,
+          isLoading: actionLoading,
+          onAction: onAction,
+        );
+      },
     );
   }
 
@@ -163,12 +159,6 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
             fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        OutlinedButton(
-          onPressed: () =>
-              AplicadorNavigatorScope.of(context).toLoginResetStack(),
-          child: const Text('Voltar ao login'),
         ),
       ],
     );
