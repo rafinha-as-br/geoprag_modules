@@ -25,8 +25,13 @@ import 'distributions/data/distribuicao_repository_impl.dart';
 import 'distributions/presentation/cadastro_saida_cubit.dart';
 import 'distributions/presentation/distribuicao_detalhe_cubit.dart';
 import 'distributions/presentation/distribuicoes_cubit.dart';
+import 'inventory_and_bidding/core/licitacao_repository.dart';
 import 'inventory_and_bidding/core/produto_repository.dart';
+import 'inventory_and_bidding/data/licitacao_repository_impl.dart';
 import 'inventory_and_bidding/data/produto_repository_impl.dart';
+import 'inventory_and_bidding/presentation/criar_formula_cubit.dart';
+import 'inventory_and_bidding/presentation/criar_licitacao_cubit.dart';
+import 'inventory_and_bidding/presentation/criar_produto_cubit.dart';
 import 'inventory_and_bidding/presentation/formulas_dosagem_cubit.dart';
 import 'inventory_and_bidding/presentation/produto_detalhe_cubit.dart';
 import 'inventory_and_bidding/presentation/produtos_cubit.dart';
@@ -65,6 +70,7 @@ class AdminBootstrap {
   DistribuicaoRepository buildDistribuicaoRepository() =>
       DistribuicaoRepositoryImpl();
   ProdutoRepository buildProdutoRepository() => ProdutoRepositoryImpl();
+  LicitacaoRepository buildLicitacaoRepository() => LicitacaoRepositoryImpl();
   CorregoRepository buildCorregoRepository() => CorregoRepositoryImpl();
   AplicacaoMapaRepository buildAplicacaoMapaRepository() =>
       AplicacaoMapaRepositoryImpl();
@@ -108,6 +114,12 @@ class AdminBootstrap {
       ProdutoDetalheCubit(buildProdutoRepository(), produtoId);
   FormulasDosagemCubit buildFormulasDosagemCubit() =>
       FormulasDosagemCubit(buildProdutoRepository());
+  CriarProdutoCubit buildCriarProdutoCubit() =>
+      CriarProdutoCubit(buildProdutoRepository(), buildLicitacaoRepository());
+  CriarFormulaCubit buildCriarFormulaCubit() =>
+      CriarFormulaCubit(buildProdutoRepository());
+  CriarLicitacaoCubit buildCriarLicitacaoCubit() =>
+      CriarLicitacaoCubit(buildLicitacaoRepository());
   BairrosCubit buildBairrosCubit() => BairrosCubit(buildCorregoRepository());
   BairroDetalheCubit buildBairroDetalheCubit(String bairroId) =>
       BairroDetalheCubit(buildCorregoRepository(), bairroId);

@@ -42,6 +42,9 @@ abstract class AdminNavigator {
 
   void toEstoque();
   void toEstoqueFormula();
+
+  /// Formulário de cadastro de fórmula de dosagem de um produto (GEOPRAG-105).
+  void toEstoqueFormulaNovo();
   void toEstoqueLicitacao();
   void toEstoqueProduto();
   void toEstoqueVisualizacao(String produtoId);

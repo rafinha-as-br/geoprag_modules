@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../autenticacao/core/admin_navigator.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'formulas_dosagem_cubit.dart';
 import 'formulas_dosagem_state.dart';
@@ -30,7 +31,8 @@ class FormulaDeDosagemScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () =>
+                      AdminNavigatorScope.of(context).toEstoqueFormulaNovo(),
                   icon: const Icon(Icons.add),
                   label: const Text('Nova Fórmula'),
                 ),
@@ -161,6 +163,12 @@ class FormulaDeDosagemScreen extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(8),
+          // TODO(GEOPRAG-105 follow-up): CadastroFormulaScreen/
+          // CriarFormulaCubit (GEOPRAG-105) já persistem de verdade, mas só
+          // criam — abrir esta tela pré-preenchida para editar uma fórmula
+          // existente fica para uma issue própria; até lá, resubmeter "Nova
+          // Fórmula" para o mesmo produto atualiza a fórmula existente em
+          // vez de duplicá-la (ver ProdutoRepositoryImpl.criarFormula).
           child: IconButton(
             icon: const Icon(Icons.edit, color: Colors.blue),
             onPressed: () {},

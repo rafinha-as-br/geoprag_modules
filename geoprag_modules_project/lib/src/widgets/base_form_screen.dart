@@ -143,67 +143,104 @@ abstract class BaseFormController extends Cubit<BaseFormModel> {
 /// Como os demais templates do pacote, cobre só o corpo da tela:
 /// `AdminScaffold`, `AppBar` e rota atual ficam com a tela que compõe este
 /// template, não aqui dentro.
-class BaseFormScreen<C extends BaseFormController> extends StatelessWidget {
+class BaseFormScreen<C extends BaseFormController> extends StatefulWidget {
   const BaseFormScreen({super.key});
 
   @override
+  State<BaseFormScreen<C>> createState() => _BaseFormScreenState<C>();
+}
+
+class _BaseFormScreenState<C extends BaseFormController>
+    extends State<BaseFormScreen<C>> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<C, BaseFormModel>(
-      builder: (context, model) => Center(
-        child: Container(
-          width: model.width,
-          padding: const EdgeInsets.all(32.0),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Form(
-                key: context.read<C>().formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      model.title,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return BlocListener<C, BaseFormModel>(
+      // Sem isso, um aviso de erro renderizado perto do topo do formulário
+      // fica fora da tela para quem rolou até o botão de envio — a única
+      // pista visível de que algo aconteceu, no caso de erro, já que não há
+      // mais um SnackBar cobrindo a tela toda.
+      listenWhen: (previous, current) =>
+          current.feedback != null && previous.feedback != current.feedback,
+      listener: (context, state) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      },
+      child: BlocBuilder<C, BaseFormModel>(
+        builder: (context, model) => Center(
+          child: Container(
+            width: model.width,
+            padding: const EdgeInsets.all(32.0),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                // Rola verticalmente — formulários com muitos campos (ex.:
+                // endereço completo) passam da altura disponível em telas
+                // menores, e o Card/Container não rolam por padrão.
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Form(
+                    key: context.read<C>().formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          model.title,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (model.description != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            model.description!,
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                        ],
+                        if (model.feedback != null) ...[
+                          const SizedBox(height: 16),
+                          BaseScreenFeedback(feedback: model.feedback!),
+                        ],
+                        const SizedBox(height: 24),
+                        for (final field in model.fields) ...[
+                          Text(
+                            field.label,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          field.field,
+                          const SizedBox(height: 16),
+                        ],
+                        const SizedBox(height: 16),
+                        GeopragSubmitButton(
+                          label: model.submitLabel,
+                          isLoading: model.isSubmitting,
+                          onPressed: context.read<C>().submit,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                          ),
+                        ),
+                      ],
                     ),
-                    if (model.description != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        model.description!,
-                        style: const TextStyle(color: Colors.black54),
-                      ),
-                    ],
-                    if (model.feedback != null) ...[
-                      const SizedBox(height: 16),
-                      BaseScreenFeedback(feedback: model.feedback!),
-                    ],
-                    const SizedBox(height: 24),
-                    for (final field in model.fields) ...[
-                      Text(
-                        field.label,
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      field.field,
-                      const SizedBox(height: 16),
-                    ],
-                    const SizedBox(height: 16),
-                    GeopragSubmitButton(
-                      label: model.submitLabel,
-                      isLoading: model.isSubmitting,
-                      onPressed: context.read<C>().submit,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
