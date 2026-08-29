@@ -39,5 +39,8 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
   }
 
   @override
+  Future<void> verifyResetCode({required String code}) async {}
+
+  @override
   Future<void> resetPassword({required String novaSenha}) async {}
 }

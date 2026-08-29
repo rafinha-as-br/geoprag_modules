@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/widgets/base_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
+import 'produto_view_model.dart';
 import 'produtos_cubit.dart';
-import 'produtos_state.dart';
 
 class CadastroProdutoScreen extends StatelessWidget {
   const CadastroProdutoScreen({super.key});
@@ -36,16 +37,15 @@ class CadastroProdutoScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    BlocBuilder<ProdutosCubit, ProdutosState>(
-                      builder: (context, state) {
-                        final licitacoes = switch (state) {
-                          ProdutosLoaded(:final produtos) =>
-                            produtos
-                                .map((produto) => produto.licitacao)
-                                .toSet()
-                                .toList(),
-                          _ => const <String>[],
-                        };
+                    BlocBuilder<
+                      ProdutosCubit,
+                      BaseListScreenModel<ProdutoResumoViewModel>
+                    >(
+                      builder: (context, model) {
+                        final licitacoes = model.items
+                            .map((produto) => produto.licitacao)
+                            .toSet()
+                            .toList();
                         return DropdownButtonFormField<String>(
                           decoration: const InputDecoration(
                             labelText: 'Licitação Vinculada',

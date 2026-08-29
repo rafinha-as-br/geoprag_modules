@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import '../core/usuario.dart';
 import 'auth_action_state.dart';
@@ -29,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginCubit, AuthActionState<Usuario>>(
+    return BlocConsumer<LoginCubit, AuthActionState<Usuario>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Usuario>) {
           AplicadorNavigatorScope.of(context).toPonto();
@@ -39,11 +40,11 @@ class _LoginScreenState extends State<LoginScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Entrar')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Usuario>;
+        return BaseAuthStepScreen(
+          title: 'Entrar',
+          body: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -111,34 +112,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                BlocBuilder<LoginCubit, AuthActionState<Usuario>>(
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed: state is AuthActionLoading<Usuario>
-                          ? null
-                          : () => context.read<LoginCubit>().submit(
-                              identifier: _identifierController.text,
-                              senha: _senhaController.text,
-                            ),
-                      child: state is AuthActionLoading<Usuario>
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Entrar'),
-                    );
-                  },
-                ),
               ],
             ),
           ),
-        ),
-      ),
+          actionLabel: 'Entrar',
+          isLoading: isLoading,
+          onAction: isLoading
+              ? null
+              : () => context.read<LoginCubit>().submit(
+                  identifier: _identifierController.text,
+                  senha: _senhaController.text,
+                ),
+        );
+      },
     );
   }
 }
