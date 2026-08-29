@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'auth_action_state.dart';
 import 'esqueci_senha_cubit.dart';
@@ -27,7 +28,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EsqueciSenhaCubit, AuthActionState<Null>>(
+    return BlocConsumer<EsqueciSenhaCubit, AuthActionState<Null>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Null>) {
           AplicadorNavigatorScope.of(context).toVerificarCodigo();
@@ -37,11 +38,11 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Esqueci minha senha')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Null>;
+        return BaseAuthStepScreen(
+          title: 'Esqueci minha senha',
+          body: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -86,32 +87,6 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
-                BlocBuilder<EsqueciSenhaCubit, AuthActionState<Null>>(
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed: state is AuthActionLoading<Null>
-                          ? null
-                          : () {
-                              if (_formKey.currentState!.validate()) {
-                                context.read<EsqueciSenhaCubit>().submit(
-                                  email: _emailController.text,
-                                );
-                              }
-                            },
-                      child: state is AuthActionLoading<Null>
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Enviar código'),
-                    );
-                  },
-                ),
                 const SizedBox(height: 8),
                 Text(
                   'A senha só pode ser redefinida a cada 24 horas.',
@@ -121,8 +96,19 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
               ],
             ),
           ),
-        ),
-      ),
+          actionLabel: 'Enviar código',
+          isLoading: isLoading,
+          onAction: isLoading
+              ? null
+              : () {
+                  if (_formKey.currentState!.validate()) {
+                    context.read<EsqueciSenhaCubit>().submit(
+                      email: _emailController.text,
+                    );
+                  }
+                },
+        );
+      },
     );
   }
 }
