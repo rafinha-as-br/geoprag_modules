@@ -7,7 +7,6 @@ export 'data/ponto_de_aplicacao_repository_impl.dart';
 export 'presentation/ponto_de_aplicacao_view_model.dart';
 export 'presentation/ponto_de_aplicacao_state.dart';
 export 'presentation/ponto_de_aplicacao_cubit.dart';
-export 'presentation/marcacao_do_ponto_state.dart';
 export 'presentation/marcacao_do_ponto_cubit.dart';
 
 export 'presentation/marcacao_do_ponto_screen.dart';

@@ -241,9 +241,7 @@ void main() {
       await tester.pumpWidget(wrap(controller));
       expect(find.byType(BaseScreenFeedback), findsNothing);
 
-      controller.emitFeedback(
-        const AcaoFeedbackSucesso('Produto cadastrado.'),
-      );
+      controller.emitFeedback(const AcaoFeedbackSucesso('Produto cadastrado.'));
       await tester.pump();
 
       expect(find.byType(BaseScreenFeedback), findsOneWidget);

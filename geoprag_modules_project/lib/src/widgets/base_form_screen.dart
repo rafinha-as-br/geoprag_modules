@@ -221,9 +221,7 @@ class _BaseFormScreenState<C extends BaseFormController>
                         for (final field in model.fields) ...[
                           Text(
                             field.label,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 8),
                           field.field,
