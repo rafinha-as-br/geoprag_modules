@@ -7,6 +7,7 @@ export 'data/denuncia_de_foco_repository_impl.dart';
 export 'presentation/denuncia_de_foco_view_model.dart';
 export 'presentation/denuncias_de_foco_state.dart';
 export 'presentation/denuncias_de_foco_cubit.dart';
+export 'presentation/criar_denuncia_de_foco_cubit.dart';
 
 export 'presentation/cadastro_do_foco_screen.dart';
 export 'presentation/dashboard_de_focos_screen.dart';

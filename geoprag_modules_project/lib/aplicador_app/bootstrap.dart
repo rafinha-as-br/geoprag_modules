@@ -21,6 +21,7 @@ import 'inventory/presentation/recebimento_confirmacao_cubit.dart';
 import 'inventory/presentation/recebimentos_cubit.dart';
 import 'reports/core/denuncia_de_foco_repository.dart';
 import 'reports/data/denuncia_de_foco_repository_impl.dart';
+import 'reports/presentation/criar_denuncia_de_foco_cubit.dart';
 import 'reports/presentation/denuncias_de_foco_cubit.dart';
 import '../src/entities/tenant_config.dart';
 import 'tenant/data/mbtiles_downloader.dart';
@@ -68,6 +69,8 @@ class AplicadorBootstrap {
   );
   DenunciasDeFocoCubit buildDenunciasDeFocoCubit() =>
       DenunciasDeFocoCubit(buildDenunciaDeFocoRepository());
+  CriarDenunciaDeFocoCubit buildCriarDenunciaDeFocoCubit() =>
+      CriarDenunciaDeFocoCubit(buildDenunciaDeFocoRepository());
   PontoDeAplicacaoCubit buildPontoDeAplicacaoCubit() =>
       PontoDeAplicacaoCubit(buildPontoDeAplicacaoRepository());
   MarcacaoDoPontoCubit buildMarcacaoDoPontoCubit() =>
