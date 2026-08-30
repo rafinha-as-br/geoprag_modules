@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../../src/widgets/geoprag_password_requirements.dart';
 import '../../core/aplicador_navigator.dart';
 import 'auth_action_state.dart';
@@ -35,8 +36,9 @@ class _RecriarSenhaScreenState extends State<RecriarSenhaScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!GeopragPasswordRequirements(
       password: _senhaController.text,
-    ).allSatisfied)
+    ).allSatisfied) {
       return;
+    }
 
     context.read<RecriarSenhaCubit>().submit(novaSenha: _senhaController.text);
   }
@@ -62,7 +64,7 @@ class _RecriarSenhaScreenState extends State<RecriarSenhaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RecriarSenhaCubit, AuthActionState<Null>>(
+    return BlocConsumer<RecriarSenhaCubit, AuthActionState<Null>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Null>) {
           _mostrarSucesso(context);
@@ -72,11 +74,11 @@ class _RecriarSenhaScreenState extends State<RecriarSenhaScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Crie uma nova senha')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Null>;
+        return BaseAuthStepScreen(
+          title: 'Crie uma nova senha',
+          body: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -134,38 +136,22 @@ class _RecriarSenhaScreenState extends State<RecriarSenhaScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value != _senhaController.text)
+                    if (value != _senhaController.text) {
                       return 'As senhas não coincidem';
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
                 GeopragPasswordRequirements(password: _senhaController.text),
-                const SizedBox(height: 32),
-                BlocBuilder<RecriarSenhaCubit, AuthActionState<Null>>(
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed: state is AuthActionLoading<Null>
-                          ? null
-                          : _salvar,
-                      child: state is AuthActionLoading<Null>
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Salvar'),
-                    );
-                  },
-                ),
               ],
             ),
           ),
-        ),
-      ),
+          actionLabel: 'Salvar',
+          isLoading: isLoading,
+          onAction: isLoading ? null : _salvar,
+        );
+      },
     );
   }
 }

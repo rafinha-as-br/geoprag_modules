@@ -42,6 +42,10 @@ abstract class AdminNavigator {
 
   void toEstoque();
   void toEstoqueFormula();
+
+  /// Formulário de cadastro de fórmula de dosagem de um produto (GEOPRAG-105)
+  /// — destino do botão "Nova Fórmula" em `FormulaDeDosagemScreen`.
+  void toEstoqueFormulaNovo();
   void toEstoqueLicitacao();
   void toEstoqueProduto();
   void toEstoqueVisualizacao(String produtoId);
@@ -51,6 +55,10 @@ abstract class AdminNavigator {
   void toDistribuicaoVisualizacao(String distribuicaoId);
 
   void toDenunciasAdmin();
+
+  /// Listagem completa e pesquisável de Denúncias (GEOPRAG-90) — diferente
+  /// do panorama de triagem em `toDenunciasAdmin`.
+  void toDenunciasAdminListagem();
   void toDenunciaAdminDetalhes(String denunciaId);
 
   /// Substitui a rota atual pela tela de login (usado pelo "Sair" da sidebar).

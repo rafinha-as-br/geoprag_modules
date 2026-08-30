@@ -11,6 +11,17 @@ abstract class DistribuicaoRepository {
   Future<List<Distribuicao>> listar();
   Future<Distribuicao> buscarPorId(String id);
 
+  /// Registra uma nova saída de produto para um responsável em campo — nasce
+  /// sempre `aguardando_aceite`, ver [DistribuicaoRepositoryImpl].
+  Future<Distribuicao> criar({
+    required String produtoId,
+    required int quantidade,
+    required String unidade,
+    required DateTime dataEntrega,
+    required String responsavel,
+    required String bairroResponsavel,
+  });
+
   /// Resolve o nome de exibição de um produto (ex.: `'BTI Líquido - Lote
   /// L-001'`) a partir do seu `produtoId`.
   ///

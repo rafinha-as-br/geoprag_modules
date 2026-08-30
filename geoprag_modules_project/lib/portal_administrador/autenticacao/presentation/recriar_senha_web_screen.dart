@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../../src/widgets/geoprag_password_requirements.dart';
 import '../core/admin_navigator.dart';
 import 'admin_recriar_senha_cubit.dart';
@@ -36,8 +37,9 @@ class _RecriarSenhaWebScreenState extends State<RecriarSenhaWebScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!GeopragPasswordRequirements(
       password: _senhaController.text,
-    ).allSatisfied)
+    ).allSatisfied) {
       return;
+    }
 
     context.read<AdminRecriarSenhaCubit>().submit(
       novaSenha: _senhaController.text,
@@ -66,7 +68,7 @@ class _RecriarSenhaWebScreenState extends State<RecriarSenhaWebScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AdminRecriarSenhaCubit, AuthActionState<Null>>(
+    return BlocConsumer<AdminRecriarSenhaCubit, AuthActionState<Null>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Null>) {
           _mostrarSucesso(context);
@@ -76,107 +78,82 @@ class _RecriarSenhaWebScreenState extends State<RecriarSenhaWebScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Crie uma nova senha',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: GeopragColors.green900,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Reversível por 24h. Dispositivos desconectados.',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _senhaController,
-                      obscureText: _obscure1,
-                      decoration: InputDecoration(
-                        labelText: 'Nova senha',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscure1 ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () =>
-                              setState(() => _obscure1 = !_obscure1),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirmarController,
-                      obscureText: _obscure2,
-                      decoration: InputDecoration(
-                        labelText: 'Confirme a nova senha',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscure2 ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () =>
-                              setState(() => _obscure2 = !_obscure2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value != _senhaController.text)
-                          return 'As senhas não coincidem';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    GeopragPasswordRequirements(
-                      password: _senhaController.text,
-                    ),
-                    const SizedBox(height: 32),
-                    BlocBuilder<AdminRecriarSenhaCubit, AuthActionState<Null>>(
-                      builder: (context, state) {
-                        return ElevatedButton(
-                          onPressed: state is AuthActionLoading<Null>
-                              ? null
-                              : _salvar,
-                          child: state is AuthActionLoading<Null>
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text('Salvar'),
-                        );
-                      },
-                    ),
-                  ],
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Null>;
+        return BaseAuthStepScreen(
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Crie uma nova senha',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: GeopragColors.green900,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Reversível por 24h. Dispositivos desconectados.',
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _senhaController,
+                  obscureText: _obscure1,
+                  decoration: InputDecoration(
+                    labelText: 'Nova senha',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure1 ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () => setState(() => _obscure1 = !_obscure1),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _confirmarController,
+                  obscureText: _obscure2,
+                  decoration: InputDecoration(
+                    labelText: 'Confirme a nova senha',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscure2 ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () => setState(() => _obscure2 = !_obscure2),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value != _senhaController.text) {
+                      return 'As senhas não coincidem';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                GeopragPasswordRequirements(password: _senhaController.text),
+              ],
             ),
           ),
-        ),
-      ),
+          actionLabel: 'Salvar',
+          isLoading: isLoading,
+          onAction: isLoading ? null : _salvar,
+        );
+      },
     );
   }
 }

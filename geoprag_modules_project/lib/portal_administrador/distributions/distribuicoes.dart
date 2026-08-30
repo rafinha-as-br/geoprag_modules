@@ -13,7 +13,6 @@ export 'presentation/distribuicoes_state.dart';
 export 'presentation/distribuicoes_cubit.dart';
 export 'presentation/distribuicao_detalhe_state.dart';
 export 'presentation/distribuicao_detalhe_cubit.dart';
-export 'presentation/cadastro_saida_state.dart';
 export 'presentation/cadastro_saida_cubit.dart';
 
 export 'presentation/dashboard_distribuicoes_screen.dart';
