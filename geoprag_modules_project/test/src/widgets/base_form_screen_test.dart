@@ -47,8 +47,9 @@ class _CadastroController extends BaseFormController {
   }
 }
 
-/// Controller de teste com muitos campos — reproduz um formulário grande o
-/// bastante para estourar a altura de um viewport pequeno sem rolagem.
+/// Controller de teste com muitos campos — reproduz o cenário de
+/// `cadastro_de_aplicador_screen.dart` (11 campos), tall o bastante para
+/// estourar a altura de um viewport pequeno sem rolagem.
 class _ManyFieldsController extends BaseFormController {
   _ManyFieldsController()
     : super(

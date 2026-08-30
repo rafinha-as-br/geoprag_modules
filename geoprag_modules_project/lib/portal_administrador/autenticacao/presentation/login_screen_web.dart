@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_logo.dart';
+import '../../../src/widgets/geoprag_submit_button.dart';
 import '../core/admin_navigator.dart';
 import '../core/admin_account.dart';
 import 'admin_login_cubit.dart';
@@ -191,10 +192,13 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                                   AuthActionState<AdminAccount>
                                 >(
                                   builder: (context, state) {
-                                    return ElevatedButton(
-                                      onPressed:
-                                          state
-                                              is AuthActionLoading<AdminAccount>
+                                    final isLoading =
+                                        state
+                                            is AuthActionLoading<AdminAccount>;
+                                    return GeopragSubmitButton(
+                                      label: 'Entrar no Portal',
+                                      isLoading: isLoading,
+                                      onPressed: isLoading
                                           ? null
                                           : () => context
                                                 .read<AdminLoginCubit>()
@@ -209,21 +213,9 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                                           vertical: 20,
                                         ),
                                       ),
-                                      child:
-                                          state
-                                              is AuthActionLoading<AdminAccount>
-                                          ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          : const Text(
-                                              'Entrar no Portal',
-                                              style: TextStyle(fontSize: 18),
-                                            ),
+                                      labelStyle: const TextStyle(
+                                        fontSize: 18,
+                                      ),
                                     );
                                   },
                                 ),

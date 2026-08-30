@@ -126,7 +126,9 @@ abstract class BaseListScreenController<T>
   BaseListScreenController(super.initialState);
 
   void emitLoading() {
-    emit(state.copyWith(isLoading: true, limparErro: true));
+    emit(
+      state.copyWith(isLoading: true, limparErro: true, limparFeedback: true),
+    );
   }
 
   void emitItems(List<T> items) {

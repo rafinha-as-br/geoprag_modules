@@ -18,5 +18,10 @@ abstract class AdminAuthRepository {
   /// autorização prévia (Sub-Administrador).
   Future<AdminAccount?> findByEmail(String email);
 
+  /// Usado por `verificar_codigo_admin_screen.dart` e
+  /// `verificar_codigo_sub_admin_screen.dart` para confirmar o código de 6
+  /// dígitos antes de liberar a recriação de senha.
+  Future<void> verifyResetCode({required String code});
+
   Future<void> resetPassword({required String novaSenha});
 }
