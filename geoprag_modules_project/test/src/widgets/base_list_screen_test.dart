@@ -258,6 +258,21 @@ void main() {
       expect(find.byType(BaseScreenFeedback), findsNothing);
     });
 
+    testWidgets(
+      'emitLoading limpa o feedback de uma ação anterior não relacionada',
+      (tester) async {
+        final controller = _AplicadoresController()
+          ..emitFeedback(const AcaoFeedbackSucesso('Aplicador ativado.'));
+        await tester.pumpWidget(wrap(controller));
+        expect(find.byType(BaseScreenFeedback), findsOneWidget);
+
+        controller.emitLoading();
+        await tester.pump();
+
+        expect(find.byType(BaseScreenFeedback), findsNothing);
+      },
+    );
+
     test('items do model é imutável', () {
       final mutavel = ['Item A'];
       final model = _model().copyWith(items: mutavel);

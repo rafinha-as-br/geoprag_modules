@@ -7,6 +7,8 @@ import 'autenticacao/presentation/admin_login_cubit.dart';
 import 'autenticacao/presentation/admin_recriar_senha_cubit.dart';
 import 'autenticacao/presentation/admin_session_cubit.dart';
 import 'autenticacao/presentation/autorizacao_redefinicao_cubit.dart';
+import 'autenticacao/presentation/verificar_codigo_admin_cubit.dart';
+import 'autenticacao/presentation/verificar_codigo_sub_admin_cubit.dart';
 import 'gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart';
 import 'gerenciamento_de_administradores/presentation/administradores_cubit.dart';
@@ -25,8 +27,13 @@ import 'distributions/data/distribuicao_repository_impl.dart';
 import 'distributions/presentation/cadastro_saida_cubit.dart';
 import 'distributions/presentation/distribuicao_detalhe_cubit.dart';
 import 'distributions/presentation/distribuicoes_cubit.dart';
+import 'inventory_and_bidding/core/licitacao_repository.dart';
 import 'inventory_and_bidding/core/produto_repository.dart';
+import 'inventory_and_bidding/data/licitacao_repository_impl.dart';
 import 'inventory_and_bidding/data/produto_repository_impl.dart';
+import 'inventory_and_bidding/presentation/criar_formula_cubit.dart';
+import 'inventory_and_bidding/presentation/criar_licitacao_cubit.dart';
+import 'inventory_and_bidding/presentation/criar_produto_cubit.dart';
 import 'inventory_and_bidding/presentation/formulas_dosagem_cubit.dart';
 import 'inventory_and_bidding/presentation/produto_detalhe_cubit.dart';
 import 'inventory_and_bidding/presentation/produtos_cubit.dart';
@@ -41,7 +48,8 @@ import 'mapa_hidrologico/presentation/corrego_detalhe_cubit.dart';
 import 'reports_management/core/denuncia_repository.dart';
 import 'reports_management/data/denuncia_repository_impl.dart';
 import 'reports_management/presentation/denuncia_detalhe_cubit.dart';
-import 'reports_management/presentation/denuncias_cubit.dart';
+import 'reports_management/presentation/listagem_denuncias_controller.dart';
+import 'reports_management/presentation/triagem_denuncias_controller.dart';
 import '../src/entities/tenant_config.dart';
 import 'tenant/data/tenant_repository_impl.dart';
 import 'tenant/presentation/tenant_cubit.dart';
@@ -65,6 +73,7 @@ class AdminBootstrap {
   DistribuicaoRepository buildDistribuicaoRepository() =>
       DistribuicaoRepositoryImpl();
   ProdutoRepository buildProdutoRepository() => ProdutoRepositoryImpl();
+  LicitacaoRepository buildLicitacaoRepository() => LicitacaoRepositoryImpl();
   CorregoRepository buildCorregoRepository() => CorregoRepositoryImpl();
   AplicacaoMapaRepository buildAplicacaoMapaRepository() =>
       AplicacaoMapaRepositoryImpl();
@@ -76,8 +85,13 @@ class AdminBootstrap {
       AdminEsqueciSenhaCubit(buildAdminAuthRepository());
   AdminRecriarSenhaCubit buildAdminRecriarSenhaCubit() =>
       AdminRecriarSenhaCubit(buildAdminAuthRepository());
-  AutorizacaoRedefinicaoCubit buildAutorizacaoRedefinicaoCubit() =>
-      AutorizacaoRedefinicaoCubit(buildSolicitacaoRedefinicaoRepository());
+  AutorizacaoRedefinicaoCubit buildAutorizacaoRedefinicaoCubit(
+    SolicitacaoRedefinicaoRepository repository,
+  ) => AutorizacaoRedefinicaoCubit(repository);
+  VerificarCodigoAdminCubit buildVerificarCodigoAdminCubit() =>
+      VerificarCodigoAdminCubit(buildAdminAuthRepository());
+  VerificarCodigoSubAdminCubit buildVerificarCodigoSubAdminCubit() =>
+      VerificarCodigoSubAdminCubit(buildAdminAuthRepository());
   AplicadoresCubit buildAplicadoresCubit() =>
       AplicadoresCubit(buildAplicadorRepository());
   AplicadorDetalheCubit buildAplicadorDetalheCubit(String aplicadorId) =>
@@ -108,6 +122,12 @@ class AdminBootstrap {
       ProdutoDetalheCubit(buildProdutoRepository(), produtoId);
   FormulasDosagemCubit buildFormulasDosagemCubit() =>
       FormulasDosagemCubit(buildProdutoRepository());
+  CriarProdutoCubit buildCriarProdutoCubit() =>
+      CriarProdutoCubit(buildProdutoRepository(), buildLicitacaoRepository());
+  CriarFormulaCubit buildCriarFormulaCubit() =>
+      CriarFormulaCubit(buildProdutoRepository());
+  CriarLicitacaoCubit buildCriarLicitacaoCubit() =>
+      CriarLicitacaoCubit(buildLicitacaoRepository());
   BairrosCubit buildBairrosCubit() => BairrosCubit(buildCorregoRepository());
   BairroDetalheCubit buildBairroDetalheCubit(String bairroId) =>
       BairroDetalheCubit(buildCorregoRepository(), bairroId);
@@ -115,8 +135,10 @@ class AdminBootstrap {
       CorregoDetalheCubit(buildCorregoRepository(), corregoId);
   AplicacaoMapaCubit buildAplicacaoMapaCubit(String aplicacaoId) =>
       AplicacaoMapaCubit(buildAplicacaoMapaRepository(), aplicacaoId);
-  DenunciasCubit buildDenunciasCubit() =>
-      DenunciasCubit(buildDenunciaRepository());
+  TriagemDenunciasController buildTriagemDenunciasController() =>
+      TriagemDenunciasController(buildDenunciaRepository());
+  ListagemDenunciasController buildListagemDenunciasController() =>
+      ListagemDenunciasController(buildDenunciaRepository());
   DenunciaDetalheCubit buildDenunciaDetalheCubit(String denunciaId) =>
       DenunciaDetalheCubit(buildDenunciaRepository(), denunciaId);
 

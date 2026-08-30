@@ -1,9 +1,7 @@
-import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/formula_dosagem.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/produto_repository.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/formulas_dosagem_cubit.dart';
-import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/formulas_dosagem_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockProdutoRepository extends Mock implements ProdutoRepository {}
@@ -25,34 +23,30 @@ void main() {
     repository = MockProdutoRepository();
   });
 
-  blocTest<FormulasDosagemCubit, FormulasDosagemState>(
-    'emite [Loaded] com as fórmulas mapeadas para ViewModel',
-    setUp: () {
-      when(() => repository.listarFormulas()).thenAnswer((_) async => [formula]);
-    },
-    build: () => FormulasDosagemCubit(repository),
-    expect: () => [
-      isA<FormulasDosagemLoaded>().having(
-        (s) => s.formulas.single.produtoNome,
-        'formulas.single.produtoNome',
-        'BTI Líquido',
-      ),
-    ],
-  );
+  test('carrega as fórmulas mapeadas para ViewModel', () async {
+    when(
+      () => repository.listarFormulas(),
+    ).thenAnswer((_) async => [formula]);
 
-  blocTest<FormulasDosagemCubit, FormulasDosagemState>(
-    'emite [Error] com mensagem amigável quando o repositório falha '
+    final cubit = FormulasDosagemCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.items.single.produtoNome, 'BTI Líquido');
+    expect(cubit.state.isLoading, isFalse);
+  });
+
+  test(
+    'emite mensagem amigável quando o repositório falha '
     '(nunca expõe a exceção bruta ao usuário)',
-    setUp: () {
-      when(() => repository.listarFormulas()).thenAnswer((_) async => throw Exception('offline'));
+    () async {
+      when(
+        () => repository.listarFormulas(),
+      ).thenAnswer((_) async => throw Exception('offline'));
+
+      final cubit = FormulasDosagemCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.errorMessage, isNot(contains('Exception')));
     },
-    build: () => FormulasDosagemCubit(repository),
-    expect: () => [
-      isA<FormulasDosagemError>().having(
-        (s) => s.message,
-        'message',
-        isNot(contains('Exception')),
-      ),
-    ],
   );
 }

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../../src/widgets/geoprag_countdown.dart';
 import '../../../src/widgets/geoprag_cpf_input.dart';
 import '../../../src/widgets/geoprag_otp_input.dart';
 import '../core/admin_navigator.dart';
+import 'auth_action_state.dart';
+import 'verificar_codigo_admin_cubit.dart';
 
 /// Tela 2 · Fluxo C (Administrador principal) — verificação do código de 6
 /// dígitos combinada com CPF, sem autorização de terceiros, dentro da
@@ -37,84 +41,94 @@ class _VerificarCodigoAdminScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Confirme sua identidade',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: GeopragColors.green900,
-                  ),
-                  textAlign: TextAlign.center,
+    return BlocConsumer<VerificarCodigoAdminCubit, AuthActionState<Null>>(
+      listener: (context, state) {
+        if (state is AuthActionSuccess<Null>) {
+          AdminNavigatorScope.of(context).toRecriarSenha();
+        } else if (state is AuthActionFailure<Null>) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthActionLoading<Null>;
+
+        final String actionLabel;
+        final VoidCallback? onAction;
+        if (_expirado) {
+          actionLabel = 'Reiniciar solicitação';
+          onAction = () => AdminNavigatorScope.of(context).toEsqueciSenha();
+        } else {
+          actionLabel = 'Confirmar';
+          onAction = _podeConfirmar && !isLoading
+              ? () => context.read<VerificarCodigoAdminCubit>().submit(
+                  code: _codigo,
+                )
+              : null;
+        }
+
+        return BaseAuthStepScreen(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Confirme sua identidade',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: GeopragColors.green900,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Verificação por e-mail + CPF, sem autorização de terceiros.',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                GeopragOtpInput(
-                  enabled: !_expirado,
-                  onCompleted: (code) => setState(() => _codigo = code),
-                ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _expirado
-                      ? Text(
-                          'Código expirado.',
-                          style: TextStyle(
-                            color: GeopragColors.statusAtrasado,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                          ),
-                        )
-                      : GeopragCountdown(
-                          duration: _duracao,
-                          onExpired: () => setState(() => _expirado = true),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Verificação por e-mail + CPF, sem autorização de terceiros.',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              GeopragOtpInput(
+                enabled: !_expirado,
+                onCompleted: (code) => setState(() => _codigo = code),
+              ),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _expirado
+                    ? Text(
+                        'Código expirado.',
+                        style: TextStyle(
+                          color: GeopragColors.statusAtrasado,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                         ),
-                ),
-                const SizedBox(height: 20),
-                GeopragCpfInput(
-                  controller: _cpfController,
-                  enabled: !_expirado,
-                  decoration: InputDecoration(
-                    hintText: '000.000.000-00',
-                    prefixIcon: const Icon(Icons.badge_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                      )
+                    : GeopragCountdown(
+                        duration: _duracao,
+                        onExpired: () => setState(() => _expirado = true),
+                      ),
+              ),
+              const SizedBox(height: 20),
+              GeopragCpfInput(
+                controller: _cpfController,
+                enabled: !_expirado,
+                decoration: InputDecoration(
+                  hintText: '000.000.000-00',
+                  prefixIcon: const Icon(Icons.badge_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  onChanged: (_) => setState(() {}),
                 ),
-                const SizedBox(height: 24),
-                if (_expirado)
-                  OutlinedButton(
-                    onPressed: () =>
-                        AdminNavigatorScope.of(context).toEsqueciSenha(),
-                    child: const Text('Reiniciar solicitação'),
-                  )
-                else
-                  ElevatedButton(
-                    onPressed: _podeConfirmar
-                        ? () => AdminNavigatorScope.of(context).toRecriarSenha()
-                        : null,
-                    child: const Text('Confirmar'),
-                  ),
-              ],
-            ),
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
           ),
-        ),
-      ),
+          actionLabel: actionLabel,
+          isLoading: !_expirado && isLoading,
+          onAction: onAction,
+        );
+      },
     );
   }
 }
