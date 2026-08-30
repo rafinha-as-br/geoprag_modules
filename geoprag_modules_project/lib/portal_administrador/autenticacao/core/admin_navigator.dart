@@ -43,9 +43,8 @@ abstract class AdminNavigator {
   void toEstoque();
   void toEstoqueFormula();
 
-  /// Formulário de criação de nova fórmula de dosagem (GEOPRAG-90) — destino
-  /// futuro do botão "Nova Fórmula" em `FormulaDeDosagemScreen`, ainda
-  /// decorativo (`onPressed: () {}`) até a correção funcional da GEOPRAG-94.
+  /// Formulário de cadastro de fórmula de dosagem de um produto (GEOPRAG-105)
+  /// — destino do botão "Nova Fórmula" em `FormulaDeDosagemScreen`.
   void toEstoqueFormulaNovo();
   void toEstoqueLicitacao();
   void toEstoqueProduto();
