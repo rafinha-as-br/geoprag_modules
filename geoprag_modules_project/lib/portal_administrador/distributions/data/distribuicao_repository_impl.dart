@@ -44,4 +44,27 @@ class DistribuicaoRepositoryImpl implements DistribuicaoRepository {
   listarResponsaveisDisponiveis() async {
     return mockResponsaveisReferenciaDistribuicao;
   }
+
+  @override
+  Future<Distribuicao> criar({
+    required String produtoId,
+    required int quantidade,
+    required String unidade,
+    required DateTime dataEntrega,
+    required String responsavel,
+    required String bairroResponsavel,
+  }) async {
+    final distribuicao = Distribuicao(
+      id: 'd${mockDistribuicoes.length + 1}',
+      produtoId: produtoId,
+      quantidade: quantidade,
+      unidade: unidade,
+      dataEntrega: dataEntrega,
+      responsavel: responsavel,
+      bairroResponsavel: bairroResponsavel,
+      statusConfirmacao: 'aguardando_aceite',
+    );
+    mockDistribuicoes.add(distribuicao);
+    return distribuicao;
+  }
 }

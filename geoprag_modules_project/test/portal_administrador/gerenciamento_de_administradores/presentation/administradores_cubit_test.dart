@@ -1,11 +1,10 @@
-import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/resultado_solicitacao_promocao.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/administradores_cubit.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/administradores_state.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdministradorRepository extends Mock
@@ -35,128 +34,145 @@ void main() {
 
   setUp(() {
     repository = MockAdministradorRepository();
+    when(
+      () => repository.listar(),
+    ).thenAnswer((_) async => [contaAdmin, contaSub]);
   });
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'carrega a listagem no estado inicial',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
-    },
-    build: () => AdministradoresCubit(repository),
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.administradores.length,
-        'administradores.length',
-        2,
-      ),
-    ],
-  );
+  test('carrega a listagem no estado inicial', () async {
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'recarregar atualiza a lista sem aviso associado',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
-    },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.recarregar(),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>()
-          .having((s) => s.administradores.length, 'administradores.length', 2)
-          .having((s) => s.avisoAcao, 'avisoAcao', isNull),
-    ],
-  );
+    expect(cubit.state.items.length, 2);
+    expect(cubit.state.isLoading, isFalse);
+  });
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'desativar recarrega a lista com aviso de sucesso',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+  test('busca filtra por nome, e-mail ou cargo', () async {
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    cubit.buscar('célia');
+
+    expect(cubit.state.items.length, 1);
+    expect(cubit.state.items.single.nome, 'Célia Ramos');
+  });
+
+  test('recarregar atualiza a lista sem feedback associado', () async {
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.recarregar();
+
+    expect(cubit.state.items.length, 2);
+    expect(cubit.state.feedback, isNull);
+  });
+
+  test(
+    'recarregar limpa o feedback de uma ação anterior não relacionada '
+    '(ex.: voltar de "Novo Administrador" depois de desativar alguém)',
+    () async {
       when(
         () => repository.desativar(
           email: contaSub.email,
           executorEmail: contaAdmin.email,
         ),
       ).thenAnswer((_) async {});
+
+      final cubit = AdministradoresCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+      await cubit.desativar(
+        email: contaSub.email,
+        executorEmail: contaAdmin.email,
+      );
+      expect(cubit.state.feedback, isNotNull);
+
+      await cubit.recarregar();
+
+      expect(cubit.state.feedback, isNull);
     },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) =>
-        cubit.desativar(email: contaSub.email, executorEmail: contaAdmin.email),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
+  );
+
+  test('desativar recarrega a lista e emite feedback de sucesso', () async {
+    when(
+      () => repository.desativar(
+        email: contaSub.email,
+        executorEmail: contaAdmin.email,
+      ),
+    ).thenAnswer((_) async {});
+
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.desativar(
+      email: contaSub.email,
+      executorEmail: contaAdmin.email,
+    );
+
+    expect(
+      cubit.state.feedback,
+      isA<AcaoFeedbackSucesso>().having(
+        (f) => f.mensagem,
+        'mensagem',
         contains('desativado'),
       ),
-    ],
-  );
+    );
+  });
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'reativar recarrega a lista com aviso de sucesso',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
-      when(
-        () => repository.reativar(
-          email: contaSub.email,
-          executorEmail: contaAdmin.email,
-        ),
-      ).thenAnswer((_) async {});
-    },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) =>
-        cubit.reativar(email: contaSub.email, executorEmail: contaAdmin.email),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
+  test('reativar recarrega a lista e emite feedback de sucesso', () async {
+    when(
+      () => repository.reativar(
+        email: contaSub.email,
+        executorEmail: contaAdmin.email,
+      ),
+    ).thenAnswer((_) async {});
+
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.reativar(
+      email: contaSub.email,
+      executorEmail: contaAdmin.email,
+    );
+
+    expect(
+      cubit.state.feedback,
+      isA<AcaoFeedbackSucesso>().having(
+        (f) => f.mensagem,
+        'mensagem',
         contains('reativado'),
       ),
-    ],
-  );
+    );
+  });
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'rebaixar recarrega a lista com aviso de sucesso',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
-      when(
-        () => repository.rebaixar(
-          email: contaAdmin.email,
-          executorEmail: contaAdmin.email,
-        ),
-      ).thenAnswer((_) async {});
-    },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.rebaixar(
+  test('rebaixar recarrega a lista e emite feedback de sucesso', () async {
+    when(
+      () => repository.rebaixar(
+        email: contaAdmin.email,
+        executorEmail: contaAdmin.email,
+      ),
+    ).thenAnswer((_) async {});
+
+    final cubit = AdministradoresCubit(repository);
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.rebaixar(
       email: contaAdmin.email,
       executorEmail: contaAdmin.email,
-    ),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
+    );
+
+    expect(
+      cubit.state.feedback,
+      isA<AcaoFeedbackSucesso>().having(
+        (f) => f.mensagem,
+        'mensagem',
         contains('rebaixado'),
       ),
-    ],
-  );
+    );
+  });
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'rebaixar mostra a mensagem amigável quando o repositório recusa a operação',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+  test(
+    'rebaixar emite feedback de erro amigável quando o repositório recusa a operação',
+    () async {
       when(
         () => repository.rebaixar(
           email: contaAdmin.email,
@@ -167,28 +183,29 @@ void main() {
           'Não é possível rebaixar o próprio cargo.',
         ),
       );
+
+      final cubit = AdministradoresCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.rebaixar(
+        email: contaAdmin.email,
+        executorEmail: contaAdmin.email,
+      );
+
+      expect(
+        cubit.state.feedback,
+        isA<AcaoFeedbackErro>().having(
+          (f) => f.mensagem,
+          'mensagem',
+          contains('próprio cargo'),
+        ),
+      );
     },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.rebaixar(
-      email: contaAdmin.email,
-      executorEmail: contaAdmin.email,
-    ),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
-        contains('próprio cargo'),
-      ),
-    ],
   );
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'solicitarPromocao mostra a mensagem amigável quando o repositório recusa a operação',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+  test(
+    'solicitarPromocao emite feedback de erro amigável quando o repositório recusa a operação',
+    () async {
       when(
         () => repository.solicitarPromocao(
           solicitanteEmail: contaAdmin.email,
@@ -199,28 +216,29 @@ void main() {
           'Já existe uma solicitação de promoção em aberto para este usuário.',
         ),
       );
+
+      final cubit = AdministradoresCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.solicitarPromocao(
+        solicitanteEmail: contaAdmin.email,
+        subAdministradorEmail: contaSub.email,
+      );
+
+      expect(
+        cubit.state.feedback,
+        isA<AcaoFeedbackErro>().having(
+          (f) => f.mensagem,
+          'mensagem',
+          contains('Já existe uma solicitação'),
+        ),
+      );
     },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.solicitarPromocao(
-      solicitanteEmail: contaAdmin.email,
-      subAdministradorEmail: contaSub.email,
-    ),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
-        contains('Já existe uma solicitação'),
-      ),
-    ],
   );
 
-  blocTest<AdministradoresCubit, AdministradoresState>(
-    'solicitarPromocao mostra aviso de promoção automática quando não há votação',
-    setUp: () {
-      when(
-        () => repository.listar(),
-      ).thenAnswer((_) async => [contaAdmin, contaSub]);
+  test(
+    'solicitarPromocao emite feedback de sucesso com promoção automática quando não há votação',
+    () async {
       when(
         () => repository.solicitarPromocao(
           solicitanteEmail: contaAdmin.email,
@@ -231,19 +249,23 @@ void main() {
           contaSub.copyWith(role: AdminRole.administrador),
         ),
       );
+
+      final cubit = AdministradoresCubit(repository);
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.solicitarPromocao(
+        solicitanteEmail: contaAdmin.email,
+        subAdministradorEmail: contaSub.email,
+      );
+
+      expect(
+        cubit.state.feedback,
+        isA<AcaoFeedbackSucesso>().having(
+          (f) => f.mensagem,
+          'mensagem',
+          contains('automaticamente'),
+        ),
+      );
     },
-    build: () => AdministradoresCubit(repository),
-    act: (cubit) => cubit.solicitarPromocao(
-      solicitanteEmail: contaAdmin.email,
-      subAdministradorEmail: contaSub.email,
-    ),
-    skip: 1,
-    expect: () => [
-      isA<AdministradoresLoaded>().having(
-        (s) => s.avisoAcao,
-        'avisoAcao',
-        contains('automaticamente'),
-      ),
-    ],
   );
 }
