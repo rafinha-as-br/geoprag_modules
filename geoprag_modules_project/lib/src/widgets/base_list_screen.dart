@@ -53,8 +53,11 @@ class BaseListScreenModel<T> {
   /// Resultado da última ação do usuário, no contrato único da GEOPRAG-77.
   final AcaoFeedback? feedback;
 
-  /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis.
-  final void Function(T item)? onRowTap;
+  /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis. Recebe o
+  /// [BuildContext] da célula tocada — a única forma de um controller (sem
+  /// acesso a um `BuildContext` próprio, já que [BaseListScreenModel] nasce
+  /// num método estático) abrir um diálogo ou navegar a partir do toque.
+  final void Function(BuildContext context, T item)? onRowTap;
 
   /// Frase de erro alternativa, para as telas que não usam a convenção do
   /// pacote. É um campo, e não um getter sobrescrevível por subclasse, porque
@@ -186,7 +189,15 @@ class BaseListScreen<C extends BaseListScreenController<T>, T>
                     ),
                   ),
                 ),
-                Row(mainAxisSize: MainAxisSize.min, children: model.actions),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < model.actions.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 12),
+                      model.actions[i],
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 24),

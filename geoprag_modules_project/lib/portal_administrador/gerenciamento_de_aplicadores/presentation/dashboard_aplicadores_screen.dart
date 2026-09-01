@@ -186,7 +186,7 @@ class _DashboardConteudo extends StatelessWidget {
         // seleção) abre o detalhe do Aplicador.
         GeopragDataTable<AplicadorResumoViewModel>(
           items: aplicadoresFiltrados,
-          onRowTap: (aplicador) =>
+          onRowTap: (context, aplicador) =>
               AdminNavigatorScope.of(context).toAplicadorDetalhes(aplicador.id),
           columns: [
             GeopragDataColumn(

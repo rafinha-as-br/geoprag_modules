@@ -10,7 +10,7 @@ import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
 BaseListScreenModel<String> _model({
   List<Widget> actions = const [],
   Widget? filter,
-  void Function(String item)? onRowTap,
+  void Function(BuildContext context, String item)? onRowTap,
 }) => BaseListScreenModel<String>(
   title: 'Voluntários Cadastrados',
   entityLabel: 'os aplicadores',
@@ -33,7 +33,7 @@ class _AplicadoresController extends BaseListScreenController<String> {
   _AplicadoresController({
     List<Widget> actions = const [],
     Widget? filter,
-    void Function(String item)? onRowTap,
+    void Function(BuildContext context, String item)? onRowTap,
   }) : super(_model(actions: actions, filter: filter, onRowTap: onRowTap));
 }
 
@@ -118,6 +118,28 @@ void main() {
       expect(find.text('Novo'), findsOneWidget);
     });
 
+    testWidgets(
+      'coloca espaçamento entre duas ou mais actions (GEOPRAG-90: '
+      'botões colados no cabeçalho)',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            _AplicadoresController(
+              actions: [
+                ElevatedButton(onPressed: () {}, child: const Text('A')),
+                ElevatedButton(onPressed: () {}, child: const Text('B')),
+              ],
+            ),
+          ),
+        );
+
+        expect(find.byType(SizedBox), findsWidgets);
+        final left = tester.getTopRight(find.text('A'));
+        final right = tester.getTopLeft(find.text('B'));
+        expect(right.dx - left.dx, greaterThanOrEqualTo(12));
+      },
+    );
+
     testWidgets('nasce carregando, não em empty-state', (tester) async {
       await tester.pumpWidget(wrap(_AplicadoresController()));
 
@@ -180,7 +202,7 @@ void main() {
     testWidgets('repassa onRowTap para a tabela', (tester) async {
       String? tocado;
       final controller = _AplicadoresController(
-        onRowTap: (item) => tocado = item,
+        onRowTap: (context, item) => tocado = item,
       )..emitItems(const ['Item A']);
       await tester.pumpWidget(wrap(controller));
 

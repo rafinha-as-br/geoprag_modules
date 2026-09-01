@@ -36,7 +36,8 @@ void main() {
   );
 
   testWidgets(
-    'renderiza as colunas, filtra pela busca e abre o dialog de detalhes',
+    'renderiza as colunas, filtra pela busca e abre o dialog de detalhes '
+    'ao tocar na linha (GEOPRAG-90/GEOPRAG-92: sem coluna de ações dedicada)',
     (tester) async {
       final repository = MockAdministradorRepository();
       final navigator = MockAdminNavigator();
@@ -83,7 +84,9 @@ void main() {
       expect(find.text('Marcos Vieira'), findsNothing);
       expect(find.text('Célia Ramos'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.visibility));
+      expect(find.byIcon(Icons.visibility), findsNothing);
+
+      await tester.tap(find.text('Célia Ramos'));
       await tester.pumpAndSettle();
 
       expect(find.text('sub@gaspar.sc.gov.br'), findsWidgets);
