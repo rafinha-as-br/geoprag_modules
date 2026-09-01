@@ -55,7 +55,7 @@ class _DashboardAplicadoresScreenState
     return AdminScaffold(
       currentRoute: '/aplicadores',
       appBar: AppBar(title: const Text('Gerenciamento de Aplicadores')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
