@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 
 /// Uma linha de informação (rótulo + valor) dentro de um [GeopragDetailDialog].
+///
+/// Por padrão exibe [valor] como texto simples; passe [valorWidget] (ex.:
+/// [GeopragMaskedText]) para customizar como o valor é renderizado, mantendo
+/// o mesmo layout de rótulo + conteúdo.
 class GeopragInfoRow extends StatelessWidget {
   final String label;
   final String valor;
+  final Widget? valorWidget;
 
-  const GeopragInfoRow({super.key, required this.label, required this.valor});
+  const GeopragInfoRow({
+    super.key,
+    required this.label,
+    required this.valor,
+    this.valorWidget,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +29,12 @@ class GeopragInfoRow extends StatelessWidget {
             child: Text(label, style: const TextStyle(color: Colors.black54)),
           ),
           Expanded(
-            child: Text(
-              valor,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
+            child:
+                valorWidget ??
+                Text(
+                  valor,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
           ),
         ],
       ),

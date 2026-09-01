@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/usuario.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/geoprag_masked_text.dart';
 import '../../widgets/admin_scaffold.dart';
 import '../core/atuacao_aplicador.dart';
 import 'aplicador_detalhe_cubit.dart';
@@ -97,7 +98,7 @@ class _AplicadorDetalheContent extends StatelessWidget {
                   const Divider(),
                   ListTile(
                     title: const Text('CPF'),
-                    subtitle: Text(aplicador.cpf),
+                    subtitle: GeopragMaskedText(value: aplicador.cpf),
                   ),
                   ListTile(
                     title: const Text('Telefone'),
