@@ -111,4 +111,54 @@ void main() {
     await tester.tap(find.text('Ver listagem completa'));
     verify(() => navigator.toDenunciasAdminListagem()).called(1);
   });
+
+  testWidgets(
+    'tocar na linha abre o detalhe da denúncia — sem coluna de ações '
+    'dedicada (GEOPRAG-92, validação GEOPRAG-118)',
+    (tester) async {
+      final repository = MockDenunciaRepository();
+      final navigator = MockAdminNavigator();
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [
+          Denuncia(
+            id: 'r1',
+            lat: 0,
+            lng: 0,
+            nivelInfestacao: 'Alto',
+            descricao: 'Foco na praça central',
+            status: 'Recebida',
+            dataHora: DateTime(2026, 7, 5),
+            denunciante: 'João',
+            observacoes: '',
+          ),
+        ],
+      );
+
+      await tester.binding.setSurfaceSize(const Size(1400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminNavigatorScope(
+            navigator: navigator,
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => AdminSessionCubit()),
+                BlocProvider(
+                  create: (_) => TriagemDenunciasController(repository),
+                ),
+              ],
+              child: const DashboardDenunciasAdminScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byIcon(Icons.visibility), findsNothing);
+
+      await tester.tap(find.text('Foco na praça central'));
+      verify(() => navigator.toDenunciaAdminDetalhes('r1')).called(1);
+    },
+  );
 }

@@ -10,7 +10,7 @@ import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
 BaseListScreenModel<String> _model({
   List<Widget> actions = const [],
   Widget? filter,
-  void Function(String item)? onRowTap,
+  void Function(BuildContext context, String item)? onRowTap,
 }) => BaseListScreenModel<String>(
   title: 'Voluntários Cadastrados',
   entityLabel: 'os aplicadores',
@@ -33,7 +33,7 @@ class _AplicadoresController extends BaseListScreenController<String> {
   _AplicadoresController({
     List<Widget> actions = const [],
     Widget? filter,
-    void Function(String item)? onRowTap,
+    void Function(BuildContext context, String item)? onRowTap,
   }) : super(_model(actions: actions, filter: filter, onRowTap: onRowTap));
 }
 
@@ -180,7 +180,7 @@ void main() {
     testWidgets('repassa onRowTap para a tabela', (tester) async {
       String? tocado;
       final controller = _AplicadoresController(
-        onRowTap: (item) => tocado = item,
+        onRowTap: (context, item) => tocado = item,
       )..emitItems(const ['Item A']);
       await tester.pumpWidget(wrap(controller));
 

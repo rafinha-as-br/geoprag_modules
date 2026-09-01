@@ -53,8 +53,11 @@ class BaseListScreenModel<T> {
   /// Resultado da última ação do usuário, no contrato único da GEOPRAG-77.
   final AcaoFeedback? feedback;
 
-  /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis.
-  final void Function(T item)? onRowTap;
+  /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis. Recebe o
+  /// [BuildContext] da célula tocada — a única forma de um controller (sem
+  /// acesso a um `BuildContext` próprio, já que [BaseListScreenModel] nasce
+  /// num método estático) abrir um diálogo ou navegar a partir do toque.
+  final void Function(BuildContext context, T item)? onRowTap;
 
   /// Frase de erro alternativa, para as telas que não usam a convenção do
   /// pacote. É um campo, e não um getter sobrescrevível por subclasse, porque
