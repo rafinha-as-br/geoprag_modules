@@ -118,6 +118,28 @@ void main() {
       expect(find.text('Novo'), findsOneWidget);
     });
 
+    testWidgets(
+      'coloca espaçamento entre duas ou mais actions (GEOPRAG-90: '
+      'botões colados no cabeçalho)',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            _AplicadoresController(
+              actions: [
+                ElevatedButton(onPressed: () {}, child: const Text('A')),
+                ElevatedButton(onPressed: () {}, child: const Text('B')),
+              ],
+            ),
+          ),
+        );
+
+        expect(find.byType(SizedBox), findsWidgets);
+        final left = tester.getTopRight(find.text('A'));
+        final right = tester.getTopLeft(find.text('B'));
+        expect(right.dx - left.dx, greaterThanOrEqualTo(12));
+      },
+    );
+
     testWidgets('nasce carregando, não em empty-state', (tester) async {
       await tester.pumpWidget(wrap(_AplicadoresController()));
 

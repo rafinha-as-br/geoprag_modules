@@ -189,7 +189,15 @@ class BaseListScreen<C extends BaseListScreenController<T>, T>
                     ),
                   ),
                 ),
-                Row(mainAxisSize: MainAxisSize.min, children: model.actions),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < model.actions.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 12),
+                      model.actions[i],
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 24),
