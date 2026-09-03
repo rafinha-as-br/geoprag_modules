@@ -178,6 +178,13 @@ class _DashboardConteudo extends StatelessWidget {
             ),
           ],
         ),
+        // GEOPRAG-130: barra de ações do aplicador selecionado fica acima
+        // da listagem (antes ficava abaixo, exigindo rolar a tela toda
+        // para vê-la com muitos aplicadores).
+        if (state.selecionados.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _BarraAcaoEmMassa(state: state, cubit: cubit),
+        ],
         const SizedBox(height: 16),
         // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
         // GeopragDataTable extraído na GEOPRAG-36, em vez de um Table
@@ -233,10 +240,6 @@ class _DashboardConteudo extends StatelessWidget {
             ),
           ],
         ),
-        if (state.selecionados.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _BarraAcaoEmMassa(state: state, cubit: cubit),
-        ],
       ],
     );
   }
