@@ -126,4 +126,51 @@ void main() {
       expect(yBarraAcao, lessThan(yTabela));
     },
   );
+
+  testWidgets(
+    'rola sem overflow quando a listagem tem muitos aplicadores em viewport pequeno',
+    (tester) async {
+      // GEOPRAG-129: nem o body da tela nem GeopragDataTable tinham scroll
+      // próprio — uma lista longa em viewport pequeno estourava o layout em
+      // vez de rolar.
+      final repository = MockAplicadorRepository();
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [
+          for (var i = 1; i <= 30; i++) aplicador('$i', 'Aplicador $i'),
+        ],
+      );
+
+      final navigator = MockAdminNavigator();
+      await tester.binding.setSurfaceSize(const Size(1400, 500));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminNavigatorScope(
+            navigator: navigator,
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => AdminSessionCubit()),
+                BlocProvider(create: (_) => AplicadoresCubit(repository)),
+              ],
+              child: const DashboardAplicadoresScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -2000),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Aplicador 30'), findsOneWidget);
+    },
+  );
 }

@@ -110,10 +110,20 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Maria Souza'), findsOneWidget);
-      expect(find.text('123.456.789-00'), findsOneWidget);
       expect(find.text('Aplicação Concluída'), findsOneWidget);
       expect(find.text('Editar Cadastro'), findsOneWidget);
       expect(find.text('Desativar Cadastro'), findsOneWidget);
+
+      // GEOPRAG-127: CPF fica oculto por padrão (só início/fim visíveis) e
+      // só aparece por completo depois de tocar no botão de exibir.
+      expect(find.text('123.456.789-00'), findsNothing);
+      expect(find.text('123•••••••••00'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.visibility));
+      await tester.pumpAndSettle();
+
+      expect(find.text('123.456.789-00'), findsOneWidget);
+      expect(find.text('123•••••••••00'), findsNothing);
     },
   );
 }
