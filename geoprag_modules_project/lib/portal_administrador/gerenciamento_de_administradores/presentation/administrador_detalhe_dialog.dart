@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
+import '../../../src/widgets/geoprag_masked_text.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_account.dart';
 import 'administrador_view_model.dart';
@@ -70,7 +71,14 @@ class _AdministradorDetalheDialog extends StatelessWidget {
             ),
       infoRows: [
         GeopragInfoRow(label: 'E-mail', valor: administrador.email),
-        GeopragInfoRow(label: 'CPF', valor: administrador.cpf),
+        GeopragInfoRow(
+          label: 'CPF',
+          valor: administrador.cpf,
+          valorWidget: GeopragMaskedText(
+            value: administrador.cpf,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
         GeopragInfoRow(
           label: 'Data de nascimento',
           valor: _formatarData(administrador.dataNascimento),
