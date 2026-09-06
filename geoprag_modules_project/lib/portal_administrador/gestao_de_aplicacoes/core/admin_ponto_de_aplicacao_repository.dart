@@ -7,10 +7,9 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 /// a ele, este enxerga todos os pontos do município (mesma convenção de
 /// `AdminNavigator`/`AdminAccount`).
 ///
-/// As ações que mudam o ciclo de vida de um ponto (ativar, agendar,
-/// desativar/reativar, atribuir aplicador, cancelar) entram aqui na issue de
-/// ações individuais da sprint — as invariantes que elas precisam respeitar
-/// já vivem no domínio, em [PontoDeAplicacao].
+/// "Reativar" e "cancelar aplicação química" entram na GEOPRAG-109/110 — as
+/// invariantes que todas essas ações precisam respeitar já vivem no
+/// domínio, em [PontoDeAplicacao].
 ///
 /// TODO(GEOPRAG-24): contrato real dos endpoints ainda não validado com o
 /// backend.
@@ -21,6 +20,21 @@ abstract class AdminPontoDeAplicacaoRepository {
 
   /// Lança `EntidadeNaoEncontradaException` se o [id] não existir.
   Future<PontoDeAplicacao> buscarPorId(String id);
+
+  /// Ativa o ciclo do ponto [id] com o [agendamento] informado. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
+  /// `OperacaoNaoPermitidaException` se o estado atual não permitir ativação
+  /// (ver [PontoDeAplicacao.ativar]).
+  Future<void> ativar(String id, Agendamento agendamento);
+
+  /// Desativa o ponto [id]. Lança `EntidadeNaoEncontradaException` se o [id]
+  /// não existir, ou `OperacaoNaoPermitidaException` se já estiver
+  /// desativado (ver [PontoDeAplicacao.desativar]).
+  Future<void> desativar(String id);
+
+  /// Atribui o aplicador [aplicadorId] ao ponto [id]. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir.
+  Future<void> atribuirAplicador(String id, String aplicadorId);
 
   /// Cadastra um ponto novo. Nasce em
   /// [EstadoPontoDeAplicacao.enderecada] quando [aplicadorId] é `null`, ou

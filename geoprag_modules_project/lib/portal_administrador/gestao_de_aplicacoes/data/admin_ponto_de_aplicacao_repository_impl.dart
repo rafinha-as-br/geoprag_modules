@@ -31,6 +31,34 @@ class AdminPontoDeAplicacaoRepositoryImpl
   }
 
   @override
+  Future<void> ativar(String id, Agendamento agendamento) async {
+    await _atualizar(id, (ponto) => ponto.ativar(agendamento));
+  }
+
+  @override
+  Future<void> desativar(String id) async {
+    await _atualizar(id, (ponto) => ponto.desativar());
+  }
+
+  @override
+  Future<void> atribuirAplicador(String id, String aplicadorId) async {
+    await _atualizar(id, (ponto) => ponto.atribuirAplicador(aplicadorId));
+  }
+
+  Future<void> _atualizar(
+    String id,
+    PontoDeAplicacao Function(PontoDeAplicacao ponto) transicao,
+  ) async {
+    final index = mockPontosDeAplicacao.indexWhere((ponto) => ponto.id == id);
+    if (index == -1) {
+      throw EntidadeNaoEncontradaException(
+        'Ponto de aplicação "$id" não encontrado.',
+      );
+    }
+    mockPontosDeAplicacao[index] = transicao(mockPontosDeAplicacao[index]);
+  }
+
+  @override
   Future<PontoDeAplicacao> criar({
     required String nome,
     required String bairro,

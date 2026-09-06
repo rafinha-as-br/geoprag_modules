@@ -6,19 +6,21 @@ import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 void main() {
   late AdminPontoDeAplicacaoRepositoryImpl repository;
-  late int totalOriginal;
+  late List<PontoDeAplicacao> snapshotOriginal;
 
   setUp(() {
     repository = AdminPontoDeAplicacaoRepositoryImpl();
-    totalOriginal = mockPontosDeAplicacao.length;
+    snapshotOriginal = List.of(mockPontosDeAplicacao);
   });
 
-  // A fonte mockada é uma lista global: sem isso, um `criar` vazaria para os
-  // demais testes do pacote.
-  tearDown(() => mockPontosDeAplicacao.removeRange(
-    totalOriginal,
-    mockPontosDeAplicacao.length,
-  ));
+  // A fonte mockada é uma lista global: sem isso, um `criar` (que adiciona)
+  // ou um `ativar`/`desativar`/`atribuirAplicador` (que substitui um item
+  // existente) vazaria para os demais testes do arquivo.
+  tearDown(() {
+    mockPontosDeAplicacao
+      ..clear()
+      ..addAll(snapshotOriginal);
+  });
 
   Future<PontoDeAplicacao> criar({
     String? aplicadorId,
@@ -79,6 +81,90 @@ void main() {
 
     final pontos = await repository.listarPorBairro('Gasparinho');
     expect(pontos.where((ponto) => ponto.nome == 'Córrego Novo'), hasLength(1));
+  });
+
+  group('ativar', () {
+    test('ativa um ponto direcionado (pa3) com o agendamento informado', () async {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 1,
+      );
+
+      await repository.ativar('pa3', agendamento);
+
+      final ponto = await repository.buscarPorId('pa3');
+      expect(ponto.estado, EstadoPontoDeAplicacao.ativa);
+      expect(ponto.agendamento, agendamento);
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.ativar(
+          'inexistente',
+          Agendamento.gerar(
+            dataInicio: DateTime(2026, 9, 10),
+            intervaloDias: 15,
+            quantidadeRecorrencias: 1,
+          ),
+        ),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+
+    test('propaga a rejeição de domínio ao ativar um ponto endereçado (pa4)', () {
+      expect(
+        () => repository.ativar(
+          'pa4',
+          Agendamento.gerar(
+            dataInicio: DateTime(2026, 9, 10),
+            intervaloDias: 15,
+            quantidadeRecorrencias: 1,
+          ),
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
+
+  group('desativar', () {
+    test('desativa um ponto ativo (pa2)', () async {
+      await repository.desativar('pa2');
+
+      final ponto = await repository.buscarPorId('pa2');
+      expect(ponto.estado, EstadoPontoDeAplicacao.desativado);
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.desativar('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+
+    test('propaga a rejeição de domínio ao desativar um ponto já desativado (pa6)', () {
+      expect(
+        () => repository.desativar('pa6'),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
+
+  group('atribuirAplicador', () {
+    test('promove um ponto endereçado (pa4) a direcionado', () async {
+      await repository.atribuirAplicador('pa4', '2');
+
+      final ponto = await repository.buscarPorId('pa4');
+      expect(ponto.aplicadorId, '2');
+      expect(ponto.estado, EstadoPontoDeAplicacao.direcionada);
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.atribuirAplicador('inexistente', '2'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
   });
 
   group('identificador do ponto criado', () {

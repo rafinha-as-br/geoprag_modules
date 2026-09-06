@@ -111,6 +111,119 @@ void main() {
     });
   });
 
+  group('Agendamento.gerar', () {
+    test('gera as datas espaçadas por intervaloDias a partir de dataInicio', () {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 3,
+      );
+
+      expect(agendamento.datas, hasLength(3));
+      expect(agendamento.datas[0].data, DateTime(2026, 9, 10));
+      expect(agendamento.datas[1].data, DateTime(2026, 9, 25));
+      expect(agendamento.datas[2].data, DateTime(2026, 10, 10));
+    });
+
+    test('cada data nasce pendente', () {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 2,
+      );
+
+      expect(
+        agendamento.datas.every((d) => d.status == StatusDataAgendada.pendente),
+        isTrue,
+      );
+    });
+  });
+
+  group('ativar', () {
+    final agendamento = Agendamento.gerar(
+      dataInicio: DateTime(2026, 9, 10),
+      intervaloDias: 15,
+      quantidadeRecorrencias: 1,
+    );
+
+    test('promove direcionada a ativa e aplica o agendamento', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ).ativar(agendamento);
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.ativa);
+      expect(ponto.agendamento, agendamento);
+    });
+
+    test('reativa um ponto inativo com um agendamento novo', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.inativa,
+        aplicadorId: '1',
+      ).ativar(agendamento);
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.ativa);
+    });
+
+    test('rejeita ativar um ponto endereçado (sem aplicador)', () {
+      expect(
+        () => pontoDeTeste().ativar(agendamento),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('rejeita ativar um ponto já ativo', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+      );
+
+      expect(
+        () => ponto.ativar(agendamento),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('não apaga o histórico de execuções já registradas', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.inativa,
+        aplicadorId: '1',
+        subpontos: [_execucao],
+      ).ativar(agendamento);
+
+      expect(ponto.subpontos, [_execucao]);
+    });
+  });
+
+  group('desativar', () {
+    for (final origem in [
+      EstadoPontoDeAplicacao.enderecada,
+      EstadoPontoDeAplicacao.direcionada,
+      EstadoPontoDeAplicacao.ativa,
+      EstadoPontoDeAplicacao.inativa,
+    ]) {
+      test('transiciona de $origem para desativado', () {
+        final ponto = pontoDeTeste(
+          estado: origem,
+          aplicadorId: origem == EstadoPontoDeAplicacao.enderecada
+              ? null
+              : '1',
+        ).desativar();
+
+        expect(ponto.estado, EstadoPontoDeAplicacao.desativado);
+      });
+    }
+
+    test('rejeita desativar um ponto já desativado', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ).desativar();
+
+      expect(ponto.desativar, throwsA(isA<OperacaoNaoPermitidaException>()));
+    });
+  });
+
   group('execuções', () {
     test('ponto ativo sem execução é sinalizado como alerta', () {
       final ponto = pontoDeTeste(

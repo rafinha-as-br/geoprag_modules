@@ -53,6 +53,21 @@ class BaseListScreenModel<T> {
   /// Resultado da última ação do usuário, no contrato único da GEOPRAG-77.
   final AcaoFeedback? feedback;
 
+  /// Ids selecionados pelo usuário (seleção múltipla estilo Gmail,
+  /// GEOPRAG-101) — vazio enquanto a tela não usa seleção, ou enquanto nada
+  /// está selecionado. Ver [BaseListScreenController.idDoItem].
+  final Set<String> idsSelecionados;
+
+  /// `true` enquanto uma ação em lote está em execução — desabilita
+  /// checkboxes e botões de ação para evitar duplo disparo.
+  final bool processandoAcaoEmLote;
+
+  /// Barra de ações em lote, renderizada entre [filter] e a tabela. `null`
+  /// para telas que não usam seleção múltipla. É a própria tela que decide
+  /// quando mostrá-la (normalmente condicionado a [idsSelecionados] não
+  /// vazio) — o template só reserva o espaço na árvore.
+  final Widget? batchActionBar;
+
   /// Ação ao tocar numa linha, ou `null` para linhas não clicáveis. Recebe o
   /// [BuildContext] da célula tocada — a única forma de um controller (sem
   /// acesso a um `BuildContext` próprio, já que [BaseListScreenModel] nasce
@@ -81,6 +96,9 @@ class BaseListScreenModel<T> {
     this.feedback,
     this.onRowTap,
     this.errorTextBuilder,
+    this.idsSelecionados = const {},
+    this.processandoAcaoEmLote = false,
+    this.batchActionBar,
   }) : items = List.unmodifiable(items);
 
   /// Frase de erro exibida ao usuário: por padrão a convenção já usada nas 6
@@ -92,17 +110,21 @@ class BaseListScreenModel<T> {
   BaseListScreenModel<T> copyWith({
     List<Widget>? actions,
     Widget? filter,
+    List<GeopragDataColumn<T>>? columns,
     List<T>? items,
     bool? isLoading,
     String? errorMessage,
     AcaoFeedback? feedback,
     bool limparErro = false,
     bool limparFeedback = false,
+    Set<String>? idsSelecionados,
+    bool? processandoAcaoEmLote,
+    Widget? batchActionBar,
   }) {
     return BaseListScreenModel<T>(
       title: title,
       entityLabel: entityLabel,
-      columns: columns,
+      columns: columns ?? this.columns,
       emptyState: emptyState,
       onRowTap: onRowTap,
       errorTextBuilder: errorTextBuilder,
@@ -112,6 +134,9 @@ class BaseListScreenModel<T> {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: limparErro ? null : (errorMessage ?? this.errorMessage),
       feedback: limparFeedback ? null : (feedback ?? this.feedback),
+      idsSelecionados: idsSelecionados ?? this.idsSelecionados,
+      processandoAcaoEmLote: processandoAcaoEmLote ?? this.processandoAcaoEmLote,
+      batchActionBar: batchActionBar ?? this.batchActionBar,
     );
   }
 }
@@ -148,6 +173,44 @@ abstract class BaseListScreenController<T>
           ? state.copyWith(limparFeedback: true)
           : state.copyWith(feedback: feedback),
     );
+  }
+
+  /// Extrai o identificador único de um item — precisa ser sobrescrito por
+  /// qualquer controller que use a seleção múltipla genérica
+  /// ([alternarSelecao], [alternarSelecaoDeTodosVisiveis]). Uma tela que
+  /// não usa seleção nunca chama esses métodos, então nunca aciona este
+  /// `UnimplementedError`.
+  String idDoItem(T item) => throw UnimplementedError(
+    'idDoItem precisa ser sobrescrito para usar seleção em massa.',
+  );
+
+  void alternarSelecao(T item) {
+    final id = idDoItem(item);
+    final selecionados = Set<String>.from(state.idsSelecionados);
+    if (!selecionados.remove(id)) {
+      selecionados.add(id);
+    }
+    emit(state.copyWith(idsSelecionados: selecionados));
+  }
+
+  /// Seleciona todos os itens atualmente visíveis em [BaseListScreenModel.items]
+  /// (já filtrados), ou limpa a seleção se todos já estiverem selecionados.
+  void alternarSelecaoDeTodosVisiveis() {
+    final idsVisiveis = state.items.map(idDoItem).toSet();
+    final todosJaSelecionados =
+        idsVisiveis.isNotEmpty &&
+        idsVisiveis.every(state.idsSelecionados.contains);
+    emit(
+      state.copyWith(
+        idsSelecionados: todosJaSelecionados ? const {} : idsVisiveis,
+      ),
+    );
+  }
+
+  void limparSelecao() => emit(state.copyWith(idsSelecionados: const {}));
+
+  void emitProcessandoAcaoEmLote(bool processando) {
+    emit(state.copyWith(processandoAcaoEmLote: processando));
   }
 }
 
@@ -212,6 +275,10 @@ class BaseListScreen<C extends BaseListScreenController<T>, T>
                   children: [
                     if (model.filter != null) ...[
                       model.filter!,
+                      const SizedBox(height: 16),
+                    ],
+                    if (model.batchActionBar != null) ...[
+                      model.batchActionBar!,
                       const SizedBox(height: 16),
                     ],
                     if (model.feedback != null) ...[
