@@ -332,6 +332,134 @@ void main() {
     });
   });
 
+  group('podeEditarCadastroCompleto', () {
+    test('verdadeiro para um ponto recém-cadastrado, sem agendamento nem execução', () {
+      expect(pontoDeTeste().podeEditarCadastroCompleto, isTrue);
+    });
+
+    test('falso assim que existe um agendamento, mesmo sem execução', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ).ativar(
+        Agendamento.gerar(
+          dataInicio: DateTime(2026, 9, 10),
+          intervaloDias: 15,
+          quantidadeRecorrencias: 1,
+        ),
+      );
+
+      expect(ponto.podeEditarCadastroCompleto, isFalse);
+    });
+
+    test('falso quando há execução registrada, mesmo sem agendamento', () {
+      final ponto = pontoDeTeste(subpontos: [_execucao]);
+
+      expect(ponto.podeEditarCadastroCompleto, isFalse);
+    });
+  });
+
+  group('editarNome', () {
+    test('sempre permitido, mesmo com o cadastro travado', () {
+      final travado = pontoDeTeste(subpontos: [_execucao]);
+
+      final ponto = travado.editarNome('Novo nome');
+
+      expect(ponto.nome, 'Novo nome');
+    });
+  });
+
+  group('editarCadastroCompleto', () {
+    test('atualiza os campos quando o cadastro está liberado', () {
+      final ponto = pontoDeTeste().editarCadastroCompleto(
+        nome: 'Nome novo',
+        bairro: 'Bairro novo',
+        endereco: 'Endereço novo',
+        numeroReferencia: 'Ref nova',
+        descricaoDoTrecho: 'Trecho novo.',
+        larguraMetros: 5,
+        profundidadeMetros: 1,
+        velocidadeMetrosPorSegundo: 0.9,
+        dosagemMl: 200,
+        distanciaEntreSubpontosMetros: 80,
+        quantidadeDeSubpontos: 10,
+      );
+
+      expect(ponto.nome, 'Nome novo');
+      expect(ponto.bairro, 'Bairro novo');
+      expect(ponto.larguraMetros, 5);
+      expect(ponto.quantidadeDeSubpontos, 10);
+    });
+
+    test('rejeita quando o cadastro está travado por execução', () {
+      final travado = pontoDeTeste(subpontos: [_execucao]);
+
+      expect(
+        () => travado.editarCadastroCompleto(
+          nome: 'x',
+          bairro: 'x',
+          endereco: 'x',
+          numeroReferencia: 'x',
+          descricaoDoTrecho: 'x',
+          larguraMetros: 1,
+          profundidadeMetros: 1,
+          velocidadeMetrosPorSegundo: 1,
+          dosagemMl: 1,
+          distanciaEntreSubpontosMetros: 1,
+          quantidadeDeSubpontos: 1,
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
+
+  group('cancelarAplicacaoQuimica', () {
+    test('encerra o ciclo de um ponto ativo, levando a inativa', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+      ).cancelarAplicacaoQuimica();
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.inativa);
+    });
+
+    test('preserva o histórico de execuções já registradas', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+        subpontos: [_execucao],
+      ).cancelarAplicacaoQuimica();
+
+      expect(ponto.subpontos, [_execucao]);
+    });
+
+    test('cancela as datas pendentes do agendamento vigente', () {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 2,
+      );
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+      ).copyWith(agendamento: agendamento).cancelarAplicacaoQuimica();
+
+      expect(
+        ponto.agendamento!.datas.every((d) => d.status == StatusDataAgendada.cancelada),
+        isTrue,
+      );
+    });
+
+    test('rejeita cancelar de um estado que não é ativa', () {
+      final ponto = pontoDeTeste(estado: EstadoPontoDeAplicacao.direcionada, aplicadorId: '1');
+
+      expect(
+        ponto.cancelarAplicacaoQuimica,
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
+
   group('execuções', () {
     test('ponto ativo sem execução é sinalizado como alerta', () {
       final ponto = pontoDeTeste(

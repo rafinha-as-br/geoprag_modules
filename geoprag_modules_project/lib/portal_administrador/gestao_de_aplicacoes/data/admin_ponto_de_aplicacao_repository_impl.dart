@@ -77,6 +77,49 @@ class AdminPontoDeAplicacaoRepositoryImpl
     await _atualizar(id, (ponto) => ponto.reativar());
   }
 
+  @override
+  Future<void> editarNome(String id, String novoNome) async {
+    await _atualizar(id, (ponto) => ponto.editarNome(novoNome));
+  }
+
+  @override
+  Future<void> editarCadastroCompleto(
+    String id, {
+    required String nome,
+    required String bairro,
+    required String endereco,
+    required String numeroReferencia,
+    required String descricaoDoTrecho,
+    required double larguraMetros,
+    required double profundidadeMetros,
+    required double velocidadeMetrosPorSegundo,
+    required double dosagemMl,
+    required double distanciaEntreSubpontosMetros,
+    required int quantidadeDeSubpontos,
+  }) async {
+    await _atualizar(
+      id,
+      (ponto) => ponto.editarCadastroCompleto(
+        nome: nome,
+        bairro: bairro,
+        endereco: endereco,
+        numeroReferencia: numeroReferencia,
+        descricaoDoTrecho: descricaoDoTrecho,
+        larguraMetros: larguraMetros,
+        profundidadeMetros: profundidadeMetros,
+        velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,
+        dosagemMl: dosagemMl,
+        distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
+        quantidadeDeSubpontos: quantidadeDeSubpontos,
+      ),
+    );
+  }
+
+  @override
+  Future<void> cancelarAplicacaoQuimica(String id) async {
+    await _atualizar(id, (ponto) => ponto.cancelarAplicacaoQuimica());
+  }
+
   Future<void> _atualizar(
     String id,
     PontoDeAplicacao Function(PontoDeAplicacao ponto) transicao,

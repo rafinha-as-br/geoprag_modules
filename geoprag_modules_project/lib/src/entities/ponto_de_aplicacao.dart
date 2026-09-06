@@ -282,6 +282,16 @@ class PontoDeAplicacao {
       agendamento!.datas.isNotEmpty &&
       agendamento!.datas.every((d) => d.status == StatusDataAgendada.concluida);
 
+  /// O cadastro completo (todos os campos exceto [nome]) só pode ser
+  /// editado enquanto o ponto nunca teve um agendamento nem uma execução
+  /// registrada (GEOPRAG-109, decisão de Rafinha de 2026-08-30 — substitui
+  /// a janela de 15 minutos do doc de objetivo original, que gerava uma
+  /// inversão: um ponto recém-ativado ficava mais travado que um inativo
+  /// com vários ciclos). Assim que existir um dos dois, o cadastro trava
+  /// para sempre — [nome] continua editável a qualquer momento via
+  /// [editarNome].
+  bool get podeEditarCadastroCompleto => agendamento == null && subpontos.isEmpty;
+
   /// Vincula um aplicador responsável ao ponto, promovendo-o de
   /// [EstadoPontoDeAplicacao.enderecada] para
   /// [EstadoPontoDeAplicacao.direcionada].
@@ -313,6 +323,76 @@ class PontoDeAplicacao {
     return copyWith(
       limparAplicador: true,
       estado: EstadoPontoDeAplicacao.enderecada,
+    );
+  }
+
+  /// Renomeia o ponto — sempre permitido, mesmo com
+  /// [podeEditarCadastroCompleto] falso (GEOPRAG-109: "só o nome continua
+  /// editável a qualquer momento").
+  PontoDeAplicacao editarNome(String novoNome) => copyWith(nome: novoNome);
+
+  /// Atualiza o cadastro completo do ponto (todos os campos preenchidos na
+  /// criação, exceto [identificador]/[estado]/[agendamento]/[subpontos],
+  /// que não são editáveis por aqui).
+  ///
+  /// Rejeitado quando [podeEditarCadastroCompleto] for falso — a checagem
+  /// vive aqui, na entidade, e não só no formulário desabilitando campos,
+  /// porque uma tentativa por deep link ou por uma chamada direta ao Cubit
+  /// (pulando a tela) precisa ser barrada do mesmo jeito (GEOPRAG-109).
+  PontoDeAplicacao editarCadastroCompleto({
+    required String nome,
+    required String bairro,
+    required String endereco,
+    required String numeroReferencia,
+    required String descricaoDoTrecho,
+    required double larguraMetros,
+    required double profundidadeMetros,
+    required double velocidadeMetrosPorSegundo,
+    required double dosagemMl,
+    required double distanciaEntreSubpontosMetros,
+    required int quantidadeDeSubpontos,
+  }) {
+    if (!podeEditarCadastroCompleto) {
+      throw const OperacaoNaoPermitidaException(
+        'Este ponto já tem agendamento ou execução registrada — só o nome '
+        'pode ser editado.',
+      );
+    }
+    return copyWith(
+      nome: nome,
+      bairro: bairro,
+      endereco: endereco,
+      numeroReferencia: numeroReferencia,
+      descricaoDoTrecho: descricaoDoTrecho,
+      larguraMetros: larguraMetros,
+      profundidadeMetros: profundidadeMetros,
+      velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,
+      dosagemMl: dosagemMl,
+      distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
+      quantidadeDeSubpontos: quantidadeDeSubpontos,
+    );
+  }
+
+  /// Encerra o ciclo vigente (GEOPRAG-109) — só a partir de
+  /// [EstadoPontoDeAplicacao.ativa], levando o ponto imediatamente a
+  /// [EstadoPontoDeAplicacao.inativa]. Preserva o histórico de [subpontos]
+  /// já registrados; as datas ainda [StatusDataAgendada.pendente] do
+  /// agendamento vigente viram [StatusDataAgendada.cancelada] (mesma regra
+  /// de [desativar]).
+  ///
+  /// Diferente de [desativar]: não usa [estadoAnterior] — reativar depois
+  /// é feito normalmente via [ativar], com um agendamento novo, não por um
+  /// fluxo de "voltar ao estado anterior" (esse é só para
+  /// [EstadoPontoDeAplicacao.desativado], GEOPRAG-110).
+  PontoDeAplicacao cancelarAplicacaoQuimica() {
+    if (estado != EstadoPontoDeAplicacao.ativa) {
+      throw const OperacaoNaoPermitidaException(
+        'Só é possível cancelar a aplicação química de um ponto ativo.',
+      );
+    }
+    return copyWith(
+      estado: EstadoPontoDeAplicacao.inativa,
+      agendamento: agendamento == null ? null : _cancelarDatasPendentes(agendamento!),
     );
   }
 

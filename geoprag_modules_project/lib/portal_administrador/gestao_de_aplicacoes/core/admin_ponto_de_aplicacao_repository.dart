@@ -7,9 +7,8 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 /// a ele, este enxerga todos os pontos do município (mesma convenção de
 /// `AdminNavigator`/`AdminAccount`).
 ///
-/// "Cancelar aplicação química" entra na GEOPRAG-109 — as invariantes que
-/// todas essas ações precisam respeitar já vivem no domínio, em
-/// [PontoDeAplicacao].
+/// As invariantes que todas essas ações precisam respeitar já vivem no
+/// domínio, em [PontoDeAplicacao].
 ///
 /// TODO(GEOPRAG-24): contrato real dos endpoints ainda não validado com o
 /// backend.
@@ -47,6 +46,37 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// existir, ou `OperacaoNaoPermitidaException` se o ponto não estiver
   /// desativado (ver [PontoDeAplicacao.reativar]).
   Future<void> reativar(String id);
+
+  /// Renomeia o ponto [id] — sempre permitido. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir (ver
+  /// [PontoDeAplicacao.editarNome]).
+  Future<void> editarNome(String id, String novoNome);
+
+  /// Atualiza o cadastro completo do ponto [id]. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
+  /// `OperacaoNaoPermitidaException` se o cadastro estiver travado (ver
+  /// [PontoDeAplicacao.editarCadastroCompleto]).
+  Future<void> editarCadastroCompleto(
+    String id, {
+    required String nome,
+    required String bairro,
+    required String endereco,
+    required String numeroReferencia,
+    required String descricaoDoTrecho,
+    required double larguraMetros,
+    required double profundidadeMetros,
+    required double velocidadeMetrosPorSegundo,
+    required double dosagemMl,
+    required double distanciaEntreSubpontosMetros,
+    required int quantidadeDeSubpontos,
+  });
+
+  /// Encerra o ciclo vigente do ponto [id], levando-o a
+  /// [EstadoPontoDeAplicacao.inativa]. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
+  /// `OperacaoNaoPermitidaException` se o ponto não estiver ativo (ver
+  /// [PontoDeAplicacao.cancelarAplicacaoQuimica]).
+  Future<void> cancelarAplicacaoQuimica(String id);
 
   /// Cadastra um ponto novo. Nasce em
   /// [EstadoPontoDeAplicacao.enderecada] quando [aplicadorId] é `null`, ou

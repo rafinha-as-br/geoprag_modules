@@ -4,15 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/utils/form_validators.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/base_screen_feedback.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'ponto_de_aplicacao_detalhe_cubit.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 import 'widgets/ativacao_dialog.dart';
 import 'widgets/atribuir_aplicador_dialog.dart';
+import 'widgets/cancelar_aplicacao_quimica_dialog.dart';
 import 'widgets/desativar_dialog.dart';
 
 /// Detalhe de um Ponto de Aplicação: parâmetros do trecho, direcionamento,
@@ -75,7 +78,32 @@ List<Widget> _acoesDoPonto(
   bool processando,
 ) {
   final cubit = context.read<PontoDeAplicacaoDetalheCubit>();
-  final botoes = <Widget>[];
+  final botoes = <Widget>[
+    OutlinedButton.icon(
+      onPressed: processando
+          ? null
+          : () => AdminNavigatorScope.of(context).toEditarPontoDeAplicacao(ponto.id),
+      icon: const Icon(Icons.edit_outlined),
+      label: const Text('Editar'),
+    ),
+  ];
+
+  if (ponto.estado == EstadoPontoDeAplicacao.ativa) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final confirmado = await showCancelarAplicacaoQuimicaDialog(
+                  context,
+                );
+                if (confirmado) await cubit.cancelarAplicacaoQuimica();
+              },
+        icon: const Icon(Icons.cancel_outlined),
+        label: const Text('Cancelar aplicação química'),
+      ),
+    );
+  }
 
   if (ponto.estado == EstadoPontoDeAplicacao.direcionada ||
       ponto.estado == EstadoPontoDeAplicacao.inativa) {
@@ -539,8 +567,7 @@ class _LinhaDeExecucao extends StatelessWidget {
 }
 
 /// Formata sem casas decimais quando o valor é inteiro (2 m, não 2.0 m).
-String _numero(double valor) =>
-    valor == valor.roundToDouble() ? '${valor.round()}' : valor.toString();
+String _numero(double valor) => formatarNumeroExibicao(valor);
 
 String _dataHora(DateTime data) {
   final dia = data.day.toString().padLeft(2, '0');

@@ -217,6 +217,79 @@ void main() {
     });
   });
 
+  group('editarNome', () {
+    test('renomeia mesmo um ponto com cadastro travado (pa1, com execução)', () async {
+      await repository.editarNome('pa1', 'Nome renomeado');
+
+      final ponto = await repository.buscarPorId('pa1');
+      expect(ponto.nome, 'Nome renomeado');
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.editarNome('inexistente', 'x'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
+
+  group('editarCadastroCompleto', () {
+    Future<void> editar(String id) => repository.editarCadastroCompleto(
+      id,
+      nome: 'Nome editado',
+      bairro: 'Bairro editado',
+      endereco: 'Endereço editado',
+      numeroReferencia: 'Ref editada',
+      descricaoDoTrecho: 'Trecho editado.',
+      larguraMetros: 9,
+      profundidadeMetros: 2,
+      velocidadeMetrosPorSegundo: 1.2,
+      dosagemMl: 300,
+      distanciaEntreSubpontosMetros: 90,
+      quantidadeDeSubpontos: 12,
+    );
+
+    test('atualiza o cadastro de um ponto liberado (pa4, sem agendamento nem execução)', () async {
+      await editar('pa4');
+
+      final ponto = await repository.buscarPorId('pa4');
+      expect(ponto.nome, 'Nome editado');
+      expect(ponto.larguraMetros, 9);
+      expect(ponto.quantidadeDeSubpontos, 12);
+    });
+
+    test('propaga a rejeição de domínio ao editar um ponto travado (pa1, com execução)', () {
+      expect(() => editar('pa1'), throwsA(isA<OperacaoNaoPermitidaException>()));
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(() => editar('inexistente'), throwsA(isA<EntidadeNaoEncontradaException>()));
+    });
+  });
+
+  group('cancelarAplicacaoQuimica', () {
+    test('encerra o ciclo de um ponto ativo (pa2), levando a inativa', () async {
+      await repository.cancelarAplicacaoQuimica('pa2');
+
+      final ponto = await repository.buscarPorId('pa2');
+      expect(ponto.estado, EstadoPontoDeAplicacao.inativa);
+    });
+
+    test('propaga a rejeição de domínio ao cancelar um ponto que não está ativo (pa3)', () {
+      expect(
+        () => repository.cancelarAplicacaoQuimica('pa3'),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.cancelarAplicacaoQuimica('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
+
   group('transição automática para inativa (ciclo concluído)', () {
     PontoDeAplicacao pontoAtivoComCicloConcluido() {
       final agendamento = Agendamento.gerar(

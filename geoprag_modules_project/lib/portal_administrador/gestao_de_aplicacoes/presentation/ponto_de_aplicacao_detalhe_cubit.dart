@@ -96,6 +96,11 @@ class PontoDeAplicacaoDetalheCubit
     'Aplicador removido.',
   );
 
+  Future<void> cancelarAplicacaoQuimica() => _executarAcao(
+    () => _repository.cancelarAplicacaoQuimica(_pontoId),
+    'Aplicação química cancelada — o ponto está inativo.',
+  );
+
   /// Aplicadores candidatos para o `AtribuirAplicadorDialog`, com a
   /// contagem de pontos já atribuídos a cada um (para o destaque de carga
   /// alta) — cruza os dois repositórios disponíveis ao Cubit.

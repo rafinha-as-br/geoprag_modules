@@ -22,3 +22,9 @@ String? validarNumeroPositivo(
   final numero = decimalDoFormulario(value);
   return (numero == null || numero <= 0) ? mensagem : null;
 }
+
+/// Formata um número sem casas decimais quando o valor é inteiro (`2`, não
+/// `2.0`) — convenção de exibição reaproveitada pelas telas de detalhe e
+/// edição de Ponto de Aplicação.
+String formatarNumeroExibicao(double valor) =>
+    valor == valor.roundToDouble() ? '${valor.round()}' : valor.toString();

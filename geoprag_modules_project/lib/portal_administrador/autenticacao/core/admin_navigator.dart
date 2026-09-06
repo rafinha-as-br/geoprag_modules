@@ -31,6 +31,9 @@ abstract class AdminNavigator {
   /// Formulário de cadastro de um Ponto de Aplicação novo.
   void toCriarPontoDeAplicacao();
 
+  /// Formulário de edição de um Ponto de Aplicação existente (GEOPRAG-109).
+  void toEditarPontoDeAplicacao(String pontoId);
+
   void toAplicadores();
   void toAplicadorDetalhes(String aplicadorId);
 

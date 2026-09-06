@@ -22,6 +22,7 @@ import 'gerenciamento_de_aplicadores/presentation/criar_aplicador_cubit.dart';
 import 'gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'gestao_de_aplicacoes/presentation/criar_ponto_de_aplicacao_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/editar_ponto_de_aplicacao_cubit.dart';
 import 'gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
 import 'gestao_de_aplicacoes/presentation/pontos_de_aplicacao_cubit.dart';
 import 'gestao_de_aplicacoes/presentation/pontos_do_bairro_cubit.dart';
@@ -130,6 +131,12 @@ class AdminBootstrap {
         buildAdminPontoDeAplicacaoRepository(),
         buildAplicadorRepository(),
       );
+  EditarPontoDeAplicacaoCubit buildEditarPontoDeAplicacaoCubit(
+    String pontoId,
+  ) => EditarPontoDeAplicacaoCubit(
+    buildAdminPontoDeAplicacaoRepository(),
+    pontoId,
+  );
   CriarAdministradorCubit buildCriarAdministradorCubit() =>
       CriarAdministradorCubit(buildAdministradorRepository());
   AdministradoresCubit buildAdministradoresCubit() =>
