@@ -89,17 +89,21 @@ void main() {
       expect(find.text('Trajeto da visita anterior'), findsOneWidget);
     });
 
+    testWidgets('toca em "Simular chegada" e chama confirmarChegada', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(const GeolocalizacaoLoaded(ponto: primeiraAplicacao)),
+      );
+
+      await tester.ensureVisible(find.text('Simular chegada ao ponto (Mock)'));
+      await tester.tap(find.text('Simular chegada ao ponto (Mock)'));
+      verify(() => cubit.confirmarChegada()).called(1);
+    });
+
     testWidgets(
-      'toca em "Simular chegada" e depois em "Iniciar Aplicação" navega com o pontoId',
+      'toca em "Iniciar Aplicação" (dentro do raio) e navega com o pontoId',
       (tester) async {
-        await tester.pumpWidget(
-          wrap(const GeolocalizacaoLoaded(ponto: primeiraAplicacao)),
-        );
-
-        await tester.ensureVisible(find.text('Simular chegada ao ponto (Mock)'));
-        await tester.tap(find.text('Simular chegada ao ponto (Mock)'));
-        verify(() => cubit.confirmarChegada()).called(1);
-
         await tester.pumpWidget(
           wrap(
             const GeolocalizacaoLoaded(
@@ -108,6 +112,7 @@ void main() {
             ),
           ),
         );
+
         await tester.ensureVisible(find.text('Iniciar Aplicação'));
         await tester.tap(find.text('Iniciar Aplicação'));
         verify(() => navigator.toAplicacaoRegistrar('pa1')).called(1);

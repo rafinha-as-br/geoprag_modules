@@ -150,6 +150,7 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
             ),
           ] else ...[
             ElevatedButton.icon(
+              key: const Key('telaDeAplicacaoScreen_registrarSubponto'),
               onPressed: estado.registrando
                   ? null
                   : () {

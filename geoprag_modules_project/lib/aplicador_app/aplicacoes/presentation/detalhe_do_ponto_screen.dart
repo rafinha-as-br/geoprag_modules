@@ -189,6 +189,7 @@ class _BotaoIniciarAplicacao extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
+        key: const Key('detalheDoPontoDesignadoScreen_iniciarAplicacao'),
         onPressed: ponto.podeIniciarAplicacao
             ? () =>
                   AplicadorNavigatorScope.of(context).toAplicacaoInfo(ponto.id)

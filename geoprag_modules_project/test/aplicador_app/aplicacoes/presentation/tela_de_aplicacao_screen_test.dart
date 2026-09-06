@@ -22,6 +22,7 @@ void main() {
     cubit = MockTelaDeAplicacaoCubit();
     navigator = MockAplicadorNavigator();
     whenListen(cubit, Stream.value(state), initialState: state);
+    when(() => cubit.registrarSubponto()).thenAnswer((_) async {});
     return MaterialApp(
       home: AplicadorNavigatorScope(
         navigator: navigator,
@@ -78,7 +79,11 @@ void main() {
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(
-        tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+        tester
+            .widget<ElevatedButton>(
+              find.byKey(const Key('telaDeAplicacaoScreen_registrarSubponto')),
+            )
+            .onPressed,
         isNull,
       );
     });

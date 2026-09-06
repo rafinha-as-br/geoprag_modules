@@ -120,7 +120,7 @@ void main() {
         );
 
         final button = tester.widget<ElevatedButton>(
-          find.widgetWithText(ElevatedButton, 'Iniciar Aplicação'),
+          find.byKey(const Key('detalheDoPontoDesignadoScreen_iniciarAplicacao')),
         );
         expect(button.onPressed, isNull);
       },
@@ -133,10 +133,11 @@ void main() {
         wrap(DetalheDoPontoDesignadoLoaded(viewModel())),
       );
 
-      await tester.ensureVisible(
-        find.widgetWithText(ElevatedButton, 'Iniciar Aplicação'),
+      final botao = find.byKey(
+        const Key('detalheDoPontoDesignadoScreen_iniciarAplicacao'),
       );
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Iniciar Aplicação'));
+      await tester.ensureVisible(botao);
+      await tester.tap(botao);
       verify(() => navigator.toAplicacaoInfo('pa1')).called(1);
     });
   });
