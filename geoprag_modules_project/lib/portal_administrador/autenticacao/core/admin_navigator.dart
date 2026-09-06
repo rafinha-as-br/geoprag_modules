@@ -18,6 +18,19 @@ abstract class AdminNavigator {
   void toMapa();
   void toMapaBairro(String bairroId);
 
+  /// Dashboard do módulo `gestao_de_aplicacoes` — panorama de todos os
+  /// Pontos de Aplicação do município (GEOPRAG-38).
+  void toAplicacoes();
+
+  /// Pontos de Aplicação de um bairro, alcançado pela legenda do mapa de
+  /// cobertura do dashboard.
+  void toAplicacaoBairro(String bairro);
+
+  void toAplicacaoDetalhes(String pontoId);
+
+  /// Formulário de cadastro de um Ponto de Aplicação novo.
+  void toCriarPontoDeAplicacao();
+
   void toAplicadores();
   void toAplicadorDetalhes(String aplicadorId);
 
