@@ -101,7 +101,7 @@ void main() {
       await tester.pumpWidget(wrap());
 
       final ativar = tester.widget<OutlinedButton>(
-        find.widgetWithText(OutlinedButton, 'Ativar'),
+        find.byKey(const Key('barraAcaoEmLotePontos_ativar')),
       );
       expect(ativar.onPressed, isNull);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);

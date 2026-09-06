@@ -108,6 +108,7 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
                     ),
                   ),
                   OutlinedButton.icon(
+                    key: const Key('barraAcaoEmLotePontos_ativar'),
                     onPressed: processando
                         ? null
                         : () => _iniciarFluxo(context, AcaoEmLote.ativar),
@@ -115,6 +116,7 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
                     label: const Text('Ativar'),
                   ),
                   OutlinedButton.icon(
+                    key: const Key('barraAcaoEmLotePontos_desativar'),
                     onPressed: processando
                         ? null
                         : () => _iniciarFluxo(context, AcaoEmLote.desativar),
@@ -122,6 +124,7 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
                     label: const Text('Desativar'),
                   ),
                   OutlinedButton.icon(
+                    key: const Key('barraAcaoEmLotePontos_atribuirAplicador'),
                     onPressed: processando
                         ? null
                         : () =>
@@ -130,6 +133,7 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
                     label: const Text('Atribuir aplicador'),
                   ),
                   TextButton(
+                    key: const Key('barraAcaoEmLotePontos_limparSelecao'),
                     onPressed: processando ? null : cubit.limparSelecao,
                     child: const Text('Limpar seleção'),
                   ),
