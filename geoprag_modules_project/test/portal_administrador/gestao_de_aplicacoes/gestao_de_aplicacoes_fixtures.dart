@@ -9,6 +9,8 @@ PontoDeAplicacao pontoDeAplicacao({
   String bairro = 'Gasparinho',
   EstadoPontoDeAplicacao estado = EstadoPontoDeAplicacao.enderecada,
   String? aplicadorId,
+  Agendamento? agendamento,
+  EstadoPontoDeAplicacao? estadoAnterior,
   List<Subponto> subpontos = const [],
   double larguraMetros = 2,
   double profundidadeMetros = 0.5,
@@ -31,6 +33,8 @@ PontoDeAplicacao pontoDeAplicacao({
     quantidadeDeSubpontos: quantidadeDeSubpontos,
     aplicadorId: aplicadorId,
     estado: estado,
+    agendamento: agendamento,
+    estadoAnterior: estadoAnterior,
     subpontos: subpontos,
   );
 }

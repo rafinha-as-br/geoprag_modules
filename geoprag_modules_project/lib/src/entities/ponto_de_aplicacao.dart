@@ -212,6 +212,13 @@ class PontoDeAplicacao {
   /// desativado) — `null` enquanto o ponto nunca foi ativado.
   final Agendamento? agendamento;
 
+  /// Estado que o ponto tinha imediatamente antes de [desativar] — só
+  /// preenchido enquanto [estado] é [EstadoPontoDeAplicacao.desativado].
+  /// Existe só para [reativar] poder devolver o ponto exatamente ao estado
+  /// em que estava (GEOPRAG-110), sem precisar de uma segunda fonte de
+  /// histórico.
+  final EstadoPontoDeAplicacao? estadoAnterior;
+
   /// Aplicações já registradas neste ponto, da mais antiga para a mais
   /// recente.
   final List<Subponto> subpontos;
@@ -233,6 +240,7 @@ class PontoDeAplicacao {
     required this.estado,
     this.aplicadorId,
     this.agendamento,
+    this.estadoAnterior,
     List<Subponto> subpontos = const [],
   }) : subpontos = List.unmodifiable(subpontos) {
     if (estado == EstadoPontoDeAplicacao.ativa && aplicadorId == null) {
@@ -262,6 +270,18 @@ class PontoDeAplicacao {
   bool get ativoSemRegistro =>
       estado == EstadoPontoDeAplicacao.ativa && subpontos.isEmpty;
 
+  /// Todas as datas do [agendamento] vigente já foram concluídas — a
+  /// última recorrência do ciclo foi cumprida (GEOPRAG-110).
+  ///
+  /// Getter puro: quem decide o que fazer com isso (hoje, transicionar o
+  /// ponto para [EstadoPontoDeAplicacao.inativa] na leitura, já que não há
+  /// API/job em background nesta versão) é a camada de repository, não a
+  /// entidade — ver `AdminPontoDeAplicacaoRepositoryImpl`.
+  bool get cicloConcluido =>
+      agendamento != null &&
+      agendamento!.datas.isNotEmpty &&
+      agendamento!.datas.every((d) => d.status == StatusDataAgendada.concluida);
+
   /// Vincula um aplicador responsável ao ponto, promovendo-o de
   /// [EstadoPontoDeAplicacao.enderecada] para
   /// [EstadoPontoDeAplicacao.direcionada].
@@ -279,12 +299,15 @@ class PontoDeAplicacao {
   ///
   /// Rejeitado enquanto o ponto está [EstadoPontoDeAplicacao.ativa]: um
   /// ciclo em operação sem responsável deixaria aplicações em campo sem
-  /// dono. Desative o ponto antes de desatribuir.
+  /// dono. A mensagem aponta o caminho correto — cancelar a aplicação
+  /// química (GEOPRAG-109) — e não "desativar o ponto" (GEOPRAG-110): são
+  /// ações diferentes, e desativar aqui seria uma solução mais drástica que
+  /// o necessário só para trocar de responsável.
   PontoDeAplicacao desatribuirAplicador() {
     if (estado == EstadoPontoDeAplicacao.ativa) {
       throw const OperacaoNaoPermitidaException(
         'Não é possível desatribuir o aplicador de um ponto ativo. '
-        'Desative o ponto antes.',
+        'Cancele a aplicação química em andamento antes.',
       );
     }
     return copyWith(
@@ -313,16 +336,48 @@ class PontoDeAplicacao {
   /// Aplicações", seção 5). Válido a partir de qualquer estado, exceto de
   /// [EstadoPontoDeAplicacao.desativado] (já desativado).
   ///
-  /// Reverter esta ação ("Reativar", voltando ao estado em que o ponto
-  /// estava) é escopo da GEOPRAG-110, que ainda decide como lembrar o
-  /// estado anterior — este método não tenta antecipar essa necessidade.
+  /// Guarda o estado atual em [estadoAnterior] para [reativar] poder
+  /// devolver o ponto exatamente a ele depois. Se havia um [agendamento]
+  /// vigente, todas as datas ainda [StatusDataAgendada.pendente] viram
+  /// [StatusDataAgendada.cancelada] — datas futuras de um ciclo suspenso
+  /// não deveriam continuar contando como previstas.
   PontoDeAplicacao desativar() {
     if (estado == EstadoPontoDeAplicacao.desativado) {
       throw const OperacaoNaoPermitidaException(
         'Este ponto já está desativado.',
       );
     }
-    return copyWith(estado: EstadoPontoDeAplicacao.desativado);
+    return copyWith(
+      estado: EstadoPontoDeAplicacao.desativado,
+      estadoAnterior: estado,
+      agendamento: agendamento == null ? null : _cancelarDatasPendentes(agendamento!),
+    );
+  }
+
+  /// Devolve o ponto ao estado em que estava antes de [desativar]. Só
+  /// válido a partir de [EstadoPontoDeAplicacao.desativado].
+  ///
+  /// Não recria o agendamento cancelado por [desativar] — reativar um ponto
+  /// cujo ciclo tinha datas futuras canceladas devolve um ponto sem
+  /// agendamento vigente; um novo ciclo é iniciado por [ativar], com um
+  /// agendamento novo.
+  PontoDeAplicacao reativar() {
+    if (estado != EstadoPontoDeAplicacao.desativado) {
+      throw const OperacaoNaoPermitidaException(
+        'Só é possível reativar um ponto desativado.',
+      );
+    }
+    final estadoParaRestaurar = estadoAnterior;
+    if (estadoParaRestaurar == null) {
+      // Defensivo: um ponto desativado por `desativar()` sempre tem
+      // `estadoAnterior` preenchido. Só chega aqui um ponto construído já
+      // desativado (ex.: fixture de teste ou dado legado) sem essa
+      // informação — não há para onde reativar.
+      throw const OperacaoNaoPermitidaException(
+        'Este ponto não tem um estado anterior registrado para reativar.',
+      );
+    }
+    return copyWith(estado: estadoParaRestaurar, limparEstadoAnterior: true);
   }
 
   PontoDeAplicacao copyWith({
@@ -340,8 +395,10 @@ class PontoDeAplicacao {
     String? aplicadorId,
     EstadoPontoDeAplicacao? estado,
     Agendamento? agendamento,
+    EstadoPontoDeAplicacao? estadoAnterior,
     List<Subponto>? subpontos,
     bool limparAplicador = false,
+    bool limparEstadoAnterior = false,
   }) {
     return PontoDeAplicacao(
       id: id,
@@ -363,7 +420,27 @@ class PontoDeAplicacao {
       aplicadorId: limparAplicador ? null : (aplicadorId ?? this.aplicadorId),
       estado: estado ?? this.estado,
       agendamento: agendamento ?? this.agendamento,
+      estadoAnterior: limparEstadoAnterior
+          ? null
+          : (estadoAnterior ?? this.estadoAnterior),
       subpontos: subpontos ?? this.subpontos,
     );
   }
+}
+
+/// Marca como [StatusDataAgendada.cancelada] toda data ainda
+/// [StatusDataAgendada.pendente] de [agendamento] — usado por
+/// [PontoDeAplicacao.desativar].
+Agendamento _cancelarDatasPendentes(Agendamento agendamento) {
+  return Agendamento(
+    dataInicio: agendamento.dataInicio,
+    intervaloDias: agendamento.intervaloDias,
+    quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+    datas: [
+      for (final data in agendamento.datas)
+        data.status == StatusDataAgendada.pendente
+            ? data.copyWith(status: StatusDataAgendada.cancelada)
+            : data,
+    ],
+  );
 }

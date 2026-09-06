@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../src/entities/ponto_de_aplicacao.dart';
 import '../lote_de_pontos_reconciliacao.dart';
+import 'formulario_de_agendamento.dart';
 
 /// Uma opção de aplicador para o formulário de "Atribuir aplicador em
 /// lote" — só o suficiente para popular um dropdown, sem acoplar este
@@ -51,28 +52,13 @@ class BatchReconcileDialog extends StatefulWidget {
 }
 
 class _BatchReconcileDialogState extends State<BatchReconcileDialog> {
-  DateTime? _dataInicio;
-  final _intervaloController = TextEditingController(text: '15');
-  final _recorrenciasController = TextEditingController(text: '1');
+  Agendamento? _agendamento;
   String? _aplicadorSelecionadoId;
-
-  @override
-  void dispose() {
-    _intervaloController.dispose();
-    _recorrenciasController.dispose();
-    super.dispose();
-  }
 
   bool get _formularioValido {
     switch (widget.acao) {
       case AcaoEmLote.ativar:
-        final intervalo = int.tryParse(_intervaloController.text);
-        final recorrencias = int.tryParse(_recorrenciasController.text);
-        return _dataInicio != null &&
-            intervalo != null &&
-            intervalo > 0 &&
-            recorrencias != null &&
-            recorrencias > 0;
+        return _agendamento != null;
       case AcaoEmLote.atribuirAplicador:
         return _aplicadorSelecionadoId != null;
       case AcaoEmLote.desativar:
@@ -83,15 +69,9 @@ class _BatchReconcileDialogState extends State<BatchReconcileDialog> {
   void _confirmar() {
     switch (widget.acao) {
       case AcaoEmLote.ativar:
-        Navigator.of(context).pop(
-          BatchReconcileConfirmado(
-            agendamento: Agendamento.gerar(
-              dataInicio: _dataInicio!,
-              intervaloDias: int.parse(_intervaloController.text),
-              quantidadeRecorrencias: int.parse(_recorrenciasController.text),
-            ),
-          ),
-        );
+        Navigator.of(
+          context,
+        ).pop(BatchReconcileConfirmado(agendamento: _agendamento));
       case AcaoEmLote.atribuirAplicador:
         Navigator.of(
           context,
@@ -99,17 +79,6 @@ class _BatchReconcileDialogState extends State<BatchReconcileDialog> {
       case AcaoEmLote.desativar:
         Navigator.of(context).pop(const BatchReconcileConfirmado());
     }
-  }
-
-  Future<void> _escolherData() async {
-    final hoje = DateTime.now();
-    final escolhida = await showDatePicker(
-      context: context,
-      initialDate: _dataInicio ?? hoje,
-      firstDate: hoje,
-      lastDate: hoje.add(const Duration(days: 365)),
-    );
-    if (escolhida != null) setState(() => _dataInicio = escolhida);
   }
 
   @override
@@ -184,30 +153,9 @@ class _BatchReconcileDialogState extends State<BatchReconcileDialog> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: _escolherData,
-            icon: const Icon(Icons.calendar_today, size: 18),
-            label: Text(
-              _dataInicio == null
-                  ? 'Escolher data da 1ª aplicação'
-                  : 'Início: ${_dataInicio!.day.toString().padLeft(2, '0')}/'
-                        '${_dataInicio!.month.toString().padLeft(2, '0')}/'
-                        '${_dataInicio!.year}',
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _intervaloController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Intervalo (dias)'),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _recorrenciasController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Quantidade de recorrências'),
-            onChanged: (_) => setState(() {}),
+          FormularioDeAgendamento(
+            onChanged: (agendamento) =>
+                setState(() => _agendamento = agendamento),
           ),
         ];
       case AcaoEmLote.atribuirAplicador:

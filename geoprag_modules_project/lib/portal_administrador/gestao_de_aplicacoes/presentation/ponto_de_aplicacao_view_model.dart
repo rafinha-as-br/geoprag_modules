@@ -132,6 +132,14 @@ class PontoDeAplicacaoDetalhadoViewModel {
   final int quantidadeDeSubpontos;
   final List<Subponto> execucoes;
 
+  /// Agendamento do ciclo vigente (ou do último, se desativado) — `null`
+  /// enquanto o ponto nunca foi ativado.
+  final Agendamento? agendamento;
+
+  /// Aplicador responsável, se houver — necessário para a tela de detalhe
+  /// oferecer "Desatribuir aplicador" sem precisar de outra consulta.
+  final String? aplicadorId;
+
   const PontoDeAplicacaoDetalhadoViewModel({
     required this.id,
     required this.identificador,
@@ -150,6 +158,8 @@ class PontoDeAplicacaoDetalhadoViewModel {
     required this.distanciaEntreSubpontosMetros,
     required this.quantidadeDeSubpontos,
     required this.execucoes,
+    this.agendamento,
+    this.aplicadorId,
   });
 
   factory PontoDeAplicacaoDetalhadoViewModel.fromEntity(
@@ -174,6 +184,8 @@ class PontoDeAplicacaoDetalhadoViewModel {
       distanciaEntreSubpontosMetros: entity.distanciaEntreSubpontosMetros,
       quantidadeDeSubpontos: entity.quantidadeDeSubpontos,
       execucoes: entity.subpontos,
+      agendamento: entity.agendamento,
+      aplicadorId: entity.aplicadorId,
     );
   }
 }

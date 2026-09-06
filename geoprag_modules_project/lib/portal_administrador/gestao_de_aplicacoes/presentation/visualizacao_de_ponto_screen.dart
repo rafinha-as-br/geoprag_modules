@@ -2,21 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/state/acao_feedback.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/base_screen_feedback.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../widgets/admin_scaffold.dart';
 import 'ponto_de_aplicacao_detalhe_cubit.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
+import 'widgets/ativacao_dialog.dart';
+import 'widgets/atribuir_aplicador_dialog.dart';
+import 'widgets/desativar_dialog.dart';
 
 /// Detalhe de um Ponto de Aplicação: parâmetros do trecho, direcionamento,
-/// agendamento, execuções realizadas e auditoria.
-///
-/// Sem barra de ações: ativar, agendar, atribuir aplicador e desativar são
-/// escopo da issue de ações individuais da sprint. Botões que ainda não
-/// executam nada seriam decorativos — o que a padronização de telas
-/// (GEOPRAG-76) removeu do pacote.
+/// agendamento, execuções realizadas, auditoria e as ações individuais do
+/// ciclo (GEOPRAG-110): ativar/agendar, atribuir/desatribuir aplicador,
+/// desativar/reativar.
 class VisualizacaoDePontoScreen extends StatelessWidget {
   const VisualizacaoDePontoScreen({super.key});
 
@@ -40,14 +42,19 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
                       '${ponto.nome} · ${ponto.identificador}',
                     _ => '',
                   },
+                  actions: switch (state) {
+                    PontoDeAplicacaoDetalheLoaded(:final ponto, :final processando) =>
+                      _acoesDoPonto(context, ponto, processando),
+                    _ => const [],
+                  },
                   isLoading: state is PontoDeAplicacaoDetalheLoading,
                   errorMessage: switch (state) {
                     PontoDeAplicacaoDetalheError(:final message) => message,
                     _ => null,
                   },
                   contentBuilder: (context) => switch (state) {
-                    PontoDeAplicacaoDetalheLoaded(:final ponto) =>
-                      _ConteudoDoPonto(ponto: ponto),
+                    PontoDeAplicacaoDetalheLoaded(:final ponto, :final feedback) =>
+                      _ConteudoDoPonto(ponto: ponto, feedback: feedback),
                     _ => const SizedBox.shrink(),
                   },
                 );
@@ -58,10 +65,157 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
   }
 }
 
+/// Monta os botões de ação visíveis para o estado atual do ponto — nunca
+/// todos ao mesmo tempo, já que boa parte é mutuamente exclusiva (Ativar só
+/// faz sentido fora de [EstadoPontoDeAplicacao.ativa]; Reativar só faz
+/// sentido em [EstadoPontoDeAplicacao.desativado]).
+List<Widget> _acoesDoPonto(
+  BuildContext context,
+  PontoDeAplicacaoDetalhadoViewModel ponto,
+  bool processando,
+) {
+  final cubit = context.read<PontoDeAplicacaoDetalheCubit>();
+  final botoes = <Widget>[];
+
+  if (ponto.estado == EstadoPontoDeAplicacao.direcionada ||
+      ponto.estado == EstadoPontoDeAplicacao.inativa) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final agendamento = await showDialog<Agendamento>(
+                  context: context,
+                  builder: (_) => AtivacaoDialog(
+                    nomeDoPonto: ponto.nome,
+                    identificadorDoPonto: ponto.identificador,
+                  ),
+                );
+                if (agendamento != null) await cubit.ativar(agendamento);
+              },
+        icon: const Icon(Icons.play_circle_outline),
+        label: const Text('Ativar'),
+      ),
+    );
+  }
+
+  if (ponto.estado == EstadoPontoDeAplicacao.enderecada) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final aplicadores = await cubit.listarAplicadoresParaAtribuir();
+                if (!context.mounted) return;
+                final aplicadorId = await showDialog<String>(
+                  context: context,
+                  builder: (_) =>
+                      AtribuirAplicadorDialog(aplicadores: aplicadores),
+                );
+                if (aplicadorId != null) {
+                  await cubit.atribuirAplicador(aplicadorId);
+                }
+              },
+        icon: const Icon(Icons.person_add_alt),
+        label: const Text('Atribuir aplicador'),
+      ),
+    );
+  }
+
+  if (ponto.aplicadorId != null) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final confirmado = await _confirmarAcaoSimples(
+                  context,
+                  titulo: 'Desatribuir aplicador',
+                  mensagem:
+                      'O ponto volta a ficar sem aplicador responsável. '
+                      'Confirma?',
+                  rotuloConfirmar: 'Desatribuir',
+                );
+                if (confirmado) await cubit.desatribuirAplicador();
+              },
+        icon: const Icon(Icons.person_remove_outlined),
+        label: const Text('Desatribuir aplicador'),
+      ),
+    );
+  }
+
+  if (ponto.estado == EstadoPontoDeAplicacao.desativado) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final confirmado = await _confirmarAcaoSimples(
+                  context,
+                  titulo: 'Reativar ponto',
+                  mensagem:
+                      'O ponto volta ao estado em que estava antes de ser '
+                      'desativado. Confirma?',
+                  rotuloConfirmar: 'Reativar',
+                );
+                if (confirmado) await cubit.reativar();
+              },
+        icon: const Icon(Icons.restore),
+        label: const Text('Reativar'),
+      ),
+    );
+  } else {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final confirmado = await showDesativarDialog(
+                  context,
+                  agendamento: ponto.agendamento,
+                );
+                if (confirmado) await cubit.desativar();
+              },
+        icon: const Icon(Icons.block),
+        label: const Text('Desativar'),
+      ),
+    );
+  }
+
+  return botoes;
+}
+
+Future<bool> _confirmarAcaoSimples(
+  BuildContext context, {
+  required String titulo,
+  required String mensagem,
+  required String rotuloConfirmar,
+}) async {
+  final confirmado = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(titulo),
+      content: Text(mensagem),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(rotuloConfirmar),
+        ),
+      ],
+    ),
+  );
+  return confirmado ?? false;
+}
+
 class _ConteudoDoPonto extends StatelessWidget {
-  const _ConteudoDoPonto({required this.ponto});
+  const _ConteudoDoPonto({required this.ponto, this.feedback});
 
   final PontoDeAplicacaoDetalhadoViewModel ponto;
+  final AcaoFeedback? feedback;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +230,10 @@ class _ConteudoDoPonto extends StatelessWidget {
             label: ponto.estado.rotulo,
           ),
         ),
+        if (feedback != null) ...[
+          const SizedBox(height: 16),
+          BaseScreenFeedback(feedback: feedback!),
+        ],
         const SizedBox(height: 24),
         _SecaoDeLocalizacao(ponto: ponto),
         _SecaoDeParametros(ponto: ponto),
@@ -86,13 +244,7 @@ class _ConteudoDoPonto extends StatelessWidget {
             valor: ponto.aplicadorNome ?? 'Nenhum aplicador direcionado',
           ),
         ),
-        _Secao(
-          titulo: 'Agendamento',
-          child: const Text(
-            'Nenhum agendamento definido.',
-            style: TextStyle(color: Colors.black54),
-          ),
-        ),
+        _Secao(titulo: 'Agendamento', child: _ConteudoDoAgendamento(ponto: ponto)),
         _Secao(
           titulo: 'Execuções realizadas',
           child: ponto.execucoes.isEmpty
@@ -187,6 +339,56 @@ class _SecaoDeParametros extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ConteudoDoAgendamento extends StatelessWidget {
+  const _ConteudoDoAgendamento({required this.ponto});
+
+  final PontoDeAplicacaoDetalhadoViewModel ponto;
+
+  @override
+  Widget build(BuildContext context) {
+    final agendamento = ponto.agendamento;
+    if (agendamento == null) {
+      return const Text(
+        'Nenhum agendamento definido.',
+        style: TextStyle(color: Colors.black54),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Linha(
+          rotulo: 'Intervalo',
+          valor: '${agendamento.intervaloDias} dia(s)',
+        ),
+        const SizedBox(height: 8),
+        for (final data in agendamento.datas)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                Icon(
+                  switch (data.status) {
+                    StatusDataAgendada.concluida => Icons.check_circle,
+                    StatusDataAgendada.cancelada => Icons.cancel_outlined,
+                    StatusDataAgendada.pendente => Icons.schedule,
+                  },
+                  size: 18,
+                  color: switch (data.status) {
+                    StatusDataAgendada.concluida => GeopragColors.statusEmDia,
+                    StatusDataAgendada.cancelada => Colors.black38,
+                    StatusDataAgendada.pendente => Colors.black54,
+                  },
+                ),
+                const SizedBox(width: 8),
+                Text(_dataHora(data.data)),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

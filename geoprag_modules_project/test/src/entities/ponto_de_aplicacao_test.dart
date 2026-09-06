@@ -222,6 +222,114 @@ void main() {
 
       expect(ponto.desativar, throwsA(isA<OperacaoNaoPermitidaException>()));
     });
+
+    test('guarda o estado anterior para reativar depois', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+      ).desativar();
+
+      expect(ponto.estadoAnterior, EstadoPontoDeAplicacao.ativa);
+    });
+
+    test('cancela as datas pendentes do agendamento vigente', () {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 3,
+      );
+      final comUmaConcluida = agendamento.datas[0].copyWith(
+        status: StatusDataAgendada.concluida,
+      );
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+      ).copyWith(
+        agendamento: Agendamento(
+          dataInicio: agendamento.dataInicio,
+          intervaloDias: agendamento.intervaloDias,
+          quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+          datas: [comUmaConcluida, agendamento.datas[1], agendamento.datas[2]],
+        ),
+      ).desativar();
+
+      expect(ponto.agendamento!.datas[0].status, StatusDataAgendada.concluida);
+      expect(ponto.agendamento!.datas[1].status, StatusDataAgendada.cancelada);
+      expect(ponto.agendamento!.datas[2].status, StatusDataAgendada.cancelada);
+    });
+
+    test('não quebra ao desativar um ponto sem nenhum agendamento', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.enderecada,
+      ).desativar();
+
+      expect(ponto.agendamento, isNull);
+    });
+  });
+
+  group('reativar', () {
+    test('devolve o ponto ao estado em que estava antes de desativar', () {
+      final ponto = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ).desativar().reativar();
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.direcionada);
+      expect(ponto.estadoAnterior, isNull);
+    });
+
+    test('rejeita reativar um ponto que não está desativado', () {
+      final ponto = pontoDeTeste(estado: EstadoPontoDeAplicacao.enderecada);
+
+      expect(ponto.reativar, throwsA(isA<OperacaoNaoPermitidaException>()));
+    });
+
+    test(
+      'rejeita reativar um ponto desativado sem estado anterior registrado',
+      () {
+        final ponto = pontoDeTeste(estado: EstadoPontoDeAplicacao.desativado);
+
+        expect(ponto.reativar, throwsA(isA<OperacaoNaoPermitidaException>()));
+      },
+    );
+  });
+
+  group('cicloConcluido', () {
+    test('falso sem nenhum agendamento', () {
+      expect(pontoDeTeste().cicloConcluido, isFalse);
+    });
+
+    test('falso com alguma data ainda pendente', () {
+      final ponto = pontoDeTeste().copyWith(
+        agendamento: Agendamento.gerar(
+          dataInicio: DateTime(2026, 9, 10),
+          intervaloDias: 15,
+          quantidadeRecorrencias: 2,
+        ),
+      );
+
+      expect(ponto.cicloConcluido, isFalse);
+    });
+
+    test('verdadeiro quando todas as datas estão concluídas', () {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 2,
+      );
+      final concluido = Agendamento(
+        dataInicio: agendamento.dataInicio,
+        intervaloDias: agendamento.intervaloDias,
+        quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+        datas: [
+          for (final data in agendamento.datas)
+            data.copyWith(status: StatusDataAgendada.concluida),
+        ],
+      );
+      final ponto = pontoDeTeste().copyWith(agendamento: concluido);
+
+      expect(ponto.cicloConcluido, isTrue);
+    });
   });
 
   group('execuções', () {

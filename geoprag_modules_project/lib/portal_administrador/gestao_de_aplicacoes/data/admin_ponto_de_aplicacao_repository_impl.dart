@@ -11,23 +11,45 @@ import 'mock_pontos_de_aplicacao.dart';
 class AdminPontoDeAplicacaoRepositoryImpl
     implements AdminPontoDeAplicacaoRepository {
   @override
-  Future<List<PontoDeAplicacao>> listar() async => mockPontosDeAplicacao;
+  Future<List<PontoDeAplicacao>> listar() async =>
+      _comTransicoesAutomaticas(mockPontosDeAplicacao);
 
   @override
   Future<List<PontoDeAplicacao>> listarPorBairro(String bairro) async {
-    return mockPontosDeAplicacao
-        .where((ponto) => ponto.bairro == bairro)
-        .toList();
+    return _comTransicoesAutomaticas(
+      mockPontosDeAplicacao.where((ponto) => ponto.bairro == bairro).toList(),
+    );
   }
 
   @override
   Future<PontoDeAplicacao> buscarPorId(String id) async {
-    return mockPontosDeAplicacao.firstWhere(
+    final ponto = mockPontosDeAplicacao.firstWhere(
       (ponto) => ponto.id == id,
       orElse: () => throw EntidadeNaoEncontradaException(
         'Ponto de aplicação "$id" não encontrado.',
       ),
     );
+    return _aplicarTransicaoAutomatica(ponto);
+  }
+
+  /// Transição automática para [EstadoPontoDeAplicacao.inativa] ao cumprir a
+  /// última recorrência do agendamento (GEOPRAG-110) — decisão registrada:
+  /// derivada na leitura (não há API/job em background nesta versão),
+  /// aplicada e persistida aqui, na camada de dados, para as chamadas
+  /// seguintes (ex.: tentar `ativar` de novo) verem o estado já atualizado
+  /// em vez de um `ativa` que a UI já não mostra mais como tal.
+  List<PontoDeAplicacao> _comTransicoesAutomaticas(
+    List<PontoDeAplicacao> pontos,
+  ) => [for (final ponto in pontos) _aplicarTransicaoAutomatica(ponto)];
+
+  PontoDeAplicacao _aplicarTransicaoAutomatica(PontoDeAplicacao ponto) {
+    if (ponto.estado != EstadoPontoDeAplicacao.ativa || !ponto.cicloConcluido) {
+      return ponto;
+    }
+    final atualizado = ponto.copyWith(estado: EstadoPontoDeAplicacao.inativa);
+    final index = mockPontosDeAplicacao.indexWhere((p) => p.id == ponto.id);
+    if (index != -1) mockPontosDeAplicacao[index] = atualizado;
+    return atualizado;
   }
 
   @override
@@ -43,6 +65,16 @@ class AdminPontoDeAplicacaoRepositoryImpl
   @override
   Future<void> atribuirAplicador(String id, String aplicadorId) async {
     await _atualizar(id, (ponto) => ponto.atribuirAplicador(aplicadorId));
+  }
+
+  @override
+  Future<void> desatribuirAplicador(String id) async {
+    await _atualizar(id, (ponto) => ponto.desatribuirAplicador());
+  }
+
+  @override
+  Future<void> reativar(String id) async {
+    await _atualizar(id, (ponto) => ponto.reativar());
   }
 
   Future<void> _atualizar(

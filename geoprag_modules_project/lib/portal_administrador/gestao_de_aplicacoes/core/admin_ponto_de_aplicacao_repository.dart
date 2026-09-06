@@ -7,9 +7,9 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 /// a ele, este enxerga todos os pontos do município (mesma convenção de
 /// `AdminNavigator`/`AdminAccount`).
 ///
-/// "Reativar" e "cancelar aplicação química" entram na GEOPRAG-109/110 — as
-/// invariantes que todas essas ações precisam respeitar já vivem no
-/// domínio, em [PontoDeAplicacao].
+/// "Cancelar aplicação química" entra na GEOPRAG-109 — as invariantes que
+/// todas essas ações precisam respeitar já vivem no domínio, em
+/// [PontoDeAplicacao].
 ///
 /// TODO(GEOPRAG-24): contrato real dos endpoints ainda não validado com o
 /// backend.
@@ -35,6 +35,18 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// Atribui o aplicador [aplicadorId] ao ponto [id]. Lança
   /// `EntidadeNaoEncontradaException` se o [id] não existir.
   Future<void> atribuirAplicador(String id, String aplicadorId);
+
+  /// Remove o aplicador responsável do ponto [id]. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
+  /// `OperacaoNaoPermitidaException` se o ponto estiver ativo (ver
+  /// [PontoDeAplicacao.desatribuirAplicador]).
+  Future<void> desatribuirAplicador(String id);
+
+  /// Devolve o ponto [id] ao estado em que estava antes da última
+  /// desativação. Lança `EntidadeNaoEncontradaException` se o [id] não
+  /// existir, ou `OperacaoNaoPermitidaException` se o ponto não estiver
+  /// desativado (ver [PontoDeAplicacao.reativar]).
+  Future<void> reativar(String id);
 
   /// Cadastra um ponto novo. Nasce em
   /// [EstadoPontoDeAplicacao.enderecada] quando [aplicadorId] é `null`, ou

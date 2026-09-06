@@ -167,6 +167,124 @@ void main() {
     });
   });
 
+  group('desatribuirAplicador', () {
+    test('devolve um ponto direcionado (pa3) a endereçado', () async {
+      await repository.desatribuirAplicador('pa3');
+
+      final ponto = await repository.buscarPorId('pa3');
+      expect(ponto.aplicadorId, isNull);
+      expect(ponto.estado, EstadoPontoDeAplicacao.enderecada);
+    });
+
+    test('propaga a rejeição de domínio ao desatribuir de um ponto ativo (pa2)', () {
+      expect(
+        () => repository.desatribuirAplicador('pa2'),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.desatribuirAplicador('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
+
+  group('reativar', () {
+    test('devolve um ponto desativado ao estado em que estava (pa2, ativa)', () async {
+      await repository.desativar('pa2');
+
+      await repository.reativar('pa2');
+
+      final ponto = await repository.buscarPorId('pa2');
+      expect(ponto.estado, EstadoPontoDeAplicacao.ativa);
+      expect(ponto.estadoAnterior, isNull);
+    });
+
+    test('propaga a rejeição de domínio ao reativar um ponto não desativado (pa3)', () {
+      expect(
+        () => repository.reativar('pa3'),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.reativar('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
+
+  group('transição automática para inativa (ciclo concluído)', () {
+    PontoDeAplicacao pontoAtivoComCicloConcluido() {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 1),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 1,
+      );
+      return PontoDeAplicacao(
+        id: 'pa_teste_ciclo_concluido',
+        identificador: '#TST1',
+        nome: 'Ponto de teste',
+        bairro: 'Gasparinho',
+        endereco: 'Rua de teste',
+        numeroReferencia: 'S/N',
+        descricaoDoTrecho: 'Trecho de teste.',
+        larguraMetros: 2,
+        profundidadeMetros: 0.5,
+        velocidadeMetrosPorSegundo: 0.4,
+        dosagemMl: 100,
+        distanciaEntreSubpontosMetros: 50,
+        quantidadeDeSubpontos: 1,
+        aplicadorId: '1',
+        estado: EstadoPontoDeAplicacao.ativa,
+        agendamento: Agendamento(
+          dataInicio: agendamento.dataInicio,
+          intervaloDias: agendamento.intervaloDias,
+          quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+          datas: [
+            agendamento.datas.single.copyWith(
+              status: StatusDataAgendada.concluida,
+            ),
+          ],
+        ),
+      );
+    }
+
+    test('buscarPorId devolve inativa e persiste a transição', () async {
+      mockPontosDeAplicacao.add(pontoAtivoComCicloConcluido());
+
+      final ponto = await repository.buscarPorId('pa_teste_ciclo_concluido');
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.inativa);
+      expect(
+        mockPontosDeAplicacao
+            .firstWhere((p) => p.id == 'pa_teste_ciclo_concluido')
+            .estado,
+        EstadoPontoDeAplicacao.inativa,
+      );
+    });
+
+    test('listar também aplica a transição', () async {
+      mockPontosDeAplicacao.add(pontoAtivoComCicloConcluido());
+
+      final pontos = await repository.listar();
+
+      expect(
+        pontos.firstWhere((p) => p.id == 'pa_teste_ciclo_concluido').estado,
+        EstadoPontoDeAplicacao.inativa,
+      );
+    });
+
+    test('não transiciona um ponto ativo com ciclo ainda pendente (pa1)', () async {
+      final ponto = await repository.buscarPorId('pa1');
+
+      expect(ponto.estado, EstadoPontoDeAplicacao.ativa);
+    });
+  });
+
   group('identificador do ponto criado', () {
     test('usa as três primeiras letras do bairro e a posição dentro dele', () async {
       // O mock já traz dois pontos em Gasparinho (#GAS1 e #GAS2).

@@ -7,6 +7,7 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presen
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../gestao_de_aplicacoes_fixtures.dart';
@@ -151,5 +152,150 @@ void main() {
 
     final state = cubit.state as PontoDeAplicacaoDetalheError;
     expect(state.message, isNot(contains('Exception')));
+  });
+
+  group('ações individuais (GEOPRAG-110)', () {
+    final agendamento = Agendamento.gerar(
+      dataInicio: DateTime(2026, 9, 10),
+      intervaloDias: 15,
+      quantidadeRecorrencias: 1,
+    );
+
+    test('ativar chama o repository e recarrega com feedback de sucesso',
+        () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(estado: EstadoPontoDeAplicacao.direcionada, aplicadorId: '1'),
+      );
+      when(() => repository.ativar('pa1', agendamento)).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(
+          estado: EstadoPontoDeAplicacao.ativa,
+          aplicadorId: '1',
+          agendamento: agendamento,
+        ),
+      );
+
+      await cubit.ativar(agendamento);
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.ponto.estado, EstadoPontoDeAplicacao.ativa);
+      expect(state.feedback, isA<AcaoFeedbackSucesso>());
+      expect(state.processando, isFalse);
+      verify(() => repository.ativar('pa1', agendamento)).called(1);
+    });
+
+    test('rejeição de domínio vira feedback de erro amigável, sem recarregar',
+        () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => repository.ativar('pa1', agendamento)).thenAnswer(
+        (_) async => throw const OperacaoNaoPermitidaException(
+          'Não é possível ativar este ponto.',
+        ),
+      );
+
+      await cubit.ativar(agendamento);
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.feedback, isA<AcaoFeedbackErro>());
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        'Não é possível ativar este ponto.',
+      );
+      expect(state.processando, isFalse);
+      // O ponto exibido continua o original — a ação falhou, não houve
+      // `buscarPorId` de recarregamento.
+      expect(state.ponto.estado, EstadoPontoDeAplicacao.enderecada);
+    });
+
+    test('desativar chama o repository e recarrega', () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(estado: EstadoPontoDeAplicacao.ativa, aplicadorId: '1'),
+      );
+      when(() => repository.desativar('pa1')).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(
+          estado: EstadoPontoDeAplicacao.desativado,
+          aplicadorId: '1',
+        ),
+      );
+
+      await cubit.desativar();
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.ponto.estado, EstadoPontoDeAplicacao.desativado);
+      expect(state.feedback, isA<AcaoFeedbackSucesso>());
+    });
+
+    test('reativar chama o repository e recarrega', () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(estado: EstadoPontoDeAplicacao.desativado, aplicadorId: '1'),
+      );
+      when(() => repository.reativar('pa1')).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(
+          estado: EstadoPontoDeAplicacao.ativa,
+          aplicadorId: '1',
+        ),
+      );
+
+      await cubit.reativar();
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.ponto.estado, EstadoPontoDeAplicacao.ativa);
+      expect(state.feedback, isA<AcaoFeedbackSucesso>());
+    });
+
+    test('atribuirAplicador chama o repository e recarrega', () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => repository.atribuirAplicador('pa1', '1')).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(
+          estado: EstadoPontoDeAplicacao.direcionada,
+          aplicadorId: '1',
+        ),
+      );
+
+      await cubit.atribuirAplicador('1');
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.ponto.aplicadorNome, 'João Silva');
+      expect(state.feedback, isA<AcaoFeedbackSucesso>());
+    });
+
+    test('desatribuirAplicador chama o repository e recarrega', () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(estado: EstadoPontoDeAplicacao.direcionada, aplicadorId: '1'),
+      );
+      when(() => repository.desatribuirAplicador('pa1')).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(),
+      );
+
+      await cubit.desatribuirAplicador();
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.ponto.aplicadorNome, isNull);
+      expect(state.feedback, isA<AcaoFeedbackSucesso>());
+    });
+
+    test('listarAplicadoresParaAtribuir cruza aplicadores e contagem de pontos',
+        () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => aplicadorRepository.listar()).thenAnswer((_) async => [aplicador]);
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [
+          pontoDeAplicacao(id: 'pa1', aplicadorId: '1'),
+          pontoDeAplicacao(id: 'pa2', aplicadorId: '1'),
+          pontoDeAplicacao(id: 'pa3'),
+        ],
+      );
+
+      final opcoes = await cubit.listarAplicadoresParaAtribuir();
+
+      expect(opcoes, hasLength(1));
+      expect(opcoes.single.id, '1');
+      expect(opcoes.single.bairro, 'Belchior');
+      expect(opcoes.single.quantidadePontosAtribuidos, 2);
+    });
   });
 }
