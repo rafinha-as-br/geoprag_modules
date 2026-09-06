@@ -1,11 +1,10 @@
 import '../../../src/entities/aplicacao.dart';
-import '../../../aplicador_app/applications/data/mock_aplicacoes.dart';
+import 'mock_aplicacoes.dart';
 import '../core/aplicacao_mapa_repository.dart';
 import '../../../src/errors/app_exceptions.dart';
 
-/// Implementação de [AplicacaoMapaRepository] reaproveitando a fonte mockada
-/// já existente do módulo `aplicador_app/applications`
-/// (`mockApplications`), em vez de duplicar os mesmos dados aqui.
+/// Implementação de [AplicacaoMapaRepository] sobre a fonte mockada
+/// (`mockApplications`).
 ///
 /// TODO(GEOPRAG-24): substituir por implementação HTTP real assim que o
 /// contrato de endpoints deste módulo for validado com o backend.

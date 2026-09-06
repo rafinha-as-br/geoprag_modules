@@ -2,10 +2,10 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 
 /// Contrato de acesso aos Pontos de Aplicação pelo Portal Administrador.
 ///
-/// Prefixo `Admin` porque `aplicador_app/application_points` já expõe um
-/// `PontoDeAplicacaoRepository` — o do aplicador enxerga só o ponto atribuído
-/// a ele, este enxerga todos os pontos do município (mesma convenção de
-/// `AdminNavigator`/`AdminAccount`).
+/// Prefixo `Admin` porque `aplicador_app/aplicacoes` já expõe um
+/// `AplicadorPontoDeAplicacaoRepository` — o do aplicador enxerga só os
+/// pontos atribuídos a ele, este enxerga todos os pontos do município
+/// (mesma convenção de `AdminNavigator`/`AdminAccount`).
 ///
 /// As ações que mudam o ciclo de vida de um ponto (ativar, agendar,
 /// desativar/reativar, atribuir aplicador, cancelar) entram aqui na issue de
