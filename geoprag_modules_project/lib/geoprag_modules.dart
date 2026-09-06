@@ -25,6 +25,12 @@ export 'portal_administrador/autenticacao/autenticacao.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
 export 'portal_administrador/mapa_hidrologico/mapa_hidrologico.dart';
+// A entidade `PontoDeAplicacao` deste módulo fica fora deste barrel de
+// propósito: `aplicador_app/application_points` já exporta uma classe
+// homônima daqui, e os dois exports juntos tornariam o nome ambíguo para
+// quem importa o pacote. Quem precisa da entidade importa
+// `src/entities/ponto_de_aplicacao.dart` direto.
+export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/gerenciamento_de_aplicadores/gerenciamento_de_aplicadores.dart';
 export 'portal_administrador/gerenciamento_de_administradores/gerenciamento_de_administradores.dart';
 export 'portal_administrador/inventory_and_bidding/controle_de_estoque.dart';
