@@ -22,6 +22,113 @@ enum EstadoPontoDeAplicacao {
   desativado,
 }
 
+/// Situação de uma data agendada dentro de um [Agendamento].
+enum StatusDataAgendada {
+  /// Ainda não chegou, ou já passou mas não foi registrada.
+  pendente,
+
+  /// Aplicação já registrada para esta data (ver [Subponto.registradoEm]).
+  concluida,
+
+  /// Removida do agendamento sem gerar aplicação — ex.: o ciclo foi
+  /// desativado antes de chegar nela.
+  cancelada,
+}
+
+/// Uma data prevista dentro de um [Agendamento], editável individualmente
+/// depois de gerada (GEOPRAG-75) — por isso é um registro próprio, e não
+/// apenas um índice calculado a partir de [Agendamento.dataInicio].
+class DataAgendada {
+  final DateTime data;
+  final StatusDataAgendada status;
+
+  const DataAgendada({
+    required this.data,
+    this.status = StatusDataAgendada.pendente,
+  });
+
+  DataAgendada copyWith({DateTime? data, StatusDataAgendada? status}) {
+    return DataAgendada(
+      data: data ?? this.data,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DataAgendada && other.data == data && other.status == status);
+
+  @override
+  int get hashCode => Object.hash(data, status);
+}
+
+/// Agendamento do ciclo de aplicações de um [PontoDeAplicacao]: quando a
+/// primeira aplicação é esperada, o intervalo entre uma e a próxima, e
+/// quantas recorrências compõem o ciclo.
+///
+/// Guarda a lista de datas já gerada (e não só os três parâmetros que a
+/// originaram) porque cada data pode ser editada individualmente depois
+/// (GEOPRAG-75, parte de recorrência) — se fosse recalculada sempre a partir
+/// de [dataInicio]/[intervaloDias], uma edição pontual seria perdida na
+/// próxima leitura.
+class Agendamento {
+  final DateTime dataInicio;
+  final int intervaloDias;
+  final int quantidadeRecorrencias;
+  final List<DataAgendada> datas;
+
+  Agendamento({
+    required this.dataInicio,
+    required this.intervaloDias,
+    required this.quantidadeRecorrencias,
+    required List<DataAgendada> datas,
+  }) : datas = List.unmodifiable(datas);
+
+  /// Gera um [Agendamento] novo, com as datas espaçadas por [intervaloDias]
+  /// a partir de [dataInicio] — a primeira geração de um ciclo, antes de
+  /// qualquer edição individual de data.
+  factory Agendamento.gerar({
+    required DateTime dataInicio,
+    required int intervaloDias,
+    required int quantidadeRecorrencias,
+  }) {
+    return Agendamento(
+      dataInicio: dataInicio,
+      intervaloDias: intervaloDias,
+      quantidadeRecorrencias: quantidadeRecorrencias,
+      datas: [
+        for (var i = 0; i < quantidadeRecorrencias; i++)
+          DataAgendada(data: dataInicio.add(Duration(days: intervaloDias * i))),
+      ],
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Agendamento) return false;
+    if (other.dataInicio != dataInicio ||
+        other.intervaloDias != intervaloDias ||
+        other.quantidadeRecorrencias != quantidadeRecorrencias ||
+        other.datas.length != datas.length) {
+      return false;
+    }
+    for (var i = 0; i < datas.length; i++) {
+      if (other.datas[i] != datas[i]) return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    dataInicio,
+    intervaloDias,
+    quantidadeRecorrencias,
+    Object.hashAll(datas),
+  );
+}
+
 /// Uma aplicação do produto registrada ao longo do trecho de um
 /// [PontoDeAplicacao].
 ///
@@ -101,6 +208,10 @@ class PontoDeAplicacao {
 
   final EstadoPontoDeAplicacao estado;
 
+  /// Agendamento do ciclo vigente (ou do último ciclo, se o ponto já foi
+  /// desativado) — `null` enquanto o ponto nunca foi ativado.
+  final Agendamento? agendamento;
+
   /// Aplicações já registradas neste ponto, da mais antiga para a mais
   /// recente.
   final List<Subponto> subpontos;
@@ -121,6 +232,7 @@ class PontoDeAplicacao {
     required this.quantidadeDeSubpontos,
     required this.estado,
     this.aplicadorId,
+    this.agendamento,
     List<Subponto> subpontos = const [],
   }) : subpontos = List.unmodifiable(subpontos) {
     if (estado == EstadoPontoDeAplicacao.ativa && aplicadorId == null) {
@@ -181,6 +293,38 @@ class PontoDeAplicacao {
     );
   }
 
+  /// Ativa o ciclo, aplicando [agendamento] — só a partir de
+  /// [EstadoPontoDeAplicacao.direcionada] (primeira ativação) ou
+  /// [EstadoPontoDeAplicacao.inativa] (retomada de um ciclo suspenso). Um
+  /// agendamento novo sempre substitui o anterior; o histórico de
+  /// [subpontos] nunca é tocado aqui.
+  PontoDeAplicacao ativar(Agendamento agendamento) {
+    if (estado != EstadoPontoDeAplicacao.direcionada &&
+        estado != EstadoPontoDeAplicacao.inativa) {
+      throw OperacaoNaoPermitidaException(
+        'Não é possível ativar um ponto ${estado.name}. Só pontos '
+        'direcionados ou inativos podem ser ativados.',
+      );
+    }
+    return copyWith(estado: EstadoPontoDeAplicacao.ativa, agendamento: agendamento);
+  }
+
+  /// Retira o ponto de operação — nunca uma exclusão ("Módulo - Gestão de
+  /// Aplicações", seção 5). Válido a partir de qualquer estado, exceto de
+  /// [EstadoPontoDeAplicacao.desativado] (já desativado).
+  ///
+  /// Reverter esta ação ("Reativar", voltando ao estado em que o ponto
+  /// estava) é escopo da GEOPRAG-110, que ainda decide como lembrar o
+  /// estado anterior — este método não tenta antecipar essa necessidade.
+  PontoDeAplicacao desativar() {
+    if (estado == EstadoPontoDeAplicacao.desativado) {
+      throw const OperacaoNaoPermitidaException(
+        'Este ponto já está desativado.',
+      );
+    }
+    return copyWith(estado: EstadoPontoDeAplicacao.desativado);
+  }
+
   PontoDeAplicacao copyWith({
     String? nome,
     String? bairro,
@@ -195,6 +339,7 @@ class PontoDeAplicacao {
     int? quantidadeDeSubpontos,
     String? aplicadorId,
     EstadoPontoDeAplicacao? estado,
+    Agendamento? agendamento,
     List<Subponto>? subpontos,
     bool limparAplicador = false,
   }) {
@@ -217,6 +362,7 @@ class PontoDeAplicacao {
           quantidadeDeSubpontos ?? this.quantidadeDeSubpontos,
       aplicadorId: limparAplicador ? null : (aplicadorId ?? this.aplicadorId),
       estado: estado ?? this.estado,
+      agendamento: agendamento ?? this.agendamento,
       subpontos: subpontos ?? this.subpontos,
     );
   }

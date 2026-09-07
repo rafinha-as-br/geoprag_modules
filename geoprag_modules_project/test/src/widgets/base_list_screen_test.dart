@@ -10,6 +10,7 @@ import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
 BaseListScreenModel<String> _model({
   List<Widget> actions = const [],
   Widget? filter,
+  Widget? batchActionBar,
   void Function(BuildContext context, String item)? onRowTap,
 }) => BaseListScreenModel<String>(
   title: 'Voluntários Cadastrados',
@@ -24,6 +25,7 @@ BaseListScreenModel<String> _model({
   emptyState: const Text('Nenhum aplicador encontrado.'),
   actions: actions,
   filter: filter,
+  batchActionBar: batchActionBar,
   onRowTap: onRowTap,
 );
 
@@ -33,8 +35,25 @@ class _AplicadoresController extends BaseListScreenController<String> {
   _AplicadoresController({
     List<Widget> actions = const [],
     Widget? filter,
+    Widget? batchActionBar,
     void Function(BuildContext context, String item)? onRowTap,
-  }) : super(_model(actions: actions, filter: filter, onRowTap: onRowTap));
+  }) : super(
+         _model(
+           actions: actions,
+           filter: filter,
+           batchActionBar: batchActionBar,
+           onRowTap: onRowTap,
+         ),
+       );
+}
+
+/// Controller de teste para a seleção múltipla genérica (GEOPRAG-101) — o
+/// id de um `String` é ele mesmo.
+class _ControllerComSelecao extends BaseListScreenController<String> {
+  _ControllerComSelecao() : super(_model());
+
+  @override
+  String idDoItem(String item) => item;
 }
 
 /// Controller cujo model troca a frase padrão de erro.
@@ -300,6 +319,138 @@ void main() {
       final model = _model().copyWith(items: mutavel);
 
       expect(() => model.items.add('Item B'), throwsUnsupportedError);
+    });
+
+    group('seleção múltipla (GEOPRAG-101)', () {
+      test('nasce sem nenhum item selecionado', () {
+        expect(_ControllerComSelecao().state.idsSelecionados, isEmpty);
+      });
+
+      test('alternarSelecao seleciona um item não selecionado', () {
+        final controller = _ControllerComSelecao()..alternarSelecao('a');
+
+        expect(controller.state.idsSelecionados, {'a'});
+      });
+
+      test('alternarSelecao desmarca um item já selecionado', () {
+        final controller = _ControllerComSelecao()
+          ..alternarSelecao('a')
+          ..alternarSelecao('a');
+
+        expect(controller.state.idsSelecionados, isEmpty);
+      });
+
+      test('alternarSelecao preserva outros ids já selecionados', () {
+        final controller = _ControllerComSelecao()
+          ..alternarSelecao('a')
+          ..alternarSelecao('b');
+
+        expect(controller.state.idsSelecionados, {'a', 'b'});
+      });
+
+      test(
+        'alternarSelecaoDeTodosVisiveis seleciona todos os items quando '
+        'nenhum (ou nem todos) está selecionado',
+        () {
+          final controller = _ControllerComSelecao()
+            ..emitItems(const ['a', 'b', 'c'])
+            ..alternarSelecao('a')
+            ..alternarSelecaoDeTodosVisiveis();
+
+          expect(controller.state.idsSelecionados, {'a', 'b', 'c'});
+        },
+      );
+
+      test(
+        'alternarSelecaoDeTodosVisiveis limpa a seleção quando todos os '
+        'items visíveis já estão selecionados',
+        () {
+          final controller = _ControllerComSelecao()
+            ..emitItems(const ['a', 'b'])
+            ..alternarSelecaoDeTodosVisiveis();
+          expect(controller.state.idsSelecionados, {'a', 'b'});
+
+          controller.alternarSelecaoDeTodosVisiveis();
+
+          expect(controller.state.idsSelecionados, isEmpty);
+        },
+      );
+
+      test('alternarSelecaoDeTodosVisiveis não faz nada com a lista vazia', () {
+        final controller = _ControllerComSelecao()
+          ..emitItems(const [])
+          ..alternarSelecaoDeTodosVisiveis();
+
+        expect(controller.state.idsSelecionados, isEmpty);
+      });
+
+      test('limparSelecao esvazia a seleção atual', () {
+        final controller = _ControllerComSelecao()
+          ..alternarSelecao('a')
+          ..alternarSelecao('b')
+          ..limparSelecao();
+
+        expect(controller.state.idsSelecionados, isEmpty);
+      });
+
+      test('emitProcessandoAcaoEmLote atualiza a flag no model', () {
+        final controller = _ControllerComSelecao()
+          ..emitProcessandoAcaoEmLote(true);
+
+        expect(controller.state.processandoAcaoEmLote, isTrue);
+      });
+
+      test('idDoItem não sobrescrito lança UnimplementedError ao selecionar', () {
+        final controller = _AplicadoresController();
+
+        expect(
+          () => controller.alternarSelecao('Item A'),
+          throwsUnimplementedError,
+        );
+      });
+
+    });
+  });
+
+  group('BaseListScreen — batchActionBar', () {
+    testWidgets('renderiza a batchActionBar quando o model informa uma', (
+      tester,
+    ) async {
+      final controller = _AplicadoresController(
+        batchActionBar: const Text('Barra de lote'),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider<BaseListScreenController<String>>.value(
+              value: controller,
+              child: const BaseListScreen<BaseListScreenController<String>, String>(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Barra de lote'), findsOneWidget);
+    });
+
+    testWidgets('não renderiza nada quando o model não informa batchActionBar', (
+      tester,
+    ) async {
+      final controller = _AplicadoresController();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider<BaseListScreenController<String>>.value(
+              value: controller,
+              child: const BaseListScreen<BaseListScreenController<String>, String>(),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Barra de lote'), findsNothing);
     });
   });
 }
