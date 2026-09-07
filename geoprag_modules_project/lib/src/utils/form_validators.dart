@@ -26,5 +26,14 @@ String? validarNumeroPositivo(
 /// Formata um número sem casas decimais quando o valor é inteiro (`2`, não
 /// `2.0`) — convenção de exibição reaproveitada pelas telas de detalhe e
 /// edição de Ponto de Aplicação.
-String formatarNumeroExibicao(double valor) =>
-    valor == valor.roundToDouble() ? '${valor.round()}' : valor.toString();
+///
+/// Arredonda para 3 casas antes de decidir o formato: um valor como a vazão
+/// (produto de largura × profundidade × velocidade) pode chegar aqui como
+/// `0.46199999999999997` por imprecisão de ponto flutuante, e `toString()`
+/// exibiria o double bruto em vez do valor arredondado (GEOPRAG-38/QA).
+String formatarNumeroExibicao(double valor) {
+  final arredondado = double.parse(valor.toStringAsFixed(3));
+  return arredondado == arredondado.roundToDouble()
+      ? '${arredondado.round()}'
+      : arredondado.toString();
+}
