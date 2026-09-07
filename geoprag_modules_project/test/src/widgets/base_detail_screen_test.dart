@@ -104,7 +104,7 @@ void main() {
       },
     );
 
-    testWidgets('mostra actions à direita do título quando informadas', (
+    testWidgets('mostra as actions abaixo do título quando informadas', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -122,7 +122,49 @@ void main() {
       );
 
       expect(find.text('Editar'), findsOneWidget);
+      final tituloY = tester.getBottomLeft(find.text('Título')).dy;
+      final acaoY = tester.getTopLeft(find.byType(ElevatedButton)).dy;
+      expect(acaoY, greaterThanOrEqualTo(tituloY));
     });
+
+    testWidgets(
+      'título longo + várias actions não se sobrepõem em viewport estreita '
+      '— regressão GEOPRAG-109/110',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          wrap(
+            BaseDetailScreen(
+              variant: BaseDetailScreenVariant.duasColunas,
+              title: 'Córrego Gasparinho - Margem Esquerda · #GAS1',
+              isLoading: false,
+              actions: List.generate(
+                4,
+                (i) => OutlinedButton(
+                  onPressed: () {},
+                  child: Text('Ação bem longa $i'),
+                ),
+              ),
+              contentBuilder: (context) => const SizedBox.shrink(),
+            ),
+          ),
+        );
+
+        final tituloBottom = tester.getBottomLeft(find.text(
+          'Córrego Gasparinho - Margem Esquerda · #GAS1',
+        )).dy;
+        final primeiraAcaoTop = tester
+            .getTopLeft(find.byType(OutlinedButton).first)
+            .dy;
+
+        expect(primeiraAcaoTop, greaterThanOrEqualTo(tituloBottom));
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('não renderiza Row de actions quando a lista está vazia', (
       tester,

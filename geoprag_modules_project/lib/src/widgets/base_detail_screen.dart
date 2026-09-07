@@ -12,7 +12,8 @@ enum BaseDetailScreenVariant { duasColunas, cartaoCentralizado }
 /// Compartilha o mesmo switch de estado (loading/erro/conteúdo) e expõe um
 /// slot explícito [actions] — em vez de cada tela decidir sozinha se as
 /// ações vão no header, no corpo ou no rodapé, o template sempre as coloca
-/// à direita do título.
+/// abaixo do título, alinhadas à direita (empilhadas, não lado a lado —
+/// GEOPRAG-109/110).
 ///
 /// [duasColunas] não inclui `AdminScaffold` — como os demais templates
 /// deste pacote, este é só o corpo; a página (`AdminScaffold`, `AppBar`)
@@ -87,14 +88,23 @@ class BaseDetailScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: Text(title, style: titleStyle)),
-              if (actions.isNotEmpty)
-                Row(mainAxisSize: MainAxisSize.min, children: actions),
-            ],
-          ),
+          // Título e ações empilhados (não lado a lado): com título longo e
+          // várias ações (GEOPRAG-109/110 somaram 4 botões no mesmo header),
+          // um Row com Expanded deixava a coluna do título estreita demais e
+          // as ações renderizavam por cima do texto quebrado em várias
+          // linhas. Empilhar sempre evita a disputa de espaço horizontal, e
+          // o Wrap deixa os próprios botões quebrarem linha entre si quando
+          // não cabem lado a lado.
+          Text(title, style: titleStyle),
+          if (actions.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 8,
+              children: actions,
+            ),
+          ],
           if (variant == BaseDetailScreenVariant.cartaoCentralizado)
             const Divider(height: 32)
           else
