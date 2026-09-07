@@ -2,10 +2,10 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 
 /// Contrato de acesso aos Pontos de Aplicação pelo Portal Administrador.
 ///
-/// Prefixo `Admin` porque `aplicador_app/application_points` já expõe um
-/// `PontoDeAplicacaoRepository` — o do aplicador enxerga só o ponto atribuído
-/// a ele, este enxerga todos os pontos do município (mesma convenção de
-/// `AdminNavigator`/`AdminAccount`).
+/// Prefixo `Admin` porque `aplicador_app/aplicacoes` já expõe um
+/// `AplicadorPontoDeAplicacaoRepository` — o do aplicador enxerga só os
+/// pontos atribuídos a ele, este enxerga todos os pontos do município
+/// (mesma convenção de `AdminNavigator`/`AdminAccount`).
 ///
 /// "Cancelar aplicação química" entra na GEOPRAG-109 — as invariantes que
 /// todas essas ações precisam respeitar já vivem no domínio, em
