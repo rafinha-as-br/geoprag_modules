@@ -12,11 +12,11 @@ abstract class AplicadorNavigator {
   void toLoginResetStack();
 
   void toPonto();
-  void toPontoMarcar();
+  void toPontoDetalhe(String id);
 
-  void toAplicacaoInfo();
-  void toAplicacaoGeo();
-  void toAplicacaoRegistrar();
+  void toAplicacaoInfo(String pontoId);
+  void toAplicacaoGeo(String pontoId);
+  void toAplicacaoRegistrar(String pontoId);
 
   void toInventario();
   void toRecebimentos();
