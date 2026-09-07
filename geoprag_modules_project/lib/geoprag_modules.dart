@@ -11,6 +11,7 @@ export 'src/widgets/geoprag_password_requirements.dart';
 export 'src/widgets/geoprag_cpf_input.dart';
 export 'src/widgets/geoprag_sexo_input.dart';
 export 'src/widgets/geoprag_data_nascimento_input.dart';
+export 'src/permissions/capacidade.dart';
 
 export 'aplicador_app/core/aplicador_navigator.dart';
 export 'aplicador_app/auth/autenticacao.dart';
