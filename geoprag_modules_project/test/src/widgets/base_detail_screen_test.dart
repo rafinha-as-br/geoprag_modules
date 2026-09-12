@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/src/widgets/base_detail_screen.dart';
+
+void main() {
+  Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+
+  group('BaseDetailScreen', () {
+    testWidgets('mostra spinner quando isLoading é true, sem header', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          BaseDetailScreen(
+            variant: BaseDetailScreenVariant.duasColunas,
+            title: 'Título',
+            isLoading: true,
+            contentBuilder: (context) => const Text('conteúdo'),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Título'), findsNothing);
+      expect(find.text('conteúdo'), findsNothing);
+    });
+
+    testWidgets('mostra a mensagem de erro quando errorMessage é informado', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          BaseDetailScreen(
+            variant: BaseDetailScreenVariant.duasColunas,
+            title: 'Título',
+            isLoading: false,
+            errorMessage: 'Não foi possível carregar: falha de rede',
+            contentBuilder: (context) => const Text('conteúdo'),
+          ),
+        ),
+      );
+
+      expect(
+        find.text('Não foi possível carregar: falha de rede'),
+        findsOneWidget,
+      );
+      expect(find.text('conteúdo'), findsNothing);
+    });
+
+    testWidgets(
+      'variante duasColunas mostra título (fontSize 28) e conteúdo sem Card externo',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            BaseDetailScreen(
+              variant: BaseDetailScreenVariant.duasColunas,
+              title: 'João Silva',
+              isLoading: false,
+              contentBuilder: (context) => const Text('perfil'),
+            ),
+          ),
+        );
+
+        final titleText = tester.widget<Text>(find.text('João Silva'));
+        expect(titleText.style?.fontSize, 28);
+        expect(find.text('perfil'), findsOneWidget);
+        expect(find.byType(Card), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'variante cartaoCentralizado envolve em Container(600) + Card(elevation:4, radius:16) com título fontSize 24',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            BaseDetailScreen(
+              variant: BaseDetailScreenVariant.cartaoCentralizado,
+              title: 'Produto X - Lote 1',
+              isLoading: false,
+              contentBuilder: (context) => const Text('detalhes do produto'),
+            ),
+          ),
+        );
+
+        final titleText = tester.widget<Text>(find.text('Produto X - Lote 1'));
+        expect(titleText.style?.fontSize, 24);
+
+        final card = tester.widget<Card>(find.byType(Card));
+        expect(card.elevation, 4);
+        expect(
+          (card.shape as RoundedRectangleBorder).borderRadius,
+          BorderRadius.circular(16),
+        );
+
+        // .first: a variante também insere um Divider entre o header e o
+        // conteúdo, e Divider é internamente renderizado com um Container
+        // próprio — o wrapper de largura 600 é o primeiro na árvore.
+        final container = tester.widget<Container>(
+          find.byType(Container).first,
+        );
+        expect(container.constraints?.maxWidth, 600);
+
+        expect(find.byType(Divider), findsOneWidget);
+      },
+    );
+
+    testWidgets('mostra as actions abaixo do título quando informadas', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          BaseDetailScreen(
+            variant: BaseDetailScreenVariant.duasColunas,
+            title: 'Título',
+            isLoading: false,
+            actions: [
+              ElevatedButton(onPressed: () {}, child: const Text('Editar')),
+            ],
+            contentBuilder: (context) => const SizedBox.shrink(),
+          ),
+        ),
+      );
+
+      expect(find.text('Editar'), findsOneWidget);
+      final tituloY = tester.getBottomLeft(find.text('Título')).dy;
+      final acaoY = tester.getTopLeft(find.byType(ElevatedButton)).dy;
+      expect(acaoY, greaterThanOrEqualTo(tituloY));
+    });
+
+    testWidgets(
+      'título longo + várias actions não se sobrepõem em viewport estreita '
+      '— regressão GEOPRAG-109/110',
+      (tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          wrap(
+            BaseDetailScreen(
+              variant: BaseDetailScreenVariant.duasColunas,
+              title: 'Córrego Gasparinho - Margem Esquerda · #GAS1',
+              isLoading: false,
+              actions: List.generate(
+                4,
+                (i) => OutlinedButton(
+                  onPressed: () {},
+                  child: Text('Ação bem longa $i'),
+                ),
+              ),
+              contentBuilder: (context) => const SizedBox.shrink(),
+            ),
+          ),
+        );
+
+        final tituloBottom = tester.getBottomLeft(find.text(
+          'Córrego Gasparinho - Margem Esquerda · #GAS1',
+        )).dy;
+        final primeiraAcaoTop = tester
+            .getTopLeft(find.byType(OutlinedButton).first)
+            .dy;
+
+        expect(primeiraAcaoTop, greaterThanOrEqualTo(tituloBottom));
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('não renderiza Row de actions quando a lista está vazia', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          BaseDetailScreen(
+            variant: BaseDetailScreenVariant.duasColunas,
+            title: 'Título',
+            isLoading: false,
+            contentBuilder: (context) => const SizedBox.shrink(),
+          ),
+        ),
+      );
+
+      expect(find.byType(ElevatedButton), findsNothing);
+    });
+
+    for (final variant in BaseDetailScreenVariant.values) {
+      testWidgets(
+        'conteúdo mais alto que a viewport rola em vez de estourar '
+        '(${variant.name}) — regressão GEOPRAG-92/93/95',
+        (tester) async {
+          tester.view.physicalSize = const Size(800, 400);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+
+          await tester.pumpWidget(
+            wrap(
+              BaseDetailScreen(
+                variant: variant,
+                title: 'Título',
+                isLoading: false,
+                contentBuilder: (context) => const SizedBox(height: 1000),
+              ),
+            ),
+          );
+
+          expect(find.byType(SingleChildScrollView), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  });
+}

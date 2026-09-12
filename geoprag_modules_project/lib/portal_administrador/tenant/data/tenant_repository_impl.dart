@@ -1,0 +1,31 @@
+import '../../../src/entities/tenant_config.dart';
+import 'mock_tenant_configs.dart';
+import '../../../src/errors/app_exceptions.dart';
+
+/// Implementação de [TenantRepository] com fonte remota mockada
+/// (`mockAdminTenantConfigs`, ver TODO no arquivo) e cache local em memória.
+///
+/// TODO(GEOPRAG-24): trocar o cache em memória por persistência real
+/// (ex.: `shared_preferences`) quando o cold start offline for priorizado.
+class AdminTenantRepositoryImpl implements TenantRepository {
+  TenantConfig? _cached;
+
+  @override
+  Future<TenantConfig> fetchByTenantId(String tenantId) async {
+    final config = mockAdminTenantConfigs[tenantId];
+    if (config == null) {
+      throw EntidadeNaoEncontradaException(
+        'Tenant "$tenantId" não encontrado.',
+      );
+    }
+    return config;
+  }
+
+  @override
+  Future<TenantConfig?> readCached() async => _cached;
+
+  @override
+  Future<void> cache(TenantConfig config) async {
+    _cached = config;
+  }
+}
