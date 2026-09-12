@@ -1,6 +1,6 @@
 name: geoprag_modules
 description: Package flutter de todo o front end do GEOPRAG.
-version: 0.1.0
+version: 0.1.0-rc.1
 
 environment:
   sdk: ^3.9.2
