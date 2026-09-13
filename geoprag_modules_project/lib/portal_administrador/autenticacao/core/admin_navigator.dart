@@ -77,6 +77,11 @@ abstract class AdminNavigator {
   void toDenunciasAdminListagem();
   void toDenunciaAdminDetalhes(String denunciaId);
 
+  /// Formulário de edição dos próprios dados do administrador logado
+  /// (GEOPRAG-148), alcançado pelo dropdown de conta do rodapé do side menu
+  /// (GEOPRAG-146).
+  void toEditarMeusDados();
+
   /// Substitui a rota atual pela tela de login (usado pelo "Sair" da sidebar).
   void toLogout();
 

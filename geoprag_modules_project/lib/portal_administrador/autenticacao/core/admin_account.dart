@@ -27,12 +27,14 @@ class AdminAccount extends Usuario {
   });
 
   AdminAccount copyWith({
+    String? email,
+    String? nome,
     AdminRole? role,
     UsuarioStatus? status,
     DateTime? dataDesativacao,
   }) => AdminAccount(
-    email: email,
-    nome: nome,
+    email: email ?? this.email,
+    nome: nome ?? this.nome,
     cpf: cpf,
     dataNascimento: dataNascimento,
     sexo: sexo,

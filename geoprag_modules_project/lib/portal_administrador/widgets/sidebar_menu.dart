@@ -172,11 +172,10 @@ class SidebarMenu extends StatelessWidget {
 /// abaixo do anchor, e como este botão fica colado na borda inferior da
 /// tela, esse é sempre o caso aqui.
 ///
-/// Só tem "Sair da conta" por enquanto. "Editar dados" entra quando
-/// GEOPRAG-148 landar; "Configurações" e "Suporte" ficam de fora até
-/// ganharem destino definido (decisão explícita de Rafinha em
-/// GEOPRAG-149) — não é esquecimento, é para não deixar item de menu sem
-/// lugar nenhum para ir.
+/// Tem "Editar dados" (GEOPRAG-148) e "Sair da conta". "Configurações" e
+/// "Suporte" ficam de fora até ganharem destino definido (decisão explícita
+/// de Rafinha em GEOPRAG-149) — não é esquecimento, é para não deixar item
+/// de menu sem lugar nenhum para ir.
 class _ContaFooter extends StatelessWidget {
   const _ContaFooter({required this.conta});
 
@@ -191,6 +190,12 @@ class _ContaFooter extends StatelessWidget {
         MenuAnchor(
           alignmentOffset: const Offset(0, -8),
           menuChildren: [
+            MenuItemButton(
+              leadingIcon: const Icon(Icons.edit),
+              onPressed: () =>
+                  AdminNavigatorScope.of(context).toEditarMeusDados(),
+              child: const Text('Editar dados'),
+            ),
             MenuItemButton(
               leadingIcon: const Icon(Icons.logout),
               onPressed: () {

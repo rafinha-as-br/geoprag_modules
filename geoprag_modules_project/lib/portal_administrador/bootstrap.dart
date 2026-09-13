@@ -1,3 +1,4 @@
+import 'autenticacao/core/admin_account.dart';
 import 'autenticacao/core/admin_auth_repository.dart';
 import 'autenticacao/core/solicitacao_redefinicao_repository.dart';
 import 'autenticacao/data/admin_auth_repository_impl.dart';
@@ -13,6 +14,7 @@ import 'gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart';
 import 'gerenciamento_de_administradores/presentation/administradores_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/criar_administrador_cubit.dart';
+import 'gerenciamento_de_administradores/presentation/editar_meus_dados_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/solicitacoes_promocao_cubit.dart';
 import 'gerenciamento_de_aplicadores/core/aplicador_repository.dart';
 import 'gerenciamento_de_aplicadores/data/aplicador_repository_impl.dart';
@@ -139,6 +141,12 @@ class AdminBootstrap {
   );
   CriarAdministradorCubit buildCriarAdministradorCubit() =>
       CriarAdministradorCubit(buildAdministradorRepository());
+  EditarMeusDadosCubit buildEditarMeusDadosCubit(AdminAccount contaAtual) =>
+      EditarMeusDadosCubit(
+        buildAdministradorRepository(),
+        buildAdminAuthRepository(),
+        contaAtual,
+      );
   AdministradoresCubit buildAdministradoresCubit() =>
       AdministradoresCubit(buildAdministradorRepository());
   SolicitacoesPromocaoCubit buildSolicitacoesPromocaoCubit(
