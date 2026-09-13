@@ -19,6 +19,13 @@ import 'gerenciamento_de_aplicadores/data/aplicador_repository_impl.dart';
 import 'gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'gerenciamento_de_aplicadores/presentation/aplicadores_cubit.dart';
 import 'gerenciamento_de_aplicadores/presentation/criar_aplicador_cubit.dart';
+import 'gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
+import 'gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
+import 'gestao_de_aplicacoes/presentation/criar_ponto_de_aplicacao_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/editar_ponto_de_aplicacao_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/pontos_de_aplicacao_cubit.dart';
+import 'gestao_de_aplicacoes/presentation/pontos_do_bairro_cubit.dart';
 import 'dashboard/core/resumo_geral_repository.dart';
 import 'dashboard/data/resumo_geral_repository_impl.dart';
 import 'dashboard/presentation/dashboard_geral_cubit.dart';
@@ -66,6 +73,8 @@ class AdminBootstrap {
   SolicitacaoRedefinicaoRepository buildSolicitacaoRedefinicaoRepository() =>
       SolicitacaoRedefinicaoRepositoryImpl();
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
+  AdminPontoDeAplicacaoRepository buildAdminPontoDeAplicacaoRepository() =>
+      AdminPontoDeAplicacaoRepositoryImpl();
   AdministradorRepository buildAdministradorRepository() =>
       AdministradorRepositoryImpl();
   ResumoGeralRepository buildResumoGeralRepository() =>
@@ -98,6 +107,36 @@ class AdminBootstrap {
       AplicadorDetalheCubit(buildAplicadorRepository(), aplicadorId);
   CriarAplicadorCubit buildCriarAplicadorCubit() =>
       CriarAplicadorCubit(buildAplicadorRepository());
+
+  PontosDeAplicacaoCubit buildPontosDeAplicacaoCubit() =>
+      PontosDeAplicacaoCubit(
+        buildAdminPontoDeAplicacaoRepository(),
+        buildAplicadorRepository(),
+      );
+  PontosDoBairroCubit buildPontosDoBairroCubit(String bairro) =>
+      PontosDoBairroCubit(
+        buildAdminPontoDeAplicacaoRepository(),
+        buildAplicadorRepository(),
+        bairro,
+      );
+  PontoDeAplicacaoDetalheCubit buildPontoDeAplicacaoDetalheCubit(
+    String pontoId,
+  ) => PontoDeAplicacaoDetalheCubit(
+    buildAdminPontoDeAplicacaoRepository(),
+    buildAplicadorRepository(),
+    pontoId,
+  );
+  CriarPontoDeAplicacaoCubit buildCriarPontoDeAplicacaoCubit() =>
+      CriarPontoDeAplicacaoCubit(
+        buildAdminPontoDeAplicacaoRepository(),
+        buildAplicadorRepository(),
+      );
+  EditarPontoDeAplicacaoCubit buildEditarPontoDeAplicacaoCubit(
+    String pontoId,
+  ) => EditarPontoDeAplicacaoCubit(
+    buildAdminPontoDeAplicacaoRepository(),
+    pontoId,
+  );
   CriarAdministradorCubit buildCriarAdministradorCubit() =>
       CriarAdministradorCubit(buildAdministradorRepository());
   AdministradoresCubit buildAdministradoresCubit() =>

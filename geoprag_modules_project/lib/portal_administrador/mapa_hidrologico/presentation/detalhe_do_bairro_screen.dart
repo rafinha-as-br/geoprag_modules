@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'bairro_detalhe_cubit.dart';
 import 'bairro_detalhe_state.dart';
 import 'bairro_view_model.dart';
@@ -17,8 +16,7 @@ class DetalheDoBairroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/mapa',
+    return Scaffold(
       appBar: AppBar(title: const Text('Detalhe do Bairro')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

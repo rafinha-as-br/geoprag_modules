@@ -4,14 +4,12 @@ import 'auth/presentation/esqueci_senha_cubit.dart';
 import 'auth/presentation/login_cubit.dart';
 import 'auth/presentation/recriar_senha_cubit.dart';
 import 'auth/presentation/verificar_codigo_cubit.dart';
-import 'applications/core/aplicacao_repository.dart';
-import 'applications/data/aplicacao_repository_impl.dart';
-import 'applications/presentation/aplicacao_atual_cubit.dart';
-import 'applications/presentation/geolocalizacao_cubit.dart';
-import 'application_points/core/ponto_de_aplicacao_repository.dart';
-import 'application_points/data/ponto_de_aplicacao_repository_impl.dart';
-import 'application_points/presentation/marcacao_do_ponto_cubit.dart';
-import 'application_points/presentation/ponto_de_aplicacao_cubit.dart';
+import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
+import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
+import 'aplicacoes/presentation/meus_pontos_cubit.dart';
+import 'aplicacoes/presentation/detalhe_do_ponto_cubit.dart';
+import 'aplicacoes/presentation/geolocalizacao_cubit.dart';
+import 'aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
 import 'inventory/core/insumo_repository.dart';
 import 'inventory/core/recebimento_repository.dart';
 import 'inventory/data/insumo_repository_impl.dart';
@@ -37,14 +35,13 @@ class AplicadorBootstrap {
 
   AuthRepository buildAuthRepository() => AuthRepositoryImpl();
   TenantRepository buildTenantRepository() => TenantRepositoryImpl();
-  AplicacaoRepository buildAplicacaoRepository() => AplicacaoRepositoryImpl();
+  AplicadorPontoDeAplicacaoRepository buildAplicadorPontoDeAplicacaoRepository() =>
+      AplicadorPontoDeAplicacaoRepositoryImpl();
   InsumoRepository buildInsumoRepository() => InsumoRepositoryImpl();
   RecebimentoRepository buildRecebimentoRepository() =>
       RecebimentoRepositoryImpl();
   DenunciaDeFocoRepository buildDenunciaDeFocoRepository() =>
       DenunciaDeFocoRepositoryImpl();
-  PontoDeAplicacaoRepository buildPontoDeAplicacaoRepository() =>
-      PontoDeAplicacaoRepositoryImpl();
 
   LoginCubit buildLoginCubit() => LoginCubit(buildAuthRepository());
   EsqueciSenhaCubit buildEsqueciSenhaCubit() =>
@@ -53,10 +50,18 @@ class AplicadorBootstrap {
       VerificarCodigoCubit(buildAuthRepository());
   RecriarSenhaCubit buildRecriarSenhaCubit() =>
       RecriarSenhaCubit(buildAuthRepository());
-  AplicacaoAtualCubit buildAplicacaoAtualCubit(String aplicadorId) =>
-      AplicacaoAtualCubit(buildAplicacaoRepository(), aplicadorId);
-  GeolocalizacaoCubit buildGeolocalizacaoCubit(String aplicadorId) =>
-      GeolocalizacaoCubit(buildAplicacaoRepository(), aplicadorId);
+  MeusPontosCubit buildMeusPontosCubit(String aplicadorId) =>
+      MeusPontosCubit(buildAplicadorPontoDeAplicacaoRepository(), aplicadorId);
+  DetalheDoPontoDesignadoCubit buildDetalheDoPontoDesignadoCubit(
+    String pontoId,
+  ) => DetalheDoPontoDesignadoCubit(
+    buildAplicadorPontoDeAplicacaoRepository(),
+    pontoId,
+  );
+  GeolocalizacaoCubit buildGeolocalizacaoCubit(String pontoId) =>
+      GeolocalizacaoCubit(buildAplicadorPontoDeAplicacaoRepository(), pontoId);
+  TelaDeAplicacaoCubit buildTelaDeAplicacaoCubit(String pontoId) =>
+      TelaDeAplicacaoCubit(buildAplicadorPontoDeAplicacaoRepository(), pontoId);
   InventarioCubit buildInventarioCubit() =>
       InventarioCubit(buildInsumoRepository(), buildRecebimentoRepository());
   RecebimentosCubit buildRecebimentosCubit() =>
@@ -71,10 +76,6 @@ class AplicadorBootstrap {
       DenunciasDeFocoCubit(buildDenunciaDeFocoRepository());
   CriarDenunciaDeFocoCubit buildCriarDenunciaDeFocoCubit() =>
       CriarDenunciaDeFocoCubit(buildDenunciaDeFocoRepository());
-  PontoDeAplicacaoCubit buildPontoDeAplicacaoCubit() =>
-      PontoDeAplicacaoCubit(buildPontoDeAplicacaoRepository());
-  MarcacaoDoPontoCubit buildMarcacaoDoPontoCubit() =>
-      MarcacaoDoPontoCubit(buildPontoDeAplicacaoRepository());
 
   TenantCubit buildTenantCubit() =>
       TenantCubit(buildTenantRepository(), MbtilesDownloader());

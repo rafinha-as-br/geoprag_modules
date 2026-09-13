@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/usuario.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
-import '../../widgets/admin_scaffold.dart';
+import '../../../src/widgets/geoprag_masked_text.dart';
 import '../core/atuacao_aplicador.dart';
 import 'aplicador_detalhe_cubit.dart';
 import 'aplicador_detalhe_state.dart';
@@ -15,8 +15,7 @@ class VisualizacaoIndividualScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicadores',
+    return Scaffold(
       appBar: AppBar(title: const Text('Detalhes do Aplicador')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -97,7 +96,7 @@ class _AplicadorDetalheContent extends StatelessWidget {
                   const Divider(),
                   ListTile(
                     title: const Text('CPF'),
-                    subtitle: Text(aplicador.cpf),
+                    subtitle: GeopragMaskedText(value: aplicador.cpf),
                   ),
                   ListTile(
                     title: const Text('Telefone'),

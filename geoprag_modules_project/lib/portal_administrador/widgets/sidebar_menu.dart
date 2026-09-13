@@ -39,6 +39,12 @@ class SidebarMenu extends StatelessWidget {
           ),
           _buildMenuItem(context, 'Visão Geral', Icons.dashboard, '/dashboard'),
           _buildMenuItem(context, 'Mapa Hidrológico', Icons.map, '/mapa'),
+          _buildMenuItem(
+            context,
+            'Gestão de Aplicações',
+            Icons.pin_drop,
+            '/aplicacoes',
+          ),
           _buildMenuItem(context, 'Aplicadores', Icons.people, '/aplicadores'),
           _buildMenuItem(
             context,
@@ -117,6 +123,8 @@ class SidebarMenu extends StatelessWidget {
         navigator.toDashboard();
       case '/mapa':
         navigator.toMapa();
+      case '/aplicacoes':
+        navigator.toAplicacoes();
       case '/aplicadores':
         navigator.toAplicadores();
       case '/estoque':

@@ -93,17 +93,11 @@ class TriagemDenunciasController
             dense: true,
           ),
         ),
-        GeopragDataColumn(
-          label: 'Ações',
-          width: const FlexColumnWidth(1),
-          cellBuilder: (context, d) => IconButton(
-            icon: const Icon(Icons.visibility, color: Colors.blue),
-            tooltip: 'Analisar e Tratar',
-            onPressed: () =>
-                AdminNavigatorScope.of(context).toDenunciaAdminDetalhes(d.id),
-          ),
-        ),
       ],
+      // Clicar em qualquer ponto da linha abre o detalhe — não uma coluna de
+      // ações separada (mesmo critério de GEOPRAG-90, validação GEOPRAG-118).
+      onRowTap: (context, d) =>
+          AdminNavigatorScope.of(context).toDenunciaAdminDetalhes(d.id),
     );
   }
 

@@ -37,7 +37,7 @@ class GeopragDataColumn<T> {
 class GeopragDataTable<T> extends StatelessWidget {
   final List<GeopragDataColumn<T>> columns;
   final List<T> items;
-  final void Function(T item)? onRowTap;
+  final void Function(BuildContext context, T item)? onRowTap;
 
   const GeopragDataTable({
     super.key,
@@ -81,7 +81,10 @@ class GeopragDataTable<T> extends StatelessWidget {
         child: child,
       );
       if (onRowTap == null) return comPadding;
-      return TableRowInkWell(onTap: () => onRowTap!(item), child: comPadding);
+      return TableRowInkWell(
+        onTap: () => onRowTap!(context, item),
+        child: comPadding,
+      );
     }
 
     return TableRow(
