@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 import 'pontos_do_bairro_cubit.dart';
 
@@ -11,8 +10,7 @@ class VisualizacaoDeBairroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicacoes',
+    return Scaffold(
       appBar: AppBar(title: const Text('Pontos de Aplicação do Bairro')),
       body: const SingleChildScrollView(
         child:

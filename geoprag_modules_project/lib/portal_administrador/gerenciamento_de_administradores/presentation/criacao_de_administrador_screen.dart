@@ -5,7 +5,6 @@ import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
 import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'criar_administrador_cubit.dart';
 
 /// Formulário de criação de novo administrador (GEOPRAG-36), migrado para
@@ -23,8 +22,7 @@ class CriacaoDeAdministradorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/administradores/novo',
+    return Scaffold(
       appBar: AppBar(title: const Text('Registrar Novo Administrador')),
       body: BlocListener<CriarAdministradorCubit, BaseFormModel>(
         listenWhen: (previous, current) =>

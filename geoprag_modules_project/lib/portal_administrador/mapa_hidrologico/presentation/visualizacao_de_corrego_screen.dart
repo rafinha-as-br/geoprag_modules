@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/base_detail_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'corrego_detalhe_cubit.dart';
 import 'corrego_detalhe_state.dart';
 import 'corrego_view_model.dart';
@@ -14,8 +13,7 @@ class VisualizacaoDeCorregoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/mapa',
+    return Scaffold(
       appBar: AppBar(title: const Text('Visualização de Córrego')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

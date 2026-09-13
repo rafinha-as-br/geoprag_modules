@@ -123,6 +123,8 @@ class SidebarMenu extends StatelessWidget {
         navigator.toDashboard();
       case '/mapa':
         navigator.toMapa();
+      case '/aplicacoes':
+        navigator.toAplicacoes();
       case '/aplicadores':
         navigator.toAplicadores();
       case '/estoque':

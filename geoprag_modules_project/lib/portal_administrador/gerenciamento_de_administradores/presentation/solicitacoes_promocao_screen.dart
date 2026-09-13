@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/base_card_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_cubit.dart';
 import 'solicitacoes_promocao_state.dart';
@@ -16,8 +15,7 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/administradores/solicitacoes',
+    return Scaffold(
       appBar: AppBar(title: const Text('Solicitações de Promoção')),
       body: BlocListener<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
         listener: (context, state) {

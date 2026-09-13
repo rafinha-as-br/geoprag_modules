@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
-import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'bairro_view_model.dart';
 import 'bairros_cubit.dart';
@@ -27,8 +26,7 @@ class MapaHidrologicoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/mapa',
+    return Scaffold(
       appBar: AppBar(title: const Text('Mapa Hidrológico e Monitoramento')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

@@ -5,7 +5,6 @@ import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
 import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'criar_aplicador_cubit.dart';
 
 /// Formulário de criação de novo Aplicador (GEOPRAG-65), migrado para
@@ -23,8 +22,7 @@ class CadastroDeAplicadorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicadores/novo',
+    return Scaffold(
       appBar: AppBar(title: const Text('Novo Aplicador')),
       body: BlocListener<CriarAplicadorCubit, BaseFormModel>(
         listenWhen: (previous, current) =>

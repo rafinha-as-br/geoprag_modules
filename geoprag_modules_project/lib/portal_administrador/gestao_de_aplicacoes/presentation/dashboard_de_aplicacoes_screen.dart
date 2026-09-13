@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 import 'pontos_de_aplicacao_cubit.dart';
 
@@ -12,8 +11,7 @@ class DashboardDeAplicacoesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicacoes',
+    return Scaffold(
       appBar: AppBar(title: const Text('Gestão de Aplicações')),
       body: const SingleChildScrollView(
         child:

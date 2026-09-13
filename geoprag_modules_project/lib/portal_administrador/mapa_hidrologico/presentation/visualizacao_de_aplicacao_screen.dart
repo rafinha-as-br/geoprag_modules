@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'aplicacao_mapa_cubit.dart';
 import 'aplicacao_mapa_state.dart';
 import 'aplicacao_mapa_view_model.dart';
@@ -17,8 +16,7 @@ class VisualizacaoDeAplicacaoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/mapa',
+    return Scaffold(
       appBar: AppBar(title: const Text('Visualização de Aplicação')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

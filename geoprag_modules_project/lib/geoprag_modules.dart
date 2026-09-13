@@ -22,6 +22,8 @@ export 'aplicador_app/tenant/tenant.dart';
 
 export 'portal_administrador/autenticacao/core/admin_navigator.dart';
 export 'portal_administrador/autenticacao/autenticacao.dart';
+export 'portal_administrador/widgets/admin_scaffold.dart';
+export 'portal_administrador/widgets/sidebar_menu.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
 export 'portal_administrador/mapa_hidrologico/mapa_hidrologico.dart';

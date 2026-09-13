@@ -9,7 +9,6 @@ import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/base_screen_feedback.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'ponto_de_aplicacao_detalhe_cubit.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
@@ -27,8 +26,7 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicacoes',
+    return Scaffold(
       appBar: AppBar(title: const Text('Ponto de Aplicação')),
       body: Padding(
         padding: const EdgeInsets.all(24),
