@@ -44,14 +44,6 @@ import 'inventory_and_bidding/presentation/criar_produto_cubit.dart';
 import 'inventory_and_bidding/presentation/formulas_dosagem_cubit.dart';
 import 'inventory_and_bidding/presentation/produto_detalhe_cubit.dart';
 import 'inventory_and_bidding/presentation/produtos_cubit.dart';
-import 'mapa_hidrologico/core/aplicacao_mapa_repository.dart';
-import 'mapa_hidrologico/core/corrego_repository.dart';
-import 'mapa_hidrologico/data/aplicacao_mapa_repository_impl.dart';
-import 'mapa_hidrologico/data/corrego_repository_impl.dart';
-import 'mapa_hidrologico/presentation/aplicacao_mapa_cubit.dart';
-import 'mapa_hidrologico/presentation/bairro_detalhe_cubit.dart';
-import 'mapa_hidrologico/presentation/bairros_cubit.dart';
-import 'mapa_hidrologico/presentation/corrego_detalhe_cubit.dart';
 import 'reports_management/core/denuncia_repository.dart';
 import 'reports_management/data/denuncia_repository_impl.dart';
 import 'reports_management/presentation/denuncia_detalhe_cubit.dart';
@@ -83,9 +75,6 @@ class AdminBootstrap {
       DistribuicaoRepositoryImpl();
   ProdutoRepository buildProdutoRepository() => ProdutoRepositoryImpl();
   LicitacaoRepository buildLicitacaoRepository() => LicitacaoRepositoryImpl();
-  CorregoRepository buildCorregoRepository() => CorregoRepositoryImpl();
-  AplicacaoMapaRepository buildAplicacaoMapaRepository() =>
-      AplicacaoMapaRepositoryImpl();
   DenunciaRepository buildDenunciaRepository() => DenunciaRepositoryImpl();
 
   AdminLoginCubit buildAdminLoginCubit() =>
@@ -167,13 +156,6 @@ class AdminBootstrap {
       CriarFormulaCubit(buildProdutoRepository());
   CriarLicitacaoCubit buildCriarLicitacaoCubit() =>
       CriarLicitacaoCubit(buildLicitacaoRepository());
-  BairrosCubit buildBairrosCubit() => BairrosCubit(buildCorregoRepository());
-  BairroDetalheCubit buildBairroDetalheCubit(String bairroId) =>
-      BairroDetalheCubit(buildCorregoRepository(), bairroId);
-  CorregoDetalheCubit buildCorregoDetalheCubit(String corregoId) =>
-      CorregoDetalheCubit(buildCorregoRepository(), corregoId);
-  AplicacaoMapaCubit buildAplicacaoMapaCubit(String aplicacaoId) =>
-      AplicacaoMapaCubit(buildAplicacaoMapaRepository(), aplicacaoId);
   TriagemDenunciasController buildTriagemDenunciasController() =>
       TriagemDenunciasController(buildDenunciaRepository());
   ListagemDenunciasController buildListagemDenunciasController() =>

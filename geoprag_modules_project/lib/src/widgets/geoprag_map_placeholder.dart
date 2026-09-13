@@ -9,10 +9,9 @@ import 'package:flutter/material.dart';
 /// envolvem o placeholder em `Expanded` em vez de usar altura fixa; deixe
 /// [icon] nulo para telas que não mostram ícone.
 ///
-/// Em `mapa_hidrologico_screen.dart` (pins posicionados sobre o mapa) e em
-/// `marcacao_do_ponto_screen.dart`/`geolocalizacao_screen.dart` (círculo de
-/// precisão + pin central), este widget também é usado, mas como camada de
-/// fundo dentro de um `Stack`/`Positioned.fill` — os elementos extras
+/// Em `marcacao_do_ponto_screen.dart`/`geolocalizacao_screen.dart` (círculo
+/// de precisão + pin central), este widget também é usado, mas como camada
+/// de fundo dentro de um `Stack`/`Positioned.fill` — os elementos extras
 /// (pins, círculo) são compostos por cima pela própria tela, sem herdar
 /// nem estender este widget (GEOPRAG-95).
 class GeopragMapPlaceholder extends StatelessWidget {

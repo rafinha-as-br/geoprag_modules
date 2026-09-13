@@ -15,9 +15,6 @@ abstract class AdminNavigator {
 
   void toDashboard();
 
-  void toMapa();
-  void toMapaBairro(String bairroId);
-
   /// Dashboard do módulo `gestao_de_aplicacoes` — panorama de todos os
   /// Pontos de Aplicação do município (GEOPRAG-38).
   void toAplicacoes();

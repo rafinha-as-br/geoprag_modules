@@ -26,7 +26,6 @@ export 'portal_administrador/widgets/admin_scaffold.dart';
 export 'portal_administrador/widgets/sidebar_menu.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
-export 'portal_administrador/mapa_hidrologico/mapa_hidrologico.dart';
 export 'src/entities/ponto_de_aplicacao.dart';
 export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/gerenciamento_de_aplicadores/gerenciamento_de_aplicadores.dart';
