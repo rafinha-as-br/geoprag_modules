@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
+import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
+import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
@@ -8,9 +10,21 @@ void main() {
   late AdminPontoDeAplicacaoRepositoryImpl repository;
   late List<PontoDeAplicacao> snapshotOriginal;
 
+  const autor = AutorUsuario(
+    email: 'admin@gaspar.sc.gov.br',
+    perfil: 'administrador',
+  );
+
   setUp(() {
-    repository = AdminPontoDeAplicacaoRepositoryImpl();
+    repository = AdminPontoDeAplicacaoRepositoryImpl(
+      eventoAuditoriaRepository: EventoAuditoriaRepositoryImpl(),
+      autor: autor,
+    );
     snapshotOriginal = List.of(mockPontosDeAplicacao);
+  });
+
+  tearDown(() {
+    mockEventosAuditoria.clear();
   });
 
   // A fonte mockada é uma lista global: sem isso, um `criar` (que adiciona)
@@ -377,6 +391,77 @@ void main() {
       final ponto = await criar(bairro: 'Sé');
 
       expect(ponto.identificador, '#S1');
+    });
+  });
+
+  group('emissão de eventos de auditoria (GEOPRAG-113)', () {
+    test('criar emite ponto_criado com o autor informado', () async {
+      final ponto = await criar(aplicadorId: '1');
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'ponto_criado');
+      expect(evento.pontoAfetadoId, ponto.id);
+      expect(evento.autor, autor);
+      expect(evento.payload['aplicadorId'], '1');
+    });
+
+    test('ativar emite ciclo_ativado com os dados do agendamento', () async {
+      final agendamento = Agendamento.gerar(
+        dataInicio: DateTime(2026, 9, 10),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 3,
+      );
+
+      await repository.ativar('pa3', agendamento);
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'ciclo_ativado');
+      expect(evento.pontoAfetadoId, 'pa3');
+      expect(evento.payload['quantidadeRecorrencias'], 3);
+    });
+
+    test('editarNome emite nome_editado com o nome anterior e o novo', () async {
+      await repository.editarNome('pa1', 'Nome renomeado');
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'nome_editado');
+      expect(evento.payload['nomeNovo'], 'Nome renomeado');
+    });
+
+    test(
+      'editarCadastroCompleto emite cadastro_editado só com os campos alterados',
+      () async {
+        final antes = await repository.buscarPorId('pa4');
+
+        await repository.editarCadastroCompleto(
+          'pa4',
+          nome: 'Nome editado',
+          bairro: antes.bairro,
+          endereco: antes.endereco,
+          numeroReferencia: antes.numeroReferencia,
+          descricaoDoTrecho: antes.descricaoDoTrecho,
+          larguraMetros: antes.larguraMetros,
+          profundidadeMetros: antes.profundidadeMetros,
+          velocidadeMetrosPorSegundo: antes.velocidadeMetrosPorSegundo,
+          dosagemMl: antes.dosagemMl,
+          distanciaEntreSubpontosMetros: antes.distanciaEntreSubpontosMetros,
+          quantidadeDeSubpontos: antes.quantidadeDeSubpontos,
+        );
+
+        final evento = mockEventosAuditoria.single;
+        expect(evento.tipo, 'cadastro_editado');
+        expect(evento.payload.keys, ['nome']);
+        expect(evento.payload['nome'], {'de': antes.nome, 'para': 'Nome editado'});
+      },
+    );
+
+    test('uma ação que falha (id inexistente) não emite evento', () async {
+      await expectLater(
+        () => repository.desativar('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+
+      expect(mockEventosAuditoria, isEmpty);
     });
   });
 }
