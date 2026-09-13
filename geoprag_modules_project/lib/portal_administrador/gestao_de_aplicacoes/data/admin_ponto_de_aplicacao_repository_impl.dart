@@ -1,3 +1,5 @@
+import '../../../src/auditoria/evento_auditoria.dart';
+import '../../../src/auditoria/evento_auditoria_repository.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
@@ -6,10 +8,46 @@ import 'mock_pontos_de_aplicacao.dart';
 /// Implementação de [AdminPontoDeAplicacaoRepository] sobre a fonte mockada
 /// (`mockPontosDeAplicacao`).
 ///
+/// Emite um [EventoAuditoria] (GEOPRAG-113) para cada mutação — este é o
+/// único ponto por onde toda mutação de Ponto de Aplicação passa (criação,
+/// edição, cancelamento, ativação, atribuição, desativação, inclusive as
+/// ações em lote de GEOPRAG-101, que chamam estes mesmos métodos por id),
+/// então instrumentar aqui cobre todos os pontos de emissão declarados na
+/// issue sem duplicar a chamada em cada Cubit chamador.
+///
 /// TODO(GEOPRAG-24): substituir por implementação HTTP real assim que o
 /// contrato de endpoints deste módulo for validado com o backend.
 class AdminPontoDeAplicacaoRepositoryImpl
     implements AdminPontoDeAplicacaoRepository {
+  AdminPontoDeAplicacaoRepositoryImpl({
+    required EventoAuditoriaRepository eventoAuditoriaRepository,
+    required AutorEvento autor,
+  }) : _eventoAuditoriaRepository = eventoAuditoriaRepository,
+       _autor = autor;
+
+  final EventoAuditoriaRepository _eventoAuditoriaRepository;
+  final AutorEvento _autor;
+  int _contadorDeEventos = 0;
+
+  Future<void> _registrarEvento(
+    String pontoId,
+    String tipo,
+    Map<String, dynamic> payload,
+  ) {
+    final agora = DateTime.now();
+    return _eventoAuditoriaRepository.registrar(
+      EventoAuditoria(
+        id: 'evt-$pontoId-${_contadorDeEventos++}',
+        pontoAfetadoId: pontoId,
+        tipo: tipo,
+        autor: _autor,
+        dataHoraOcorrencia: agora,
+        dataHoraRegistro: agora,
+        payload: payload,
+      ),
+    );
+  }
+
   @override
   Future<List<PontoDeAplicacao>> listar() async =>
       _comTransicoesAutomaticas(mockPontosDeAplicacao);
@@ -55,31 +93,58 @@ class AdminPontoDeAplicacaoRepositoryImpl
   @override
   Future<void> ativar(String id, Agendamento agendamento) async {
     await _atualizar(id, (ponto) => ponto.ativar(agendamento));
+    await _registrarEvento(id, 'ciclo_ativado', {
+      'dataInicio': agendamento.dataInicio.toIso8601String(),
+      'intervaloDias': agendamento.intervaloDias,
+      'quantidadeRecorrencias': agendamento.quantidadeRecorrencias,
+    });
   }
 
   @override
   Future<void> desativar(String id) async {
-    await _atualizar(id, (ponto) => ponto.desativar());
+    final antes = await _atualizar(id, (ponto) => ponto.desativar());
+    await _registrarEvento(id, 'ponto_desativado', {
+      'estadoAnterior': antes.estado.name,
+    });
   }
 
   @override
   Future<void> atribuirAplicador(String id, String aplicadorId) async {
     await _atualizar(id, (ponto) => ponto.atribuirAplicador(aplicadorId));
+    await _registrarEvento(id, 'aplicador_atribuido', {
+      'aplicadorId': aplicadorId,
+    });
   }
 
   @override
   Future<void> desatribuirAplicador(String id) async {
-    await _atualizar(id, (ponto) => ponto.desatribuirAplicador());
+    final antes = await _atualizar(
+      id,
+      (ponto) => ponto.desatribuirAplicador(),
+    );
+    await _registrarEvento(id, 'aplicador_desatribuido', {
+      'aplicadorIdAnterior': antes.aplicadorId,
+    });
   }
 
   @override
   Future<void> reativar(String id) async {
-    await _atualizar(id, (ponto) => ponto.reativar());
+    // `antes.estado` é sempre `desativado` (pré-condição do domínio) — o
+    // dado que importa no payload é o estado restaurado, guardado em
+    // `estadoAnterior` desde o `desativar()` que levou o ponto até aqui.
+    final antes = await _atualizar(id, (ponto) => ponto.reativar());
+    await _registrarEvento(id, 'ponto_reativado', {
+      'estadoRestaurado': antes.estadoAnterior?.name,
+    });
   }
 
   @override
   Future<void> editarNome(String id, String novoNome) async {
-    await _atualizar(id, (ponto) => ponto.editarNome(novoNome));
+    final antes = await _atualizar(id, (ponto) => ponto.editarNome(novoNome));
+    await _registrarEvento(id, 'nome_editado', {
+      'nomeAnterior': antes.nome,
+      'nomeNovo': novoNome,
+    });
   }
 
   @override
@@ -97,7 +162,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
   }) async {
-    await _atualizar(
+    final antes = await _atualizar(
       id,
       (ponto) => ponto.editarCadastroCompleto(
         nome: nome,
@@ -113,14 +178,62 @@ class AdminPontoDeAplicacaoRepositoryImpl
         quantidadeDeSubpontos: quantidadeDeSubpontos,
       ),
     );
+    await _registrarEvento(
+      id,
+      'cadastro_editado',
+      _camposAlterados(
+        {
+          'nome': antes.nome,
+          'bairro': antes.bairro,
+          'endereco': antes.endereco,
+          'numeroReferencia': antes.numeroReferencia,
+          'descricaoDoTrecho': antes.descricaoDoTrecho,
+          'larguraMetros': antes.larguraMetros,
+          'profundidadeMetros': antes.profundidadeMetros,
+          'velocidadeMetrosPorSegundo': antes.velocidadeMetrosPorSegundo,
+          'dosagemMl': antes.dosagemMl,
+          'distanciaEntreSubpontosMetros': antes.distanciaEntreSubpontosMetros,
+          'quantidadeDeSubpontos': antes.quantidadeDeSubpontos,
+        },
+        {
+          'nome': nome,
+          'bairro': bairro,
+          'endereco': endereco,
+          'numeroReferencia': numeroReferencia,
+          'descricaoDoTrecho': descricaoDoTrecho,
+          'larguraMetros': larguraMetros,
+          'profundidadeMetros': profundidadeMetros,
+          'velocidadeMetrosPorSegundo': velocidadeMetrosPorSegundo,
+          'dosagemMl': dosagemMl,
+          'distanciaEntreSubpontosMetros': distanciaEntreSubpontosMetros,
+          'quantidadeDeSubpontos': quantidadeDeSubpontos,
+        },
+      ),
+    );
+  }
+
+  /// Só os campos cujo valor mudou de [antes] para [depois] — o payload do
+  /// evento de auditoria é o delta, não o cadastro inteiro reenviado.
+  Map<String, dynamic> _camposAlterados(
+    Map<String, dynamic> antes,
+    Map<String, dynamic> depois,
+  ) {
+    final alterados = <String, dynamic>{};
+    for (final campo in depois.keys) {
+      if (antes[campo] != depois[campo]) {
+        alterados[campo] = {'de': antes[campo], 'para': depois[campo]};
+      }
+    }
+    return alterados;
   }
 
   @override
   Future<void> cancelarAplicacaoQuimica(String id) async {
     await _atualizar(id, (ponto) => ponto.cancelarAplicacaoQuimica());
+    await _registrarEvento(id, 'aplicacao_cancelada', const {});
   }
 
-  Future<void> _atualizar(
+  Future<PontoDeAplicacao> _atualizar(
     String id,
     PontoDeAplicacao Function(PontoDeAplicacao ponto) transicao,
   ) async {
@@ -130,7 +243,9 @@ class AdminPontoDeAplicacaoRepositoryImpl
         'Ponto de aplicação "$id" não encontrado.',
       );
     }
-    mockPontosDeAplicacao[index] = transicao(mockPontosDeAplicacao[index]);
+    final antes = mockPontosDeAplicacao[index];
+    mockPontosDeAplicacao[index] = transicao(antes);
+    return antes;
   }
 
   @override
@@ -168,6 +283,12 @@ class AdminPontoDeAplicacaoRepositoryImpl
           : EstadoPontoDeAplicacao.direcionada,
     );
     mockPontosDeAplicacao.add(ponto);
+    await _registrarEvento(ponto.id, 'ponto_criado', {
+      'nome': nome,
+      'bairro': bairro,
+      'aplicadorId': aplicadorId,
+      'estadoInicial': ponto.estado.name,
+    });
     return ponto;
   }
 }
