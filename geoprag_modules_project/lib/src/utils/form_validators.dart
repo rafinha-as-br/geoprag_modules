@@ -23,6 +23,18 @@ String? validarNumeroPositivo(
   return (numero == null || numero <= 0) ? mensagem : null;
 }
 
+/// Validador genérico de número positivo, compartilhado pelos campos
+/// numéricos (inteiro e decimal) da biblioteca de inputs reutilizáveis —
+/// evita duplicar a mesma checagem "nulo ou não positivo é inválido" uma
+/// vez por tipo (GEOPRAG-144).
+String? validarPositivo<T extends num>(
+  T? valor, {
+  String mensagemInvalido = 'Informe um valor maior que zero.',
+}) {
+  if (valor == null) return mensagemInvalido;
+  return valor > 0 ? null : mensagemInvalido;
+}
+
 /// Formata um número sem casas decimais quando o valor é inteiro (`2`, não
 /// `2.0`) — convenção de exibição reaproveitada pelas telas de detalhe e
 /// edição de Ponto de Aplicação.
