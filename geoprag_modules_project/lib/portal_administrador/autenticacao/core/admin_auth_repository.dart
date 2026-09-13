@@ -24,4 +24,13 @@ abstract class AdminAuthRepository {
   Future<void> verifyResetCode({required String code});
 
   Future<void> resetPassword({required String novaSenha});
+
+  /// Troca de senha a partir da própria tela de dados do administrador
+  /// logado (GEOPRAG-148) — diferente de [resetPassword] (fluxo "esqueci
+  /// minha senha", sem senha atual para conferir), exige [senhaAtual]
+  /// correta antes de aceitar [novaSenha].
+  Future<void> alterarSenha({
+    required String senhaAtual,
+    required String novaSenha,
+  });
 }

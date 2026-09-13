@@ -2,6 +2,14 @@ import '../../../src/entities/usuario.dart';
 
 enum AdminRole { administrador, subAdministrador }
 
+/// Rótulo de exibição do cargo — reaproveitado pelo dropdown de conta do
+/// side menu (GEOPRAG-146) e por `AdministradorViewModel.cargoLabel`, que
+/// antes duplicava esta mesma checagem.
+extension AdminRoleLabel on AdminRole {
+  String get label =>
+      this == AdminRole.administrador ? 'Administrador' : 'Sub-Administrador';
+}
+
 class AdminAccount extends Usuario {
   final AdminRole role;
 
@@ -19,12 +27,14 @@ class AdminAccount extends Usuario {
   });
 
   AdminAccount copyWith({
+    String? email,
+    String? nome,
     AdminRole? role,
     UsuarioStatus? status,
     DateTime? dataDesativacao,
   }) => AdminAccount(
-    email: email,
-    nome: nome,
+    email: email ?? this.email,
+    nome: nome ?? this.nome,
     cpf: cpf,
     dataNascimento: dataNascimento,
     sexo: sexo,

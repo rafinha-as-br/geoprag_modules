@@ -1,3 +1,7 @@
+import '../src/auditoria/evento_auditoria.dart';
+import '../src/auditoria/evento_auditoria_repository.dart';
+import '../src/auditoria/evento_auditoria_repository_impl.dart';
+import 'autenticacao/core/admin_account.dart';
 import 'autenticacao/core/admin_auth_repository.dart';
 import 'autenticacao/core/solicitacao_redefinicao_repository.dart';
 import 'autenticacao/data/admin_auth_repository_impl.dart';
@@ -13,6 +17,7 @@ import 'gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'gerenciamento_de_administradores/data/administrador_repository_impl.dart';
 import 'gerenciamento_de_administradores/presentation/administradores_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/criar_administrador_cubit.dart';
+import 'gerenciamento_de_administradores/presentation/editar_meus_dados_cubit.dart';
 import 'gerenciamento_de_administradores/presentation/solicitacoes_promocao_cubit.dart';
 import 'gerenciamento_de_aplicadores/core/aplicador_repository.dart';
 import 'gerenciamento_de_aplicadores/data/aplicador_repository_impl.dart';
@@ -65,8 +70,19 @@ class AdminBootstrap {
   SolicitacaoRedefinicaoRepository buildSolicitacaoRedefinicaoRepository() =>
       SolicitacaoRedefinicaoRepositoryImpl();
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
-  AdminPontoDeAplicacaoRepository buildAdminPontoDeAplicacaoRepository() =>
-      AdminPontoDeAplicacaoRepositoryImpl();
+  EventoAuditoriaRepository buildEventoAuditoriaRepository() =>
+      EventoAuditoriaRepositoryImpl();
+
+  /// [contaAtual] vira o [AutorUsuario] de cada [EventoAuditoria] emitido
+  /// pelo repositório (GEOPRAG-113) — quem chama esta fábrica (uma rota
+  /// autenticada do app) já tem a sessão em mãos, então a conta entra aqui
+  /// em vez do repositório resolver sozinho uma sessão que não é dele.
+  AdminPontoDeAplicacaoRepository buildAdminPontoDeAplicacaoRepository({
+    required AdminAccount contaAtual,
+  }) => AdminPontoDeAplicacaoRepositoryImpl(
+    eventoAuditoriaRepository: buildEventoAuditoriaRepository(),
+    autor: AutorUsuario(email: contaAtual.email, perfil: contaAtual.role.name),
+  );
   AdministradorRepository buildAdministradorRepository() =>
       AdministradorRepositoryImpl();
   ResumoGeralRepository buildResumoGeralRepository() =>
@@ -97,37 +113,49 @@ class AdminBootstrap {
   CriarAplicadorCubit buildCriarAplicadorCubit() =>
       CriarAplicadorCubit(buildAplicadorRepository());
 
-  PontosDeAplicacaoCubit buildPontosDeAplicacaoCubit() =>
-      PontosDeAplicacaoCubit(
-        buildAdminPontoDeAplicacaoRepository(),
-        buildAplicadorRepository(),
-      );
-  PontosDoBairroCubit buildPontosDoBairroCubit(String bairro) =>
-      PontosDoBairroCubit(
-        buildAdminPontoDeAplicacaoRepository(),
-        buildAplicadorRepository(),
-        bairro,
-      );
+  PontosDeAplicacaoCubit buildPontosDeAplicacaoCubit({
+    required AdminAccount contaAtual,
+  }) => PontosDeAplicacaoCubit(
+    buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
+    buildAplicadorRepository(),
+  );
+  PontosDoBairroCubit buildPontosDoBairroCubit(
+    String bairro, {
+    required AdminAccount contaAtual,
+  }) => PontosDoBairroCubit(
+    buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
+    buildAplicadorRepository(),
+    bairro,
+  );
   PontoDeAplicacaoDetalheCubit buildPontoDeAplicacaoDetalheCubit(
-    String pontoId,
-  ) => PontoDeAplicacaoDetalheCubit(
-    buildAdminPontoDeAplicacaoRepository(),
+    String pontoId, {
+    required AdminAccount contaAtual,
+  }) => PontoDeAplicacaoDetalheCubit(
+    buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
     buildAplicadorRepository(),
     pontoId,
   );
-  CriarPontoDeAplicacaoCubit buildCriarPontoDeAplicacaoCubit() =>
-      CriarPontoDeAplicacaoCubit(
-        buildAdminPontoDeAplicacaoRepository(),
-        buildAplicadorRepository(),
-      );
+  CriarPontoDeAplicacaoCubit buildCriarPontoDeAplicacaoCubit({
+    required AdminAccount contaAtual,
+  }) => CriarPontoDeAplicacaoCubit(
+    buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
+    buildAplicadorRepository(),
+  );
   EditarPontoDeAplicacaoCubit buildEditarPontoDeAplicacaoCubit(
-    String pontoId,
-  ) => EditarPontoDeAplicacaoCubit(
-    buildAdminPontoDeAplicacaoRepository(),
+    String pontoId, {
+    required AdminAccount contaAtual,
+  }) => EditarPontoDeAplicacaoCubit(
+    buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
     pontoId,
   );
   CriarAdministradorCubit buildCriarAdministradorCubit() =>
       CriarAdministradorCubit(buildAdministradorRepository());
+  EditarMeusDadosCubit buildEditarMeusDadosCubit(AdminAccount contaAtual) =>
+      EditarMeusDadosCubit(
+        buildAdministradorRepository(),
+        buildAdminAuthRepository(),
+        contaAtual,
+      );
   AdministradoresCubit buildAdministradoresCubit() =>
       AdministradoresCubit(buildAdministradorRepository());
   SolicitacoesPromocaoCubit buildSolicitacoesPromocaoCubit(

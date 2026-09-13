@@ -43,4 +43,14 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
 
   @override
   Future<void> resetPassword({required String novaSenha}) async {}
+
+  @override
+  Future<void> alterarSenha({
+    required String senhaAtual,
+    required String novaSenha,
+  }) async {
+    if (senhaAtual != mockAdminSenha) {
+      throw const InvalidCredentialsException();
+    }
+  }
 }

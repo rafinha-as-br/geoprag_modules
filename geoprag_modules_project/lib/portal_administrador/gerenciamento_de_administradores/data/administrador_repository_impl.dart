@@ -30,8 +30,7 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     required DateTime dataNascimento,
     required String sexo,
   }) async {
-    final jaExiste = mockAdminAccounts.any((conta) => conta.email == email);
-    if (jaExiste) {
+    if (_emailJaCadastrado(email)) {
       throw EntidadeDuplicadaException(
         'Já existe um administrador cadastrado com o e-mail "$email".',
       );
@@ -53,6 +52,33 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
   @override
   Future<List<AdminAccount>> listar() async =>
       List.unmodifiable(mockAdminAccounts);
+
+  @override
+  Future<AdminAccount> editarPropriosDados({
+    required String emailAtual,
+    required String nome,
+    required String novoEmail,
+  }) async {
+    final indice = mockAdminAccounts.indexWhere((c) => c.email == emailAtual);
+    if (indice == -1) {
+      throw EntidadeNaoEncontradaException(
+        'Administrador "$emailAtual" não encontrado.',
+      );
+    }
+
+    if (_emailJaCadastrado(novoEmail, excluindoEmail: emailAtual)) {
+      throw EntidadeDuplicadaException(
+        'Já existe um administrador cadastrado com o e-mail "$novoEmail".',
+      );
+    }
+
+    final atualizado = mockAdminAccounts[indice].copyWith(
+      nome: nome,
+      email: novoEmail,
+    );
+    mockAdminAccounts[indice] = atualizado;
+    return atualizado;
+  }
 
   @override
   Future<void> desativar({
@@ -336,6 +362,21 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
 
     mockSolicitacoesPromocao[indice] = solicitacao.copyWith(
       status: StatusSolicitacaoPromocao.cancelada,
+    );
+  }
+
+  /// Normaliza (trim + lowercase) antes de comparar — sem isso, `criar` e
+  /// `editarPropriosDados` divergiam: um cadastro com `Foo@Gaspar...`
+  /// passava despercebido de `criar` mesmo já existindo `foo@gaspar...`,
+  /// mas seria rejeitado por `editarPropriosDados` (achado do code review
+  /// da GEOPRAG-148). [excluindoEmail] permite a própria conta manter seu
+  /// e-mail atual ao editar.
+  bool _emailJaCadastrado(String email, {String? excluindoEmail}) {
+    final normalizado = email.trim().toLowerCase();
+    return mockAdminAccounts.any(
+      (conta) =>
+          conta.email.toLowerCase() == normalizado &&
+          conta.email != excluindoEmail,
     );
   }
 
