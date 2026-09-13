@@ -32,8 +32,7 @@ class AdministradorViewModel {
 
   bool get isAdministrador => role == AdminRole.administrador;
 
-  String get cargoLabel =>
-      isAdministrador ? 'Administrador' : 'Sub-Administrador';
+  String get cargoLabel => role.label;
 
   factory AdministradorViewModel.fromEntity(AdminAccount entity) {
     return AdministradorViewModel(

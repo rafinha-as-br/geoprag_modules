@@ -23,6 +23,17 @@ abstract class AdministradorRepository {
 
   Future<List<AdminAccount>> listar();
 
+  /// Atualiza nome e e-mail do próprio cadastro do administrador logado
+  /// (GEOPRAG-148). Diferente de [desativar]/[reativar]/[rebaixar], não
+  /// exige outro Administrador como executor — qualquer administrador edita
+  /// os próprios dados; editar os dados de outro administrador continua
+  /// fora de escopo (confirmado por Rafinha: "não dá para editar mesmo").
+  Future<AdminAccount> editarPropriosDados({
+    required String emailAtual,
+    required String nome,
+    required String novoEmail,
+  });
+
   /// Desativa o cadastro de [email]. Só um Administrador ativo pode acionar
   /// (ver RN "Cadastro e Acesso do Administrador e Sub-Administrador",
   /// seção 4, regra 4). Se o alvo for Sub-Administrador com votação de
