@@ -14,7 +14,16 @@ class GeolocalizacaoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Validação de Ponto')),
+      appBar: AppBar(
+        title: const Text('Validação de Ponto'),
+        // GEOPRAG-152: agora que toAplicacaoGeo empilha (push), back() tem
+        // o que popar — volta para a tela informativa da etapa anterior.
+        leading: IconButton(
+          icon: const BackButtonIcon(),
+          tooltip: 'Voltar',
+          onPressed: () => AplicadorNavigatorScope.of(context).back(),
+        ),
+      ),
       body: BlocBuilder<GeolocalizacaoCubit, GeolocalizacaoState>(
         builder: (context, state) {
           return switch (state) {

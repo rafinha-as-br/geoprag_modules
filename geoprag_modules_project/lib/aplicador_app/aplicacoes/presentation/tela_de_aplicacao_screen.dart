@@ -12,7 +12,27 @@ class TelaDeAplicacaoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Execução da Aplicação')),
+      appBar: AppBar(
+        title: const Text('Execução da Aplicação'),
+        // GEOPRAG-152: X sai do fluxo. Concluída a aplicação, o registro já
+        // foi salvo — sair vai para Meus Pontos (toPonto, limpa a pilha),
+        // igual ao botão "Voltar para Meus Pontos" abaixo. Em andamento,
+        // cancela a etapa (back(), agora com o que popar já que
+        // toAplicacaoRegistrar empilha).
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Fechar',
+          onPressed: () {
+            final state = context.read<TelaDeAplicacaoCubit>().state;
+            final navigator = AplicadorNavigatorScope.of(context);
+            if (state is TelaDeAplicacaoEmAndamento && state.concluida) {
+              navigator.toPonto();
+            } else {
+              navigator.back();
+            }
+          },
+        ),
+      ),
       body: BlocBuilder<TelaDeAplicacaoCubit, TelaDeAplicacaoState>(
         builder: (context, state) {
           return switch (state) {
@@ -66,11 +86,7 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.water_drop,
-                  size: 48,
-                  color: GeopragColors.green900,
-                ),
+                Icon(Icons.water_drop, size: 48, color: GeopragColors.green900),
                 const SizedBox(height: 8),
                 Text(
                   ponto.dosagemFormatada,
@@ -172,7 +188,10 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
               },
               child: const Text(
                 'Cancelar / Voltar',
-                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

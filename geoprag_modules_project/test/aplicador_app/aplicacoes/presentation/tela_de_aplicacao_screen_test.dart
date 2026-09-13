@@ -56,9 +56,7 @@ void main() {
       expect(find.text('Registrar Subponto'), findsOneWidget);
     });
 
-    testWidgets('toca em "Registrar Subponto" e chama o cubit', (
-      tester,
-    ) async {
+    testWidgets('toca em "Registrar Subponto" e chama o cubit', (tester) async {
       await tester.pumpWidget(
         wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto)),
       );
@@ -68,13 +66,9 @@ void main() {
       verify(() => cubit.registrarSubponto()).called(1);
     });
 
-    testWidgets('mostra spinner no botão enquanto registrando', (
-      tester,
-    ) async {
+    testWidgets('mostra spinner no botão enquanto registrando', (tester) async {
       await tester.pumpWidget(
-        wrap(
-          const TelaDeAplicacaoEmAndamento(ponto: ponto, registrando: true),
-        ),
+        wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto, registrando: true)),
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -111,5 +105,42 @@ void main() {
         verify(() => navigator.toPonto()).called(1);
       },
     );
+
+    testWidgets(
+      // GEOPRAG-152: X precisa distinguir "cancelar etapa em andamento"
+      // (back()) de "sair após concluir" (toPonto()) — é a única lógica
+      // condicional desta issue e onde um erro de fato quebraria o fluxo.
+      'X cancela a etapa (back) enquanto a aplicação ainda não foi concluída',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto)),
+        );
+
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pump();
+
+        verify(() => navigator.back()).called(1);
+        verifyNever(() => navigator.toPonto());
+      },
+    );
+
+    testWidgets('X vai para Meus Pontos (toPonto) quando já concluída', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const TelaDeAplicacaoEmAndamento(
+            ponto: ponto,
+            subpontosRegistrados: 2,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pump();
+
+      verify(() => navigator.toPonto()).called(1);
+      verifyNever(() => navigator.back());
+    });
   });
 }

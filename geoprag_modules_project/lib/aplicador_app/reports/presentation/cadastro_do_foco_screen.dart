@@ -19,7 +19,17 @@ class CadastroDoFocoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nova Denúncia')),
+      appBar: AppBar(
+        title: const Text('Nova Denúncia'),
+        // GEOPRAG-152: mesmo destino do botão "Cancelar" abaixo — sem
+        // confirmação, para não introduzir uma segunda forma de sair com
+        // comportamento diferente da que já existe nesta tela.
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Fechar',
+          onPressed: () => AplicadorNavigatorScope.of(context).back(),
+        ),
+      ),
       body: BlocListener<CriarDenunciaDeFocoCubit, BaseFormModel>(
         listenWhen: (previous, current) =>
             current.feedback is AcaoFeedbackSucesso &&
@@ -29,9 +39,7 @@ class CadastroDoFocoScreen extends StatelessWidget {
         },
         child: Column(
           children: [
-            const Expanded(
-              child: BaseFormScreen<CriarDenunciaDeFocoCubit>(),
-            ),
+            const Expanded(child: BaseFormScreen<CriarDenunciaDeFocoCubit>()),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: TextButton(
