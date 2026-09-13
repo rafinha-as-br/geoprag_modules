@@ -19,6 +19,8 @@ class GeopragTextoInput extends StatelessWidget {
   final int? tamanhoMaximo;
   final int maxLinhas;
   final InputDecoration? decoration;
+  final String? mensagemObrigatorio;
+  final bool enabled;
 
   const GeopragTextoInput({
     super.key,
@@ -29,6 +31,8 @@ class GeopragTextoInput extends StatelessWidget {
     this.tamanhoMaximo,
     this.maxLinhas = 1,
     this.decoration,
+    this.mensagemObrigatorio,
+    this.enabled = true,
   });
 
   @override
@@ -39,11 +43,13 @@ class GeopragTextoInput extends StatelessWidget {
       child: TextFormField(
         initialValue: initialValue,
         decoration: decoration ?? const InputDecoration(),
+        enabled: enabled,
         maxLength: tamanhoMaximo,
         maxLines: maxLinhas,
         onChanged: onChanged,
         validator: obrigatorio
-            ? (texto) => validarObrigatorio(texto, 'Campo obrigatório.')
+            ? (texto) =>
+                  validarObrigatorio(texto, mensagemObrigatorio ?? 'Campo obrigatório.')
             : null,
       ),
     );

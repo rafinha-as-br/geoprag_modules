@@ -12,10 +12,13 @@ class MockAdminPontoDeAplicacaoRepository extends Mock
 
 String? _textoDoCampo(EditarPontoDeAplicacaoCubit cubit, String label) {
   final field = cubit.state.fields.firstWhere((f) => f.label == label).field;
-  // Os campos são sempre TextFormField neste Cubit — sem DropdownButtonFormField
-  // (atribuir aplicador é ação própria, GEOPRAG-110, não parte do cadastro).
-  final textFormField = field as dynamic;
-  return (textFormField.controller as dynamic).text as String?;
+  // Os campos são sempre widgets da biblioteca de inputs (GeopragTextoInput /
+  // GeopragNumeroDecimalInput / GeopragNumeroInteiroInput) neste Cubit — sem
+  // DropdownButtonFormField (atribuir aplicador é ação própria, GEOPRAG-110,
+  // não parte do cadastro). Nenhum usa TextEditingController (GEOPRAG-145);
+  // o valor carregado é lido via initialValue.
+  final valor = (field as dynamic).initialValue;
+  return valor?.toString();
 }
 
 bool _campoHabilitado(EditarPontoDeAplicacaoCubit cubit, String label) {

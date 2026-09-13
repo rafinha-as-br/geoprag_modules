@@ -27,6 +27,7 @@ class GeopragNumeroInteiroInput extends StatelessWidget {
   final InputDecoration? decoration;
   final String? mensagemObrigatorio;
   final String? mensagemInvalido;
+  final bool enabled;
 
   const GeopragNumeroInteiroInput({
     super.key,
@@ -37,6 +38,7 @@ class GeopragNumeroInteiroInput extends StatelessWidget {
     this.decoration,
     this.mensagemObrigatorio,
     this.mensagemInvalido,
+    this.enabled = true,
   }) : assert(
          initialValue == null || initialValue > 0,
          'initialValue deve ser nulo ou maior que zero.',
@@ -50,6 +52,7 @@ class GeopragNumeroInteiroInput extends StatelessWidget {
       child: TextFormField(
         initialValue: initialValue?.toString(),
         decoration: decoration ?? const InputDecoration(),
+        enabled: enabled,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         onChanged: (texto) => onChanged(int.tryParse(texto)),

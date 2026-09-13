@@ -34,6 +34,23 @@ void main() {
     expect(find.text('Campo obrigatório.'), findsOneWidget);
   });
 
+  testWidgets('usa mensagemObrigatorio quando informada', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        GeopragTextoInput(
+          label: 'Nome do ponto',
+          mensagemObrigatorio: 'Informe o nome do ponto.',
+          onChanged: (_) {},
+        ),
+      ),
+    );
+
+    expect(formKey.currentState!.validate(), isFalse);
+    await tester.pump();
+
+    expect(find.text('Informe o nome do ponto.'), findsOneWidget);
+  });
+
   testWidgets('permite campo vazio quando não obrigatório', (tester) async {
     await tester.pumpWidget(
       wrap(
@@ -85,5 +102,16 @@ void main() {
     await tester.pump();
 
     expect(find.text('abcde'), findsOneWidget);
+  });
+
+  testWidgets('desabilita o campo quando enabled é false', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        GeopragTextoInput(label: 'Descrição', enabled: false, onChanged: (_) {}),
+      ),
+    );
+
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.enabled, isFalse);
   });
 }

@@ -94,6 +94,21 @@ void main() {
     expect(formKey.currentState!.validate(), isTrue);
   });
 
+  testWidgets('desabilita o campo quando enabled é false', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        GeopragNumeroInteiroInput(
+          label: 'Quantidade',
+          enabled: false,
+          onChanged: (_) {},
+        ),
+      ),
+    );
+
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.enabled, isFalse);
+  });
+
   testWidgets('rejeita initialValue negativo ou zero em modo debug', (
     tester,
   ) async {

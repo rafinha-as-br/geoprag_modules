@@ -25,6 +25,7 @@ class GeopragNumeroDecimalInput extends StatelessWidget {
   final InputDecoration? decoration;
   final String? mensagemObrigatorio;
   final String? mensagemInvalido;
+  final bool enabled;
 
   const GeopragNumeroDecimalInput({
     super.key,
@@ -35,6 +36,7 @@ class GeopragNumeroDecimalInput extends StatelessWidget {
     this.decoration,
     this.mensagemObrigatorio,
     this.mensagemInvalido,
+    this.enabled = true,
   }) : assert(
          initialValue == null || initialValue > 0,
          'initialValue deve ser nulo ou maior que zero.',
@@ -50,6 +52,7 @@ class GeopragNumeroDecimalInput extends StatelessWidget {
             ? null
             : formatarNumeroExibicao(initialValue!).replaceAll('.', ','),
         decoration: decoration ?? const InputDecoration(),
+        enabled: enabled,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: [_DecimalInputFormatter()],
         onChanged: (texto) => onChanged(decimalDoFormulario(texto)),
