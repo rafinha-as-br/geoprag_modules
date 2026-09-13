@@ -3,28 +3,45 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/widgets/geoprag_exit_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'editar_ponto_de_aplicacao_cubit.dart';
 
 /// Formulário de edição de um Ponto de Aplicação já cadastrado (GEOPRAG-109).
 /// Ver [EditarPontoDeAplicacaoCubit] para a persistência e o predicado de
 /// bloqueio de campos.
-class EdicaoDePontoScreen extends StatelessWidget {
+class EdicaoDePontoScreen extends StatefulWidget {
   const EdicaoDePontoScreen({super.key, required this.pontoId});
 
   final String pontoId;
 
   @override
+  State<EdicaoDePontoScreen> createState() => _EdicaoDePontoScreenState();
+}
+
+class _EdicaoDePontoScreenState extends State<EdicaoDePontoScreen>
+    with FormDirtyState<EdicaoDePontoScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar Ponto de Aplicação')),
+      appBar: AppBar(
+        title: const Text('Editar Ponto de Aplicação'),
+        // GEOPRAG-150: X sempre volta ao dashboard do módulo, diferente do
+        // sucesso de envio (que volta ao detalhe do ponto editado).
+        leading: GeopragExitButton(
+          isDirty: dirty,
+          onExit: () => AdminNavigatorScope.of(context).toAplicacoes(),
+        ),
+      ),
       body: BlocListener<EditarPontoDeAplicacaoCubit, BaseFormModel>(
         listenWhen: (previous, current) =>
             current.feedback is AcaoFeedbackSucesso &&
             previous.feedback != current.feedback,
         listener: (context, state) =>
-            AdminNavigatorScope.of(context).toAplicacaoDetalhes(pontoId),
-        child: const BaseFormScreen<EditarPontoDeAplicacaoCubit>(),
+            AdminNavigatorScope.of(context).toAplicacaoDetalhes(widget.pontoId),
+        child: BaseFormScreen<EditarPontoDeAplicacaoCubit>(
+          onChanged: marcarFormularioAlterado,
+        ),
       ),
     );
   }

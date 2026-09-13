@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/widgets/geoprag_exit_button.dart';
 import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_aplicador_cubit.dart';
@@ -17,13 +18,26 @@ import 'criar_aplicador_cubit.dart';
 /// Diferente do Administrador, o CEP é obrigatório aqui (alimenta o cadastro
 /// do ponto de aplicação atribuído ao Aplicador) e não há campo de senha —
 /// a senha inicial é gerada automaticamente (ver [CriarAplicadorCubit]).
-class CadastroDeAplicadorScreen extends StatelessWidget {
+class CadastroDeAplicadorScreen extends StatefulWidget {
   const CadastroDeAplicadorScreen({super.key});
 
   @override
+  State<CadastroDeAplicadorScreen> createState() =>
+      _CadastroDeAplicadorScreenState();
+}
+
+class _CadastroDeAplicadorScreenState extends State<CadastroDeAplicadorScreen>
+    with FormDirtyState<CadastroDeAplicadorScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo Aplicador')),
+      appBar: AppBar(
+        title: const Text('Novo Aplicador'),
+        leading: GeopragExitButton(
+          isDirty: dirty,
+          onExit: () => AdminNavigatorScope.of(context).toAplicadores(),
+        ),
+      ),
       body: BlocListener<CriarAplicadorCubit, BaseFormModel>(
         listenWhen: (previous, current) =>
             current.feedback is AcaoFeedbackSucesso &&
@@ -47,7 +61,9 @@ class CadastroDeAplicadorScreen extends StatelessWidget {
             },
           );
         },
-        child: const BaseFormScreen<CriarAplicadorCubit>(),
+        child: BaseFormScreen<CriarAplicadorCubit>(
+          onChanged: marcarFormularioAlterado,
+        ),
       ),
     );
   }

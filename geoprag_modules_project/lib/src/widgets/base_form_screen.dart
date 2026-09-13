@@ -153,7 +153,13 @@ abstract class BaseFormController extends Cubit<BaseFormModel> {
 /// `AdminScaffold`, `AppBar` e rota atual ficam com a tela que compõe este
 /// template, não aqui dentro.
 class BaseFormScreen<C extends BaseFormController> extends StatefulWidget {
-  const BaseFormScreen({super.key});
+  const BaseFormScreen({super.key, this.onChanged});
+
+  /// Chamado a cada alteração de qualquer campo do formulário — usado pela
+  /// tela que compõe este template para saber se há alteração não salva
+  /// (ex.: [GeopragExitButton], GEOPRAG-150). `null` (padrão) não adiciona
+  /// nenhum listener.
+  final VoidCallback? onChanged;
 
   @override
   State<BaseFormScreen<C>> createState() => _BaseFormScreenState<C>();
@@ -204,6 +210,7 @@ class _BaseFormScreenState<C extends BaseFormController>
                   controller: _scrollController,
                   child: Form(
                     key: context.read<C>().formKey,
+                    onChanged: widget.onChanged,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
