@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'formulas_dosagem_cubit.dart';
 import 'produto_view_model.dart';
 
@@ -14,8 +16,14 @@ class FormulaDeDosagemScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Fórmulas de Dosagem')),
-      body: const BaseListScreen<FormulasDosagemCubit, FormulaDosagemViewModel>(),
+      appBar: AppBar(
+        title: const Text('Fórmulas de Dosagem'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toEstoque(),
+        ),
+      ),
+      body:
+          const BaseListScreen<FormulasDosagemCubit, FormulaDosagemViewModel>(),
     );
   }
 }

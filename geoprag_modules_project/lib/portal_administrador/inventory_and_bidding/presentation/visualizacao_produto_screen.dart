@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import '../core/movimentacao_produto.dart';
 import 'produto_detalhe_cubit.dart';
 import 'produto_detalhe_state.dart';
@@ -14,7 +16,12 @@ class VisualizacaoProdutoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalhes do Produto no Estoque')),
+      appBar: AppBar(
+        title: const Text('Detalhes do Produto no Estoque'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toEstoque(),
+        ),
+      ),
       body: BlocBuilder<ProdutoDetalheCubit, ProdutoDetalheState>(
         builder: (context, state) {
           return BaseDetailScreen(
@@ -46,8 +53,9 @@ class VisualizacaoProdutoScreen extends StatelessWidget {
               ),
             ],
             contentBuilder: (context) => switch (state) {
-              ProdutoDetalheLoaded(:final produto) =>
-                _ProdutoDetalheContent(produto: produto),
+              ProdutoDetalheLoaded(:final produto) => _ProdutoDetalheContent(
+                produto: produto,
+              ),
               _ => const SizedBox.shrink(),
             },
           );

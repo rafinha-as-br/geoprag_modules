@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'distribuicao_detalhe_cubit.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
@@ -13,39 +15,43 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ficha de Distribuição')),
-      body:
-          BlocBuilder<DistribuicaoDetalheCubit, DistribuicaoDetalheState>(
-            builder: (context, state) {
-              return BaseDetailScreen(
-                variant: BaseDetailScreenVariant.cartaoCentralizado,
-                title: 'Comprovante de Saída',
-                isLoading: state is DistribuicaoDetalheLoading,
-                errorMessage: switch (state) {
-                  DistribuicaoDetalheError(:final message) =>
-                    'Não foi possível carregar a distribuição: $message',
-                  _ => null,
-                },
-                actions: [
-                  IconButton(
-                    tooltip: 'Imprimir',
-                    icon: const Icon(Icons.print),
-                    onPressed: () {},
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar Registro'),
-                  ),
-                ],
-                contentBuilder: (context) => switch (state) {
-                  DistribuicaoDetalheLoaded(:final distribuicao) =>
-                    _DistribuicaoDetalheContent(distribuicao: distribuicao),
-                  _ => const SizedBox.shrink(),
-                },
-              );
+      appBar: AppBar(
+        title: const Text('Ficha de Distribuição'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toDistribuicoes(),
+        ),
+      ),
+      body: BlocBuilder<DistribuicaoDetalheCubit, DistribuicaoDetalheState>(
+        builder: (context, state) {
+          return BaseDetailScreen(
+            variant: BaseDetailScreenVariant.cartaoCentralizado,
+            title: 'Comprovante de Saída',
+            isLoading: state is DistribuicaoDetalheLoading,
+            errorMessage: switch (state) {
+              DistribuicaoDetalheError(:final message) =>
+                'Não foi possível carregar a distribuição: $message',
+              _ => null,
             },
-          ),
+            actions: [
+              IconButton(
+                tooltip: 'Imprimir',
+                icon: const Icon(Icons.print),
+                onPressed: () {},
+              ),
+              OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.edit),
+                label: const Text('Editar Registro'),
+              ),
+            ],
+            contentBuilder: (context) => switch (state) {
+              DistribuicaoDetalheLoaded(:final distribuicao) =>
+                _DistribuicaoDetalheContent(distribuicao: distribuicao),
+              _ => const SizedBox.shrink(),
+            },
+          );
+        },
+      ),
     );
   }
 }

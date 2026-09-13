@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_detalhe_cubit.dart';
 import 'denuncia_detalhe_state.dart';
 import 'denuncia_view_model.dart';
@@ -14,7 +16,12 @@ class VisualizacaoIndividualDenunciaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Análise da Denúncia')),
+      appBar: AppBar(
+        title: const Text('Análise da Denúncia'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toDenunciasAdmin(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: BlocBuilder<DenunciaDetalheCubit, DenunciaDetalheState>(
