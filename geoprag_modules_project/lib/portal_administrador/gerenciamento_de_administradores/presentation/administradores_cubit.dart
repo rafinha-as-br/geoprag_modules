@@ -89,26 +89,19 @@ class AdministradoresCubit
             dense: true,
           ),
         ),
-        GeopragDataColumn(
-          label: 'Detalhes',
-          width: const FixedColumnWidth(56),
-          cellBuilder: (context, a) => IconButton(
-            key: ValueKey('detalhes-${a.email}'),
-            icon: const Icon(Icons.visibility, color: Colors.blue),
-            tooltip: 'Ver detalhes',
-            onPressed: () {
-              final sessionState = context.read<AdminSessionCubit>().state;
-              showAdministradorDetalheDialog(
-                context,
-                administrador: a,
-                contaAtual: sessionState is AdminSessionAutenticado
-                    ? sessionState.conta
-                    : null,
-              );
-            },
-          ),
-        ),
       ],
+      // Clicar em qualquer ponto da linha abre o detalhe — não uma coluna de
+      // ações separada (padrão já usado em Aplicadores, GEOPRAG-67).
+      onRowTap: (context, a) {
+        final sessionState = context.read<AdminSessionCubit>().state;
+        showAdministradorDetalheDialog(
+          context,
+          administrador: a,
+          contaAtual: sessionState is AdminSessionAutenticado
+              ? sessionState.conta
+              : null,
+        );
+      },
     );
   }
 

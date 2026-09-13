@@ -20,11 +20,12 @@ class _CadastroController extends BaseFormController {
   /// teste — permite observar o estado "enviando" em cena.
   Completer<void>? envioPendente;
 
-  _CadastroController({String? description})
+  _CadastroController({String? description, Widget? banner})
     : super(
         BaseFormModel(
           title: 'Novo Produto',
           description: description,
+          banner: banner,
           submitLabel: 'Registrar Produto',
           fields: [
             BaseFormField(
@@ -101,6 +102,22 @@ void main() {
       );
 
       expect(find.text('Nasce como rascunho.'), findsOneWidget);
+    });
+
+    testWidgets('renderiza o banner quando o model informa um', (tester) async {
+      await tester.pumpWidget(
+        wrap(_CadastroController(banner: const Text('Edição liberada'))),
+      );
+
+      expect(find.text('Edição liberada'), findsOneWidget);
+    });
+
+    testWidgets('não renderiza banner quando o model não informa um', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap(_CadastroController()));
+
+      expect(find.text('Edição liberada'), findsNothing);
     });
 
     testWidgets('não monta Scaffold nem AppBar — corpo de tela apenas', (

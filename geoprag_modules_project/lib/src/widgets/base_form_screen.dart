@@ -40,6 +40,12 @@ class BaseFormModel {
   /// saber antes de preencher), ou `null`.
   final String? description;
 
+  /// Faixa de destaque entre a descrição e os campos (ex.: "Edição
+  /// liberada"/"Cadastro travado" — GEOPRAG-109) — `null` para telas sem
+  /// esse aviso. Diferente de [feedback]: não é o resultado de uma ação do
+  /// usuário, é uma condição do próprio registro sendo editado.
+  final Widget? banner;
+
   /// Campos do formulário, na ordem de exibição.
   final List<BaseFormField> fields;
 
@@ -59,6 +65,7 @@ class BaseFormModel {
     required this.fields,
     required this.submitLabel,
     this.description,
+    this.banner,
     this.width = 600,
     this.isSubmitting = false,
     this.feedback,
@@ -66,6 +73,7 @@ class BaseFormModel {
 
   BaseFormModel copyWith({
     List<BaseFormField>? fields,
+    Widget? banner,
     bool? isSubmitting,
     AcaoFeedback? feedback,
     bool limparFeedback = false,
@@ -75,6 +83,7 @@ class BaseFormModel {
       description: description,
       submitLabel: submitLabel,
       width: width,
+      banner: banner ?? this.banner,
       fields: fields ?? this.fields,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       feedback: limparFeedback ? null : (feedback ?? this.feedback),
@@ -212,6 +221,10 @@ class _BaseFormScreenState<C extends BaseFormController>
                             model.description!,
                             style: const TextStyle(color: Colors.black54),
                           ),
+                        ],
+                        if (model.banner != null) ...[
+                          const SizedBox(height: 16),
+                          model.banner!,
                         ],
                         if (model.feedback != null) ...[
                           const SizedBox(height: 16),

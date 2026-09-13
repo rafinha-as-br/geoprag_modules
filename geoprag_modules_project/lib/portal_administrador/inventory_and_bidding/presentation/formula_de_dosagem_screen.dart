@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'formulas_dosagem_cubit.dart';
 import 'produto_view_model.dart';
 
@@ -14,8 +13,7 @@ class FormulaDeDosagemScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/estoque',
+    return Scaffold(
       appBar: AppBar(title: const Text('Fórmulas de Dosagem')),
       body: const BaseListScreen<FormulasDosagemCubit, FormulaDosagemViewModel>(),
     );

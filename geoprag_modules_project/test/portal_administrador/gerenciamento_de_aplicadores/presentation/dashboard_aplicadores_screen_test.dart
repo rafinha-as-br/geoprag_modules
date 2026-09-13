@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/a
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicadores_cubit.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
+import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicador_view_model.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/dashboard_aplicadores_screen.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:mocktail/mocktail.dart';
@@ -93,4 +95,82 @@ void main() {
 
     expect(find.text('Nenhum aplicador encontrado.'), findsOneWidget);
   });
+
+  testWidgets(
+    'barra de ações do aplicador selecionado aparece acima da listagem',
+    (tester) async {
+      // GEOPRAG-130: a barra ficava abaixo da tabela, exigindo rolar a tela
+      // toda para vê-la com muitos aplicadores.
+      final repository = MockAplicadorRepository();
+      when(
+        () => repository.listar(),
+      ).thenAnswer((_) async => [aplicador('1', 'João Silva')]);
+
+      await pumpScreen(tester, repository);
+
+      await tester.tap(find.byType(Checkbox).last);
+      await tester.pump();
+
+      expect(find.text('1 selecionado(s)'), findsOneWidget);
+
+      final yBarraAcao = tester
+          .getTopLeft(find.text('1 selecionado(s)'))
+          .dy;
+      final yTabela = tester
+          .getTopLeft(
+            find.byWidgetPredicate(
+              (w) => w is GeopragDataTable<AplicadorResumoViewModel>,
+            ),
+          )
+          .dy;
+      expect(yBarraAcao, lessThan(yTabela));
+    },
+  );
+
+  testWidgets(
+    'rola sem overflow quando a listagem tem muitos aplicadores em viewport pequeno',
+    (tester) async {
+      // GEOPRAG-129: nem o body da tela nem GeopragDataTable tinham scroll
+      // próprio — uma lista longa em viewport pequeno estourava o layout em
+      // vez de rolar.
+      final repository = MockAplicadorRepository();
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [
+          for (var i = 1; i <= 30; i++) aplicador('$i', 'Aplicador $i'),
+        ],
+      );
+
+      final navigator = MockAdminNavigator();
+      await tester.binding.setSurfaceSize(const Size(1400, 500));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminNavigatorScope(
+            navigator: navigator,
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => AdminSessionCubit()),
+                BlocProvider(create: (_) => AplicadoresCubit(repository)),
+              ],
+              child: const DashboardAplicadoresScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -2000),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Aplicador 30'), findsOneWidget);
+    },
+  );
 }

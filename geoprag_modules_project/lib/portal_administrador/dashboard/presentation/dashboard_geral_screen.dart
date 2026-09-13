@@ -5,7 +5,6 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_kpi_card.dart';
 import '../../../src/widgets/geoprag_log_panel.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'dashboard_geral_cubit.dart';
 import 'dashboard_geral_state.dart';
 import 'resumo_geral_view_model.dart';
@@ -15,8 +14,7 @@ class DashboardGeralScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/dashboard',
+    return Scaffold(
       appBar: AppBar(title: const Text('Visão Geral')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

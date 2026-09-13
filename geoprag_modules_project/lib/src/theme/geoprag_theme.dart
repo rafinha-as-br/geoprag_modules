@@ -49,7 +49,7 @@ class GeopragTheme {
         backgroundColor: GeopragColors.green900,
         foregroundColor: GeopragColors.white,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           color: GeopragColors.white,
           fontWeight: FontWeight.w700,

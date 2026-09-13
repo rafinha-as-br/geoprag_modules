@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'produto_view_model.dart';
 import 'produtos_cubit.dart';
 
@@ -13,8 +12,7 @@ class DashboardEstoqueScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/estoque',
+    return Scaffold(
       appBar: AppBar(title: const Text('Controle de Estoque e Compras')),
       body: const BaseListScreen<ProdutosCubit, ProdutoResumoViewModel>(),
     );

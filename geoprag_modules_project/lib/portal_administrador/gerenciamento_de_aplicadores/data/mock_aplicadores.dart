@@ -2,6 +2,34 @@ import '../../../src/entities/usuario.dart';
 import '../core/aplicador.dart';
 
 final List<Aplicador> mockApplicators = [
+  ..._aplicadoresBase,
+  // GEOPRAG-129: volume extra só para exercitar a listagem com uma lista
+  // longa (a lista de 5 nomeados acima não era suficiente pra confirmar o
+  // bug de scroll relatado).
+  for (var i = 6; i <= 30; i++)
+    Aplicador(
+      id: '$i',
+      nome: 'Aplicador Mock $i',
+      status: i.isEven ? UsuarioStatus.ativo : UsuarioStatus.desativado,
+      dataCriacao: DateTime(2026, 1, 1).add(Duration(days: i)),
+      dataDesativacao: i.isEven
+          ? null
+          : DateTime(2026, 1, 1).add(Duration(days: i + 30)),
+      email: 'aplicador.mock.$i@email.com',
+      cpf: '000.000.000-${i.toString().padLeft(2, '0')}',
+      dataNascimento: DateTime(1990, 1, 1).add(Duration(days: i * 30)),
+      sexo: i.isEven ? 'Masculino' : 'Feminino',
+      telefone: '(47) 99000-00$i',
+      cep: '89000-000',
+      rua: 'Rua Mock',
+      numero: '$i',
+      bairro: 'Bairro Mock',
+      cidade: 'Blumenau',
+      uf: 'SC',
+    ),
+];
+
+final List<Aplicador> _aplicadoresBase = [
   Aplicador(
     id: '1',
     nome: 'João Silva',

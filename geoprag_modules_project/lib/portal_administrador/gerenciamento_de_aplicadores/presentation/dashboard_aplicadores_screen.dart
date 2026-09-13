@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
-import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'aplicador_view_model.dart';
 import 'aplicadores_cubit.dart';
@@ -52,10 +51,9 @@ class _DashboardAplicadoresScreenState
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/aplicadores',
+    return Scaffold(
       appBar: AppBar(title: const Text('Gerenciamento de Aplicadores')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -179,6 +177,23 @@ class _DashboardConteudo extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
+        // GEOPRAG-130: barra de ações do aplicador selecionado fica acima
+        // da listagem (antes ficava abaixo, exigindo rolar a tela toda
+        // para vê-la com muitos aplicadores). Fica sempre presente no
+        // layout (altura reservada) e só alterna visibilidade — nunca
+        // entra/sai da árvore condicionalmente — porque selecionar a
+        // primeira linha faria a barra aparecer e empurrar as demais
+        // linhas para baixo, quebrando a posição de tela de um clique
+        // seguinte: exatamente o bug que a GEOPRAG-67 corrigiu ao mover
+        // a barra para baixo da tabela originalmente.
+        IgnorePointer(
+          ignoring: state.selecionados.isEmpty,
+          child: Opacity(
+            opacity: state.selecionados.isEmpty ? 0 : 1,
+            child: _BarraAcaoEmMassa(state: state, cubit: cubit),
+          ),
+        ),
+        const SizedBox(height: 16),
         // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
         // GeopragDataTable extraído na GEOPRAG-36, em vez de um Table
         // duplicado localmente. onRowTap substitui a antiga coluna de
@@ -186,7 +201,7 @@ class _DashboardConteudo extends StatelessWidget {
         // seleção) abre o detalhe do Aplicador.
         GeopragDataTable<AplicadorResumoViewModel>(
           items: aplicadoresFiltrados,
-          onRowTap: (aplicador) =>
+          onRowTap: (context, aplicador) =>
               AdminNavigatorScope.of(context).toAplicadorDetalhes(aplicador.id),
           columns: [
             GeopragDataColumn(
@@ -233,10 +248,6 @@ class _DashboardConteudo extends StatelessWidget {
             ),
           ],
         ),
-        if (state.selecionados.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _BarraAcaoEmMassa(state: state, cubit: cubit),
-        ],
       ],
     );
   }

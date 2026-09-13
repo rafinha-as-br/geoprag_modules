@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/aplicador_app/applications/data/mock_aplicacoes.dart';
+import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/mock_aplicacoes.dart';
 import 'package:geoprag_modules/portal_administrador/mapa_hidrologico/data/aplicacao_mapa_repository_impl.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
@@ -10,7 +10,7 @@ void main() {
     repository = AplicacaoMapaRepositoryImpl();
   });
 
-  test('buscarPorId retorna a aplicação correspondente (fonte compartilhada com aplicador_app)', () async {
+  test('buscarPorId retorna a aplicação correspondente', () async {
     final esperado = mockApplications.first;
 
     final result = await repository.buscarPorId(esperado.id);

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
-import '../../widgets/admin_scaffold.dart';
 import 'denuncia_view_model.dart';
 import 'triagem_denuncias_controller.dart';
 
@@ -14,8 +13,7 @@ class DashboardDenunciasAdminScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/denuncias_admin',
+    return Scaffold(
       appBar: AppBar(title: const Text('Gestão de Denúncias')),
       body:
           const BaseListScreen<

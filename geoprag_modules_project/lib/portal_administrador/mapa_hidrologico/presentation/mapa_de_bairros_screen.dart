@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/base_card_list_screen.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
-import '../../widgets/admin_scaffold.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'bairro_view_model.dart';
 import 'bairros_cubit.dart';
@@ -17,8 +16,7 @@ class MapaDeBairrosScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AdminScaffold(
-      currentRoute: '/mapa',
+    return Scaffold(
       appBar: AppBar(title: const Text('Bairros Monitorados')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
