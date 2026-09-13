@@ -30,6 +30,17 @@ class GeopragDataNascimentoInput extends StatelessWidget {
   }) : firstDate = firstDate ?? DateTime(1900),
        lastDate = lastDate ?? DateTime.now();
 
+  // O padrão de "-18 anos" foi pensado para data de nascimento. Callers que
+  // sobrescrevem firstDate/lastDate para outros propósitos (ex.: data de
+  // entrega, validade) podem receber um padrão anterior a firstDate, o que
+  // derruba a asserção interna do showDatePicker — por isso o clamp abaixo.
+  DateTime get _initialDate {
+    final desejada = value ?? DateTime(DateTime.now().year - 18);
+    if (desejada.isBefore(firstDate)) return firstDate;
+    if (desejada.isAfter(lastDate)) return lastDate;
+    return desejada;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FormField<DateTime>(
@@ -39,7 +50,7 @@ class GeopragDataNascimentoInput extends StatelessWidget {
         onTap: () async {
           final selecionada = await showDatePicker(
             context: context,
-            initialDate: value ?? DateTime(DateTime.now().year - 18),
+            initialDate: _initialDate,
             firstDate: firstDate,
             lastDate: lastDate,
           );
