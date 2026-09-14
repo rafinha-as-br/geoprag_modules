@@ -3,19 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../src/state/acao_feedback.dart';
 import '../../../../src/widgets/base_list_screen.dart';
+import '../../../../src/widgets/geoprag_barra_acao_em_lote.dart';
 import '../lote_de_pontos_reconciliacao.dart';
 import '../ponto_de_aplicacao_view_model.dart';
 import '../pontos_do_bairro_cubit.dart';
 import 'batch_progress_dialog.dart';
 import 'batch_reconcile_dialog.dart';
 
-/// Barra de ações em lote da tela de Bairro (GEOPRAG-101) — "N
-/// selecionado(s)" + botões Ativar/Desativar/Atribuir aplicador/Limpar
-/// seleção. Reservada no layout via `BaseListScreenModel.batchActionBar`;
-/// só fica visível (e clicável) quando há seleção, seguindo o mesmo motivo
-/// documentado em `_BarraAcaoEmMassa` (`dashboard_aplicadores_screen.dart`,
-/// GEOPRAG-67/130): manter a posição de tela estável entre um clique e o
-/// próximo, em vez de a barra empurrar a tabela ao aparecer/sumir.
+/// Barra de ações em lote da tela de Bairro (GEOPRAG-101), sobre o widget
+/// compartilhado [GeopragBarraAcaoEmLote] (GEOPRAG-141) — "N selecionado(s)"
+/// + botões Ativar/Desativar/Atribuir aplicador/Limpar seleção. Reservada no
+/// layout via `BaseListScreenModel.batchActionBar`.
 ///
 /// Orquestra o fluxo dos dois diálogos (o Cubit nunca recebe
 /// `BuildContext`): [BatchReconcileDialog] decide quem é elegível e coleta
@@ -84,69 +82,39 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
       builder: (context, state) {
         final quantidade = state.idsSelecionados.length;
         final processando = state.processandoAcaoEmLote;
-        return IgnorePointer(
-          key: const Key('barraAcaoEmLotePontos_ignorePointer'),
-          ignoring: quantidade == 0,
-          child: Opacity(
-            key: const Key('barraAcaoEmLotePontos_opacity'),
-            opacity: quantidade == 0 ? 0 : 1,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  Text(
-                    '$quantidade selecionado(s)',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    key: const Key('barraAcaoEmLotePontos_ativar'),
-                    onPressed: processando
-                        ? null
-                        : () => _iniciarFluxo(context, AcaoEmLote.ativar),
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('Ativar'),
-                  ),
-                  OutlinedButton.icon(
-                    key: const Key('barraAcaoEmLotePontos_desativar'),
-                    onPressed: processando
-                        ? null
-                        : () => _iniciarFluxo(context, AcaoEmLote.desativar),
-                    icon: const Icon(Icons.block),
-                    label: const Text('Desativar'),
-                  ),
-                  OutlinedButton.icon(
-                    key: const Key('barraAcaoEmLotePontos_atribuirAplicador'),
-                    onPressed: processando
-                        ? null
-                        : () =>
-                              _iniciarFluxo(context, AcaoEmLote.atribuirAplicador),
-                    icon: const Icon(Icons.person_add_alt),
-                    label: const Text('Atribuir aplicador'),
-                  ),
-                  TextButton(
-                    key: const Key('barraAcaoEmLotePontos_limparSelecao'),
-                    onPressed: processando ? null : cubit.limparSelecao,
-                    child: const Text('Limpar seleção'),
-                  ),
-                  if (processando)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                ],
-              ),
+        return GeopragBarraAcaoEmLote(
+          ignorePointerKey: const Key('barraAcaoEmLotePontos_ignorePointer'),
+          opacityKey: const Key('barraAcaoEmLotePontos_opacity'),
+          limparSelecaoKey: const Key('barraAcaoEmLotePontos_limparSelecao'),
+          quantidade: quantidade,
+          processando: processando,
+          onLimparSelecao: cubit.limparSelecao,
+          acoes: [
+            GeopragAcaoEmLoteBotao(
+              key: const Key('barraAcaoEmLotePontos_ativar'),
+              icon: Icons.check_circle_outline,
+              label: 'Ativar',
+              onPressed: processando
+                  ? null
+                  : () => _iniciarFluxo(context, AcaoEmLote.ativar),
             ),
-          ),
+            GeopragAcaoEmLoteBotao(
+              key: const Key('barraAcaoEmLotePontos_desativar'),
+              icon: Icons.block,
+              label: 'Desativar',
+              onPressed: processando
+                  ? null
+                  : () => _iniciarFluxo(context, AcaoEmLote.desativar),
+            ),
+            GeopragAcaoEmLoteBotao(
+              key: const Key('barraAcaoEmLotePontos_atribuirAplicador'),
+              icon: Icons.person_add_alt,
+              label: 'Atribuir aplicador',
+              onPressed: processando
+                  ? null
+                  : () => _iniciarFluxo(context, AcaoEmLote.atribuirAplicador),
+            ),
+          ],
         );
       },
     );
