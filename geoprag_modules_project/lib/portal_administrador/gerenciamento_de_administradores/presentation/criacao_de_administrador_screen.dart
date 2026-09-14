@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/widgets/geoprag_exit_button.dart';
 import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_administrador_cubit.dart';
@@ -17,13 +18,28 @@ import 'criar_administrador_cubit.dart';
 ///
 /// O cargo do novo cadastro não é escolhido aqui: todo cadastro novo nasce
 /// Sub-Administrador (ver [CriarAdministradorCubit]/`AdministradorRepository`).
-class CriacaoDeAdministradorScreen extends StatelessWidget {
+class CriacaoDeAdministradorScreen extends StatefulWidget {
   const CriacaoDeAdministradorScreen({super.key});
 
   @override
+  State<CriacaoDeAdministradorScreen> createState() =>
+      _CriacaoDeAdministradorScreenState();
+}
+
+class _CriacaoDeAdministradorScreenState
+    extends State<CriacaoDeAdministradorScreen>
+    with FormDirtyState<CriacaoDeAdministradorScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrar Novo Administrador')),
+      appBar: AppBar(
+        title: const Text('Registrar Novo Administrador'),
+        leading: GeopragExitButton(
+          isDirty: dirty,
+          onExit: () =>
+              AdminNavigatorScope.of(context).toGerenciamentoAdministradores(),
+        ),
+      ),
       body: BlocListener<CriarAdministradorCubit, BaseFormModel>(
         listenWhen: (previous, current) =>
             current.feedback is AcaoFeedbackSucesso &&
@@ -46,7 +62,9 @@ class CriacaoDeAdministradorScreen extends StatelessWidget {
             },
           );
         },
-        child: const BaseFormScreen<CriarAdministradorCubit>(),
+        child: BaseFormScreen<CriarAdministradorCubit>(
+          onChanged: marcarFormularioAlterado,
+        ),
       ),
     );
   }

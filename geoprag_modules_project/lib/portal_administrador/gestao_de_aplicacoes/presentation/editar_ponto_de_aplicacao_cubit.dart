@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/state/acao_feedback.dart';
-import '../../../src/utils/form_validators.dart';
 import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/widgets/geoprag_numero_decimal_input.dart';
+import '../../../src/widgets/geoprag_numero_inteiro_input.dart';
+import '../../../src/widgets/geoprag_texto_input.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'widgets/edicao_de_ponto_banner.dart';
 
@@ -19,6 +19,11 @@ import 'widgets/edicao_de_ponto_banner.dart';
 /// Cubit direto (sem passar pela tela); (3) não tem campo de aplicador —
 /// isso é ação própria (GEOPRAG-110, Atribuir/Desatribuir), não parte do
 /// cadastro.
+///
+/// Campos numéricos e de texto migrados para a biblioteca de inputs
+/// reutilizáveis (GEOPRAG-144/145) — cada widget já valida e converte o
+/// próprio valor, então o Cubit guarda o resultado tipado em vez de
+/// `TextEditingController`s.
 class EditarPontoDeAplicacaoCubit extends BaseFormController {
   EditarPontoDeAplicacaoCubit(this._repository, this._pontoId)
     : super(_initialModel()) {
@@ -28,17 +33,17 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
   final AdminPontoDeAplicacaoRepository _repository;
   final String _pontoId;
 
-  final _nomeController = TextEditingController();
-  final _bairroController = TextEditingController();
-  final _enderecoController = TextEditingController();
-  final _numeroReferenciaController = TextEditingController();
-  final _descricaoDoTrechoController = TextEditingController();
-  final _larguraController = TextEditingController();
-  final _profundidadeController = TextEditingController();
-  final _velocidadeController = TextEditingController();
-  final _dosagemController = TextEditingController();
-  final _distanciaController = TextEditingController();
-  final _quantidadeDeSubpontosController = TextEditingController();
+  String? _nome;
+  String? _bairro;
+  String? _endereco;
+  String? _numeroReferencia;
+  String? _descricaoDoTrecho;
+  double? _largura;
+  double? _profundidade;
+  double? _velocidade;
+  double? _dosagem;
+  double? _distancia;
+  int? _quantidadeDeSubpontos;
 
   bool _podeEditarCadastroCompleto = false;
   bool _carregando = true;
@@ -54,32 +59,18 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
     try {
       final ponto = await _repository.buscarPorId(_pontoId);
       _podeEditarCadastroCompleto = ponto.podeEditarCadastroCompleto;
-      _nomeController.text = ponto.nome;
-      _bairroController.text = ponto.bairro;
-      _enderecoController.text = ponto.endereco;
-      _numeroReferenciaController.text = ponto.numeroReferencia;
-      _descricaoDoTrechoController.text = ponto.descricaoDoTrecho;
-      _larguraController.text = formatarNumeroExibicao(ponto.larguraMetros);
-      _profundidadeController.text = formatarNumeroExibicao(
-        ponto.profundidadeMetros,
-      );
-      _velocidadeController.text = formatarNumeroExibicao(
-        ponto.velocidadeMetrosPorSegundo,
-      );
-      _dosagemController.text = formatarNumeroExibicao(ponto.dosagemMl);
-      _distanciaController.text = formatarNumeroExibicao(
-        ponto.distanciaEntreSubpontosMetros,
-      );
-      _quantidadeDeSubpontosController.text = ponto.quantidadeDeSubpontos
-          .toString();
+      _nome = ponto.nome;
+      _bairro = ponto.bairro;
+      _endereco = ponto.endereco;
+      _numeroReferencia = ponto.numeroReferencia;
+      _descricaoDoTrecho = ponto.descricaoDoTrecho;
+      _largura = ponto.larguraMetros;
+      _profundidade = ponto.profundidadeMetros;
+      _velocidade = ponto.velocidadeMetrosPorSegundo;
+      _dosagem = ponto.dosagemMl;
+      _distancia = ponto.distanciaEntreSubpontosMetros;
+      _quantidadeDeSubpontos = ponto.quantidadeDeSubpontos;
       _carregando = false;
-      for (final controller in [
-        _larguraController,
-        _profundidadeController,
-        _velocidadeController,
-      ]) {
-        controller.addListener(_rebuildFields);
-      }
       _rebuildFields();
     } on EntidadeNaoEncontradaException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
@@ -106,109 +97,118 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
     return [
       BaseFormField(
         label: 'Nome do ponto',
-        field: TextFormField(
-          controller: _nomeController,
-          validator: (value) =>
-              validarObrigatorio(value, 'Informe o nome do ponto.'),
+        field: GeopragTextoInput(
+          label: 'Nome do ponto',
+          initialValue: _nome,
+          mensagemObrigatorio: 'Informe o nome do ponto.',
+          onChanged: (valor) => _nome = valor,
         ),
       ),
       BaseFormField(
         label: 'Bairro',
-        field: TextFormField(
-          controller: _bairroController,
+        field: GeopragTextoInput(
+          label: 'Bairro',
+          initialValue: _bairro,
           enabled: !travado,
-          validator: (value) => validarObrigatorio(value, 'Informe o bairro.'),
+          mensagemObrigatorio: 'Informe o bairro.',
+          onChanged: (valor) => _bairro = valor,
         ),
       ),
       BaseFormField(
         label: 'Endereço',
-        field: TextFormField(
-          controller: _enderecoController,
+        field: GeopragTextoInput(
+          label: 'Endereço',
+          initialValue: _endereco,
           enabled: !travado,
-          validator: (value) =>
-              validarObrigatorio(value, 'Informe o endereço.'),
+          mensagemObrigatorio: 'Informe o endereço.',
+          onChanged: (valor) => _endereco = valor,
         ),
       ),
       BaseFormField(
         label: 'Número ou ponto de referência',
-        field: TextFormField(
-          controller: _numeroReferenciaController,
+        field: GeopragTextoInput(
+          label: 'Número ou ponto de referência',
+          initialValue: _numeroReferencia,
           enabled: !travado,
-          validator: (value) =>
-              validarObrigatorio(value, 'Informe o número ou uma referência.'),
+          mensagemObrigatorio: 'Informe o número ou uma referência.',
+          onChanged: (valor) => _numeroReferencia = valor,
         ),
       ),
       BaseFormField(
         label: 'Descrição do trecho',
-        field: TextFormField(
-          controller: _descricaoDoTrechoController,
+        field: GeopragTextoInput(
+          label: 'Descrição do trecho',
+          initialValue: _descricaoDoTrecho,
           enabled: !travado,
-          maxLines: 2,
-          validator: (value) => validarObrigatorio(value, 'Descreva o trecho.'),
+          maxLinhas: 2,
+          mensagemObrigatorio: 'Descreva o trecho.',
+          onChanged: (valor) => _descricaoDoTrecho = valor,
         ),
       ),
       BaseFormField(
         label: 'Largura do trecho (m)',
-        field: TextFormField(
-          controller: _larguraController,
+        field: GeopragNumeroDecimalInput(
+          label: 'Largura do trecho (m)',
+          initialValue: _largura,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) =>
-              validarNumeroPositivo(value, 'Informe a largura em metros.'),
+          mensagemObrigatorio: 'Informe a largura em metros.',
+          mensagemInvalido: 'Informe a largura em metros.',
+          onChanged: (valor) => _largura = valor,
         ),
       ),
       BaseFormField(
         label: 'Profundidade do trecho (m)',
-        field: TextFormField(
-          controller: _profundidadeController,
+        field: GeopragNumeroDecimalInput(
+          label: 'Profundidade do trecho (m)',
+          initialValue: _profundidade,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) =>
-              validarNumeroPositivo(value, 'Informe a profundidade em metros.'),
+          mensagemObrigatorio: 'Informe a profundidade em metros.',
+          mensagemInvalido: 'Informe a profundidade em metros.',
+          onChanged: (valor) => _profundidade = valor,
         ),
       ),
       BaseFormField(
         label: 'Velocidade da água (m/s)',
-        field: TextFormField(
-          controller: _velocidadeController,
+        field: GeopragNumeroDecimalInput(
+          label: 'Velocidade da água (m/s)',
+          initialValue: _velocidade,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) =>
-              validarNumeroPositivo(value, 'Informe a velocidade em m/s.'),
+          mensagemObrigatorio: 'Informe a velocidade em m/s.',
+          mensagemInvalido: 'Informe a velocidade em m/s.',
+          onChanged: (valor) => _velocidade = valor,
         ),
       ),
       BaseFormField(
         label: 'Dosagem por aplicação (ml)',
-        field: TextFormField(
-          controller: _dosagemController,
+        field: GeopragNumeroDecimalInput(
+          label: 'Dosagem por aplicação (ml)',
+          initialValue: _dosagem,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) =>
-              validarNumeroPositivo(value, 'Informe a dosagem em ml.'),
+          mensagemObrigatorio: 'Informe a dosagem em ml.',
+          mensagemInvalido: 'Informe a dosagem em ml.',
+          onChanged: (valor) => _dosagem = valor,
         ),
       ),
       BaseFormField(
         label: 'Distância entre subpontos (m)',
-        field: TextFormField(
-          controller: _distanciaController,
+        field: GeopragNumeroDecimalInput(
+          label: 'Distância entre subpontos (m)',
+          initialValue: _distancia,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) =>
-              validarNumeroPositivo(value, 'Informe a distância em metros.'),
+          mensagemObrigatorio: 'Informe a distância em metros.',
+          mensagemInvalido: 'Informe a distância em metros.',
+          onChanged: (valor) => _distancia = valor,
         ),
       ),
       BaseFormField(
         label: 'Subpontos por ciclo',
-        field: TextFormField(
-          controller: _quantidadeDeSubpontosController,
+        field: GeopragNumeroInteiroInput(
+          label: 'Subpontos por ciclo',
+          initialValue: _quantidadeDeSubpontos,
           enabled: !travado,
-          keyboardType: TextInputType.number,
-          validator: (value) {
-            final quantidade = int.tryParse(value ?? '');
-            return (quantidade == null || quantidade <= 0)
-                ? 'Informe quantos subpontos compõem o ciclo.'
-                : null;
-          },
+          mensagemObrigatorio: 'Informe quantos subpontos compõem o ciclo.',
+          mensagemInvalido: 'Informe quantos subpontos compõem o ciclo.',
+          onChanged: (valor) => _quantidadeDeSubpontos = valor,
         ),
       ),
     ];
@@ -221,28 +221,20 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
       if (_podeEditarCadastroCompleto) {
         await _repository.editarCadastroCompleto(
           _pontoId,
-          nome: _nomeController.text,
-          bairro: _bairroController.text,
-          endereco: _enderecoController.text,
-          numeroReferencia: _numeroReferenciaController.text,
-          descricaoDoTrecho: _descricaoDoTrechoController.text,
-          larguraMetros: decimalDoFormulario(_larguraController.text)!,
-          profundidadeMetros: decimalDoFormulario(
-            _profundidadeController.text,
-          )!,
-          velocidadeMetrosPorSegundo: decimalDoFormulario(
-            _velocidadeController.text,
-          )!,
-          dosagemMl: decimalDoFormulario(_dosagemController.text)!,
-          distanciaEntreSubpontosMetros: decimalDoFormulario(
-            _distanciaController.text,
-          )!,
-          quantidadeDeSubpontos: int.parse(
-            _quantidadeDeSubpontosController.text,
-          ),
+          nome: _nome!,
+          bairro: _bairro!,
+          endereco: _endereco!,
+          numeroReferencia: _numeroReferencia!,
+          descricaoDoTrecho: _descricaoDoTrecho!,
+          larguraMetros: _largura!,
+          profundidadeMetros: _profundidade!,
+          velocidadeMetrosPorSegundo: _velocidade!,
+          dosagemMl: _dosagem!,
+          distanciaEntreSubpontosMetros: _distancia!,
+          quantidadeDeSubpontos: _quantidadeDeSubpontos!,
         );
       } else {
-        await _repository.editarNome(_pontoId, _nomeController.text);
+        await _repository.editarNome(_pontoId, _nome!);
       }
       emitFeedback(
         const AcaoFeedbackSucesso('Ponto de aplicação atualizado com sucesso.'),
@@ -257,25 +249,5 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
         const AcaoFeedbackErro(AppErrorMessages.carregamentoGenerico),
       );
     }
-  }
-
-  @override
-  Future<void> close() {
-    for (final controller in [
-      _nomeController,
-      _bairroController,
-      _enderecoController,
-      _numeroReferenciaController,
-      _descricaoDoTrechoController,
-      _larguraController,
-      _profundidadeController,
-      _velocidadeController,
-      _dosagemController,
-      _distanciaController,
-      _quantidadeDeSubpontosController,
-    ]) {
-      controller.dispose();
-    }
-    return super.close();
   }
 }
