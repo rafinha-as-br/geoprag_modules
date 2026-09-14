@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_status.dart';
+import '../../../src/widgets/geoprag_barra_acao_em_lote.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../../autenticacao/core/admin_navigator.dart';
@@ -179,19 +180,33 @@ class _DashboardConteudo extends StatelessWidget {
         const SizedBox(height: 16),
         // GEOPRAG-130: barra de ações do aplicador selecionado fica acima
         // da listagem (antes ficava abaixo, exigindo rolar a tela toda
-        // para vê-la com muitos aplicadores). Fica sempre presente no
-        // layout (altura reservada) e só alterna visibilidade — nunca
-        // entra/sai da árvore condicionalmente — porque selecionar a
-        // primeira linha faria a barra aparecer e empurrar as demais
-        // linhas para baixo, quebrando a posição de tela de um clique
-        // seguinte: exatamente o bug que a GEOPRAG-67 corrigiu ao mover
-        // a barra para baixo da tabela originalmente.
-        IgnorePointer(
-          ignoring: state.selecionados.isEmpty,
-          child: Opacity(
-            opacity: state.selecionados.isEmpty ? 0 : 1,
-            child: _BarraAcaoEmMassa(state: state, cubit: cubit),
-          ),
+        // para vê-la com muitos aplicadores). GeopragBarraAcaoEmLote
+        // (GEOPRAG-141) mantém sempre a altura reservada e só alterna
+        // visibilidade — nunca entra/sai da árvore condicionalmente —
+        // porque selecionar a primeira linha faria a barra aparecer e
+        // empurrar as demais linhas para baixo, quebrando a posição de
+        // tela de um clique seguinte: exatamente o bug que a GEOPRAG-67
+        // corrigiu ao mover a barra para baixo da tabela originalmente.
+        GeopragBarraAcaoEmLote(
+          quantidade: state.selecionados.length,
+          processando: state.processandoAcaoEmMassa,
+          onLimparSelecao: cubit.limparSelecao,
+          acoes: [
+            GeopragAcaoEmLoteBotao(
+              icon: Icons.check_circle_outline,
+              label: 'Ativar selecionados',
+              onPressed: state.processandoAcaoEmMassa
+                  ? null
+                  : cubit.ativarSelecionados,
+            ),
+            GeopragAcaoEmLoteBotao(
+              icon: Icons.block,
+              label: 'Desativar selecionados',
+              onPressed: state.processandoAcaoEmMassa
+                  ? null
+                  : cubit.desativarSelecionados,
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         // GEOPRAG-67 (review Rafinha, PR #14): reusa o componente
@@ -249,77 +264,6 @@ class _DashboardConteudo extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _BarraAcaoEmMassa extends StatelessWidget {
-  const _BarraAcaoEmMassa({required this.state, required this.cubit});
-
-  final AplicadoresLoaded state;
-  final AplicadoresCubit cubit;
-
-  @override
-  Widget build(BuildContext context) {
-    final quantidade = state.selecionados.length;
-    final processando = state.processandoAcaoEmMassa;
-    // GEOPRAG-67 (review Rafinha, PR #14): fundo verde escuro (M3
-    // primaryContainer) com texto no estilo padrão (preto) ficava
-    // ilegível — o texto agora usa onPrimaryContainer, o par de contraste
-    // correto definido em GeopragTheme.
-    final onPrimaryContainer = Theme.of(context).colorScheme.onPrimaryContainer;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 12,
-        runSpacing: 8,
-        children: [
-          Text(
-            '$quantidade selecionado(s)',
-            style: TextStyle(color: onPrimaryContainer),
-          ),
-          OutlinedButton.icon(
-            onPressed: processando ? null : cubit.ativarSelecionados,
-            icon: Icon(Icons.check_circle_outline, color: onPrimaryContainer),
-            label: Text(
-              'Ativar selecionados',
-              style: TextStyle(color: onPrimaryContainer),
-            ),
-            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
-          ),
-          OutlinedButton.icon(
-            onPressed: processando ? null : cubit.desativarSelecionados,
-            icon: Icon(Icons.block, color: onPrimaryContainer),
-            label: Text(
-              'Desativar selecionados',
-              style: TextStyle(color: onPrimaryContainer),
-            ),
-            style: OutlinedButton.styleFrom(side: BorderSide(color: onPrimaryContainer)),
-          ),
-          TextButton(
-            onPressed: processando ? null : cubit.limparSelecao,
-            child: Text(
-              'Limpar seleção',
-              style: TextStyle(color: onPrimaryContainer),
-            ),
-          ),
-          if (processando)
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: onPrimaryContainer,
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

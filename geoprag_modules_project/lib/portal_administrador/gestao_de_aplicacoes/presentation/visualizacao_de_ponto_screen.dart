@@ -19,9 +19,11 @@ import 'widgets/cancelar_aplicacao_quimica_dialog.dart';
 import 'widgets/desativar_dialog.dart';
 
 /// Detalhe de um Ponto de Aplicação: parâmetros do trecho, direcionamento,
-/// agendamento, execuções realizadas, auditoria e as ações individuais do
-/// ciclo (GEOPRAG-110): ativar/agendar, atribuir/desatribuir aplicador,
-/// desativar/reativar.
+/// agendamento, execuções realizadas e as ações individuais do ciclo
+/// (GEOPRAG-110): ativar/agendar, atribuir/desatribuir aplicador,
+/// desativar/reativar. O bloco de auditoria foi removido (GEOPRAG-142) —
+/// o registro de eventos de auditoria continua ocorrendo no repositório
+/// (GEOPRAG-113), só não é mais exibido nesta tela.
 class VisualizacaoDePontoScreen extends StatelessWidget {
   const VisualizacaoDePontoScreen({super.key});
 
@@ -315,20 +317,6 @@ class _ConteudoDoPonto extends StatelessWidget {
                 ),
         ),
         const _SlotDeRegistroManual(),
-        const SizedBox(height: 16),
-        const ExpansionTile(
-          title: Text('Auditoria'),
-          childrenPadding: EdgeInsets.only(bottom: 16),
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Nenhum evento de auditoria registrado.',
-                style: TextStyle(color: Colors.black54),
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
