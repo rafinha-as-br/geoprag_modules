@@ -11,6 +11,9 @@ export 'src/widgets/geoprag_password_requirements.dart';
 export 'src/widgets/geoprag_cpf_input.dart';
 export 'src/widgets/geoprag_sexo_input.dart';
 export 'src/widgets/geoprag_data_nascimento_input.dart';
+export 'src/widgets/geoprag_numero_inteiro_input.dart';
+export 'src/widgets/geoprag_numero_decimal_input.dart';
+export 'src/widgets/geoprag_texto_input.dart';
 export 'src/permissions/capacidade.dart';
 
 export 'aplicador_app/core/aplicador_navigator.dart';
@@ -26,7 +29,6 @@ export 'portal_administrador/widgets/admin_scaffold.dart';
 export 'portal_administrador/widgets/sidebar_menu.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
-export 'portal_administrador/mapa_hidrologico/mapa_hidrologico.dart';
 export 'src/entities/ponto_de_aplicacao.dart';
 export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/gerenciamento_de_aplicadores/gerenciamento_de_aplicadores.dart';

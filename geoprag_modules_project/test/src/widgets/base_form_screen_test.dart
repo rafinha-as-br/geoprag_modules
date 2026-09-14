@@ -279,6 +279,32 @@ void main() {
     });
 
     testWidgets(
+      // GEOPRAG-150: GeopragExitButton observa esta alteração para decidir se
+      // pede confirmação antes de fechar o formulário.
+      'chama onChanged quando um campo do formulário é alterado',
+      (tester) async {
+        var changedCount = 0;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: BlocProvider<BaseFormController>.value(
+                value: _CadastroController(),
+                child: BaseFormScreen<BaseFormController>(
+                  onChanged: () => changedCount++,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.enterText(find.byType(TextFormField), 'Larvicida');
+        await tester.pump();
+
+        expect(changedCount, greaterThan(0));
+      },
+    );
+
+    testWidgets(
       'rola verticalmente sem estourar em formulários com muitos campos',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(800, 400));

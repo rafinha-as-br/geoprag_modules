@@ -3,18 +3,31 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/widgets/geoprag_exit_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_ponto_de_aplicacao_cubit.dart';
 
 /// Formulário de cadastro de Ponto de Aplicação. Ver
 /// [CriarPontoDeAplicacaoCubit] para a persistência.
-class CriacaoDePontoScreen extends StatelessWidget {
+class CriacaoDePontoScreen extends StatefulWidget {
   const CriacaoDePontoScreen({super.key});
 
   @override
+  State<CriacaoDePontoScreen> createState() => _CriacaoDePontoScreenState();
+}
+
+class _CriacaoDePontoScreenState extends State<CriacaoDePontoScreen>
+    with FormDirtyState<CriacaoDePontoScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo Ponto de Aplicação')),
+      appBar: AppBar(
+        title: const Text('Novo Ponto de Aplicação'),
+        leading: GeopragExitButton(
+          isDirty: dirty,
+          onExit: () => AdminNavigatorScope.of(context).toAplicacoes(),
+        ),
+      ),
       body: BlocListener<CriarPontoDeAplicacaoCubit, BaseFormModel>(
         listenWhen: (previous, current) =>
             current.feedback is AcaoFeedbackSucesso &&
@@ -23,7 +36,9 @@ class CriacaoDePontoScreen extends StatelessWidget {
         // anterior para `.back()`.
         listener: (context, state) =>
             AdminNavigatorScope.of(context).toAplicacoes(),
-        child: const BaseFormScreen<CriarPontoDeAplicacaoCubit>(),
+        child: BaseFormScreen<CriarPontoDeAplicacaoCubit>(
+          onChanged: marcarFormularioAlterado,
+        ),
       ),
     );
   }

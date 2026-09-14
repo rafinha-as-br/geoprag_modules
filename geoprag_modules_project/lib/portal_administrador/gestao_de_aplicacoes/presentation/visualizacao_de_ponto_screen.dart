@@ -7,6 +7,7 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/utils/form_validators.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/base_screen_feedback.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
 import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'ponto_de_aplicacao_detalhe_cubit.dart';
@@ -27,7 +28,24 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ponto de Aplicação')),
+      appBar: AppBar(
+        title: const Text('Ponto de Aplicação'),
+        // GEOPRAG-151: esta tela tem 3 níveis (dashboard → bairro → ponto) —
+        // o ← volta ao bairro do ponto, não ao dashboard geral. Sem o ponto
+        // carregado ainda (loading/erro) não há bairro para voltar; cai no
+        // dashboard como alternativa segura.
+        leading: GeopragBackButton(
+          onBack: () {
+            final state = context.read<PontoDeAplicacaoDetalheCubit>().state;
+            final navigator = AdminNavigatorScope.of(context);
+            if (state is PontoDeAplicacaoDetalheLoaded) {
+              navigator.toAplicacaoBairro(state.ponto.bairro);
+            } else {
+              navigator.toAplicacoes();
+            }
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child:
@@ -44,7 +62,10 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
                     _ => '',
                   },
                   actions: switch (state) {
-                    PontoDeAplicacaoDetalheLoaded(:final ponto, :final processando) =>
+                    PontoDeAplicacaoDetalheLoaded(
+                      :final ponto,
+                      :final processando,
+                    ) =>
                       _acoesDoPonto(context, ponto, processando),
                     _ => const [],
                   },
@@ -54,7 +75,10 @@ class VisualizacaoDePontoScreen extends StatelessWidget {
                     _ => null,
                   },
                   contentBuilder: (context) => switch (state) {
-                    PontoDeAplicacaoDetalheLoaded(:final ponto, :final feedback) =>
+                    PontoDeAplicacaoDetalheLoaded(
+                      :final ponto,
+                      :final feedback,
+                    ) =>
                       _ConteudoDoPonto(ponto: ponto, feedback: feedback),
                     _ => const SizedBox.shrink(),
                   },
@@ -80,7 +104,9 @@ List<Widget> _acoesDoPonto(
     OutlinedButton.icon(
       onPressed: processando
           ? null
-          : () => AdminNavigatorScope.of(context).toEditarPontoDeAplicacao(ponto.id),
+          : () => AdminNavigatorScope.of(
+              context,
+            ).toEditarPontoDeAplicacao(ponto.id),
       icon: const Icon(Icons.edit_outlined),
       label: const Text('Editar'),
     ),
@@ -270,7 +296,10 @@ class _ConteudoDoPonto extends StatelessWidget {
             valor: ponto.aplicadorNome ?? 'Nenhum aplicador direcionado',
           ),
         ),
-        _Secao(titulo: 'Agendamento', child: _ConteudoDoAgendamento(ponto: ponto)),
+        _Secao(
+          titulo: 'Agendamento',
+          child: _ConteudoDoAgendamento(ponto: ponto),
+        ),
         _Secao(
           titulo: 'Execuções realizadas',
           child: ponto.execucoes.isEmpty
@@ -480,7 +509,10 @@ class _SlotDeRegistroManual extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             'Registro manual de aplicação pelo portal',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
           ),
           Text(
             'Ainda não disponível.',

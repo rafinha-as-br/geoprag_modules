@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/widgets/base_card_list_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_cubit.dart';
 import 'solicitacoes_promocao_state.dart';
@@ -16,7 +18,13 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Solicitações de Promoção')),
+      appBar: AppBar(
+        title: const Text('Solicitações de Promoção'),
+        leading: GeopragBackButton(
+          onBack: () =>
+              AdminNavigatorScope.of(context).toGerenciamentoAdministradores(),
+        ),
+      ),
       body: BlocListener<SolicitacoesPromocaoCubit, SolicitacoesPromocaoState>(
         listener: (context, state) {
           if (state is SolicitacoesPromocaoLoaded && state.avisoAcao != null) {
@@ -49,9 +57,7 @@ class SolicitacoesPromocaoScreen extends StatelessWidget {
                       SolicitacoesPromocaoState
                     >(
                       builder: (context, state) {
-                        return BaseCardListScreen<
-                          SolicitacaoPromocaoViewModel
-                        >(
+                        return BaseCardListScreen<SolicitacaoPromocaoViewModel>(
                           model: BaseCardListScreenModel(
                             isLoading: state is SolicitacoesPromocaoLoading,
                             errorMessage: state is SolicitacoesPromocaoError

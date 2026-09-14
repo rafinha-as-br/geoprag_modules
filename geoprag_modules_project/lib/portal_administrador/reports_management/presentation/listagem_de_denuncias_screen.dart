@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/widgets/base_list_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_view_model.dart';
 import 'listagem_denuncias_controller.dart';
 
@@ -14,7 +16,12 @@ class ListagemDeDenunciasScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Listagem de Denúncias')),
+      appBar: AppBar(
+        title: const Text('Listagem de Denúncias'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toDenunciasAdmin(),
+        ),
+      ),
       body:
           const BaseListScreen<
             ListagemDenunciasController,

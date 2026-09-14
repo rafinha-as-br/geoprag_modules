@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/usuario.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/widgets/geoprag_back_button.dart';
 import '../../../src/widgets/geoprag_masked_text.dart';
+import '../../autenticacao/core/admin_navigator.dart';
 import '../core/atuacao_aplicador.dart';
 import 'aplicador_detalhe_cubit.dart';
 import 'aplicador_detalhe_state.dart';
@@ -16,7 +18,12 @@ class VisualizacaoIndividualScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalhes do Aplicador')),
+      appBar: AppBar(
+        title: const Text('Detalhes do Aplicador'),
+        leading: GeopragBackButton(
+          onBack: () => AdminNavigatorScope.of(context).toAplicadores(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: BlocBuilder<AplicadorDetalheCubit, AplicadorDetalheState>(
