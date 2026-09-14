@@ -164,10 +164,12 @@ class SidebarMenu extends StatelessWidget {
 /// abaixo do anchor, e como este botão fica colado na borda inferior da
 /// tela, esse é sempre o caso aqui.
 ///
-/// Tem "Editar dados" (GEOPRAG-148) e "Sair da conta". "Configurações" e
-/// "Suporte" ficam de fora até ganharem destino definido (decisão explícita
-/// de Rafinha em GEOPRAG-149) — não é esquecimento, é para não deixar item
-/// de menu sem lugar nenhum para ir.
+/// Tem "Editar dados" (GEOPRAG-148), "Suporte" e "Sair da conta".
+/// "Configurações" segue de fora até ganhar destino definido — não é
+/// esquecimento, é para não deixar item de menu sem lugar nenhum para ir.
+/// "Suporte" é exceção combinada com Rafinha (GEOPRAG-149): entra como botão
+/// vazio, sem callback, até ter um destino real (provavelmente um link
+/// externo).
 class _ContaFooter extends StatelessWidget {
   const _ContaFooter({required this.conta});
 
@@ -187,6 +189,12 @@ class _ContaFooter extends StatelessWidget {
               onPressed: () =>
                   AdminNavigatorScope.of(context).toEditarMeusDados(),
               child: const Text('Editar dados'),
+            ),
+            const MenuItemButton(
+              key: Key('sidebar_conta_footer_suporte'),
+              leadingIcon: Icon(Icons.help_outline),
+              onPressed: null,
+              child: Text('Suporte'),
             ),
             MenuItemButton(
               leadingIcon: const Icon(Icons.logout),

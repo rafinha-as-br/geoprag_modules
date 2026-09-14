@@ -81,6 +81,19 @@ void main() {
     expect(find.text('Sair da conta'), findsOneWidget);
   });
 
+  testWidgets('mostra Suporte desabilitado, sem destino ainda (GEOPRAG-149)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap());
+
+    await _tocarNoBotaoDeConta(tester);
+
+    final itemSuporte = tester.widget<MenuItemButton>(
+      find.widgetWithText(MenuItemButton, 'Suporte'),
+    );
+    expect(itemSuporte.onPressed, isNull);
+  });
+
   testWidgets('Sair da conta encerra a sessão e navega para logout', (
     tester,
   ) async {
