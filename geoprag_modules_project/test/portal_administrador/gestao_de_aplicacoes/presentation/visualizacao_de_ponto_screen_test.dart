@@ -86,4 +86,22 @@ void main() {
       verifyNever(() => navigator.toAplicacaoBairro(any()));
     },
   );
+
+  testWidgets(
+    // GEOPRAG-142: o bloco de auditoria foi removido da tela, mas o
+    // histórico de execuções (informação de negócio legítima e distinta de
+    // auditoria) continua visível.
+    'não mostra o bloco de auditoria, mas mantém o histórico de execuções',
+    (tester) async {
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(subpontos: [execucaoDeTeste]),
+      );
+      await montar(tester);
+      await tester.pump();
+
+      expect(find.text('Auditoria'), findsNothing);
+      expect(find.text('Execuções realizadas'), findsOneWidget);
+      expect(find.textContaining('Aplicada em'), findsOneWidget);
+    },
+  );
 }

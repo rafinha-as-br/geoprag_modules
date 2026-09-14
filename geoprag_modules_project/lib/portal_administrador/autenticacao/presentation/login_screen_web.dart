@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/utils/form_validators.dart';
 import '../../../src/widgets/geoprag_logo.dart';
 import '../../../src/widgets/geoprag_submit_button.dart';
 import '../core/admin_navigator.dart';
@@ -28,6 +29,20 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
     _identifierController.dispose();
     _senhaController.dispose();
     super.dispose();
+  }
+
+  // GEOPRAG-143: rota única de submit para o botão e para o Enter no campo
+  // de senha — valida o Form antes (nos dois casos) e ignora a chamada se
+  // já houver um login em andamento, para o Enter repetido durante o
+  // carregamento não disparar uma segunda tentativa.
+  void _submeter(BuildContext context) {
+    final cubit = context.read<AdminLoginCubit>();
+    if (cubit.state is AuthActionLoading<AdminAccount>) return;
+    if (!_formKey.currentState!.validate()) return;
+    cubit.submit(
+      identifier: _identifierController.text,
+      senha: _senhaController.text,
+    );
   }
 
   @override
@@ -142,6 +157,11 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                                 const SizedBox(height: 48),
                                 TextFormField(
                                   controller: _identifierController,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (value) => validarObrigatorio(
+                                    value,
+                                    'Informe seu CPF ou e-mail.',
+                                  ),
                                   decoration: InputDecoration(
                                     labelText: 'CPF ou E-mail Institucional',
                                     prefixIcon: const Icon(
@@ -156,6 +176,12 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                                 TextFormField(
                                   controller: _senhaController,
                                   obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  validator: (value) => validarObrigatorio(
+                                    value,
+                                    'Informe sua senha.',
+                                  ),
+                                  onFieldSubmitted: (_) => _submeter(context),
                                   decoration: InputDecoration(
                                     labelText: 'Senha',
                                     prefixIcon: const Icon(Icons.lock_outline),
@@ -200,14 +226,7 @@ class _LoginScreenWebState extends State<LoginScreenWeb> {
                                       isLoading: isLoading,
                                       onPressed: isLoading
                                           ? null
-                                          : () => context
-                                                .read<AdminLoginCubit>()
-                                                .submit(
-                                                  identifier:
-                                                      _identifierController
-                                                          .text,
-                                                  senha: _senhaController.text,
-                                                ),
+                                          : () => _submeter(context),
                                       style: ElevatedButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 20,
