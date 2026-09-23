@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [develop, main, release/current, 'epic/**']
   push:
-    branches: [develop]
+    branches: [develop, release/current]
 
 defaults:
   run:
