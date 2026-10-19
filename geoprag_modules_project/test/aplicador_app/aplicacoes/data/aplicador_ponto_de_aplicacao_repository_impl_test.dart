@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
+import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
+import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
@@ -98,6 +101,84 @@ void main() {
         ),
         throwsA(isA<OperacaoNaoPermitidaException>()),
       );
+    });
+
+    group('recorrência cumprida ao concluir a aplicação', () {
+      // Ponto próprio, com 2 subpontos por aplicação e 2 recorrências, para
+      // não depender dos dados do mock.
+      PontoDeAplicacao pontoComCiclo() => PontoDeAplicacao(
+        id: 'pa-ciclo',
+        identificador: '#CIC1',
+        nome: 'Córrego do ciclo',
+        bairro: 'Gasparinho',
+        endereco: 'Rua Pedro Simon',
+        numeroReferencia: 'Em frente ao nº 240',
+        descricaoDoTrecho: 'Trecho de 100 m.',
+        larguraMetros: 2,
+        profundidadeMetros: 0.5,
+        velocidadeMetrosPorSegundo: 0.4,
+        dosagemMl: 120,
+        distanciaEntreSubpontosMetros: 50,
+        quantidadeDeSubpontos: 2,
+        aplicadorId: '1',
+        estado: EstadoPontoDeAplicacao.ativa,
+        agendamento: Agendamento.gerar(
+          dataInicio: DateTime(2026, 10, 1),
+          intervaloDias: 15,
+          quantidadeRecorrencias: 2,
+        ),
+      );
+
+      Subponto subponto(int minuto) => Subponto(
+        latitude: -26.93,
+        longitude: -48.95,
+        realizadoEm: DateTime(2026, 10, 2, 9, minuto),
+        registradoEm: DateTime(2026, 10, 2, 9, minuto),
+      );
+
+      setUp(() => mockPontosDeAplicacao.add(pontoComCiclo()));
+
+      test('marca a data pendente mais antiga quando a aplicação é concluída',
+          () async {
+        await repository.registrarSubponto('pa-ciclo', subponto(0));
+        var ponto = await repository.buscarPorId('pa-ciclo');
+        expect(
+          ponto.agendamento!.datas.map((d) => d.status),
+          everyElement(StatusDataAgendada.pendente),
+        );
+
+        await repository.registrarSubponto('pa-ciclo', subponto(1));
+        ponto = await repository.buscarPorId('pa-ciclo');
+
+        expect(ponto.agendamento!.datas.map((d) => d.status), [
+          StatusDataAgendada.concluida,
+          StatusDataAgendada.pendente,
+        ]);
+        expect(
+          ponto.subpontos.last.dataAgendadaId,
+          ponto.agendamento!.datas.first.id,
+        );
+      });
+
+      test('cumprir a última data leva o ponto a inativa na leitura do '
+          'portal', () async {
+        for (var i = 0; i < 4; i++) {
+          await repository.registrarSubponto('pa-ciclo', subponto(i));
+        }
+        final lidoPeloAplicador = await repository.buscarPorId('pa-ciclo');
+        expect(lidoPeloAplicador.cicloConcluido, isTrue);
+
+        final portal = AdminPontoDeAplicacaoRepositoryImpl(
+          eventoAuditoriaRepository: EventoAuditoriaRepositoryImpl(),
+          autor: const AutorUsuario(
+            email: 'admin@gaspar.sc.gov.br',
+            perfil: 'Administrador',
+          ),
+        );
+        final lidoPeloPortal = await portal.buscarPorId('pa-ciclo');
+
+        expect(lidoPeloPortal.estado, EstadoPontoDeAplicacao.inativa);
+      });
     });
 
     test('lança EntidadeNaoEncontradaException quando o id não existe', () {
