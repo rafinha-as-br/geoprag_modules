@@ -44,8 +44,8 @@ class EdicaoDePontoBanner extends StatelessWidget {
                             'registrada — todos os campos podem ser editados.'
                       : 'Este ponto já teve um agendamento ou execução '
                             'registrada em algum momento. A partir daí, o '
-                            'cadastro trava permanentemente — só o nome '
-                            'continua editável.',
+                            'cadastro trava permanentemente — só o nome e a '
+                            'tolerância de atraso continuam editáveis.',
                   style: TextStyle(color: cor.shade900, fontSize: 13),
                 ),
               ],

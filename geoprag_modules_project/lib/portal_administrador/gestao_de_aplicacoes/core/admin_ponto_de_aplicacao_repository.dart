@@ -1,3 +1,4 @@
+import '../../../src/entities/atraso_de_aplicacao.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 
 /// Contrato de acesso aos Pontos de Aplicação pelo Portal Administrador.
@@ -52,6 +53,14 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// [PontoDeAplicacao.editarNome]).
   Future<void> editarNome(String id, String novoNome);
 
+  /// Altera só a tolerância de atraso do ponto [id], em dias — sempre
+  /// permitido, mesmo com o cadastro travado. Lança
+  /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
+  /// `OperacaoNaoPermitidaException` se [novaToleranciaDias] for menor que 1
+  /// (ver [PontoDeAplicacao.editarTolerancia]). Emite evento de auditoria
+  /// quando o valor muda.
+  Future<void> editarTolerancia(String id, int novaToleranciaDias);
+
   /// Atualiza o cadastro completo do ponto [id]. Lança
   /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
   /// `OperacaoNaoPermitidaException` se o cadastro estiver travado (ver
@@ -69,6 +78,7 @@ abstract class AdminPontoDeAplicacaoRepository {
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
+    required int toleranciaDias,
   });
 
   /// Encerra o ciclo vigente do ponto [id], levando-o a
@@ -82,7 +92,8 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// [EstadoPontoDeAplicacao.enderecada] quando [aplicadorId] é `null`, ou
   /// em [EstadoPontoDeAplicacao.direcionada] quando um responsável já é
   /// escolhido na criação — nunca em operação, e nunca com coordenada
-  /// (georreferenciamento só acontece em campo).
+  /// (georreferenciamento só acontece em campo). A [toleranciaDias] nasce no
+  /// padrão ([toleranciaPadraoDeAtrasoEmDias]) quando não informada.
   Future<PontoDeAplicacao> criar({
     required String nome,
     required String bairro,
@@ -96,5 +107,6 @@ abstract class AdminPontoDeAplicacaoRepository {
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
     String? aplicadorId,
+    int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   });
 }
