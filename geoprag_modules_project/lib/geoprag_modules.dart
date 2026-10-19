@@ -30,6 +30,7 @@ export 'portal_administrador/widgets/sidebar_menu.dart';
 export 'portal_administrador/dashboard/dashboard.dart';
 export 'portal_administrador/tenant/tenant.dart';
 export 'src/entities/ponto_de_aplicacao.dart';
+export 'src/entities/atraso_de_aplicacao.dart';
 export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/gerenciamento_de_aplicadores/gerenciamento_de_aplicadores.dart';
 export 'portal_administrador/gerenciamento_de_administradores/gerenciamento_de_administradores.dart';
