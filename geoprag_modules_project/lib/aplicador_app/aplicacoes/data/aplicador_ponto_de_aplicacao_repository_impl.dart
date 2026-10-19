@@ -42,14 +42,7 @@ class AplicadorPontoDeAplicacaoRepositoryImpl
         'Ponto de aplicação "$id" não encontrado.',
       );
     }
-    final ponto = mockPontosDeAplicacao[index];
-    if (ponto.estado != EstadoPontoDeAplicacao.ativa) {
-      throw const OperacaoNaoPermitidaException(
-        'Só é possível registrar aplicação em um ponto ativo.',
-      );
-    }
-    mockPontosDeAplicacao[index] = ponto.copyWith(
-      subpontos: [...ponto.subpontos, subponto],
-    );
+    mockPontosDeAplicacao[index] = mockPontosDeAplicacao[index]
+        .registrarSubponto(subponto);
   }
 }
