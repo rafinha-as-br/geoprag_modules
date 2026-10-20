@@ -37,6 +37,14 @@ export 'portal_administrador/inventory_and_bidding/controle_de_estoque.dart';
 export 'portal_administrador/distributions/distribuicoes.dart';
 export 'portal_administrador/reports_management/gestao_de_denuncias.dart';
 
+export 'src/entities/aplicacao.dart';
+export 'src/services/gerador_de_id.dart';
+
+// Camada de API: DTOs de sincronização (envio em lote e pull) e mapeadores (GEOPRAG-188).
+export 'src/api/sync/registro_dtos.dart';
+export 'src/api/sync/pull_dtos.dart';
+export 'src/api/sync/sync_mappers.dart';
+
 // Camada de API: DTOs de autenticação e seus mapeadores (GEOPRAG-186).
 export 'src/api/auth/usuario_dto.dart';
 export 'src/api/auth/login_dtos.dart';

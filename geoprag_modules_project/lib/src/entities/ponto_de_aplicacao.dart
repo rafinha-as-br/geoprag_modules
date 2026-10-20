@@ -1,4 +1,5 @@
 import '../errors/app_exceptions.dart';
+import '../services/gerador_de_id.dart';
 
 /// Ciclo de vida de um [PontoDeAplicacao], do cadastro à desativação.
 ///
@@ -39,16 +40,22 @@ enum StatusDataAgendada {
 /// depois de gerada (GEOPRAG-75) — por isso é um registro próprio, e não
 /// apenas um índice calculado a partir de [Agendamento.dataInicio].
 class DataAgendada {
+  /// Identificador da data, **gerado pelo servidor** (o registro de aplicação
+  /// o referencia como `dataAgendadaId`). Enquanto o agendamento é simulado
+  /// no cliente (`Agendamento.gerar`), vem de um [GeradorDeId].
+  final String id;
   final DateTime data;
   final StatusDataAgendada status;
 
   const DataAgendada({
+    required this.id,
     required this.data,
     this.status = StatusDataAgendada.pendente,
   });
 
   DataAgendada copyWith({DateTime? data, StatusDataAgendada? status}) {
     return DataAgendada(
+      id: id,
       data: data ?? this.data,
       status: status ?? this.status,
     );
@@ -57,10 +64,13 @@ class DataAgendada {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DataAgendada && other.data == data && other.status == status);
+      (other is DataAgendada &&
+          other.id == id &&
+          other.data == data &&
+          other.status == status);
 
   @override
-  int get hashCode => Object.hash(data, status);
+  int get hashCode => Object.hash(id, data, status);
 }
 
 /// Agendamento do ciclo de aplicações de um [PontoDeAplicacao]: quando a
@@ -88,18 +98,27 @@ class Agendamento {
   /// Gera um [Agendamento] novo, com as datas espaçadas por [intervaloDias]
   /// a partir de [dataInicio] — a primeira geração de um ciclo, antes de
   /// qualquer edição individual de data.
+  ///
+  /// Os [DataAgendada.id] saem de [geradorDeId] (UUID por padrão). Com a API
+  /// real o servidor gera as datas e os ids; este factory só serve à
+  /// simulação local.
   factory Agendamento.gerar({
     required DateTime dataInicio,
     required int intervaloDias,
     required int quantidadeRecorrencias,
+    GeradorDeId? geradorDeId,
   }) {
+    final gerador = geradorDeId ?? GeradorDeIdUuid();
     return Agendamento(
       dataInicio: dataInicio,
       intervaloDias: intervaloDias,
       quantidadeRecorrencias: quantidadeRecorrencias,
       datas: [
         for (var i = 0; i < quantidadeRecorrencias; i++)
-          DataAgendada(data: dataInicio.add(Duration(days: intervaloDias * i))),
+          DataAgendada(
+            id: gerador.gerar(),
+            data: dataInicio.add(Duration(days: intervaloDias * i)),
+          ),
       ],
     );
   }
@@ -138,17 +157,36 @@ class Agendamento {
 /// [realizadoEm] é o instante da aplicação física — a única data válida para
 /// auditoria; [registradoEm] é quando o sistema recebeu o registro.
 class Subponto {
+  /// UUID v4 gerado no aparelho (GEOPRAG-188): identifica o subponto e torna
+  /// o reenvio da sincronização idempotente. Nunca muda.
+  final String id;
   final double latitude;
   final double longitude;
   final DateTime realizadoEm;
   final DateTime registradoEm;
 
   const Subponto({
+    required this.id,
     required this.latitude,
     required this.longitude,
     required this.realizadoEm,
     required this.registradoEm,
   });
+
+  /// Cria um subponto novo, com [id] UUID v4 do [gerador].
+  factory Subponto.novo({
+    required GeradorDeId gerador,
+    required double latitude,
+    required double longitude,
+    required DateTime realizadoEm,
+    required DateTime registradoEm,
+  }) => Subponto(
+    id: gerador.gerar(),
+    latitude: latitude,
+    longitude: longitude,
+    realizadoEm: realizadoEm,
+    registradoEm: registradoEm,
+  );
 }
 
 /// Um ponto de aplicação: o trecho cadastrado pelo administrador onde o
@@ -281,6 +319,25 @@ class PontoDeAplicacao {
       agendamento != null &&
       agendamento!.datas.isNotEmpty &&
       agendamento!.datas.every((d) => d.status == StatusDataAgendada.concluida);
+
+  /// Ponto com [subponto] registrado ao fim do histórico (append-only).
+  ///
+  /// Quando esse subponto completa uma aplicação — o total de subpontos passa
+  /// a ser múltiplo de [quantidadeDeSubpontos] — a data agendada atendida
+  /// recebe baixa: a mais antiga ainda [StatusDataAgendada.pendente] vira
+  /// [StatusDataAgendada.concluida] (mesma regra do servidor, GEOPRAG-199).
+  /// Sem [agendamento] ou sem data pendente, só o histórico cresce.
+  PontoDeAplicacao comSubpontoRegistrado(Subponto subponto) {
+    final novos = [...subpontos, subponto];
+    final completouAplicacao =
+        quantidadeDeSubpontos > 0 && novos.length % quantidadeDeSubpontos == 0;
+    return copyWith(
+      subpontos: novos,
+      agendamento: completouAplicacao && agendamento != null
+          ? _concluirPrimeiraDataPendente(agendamento!)
+          : null,
+    );
+  }
 
   /// O cadastro completo (todos os campos exceto [nome]) só pode ser
   /// editado enquanto o ponto nunca teve um agendamento nem uma execução
@@ -521,6 +578,27 @@ Agendamento _cancelarDatasPendentes(Agendamento agendamento) {
         data.status == StatusDataAgendada.pendente
             ? data.copyWith(status: StatusDataAgendada.cancelada)
             : data,
+    ],
+  );
+}
+
+/// Dá baixa na data atendida: a primeira [StatusDataAgendada.pendente] do
+/// [agendamento] vira [StatusDataAgendada.concluida]. Sem data pendente, o
+/// agendamento é devolvido como está.
+Agendamento _concluirPrimeiraDataPendente(Agendamento agendamento) {
+  final indice = agendamento.datas.indexWhere(
+    (d) => d.status == StatusDataAgendada.pendente,
+  );
+  if (indice == -1) return agendamento;
+  return Agendamento(
+    dataInicio: agendamento.dataInicio,
+    intervaloDias: agendamento.intervaloDias,
+    quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+    datas: [
+      for (var i = 0; i < agendamento.datas.length; i++)
+        i == indice
+            ? agendamento.datas[i].copyWith(status: StatusDataAgendada.concluida)
+            : agendamento.datas[i],
     ],
   );
 }

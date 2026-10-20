@@ -56,6 +56,7 @@ void main() {
             estado: EstadoPontoDeAplicacao.ativa,
             subpontos: [
               Subponto(
+                id: 'sp-teste-1',
                 latitude: 0,
                 longitude: 0,
                 realizadoEm: DateTime(2026, 1, 1),
