@@ -20,6 +20,8 @@ void main() {
 
   final contas = [
     AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
       email: solicitanteEmail,
       nome: 'Marcos Vieira',
       cpf: '123.456.789-00',
@@ -29,6 +31,8 @@ void main() {
       role: AdminRole.administrador,
     ),
     AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
       email: votanteEmail,
       nome: 'Outro Admin',
       cpf: '111.111.111-11',
@@ -38,6 +42,8 @@ void main() {
       role: AdminRole.administrador,
     ),
     AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
       email: alvoEmail,
       nome: 'Célia Ramos',
       cpf: '987.654.321-00',

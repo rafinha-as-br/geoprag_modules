@@ -36,3 +36,8 @@ export 'portal_administrador/gerenciamento_de_administradores/gerenciamento_de_a
 export 'portal_administrador/inventory_and_bidding/controle_de_estoque.dart';
 export 'portal_administrador/distributions/distribuicoes.dart';
 export 'portal_administrador/reports_management/gestao_de_denuncias.dart';
+
+// Camada de API: DTOs de autenticação e seus mapeadores (GEOPRAG-186).
+export 'src/api/auth/usuario_dto.dart';
+export 'src/api/auth/login_dtos.dart';
+export 'src/api/auth/auth_mappers.dart';

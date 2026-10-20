@@ -14,6 +14,8 @@ void main() {
   late MockAdministradorRepository repository;
 
   final contaAdmin = AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
     email: 'admin@gaspar.sc.gov.br',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',
@@ -23,6 +25,8 @@ void main() {
     role: AdminRole.administrador,
   );
   final contaSub = AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
     email: 'sub@gaspar.sc.gov.br',
     nome: 'Célia Ramos',
     cpf: '987.654.321-00',

@@ -10,10 +10,19 @@ extension AdminRoleLabel on AdminRole {
       this == AdminRole.administrador ? 'Administrador' : 'Sub-Administrador';
 }
 
+/// Conta de administrador ou sub-administrador do portal.
+///
+/// [id] e [tenantId] vêm do servidor (login e `GET /auth/me`): [id] é o
+/// identificador estável do usuário e [tenantId] o tenant a que ele
+/// pertence — nunca digitado nem alterado no cliente (GEOPRAG-186).
 class AdminAccount extends Usuario {
+  final String id;
+  final String tenantId;
   final AdminRole role;
 
   const AdminAccount({
+    required this.id,
+    required this.tenantId,
     required super.email,
     required super.nome,
     required super.cpf,
@@ -33,6 +42,8 @@ class AdminAccount extends Usuario {
     UsuarioStatus? status,
     DateTime? dataDesativacao,
   }) => AdminAccount(
+    id: id,
+    tenantId: tenantId,
     email: email ?? this.email,
     nome: nome ?? this.nome,
     cpf: cpf,

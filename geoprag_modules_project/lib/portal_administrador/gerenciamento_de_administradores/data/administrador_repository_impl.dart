@@ -21,6 +21,7 @@ extension _FirstOrNull<T> on Iterable<T> {
 ///
 /// TODO(GEOPRAG-36): substituir por implementação HTTP real quando o
 /// contrato de endpoints deste módulo for validado com o backend.
+
 class AdministradorRepositoryImpl implements AdministradorRepository {
   @override
   Future<AdminAccount> criar({
@@ -37,6 +38,9 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     }
 
     final conta = AdminAccount(
+      id: 'adm-${mockAdminAccounts.length + 1}',
+      // TODO(GEOPRAG-187): o tenant virá da sessão do administrador logado.
+      tenantId: _tenantMock,
       email: email,
       nome: nome,
       cpf: cpf,
@@ -390,3 +394,6 @@ class AdministradorRepositoryImpl implements AdministradorRepository {
     return conta;
   }
 }
+
+// Tenant das contas simuladas enquanto o repositório é mock (ver mock_admin_accounts.dart).
+const String _tenantMock = 'gaspar-sc';
