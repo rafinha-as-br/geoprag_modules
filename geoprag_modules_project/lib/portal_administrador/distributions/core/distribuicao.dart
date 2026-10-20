@@ -2,6 +2,10 @@
 /// campo, exibido na listagem e na ficha de distribuição do Portal
 /// Administrador.
 class Distribuicao {
+  /// Estado final da operação de saída (GEOPRAG-164) — independente do
+  /// [statusConfirmacao], que acompanha o aceite do aplicador.
+  static const estadoFinal = 'Produto distribuído';
+
   final String id;
   final String produtoId;
   final int quantidade;

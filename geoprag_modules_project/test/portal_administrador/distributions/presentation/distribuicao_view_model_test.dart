@@ -49,6 +49,17 @@ void main() {
     });
   });
 
+  group('rotuloConfirmacao', () {
+    test('traduz cada status e trata o desconhecido como aguardando', () {
+      expect(rotuloConfirmacao('confirmado'), 'recebimento confirmado');
+      expect(rotuloConfirmacao('recusado'), 'recebimento recusado');
+      expect(
+        rotuloConfirmacao('aguardando_aceite'),
+        'aguardando confirmação',
+      );
+    });
+  });
+
   group('ProdutoOpcaoViewModel.fromEntity', () {
     test('mapeia id e nomeExibicao sem alteração', () {
       const produto = ProdutoReferenciaDistribuicao(

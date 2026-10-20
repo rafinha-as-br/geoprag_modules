@@ -8,6 +8,15 @@ String _formatarData(DateTime data) {
   return '$dia/$mes/${data.year}';
 }
 
+/// Rótulo curto da situação do recebimento, exibido na listagem ao lado do
+/// estado final [Distribuicao.estadoFinal].
+String rotuloConfirmacao(String statusConfirmacao) =>
+    switch (statusConfirmacao) {
+      'confirmado' => 'recebimento confirmado',
+      'recusado' => 'recebimento recusado',
+      _ => 'aguardando confirmação',
+    };
+
 /// ViewModel resumida de [Distribuicao] — usada na listagem do histórico de
 /// saídas, antes de abrir a ficha completa.
 class DistribuicaoResumoViewModel {

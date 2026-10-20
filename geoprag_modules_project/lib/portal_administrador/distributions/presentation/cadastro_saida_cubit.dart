@@ -36,7 +36,7 @@ class CadastroSaidaCubit extends BaseFormController {
 
   static BaseFormModel _initialModel() => BaseFormModel(
     title: 'Ficha de Distribuição',
-    submitLabel: 'Confirmar Saída e Gerar Documento',
+    submitLabel: 'Confirmar Saída',
     fields: const [],
     isSubmitting: true,
   );

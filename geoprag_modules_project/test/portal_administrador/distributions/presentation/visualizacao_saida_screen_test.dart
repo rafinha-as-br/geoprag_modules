@@ -73,10 +73,11 @@ void main() {
       await tester.pumpWidget(wrap('d1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Comprovante de Saída'), findsOneWidget);
+      expect(find.text('Registro de Saída'), findsOneWidget);
+      expect(find.text('Produto distribuído'), findsOneWidget);
       expect(find.byType(Card), findsOneWidget);
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.print), findsOneWidget);
+      expect(find.byIcon(Icons.print), findsNothing);
       expect(find.text('Editar Registro'), findsOneWidget);
       expect(
         find.text(
