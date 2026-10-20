@@ -4,6 +4,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/core/aplicador_ponto_de
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_state.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/services/gerador_de_id.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorPontoDeAplicacaoRepository extends Mock
@@ -34,6 +35,7 @@ void main() {
     repository = MockAplicadorPontoDeAplicacaoRepository();
     registerFallbackValue(
       Subponto(
+        id: 'sp-teste-1',
         latitude: 0,
         longitude: 0,
         realizadoEm: DateTime(2026),
@@ -135,4 +137,49 @@ void main() {
       verify(() => repository.registrarSubponto('pa1', any())).called(2);
     },
   );
+
+  blocTest<TelaDeAplicacaoCubit, TelaDeAplicacaoState>(
+    'cada subponto registrado nasce com um id novo do gerador injetado',
+    setUp: () {
+      when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+      when(() => repository.registrarSubponto(any(), any()))
+          .thenAnswer((_) async {});
+    },
+    build: () =>
+        TelaDeAplicacaoCubit(repository, 'pa1', geradorDeId: _GeradorFixo()),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      await cubit.registrarSubponto();
+      await cubit.registrarSubponto();
+    },
+    verify: (_) {
+      final ids = verify(
+        () => repository.registrarSubponto('pa1', captureAny()),
+      ).captured.cast<Subponto>().map((s) => s.id).toList();
+      expect(ids, ['uuid-fixo-1', 'uuid-fixo-2']);
+    },
+  );
+
+  test('sem gerador injetado, o id do subponto é um UUID v4', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+    when(() => repository.registrarSubponto(any(), any()))
+        .thenAnswer((_) async {});
+    final cubit = TelaDeAplicacaoCubit(repository, 'pa1');
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.registrarSubponto();
+
+    final subponto = verify(
+      () => repository.registrarSubponto('pa1', captureAny()),
+    ).captured.single as Subponto;
+    expect(GeradorDeIdUuid.ehUuidV4(subponto.id), isTrue);
+    await cubit.close();
+  });
+}
+
+class _GeradorFixo implements GeradorDeId {
+  int _n = 0;
+
+  @override
+  String gerar() => 'uuid-fixo-${++_n}';
 }

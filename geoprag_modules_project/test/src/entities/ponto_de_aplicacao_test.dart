@@ -31,6 +31,7 @@ PontoDeAplicacao pontoDeTeste({
 }
 
 final _execucao = Subponto(
+  id: 'sp-teste-1',
   latitude: -26.9312,
   longitude: -48.9567,
   realizadoEm: DateTime(2026, 8, 24, 8, 12),

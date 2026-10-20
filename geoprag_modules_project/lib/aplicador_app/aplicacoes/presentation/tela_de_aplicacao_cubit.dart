@@ -4,6 +4,7 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
+import '../../../src/services/gerador_de_id.dart';
 import '../core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'aplicacao_de_campo_view_model.dart';
 import 'tela_de_aplicacao_state.dart';
@@ -14,13 +15,18 @@ import 'tela_de_aplicacao_state.dart';
 /// TODO(GEOPRAG-24): latitude/longitude simuladas em [registrarSubponto] —
 /// falta integração real com GPS do dispositivo.
 class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
-  TelaDeAplicacaoCubit(this._repository, this._pontoId)
-    : super(const TelaDeAplicacaoLoading()) {
+  TelaDeAplicacaoCubit(
+    this._repository,
+    this._pontoId, {
+    GeradorDeId? geradorDeId,
+  }) : _geradorDeId = geradorDeId ?? GeradorDeIdUuid(),
+       super(const TelaDeAplicacaoLoading()) {
     _carregar();
   }
 
   final AplicadorPontoDeAplicacaoRepository _repository;
   final String _pontoId;
+  final GeradorDeId _geradorDeId;
 
   Future<void> _carregar() async {
     try {
@@ -54,6 +60,7 @@ class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
       await _repository.registrarSubponto(
         _pontoId,
         Subponto(
+          id: _geradorDeId.gerar(),
           latitude: 0,
           longitude: 0,
           realizadoEm: agora,
