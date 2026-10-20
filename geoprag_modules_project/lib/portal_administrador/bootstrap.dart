@@ -1,3 +1,5 @@
+import '../src/api/api_client.dart';
+import '../src/api/api_client_provider.dart';
 import '../src/auditoria/evento_auditoria.dart';
 import '../src/auditoria/evento_auditoria_repository.dart';
 import '../src/auditoria/evento_auditoria_repository_impl.dart';
@@ -64,6 +66,10 @@ import 'tenant/presentation/tenant_cubit.dart';
 /// `BlocProvider` da tela — nunca um `MultiBlocProvider` global.
 class AdminBootstrap {
   const AdminBootstrap();
+
+  /// Cliente HTTP compartilhado (uma instância por processo, ver
+  /// [ApiClientProvider]); a troca dos repositórios mock pelos reais usa este.
+  ApiClient buildApiClient() => ApiClientProvider.instancia;
 
   AdminAuthRepository buildAdminAuthRepository() => AdminAuthRepositoryImpl();
   TenantRepository buildTenantRepository() => AdminTenantRepositoryImpl();
