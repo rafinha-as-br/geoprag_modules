@@ -23,6 +23,8 @@ void main() {
   final dataNascimento = DateTime(1990, 1, 1);
 
   AdminAccount novaConta() => AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
     email: 'nova@gaspar.sc.gov.br',
     nome: 'Nova Conta',
     cpf: '123.456.789-00',

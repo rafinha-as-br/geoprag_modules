@@ -44,3 +44,8 @@ export 'src/services/gerador_de_id.dart';
 export 'src/api/sync/registro_dtos.dart';
 export 'src/api/sync/pull_dtos.dart';
 export 'src/api/sync/sync_mappers.dart';
+
+// Camada de API: DTOs de autenticação e seus mapeadores (GEOPRAG-186).
+export 'src/api/auth/usuario_dto.dart';
+export 'src/api/auth/login_dtos.dart';
+export 'src/api/auth/auth_mappers.dart';
