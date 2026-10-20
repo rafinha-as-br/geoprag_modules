@@ -27,6 +27,8 @@ Future<void> _tocarNoBotaoDeConta(WidgetTester tester) async {
 
 void main() {
   final contaAdmin = AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
     email: 'admin@gaspar.sc.gov.br',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',
