@@ -11,4 +11,22 @@ class AppErrorMessages {
   /// ou ação — nunca expõe detalhe técnico da exceção original.
   static const String carregamentoGenerico =
       'Não foi possível carregar os dados. Tente novamente.';
+
+  // Camada HTTP (src/api): textos de último recurso, usados quando o
+  // servidor não envia um `detail` próprio. Nunca incluem detalhe técnico.
+
+  static const String semConexao =
+      'Sem conexão com o servidor. Verifique a internet e tente novamente.';
+  static const String tempoEsgotado =
+      'O servidor demorou para responder. Tente novamente.';
+  static const String sessaoExpirada = 'Sua sessão expirou. Entre novamente.';
+  static const String acessoNegado =
+      'Você não tem permissão para realizar esta ação.';
+  static const String naoEncontrado = 'Registro não encontrado.';
+  static const String operacaoNaoPermitida =
+      'Esta operação não é permitida no estado atual.';
+  static const String requisicaoInvalida =
+      'Não foi possível processar a solicitação. Verifique os dados.';
+  static const String erroDoServidor =
+      'O servidor encontrou um problema. Tente novamente em instantes.';
 }

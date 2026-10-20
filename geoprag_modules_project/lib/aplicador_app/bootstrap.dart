@@ -1,3 +1,5 @@
+import '../src/api/api_client.dart';
+import '../src/api/api_client_provider.dart';
 import 'auth/core/auth_repository.dart';
 import 'auth/data/auth_repository_impl.dart';
 import 'auth/presentation/esqueci_senha_cubit.dart';
@@ -32,6 +34,10 @@ import 'tenant/presentation/tenant_cubit.dart';
 /// `BlocProvider` da tela — nunca um `MultiBlocProvider` global.
 class AplicadorBootstrap {
   const AplicadorBootstrap();
+
+  /// Cliente HTTP compartilhado (uma instância por processo, ver
+  /// [ApiClientProvider]); a troca dos repositórios mock pelos reais usa este.
+  ApiClient buildApiClient() => ApiClientProvider.instancia;
 
   AuthRepository buildAuthRepository() => AuthRepositoryImpl();
   TenantRepository buildTenantRepository() => TenantRepositoryImpl();
