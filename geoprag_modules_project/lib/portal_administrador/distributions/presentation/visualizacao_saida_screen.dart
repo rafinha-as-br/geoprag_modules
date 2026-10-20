@@ -5,6 +5,7 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/geoprag_back_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
+import '../core/distribuicao.dart';
 import 'distribuicao_detalhe_cubit.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
@@ -25,7 +26,7 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
         builder: (context, state) {
           return BaseDetailScreen(
             variant: BaseDetailScreenVariant.cartaoCentralizado,
-            title: 'Comprovante de Saída',
+            title: 'Registro de Saída',
             isLoading: state is DistribuicaoDetalheLoading,
             errorMessage: switch (state) {
               DistribuicaoDetalheError(:final message) =>
@@ -33,11 +34,6 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
               _ => null,
             },
             actions: [
-              IconButton(
-                tooltip: 'Imprimir',
-                icon: const Icon(Icons.print),
-                onPressed: () {},
-              ),
               OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.edit),
@@ -103,6 +99,13 @@ class _DistribuicaoDetalheContent extends StatelessWidget {
           subtitle: Text(
             '${distribuicao.responsavel} (${distribuicao.bairroResponsavel})',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        const ListTile(
+          title: Text('Estado', style: TextStyle(color: Colors.grey)),
+          subtitle: Text(
+            Distribuicao.estadoFinal,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ListTile(

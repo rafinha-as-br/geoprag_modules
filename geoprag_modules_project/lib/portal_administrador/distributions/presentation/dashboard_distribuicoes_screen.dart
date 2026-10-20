@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_status.dart';
 import '../../../src/widgets/base_card_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
+import '../core/distribuicao.dart';
 import 'distribuicao_view_model.dart';
 import 'distribuicoes_cubit.dart';
 import 'distribuicoes_state.dart';
@@ -90,7 +91,8 @@ class DashboardDistribuicoesScreen extends StatelessWidget {
       ),
       subtitle: Text(
         'Para: ${distribuicao.responsavel} (${distribuicao.bairroResponsavel})\n'
-        'Data: ${distribuicao.dataEntrega}',
+        'Data: ${distribuicao.dataEntrega} · ${Distribuicao.estadoFinal} '
+        '(${rotuloConfirmacao(distribuicao.statusConfirmacao)})',
       ),
       isThreeLine: true,
       trailing: const Icon(Icons.arrow_forward_ios),

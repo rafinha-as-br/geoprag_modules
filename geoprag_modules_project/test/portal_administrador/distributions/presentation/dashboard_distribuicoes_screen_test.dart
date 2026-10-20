@@ -94,6 +94,10 @@ void main() {
 
       expect(find.text('BTI Líquido - 2 Litros'), findsOneWidget);
       expect(
+        find.textContaining('Produto distribuído (recebimento confirmado)'),
+        findsOneWidget,
+      );
+      expect(
         find.descendant(
           of: find.byType(BaseCardListScreen<DistribuicaoResumoViewModel>),
           matching: find.byType(ListTile),
