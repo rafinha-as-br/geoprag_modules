@@ -40,6 +40,8 @@ void main() {
     testEmails.add(email);
     mockAdminAccounts.add(
       AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
         email: email,
         nome: email,
         cpf: '123.456.789-00',

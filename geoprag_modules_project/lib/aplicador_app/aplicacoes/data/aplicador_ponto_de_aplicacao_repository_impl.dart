@@ -48,8 +48,6 @@ class AplicadorPontoDeAplicacaoRepositoryImpl
         'Só é possível registrar aplicação em um ponto ativo.',
       );
     }
-    mockPontosDeAplicacao[index] = ponto.copyWith(
-      subpontos: [...ponto.subpontos, subponto],
-    );
+    mockPontosDeAplicacao[index] = ponto.comSubpontoRegistrado(subponto);
   }
 }

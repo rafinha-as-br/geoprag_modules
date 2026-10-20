@@ -13,6 +13,8 @@ void main() {
   late MockAdminAuthRepository repository;
 
   final account = AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
     email: 'admin@gaspar.sc.gov.br',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',

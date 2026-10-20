@@ -15,13 +15,13 @@ void main() {
       final usuario = mockUsers.first;
 
       final result = await repository.login(
-        identifier: usuario.cpf,
+        identifier: usuario.cpf!,
         senha: mockUserSenha,
       );
 
       expect(result.id, usuario.id);
       expect(result.nome, usuario.nome);
-      expect(result.cpf, usuario.cpf);
+      expect(result.cpf, usuario.cpf!);
       expect(result.tenantId, usuario.tenantId);
     });
 
@@ -29,11 +29,11 @@ void main() {
       final usuario = mockUsers.first;
 
       final result = await repository.login(
-        identifier: '  ${usuario.cpf}  ',
+        identifier: '  ${usuario.cpf!}  ',
         senha: mockUserSenha,
       );
 
-      expect(result.cpf, usuario.cpf);
+      expect(result.cpf, usuario.cpf!);
     });
 
     test('lança InvalidCredentialsException quando o CPF não existe em mockUsers', () {
@@ -47,7 +47,7 @@ void main() {
       final usuario = mockUsers.first;
 
       expect(
-        () => repository.login(identifier: usuario.cpf, senha: 'senha-errada'),
+        () => repository.login(identifier: usuario.cpf!, senha: 'senha-errada'),
         throwsA(isA<InvalidCredentialsException>()),
       );
     });
