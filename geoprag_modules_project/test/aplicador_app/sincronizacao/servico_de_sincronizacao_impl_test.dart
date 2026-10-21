@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../local/apoio_do_banco.dart';
 import 'apoio_da_sincronizacao.dart';
+import 'apoio_do_pull.dart';
 
 void main() {
   late BancoLocal banco;
@@ -20,6 +21,7 @@ void main() {
       ServicoDeSincronizacaoImpl(
         api: api,
         outbox: outbox,
+        reconciliador: reconciliadorDe(banco),
         dispositivoId: () async => 'aparelho-1',
         tamanhoDoLote: tamanhoDoLote,
       );
@@ -272,6 +274,7 @@ void main() {
       final servico = ServicoDeSincronizacaoImpl(
         api: api,
         outbox: outboxQueFalha,
+        reconciliador: reconciliadorDe(banco),
         dispositivoId: () async => 'aparelho-1',
       );
 
@@ -456,6 +459,196 @@ void main() {
 
       expect((await item('s-2')).estado, EstadoDoItemDaOutbox.enviado);
     });
+  });
+
+  group('sincronizar (envio e pull)', () {
+    late PontoDaoSqflite pontos;
+
+    setUp(() => pontos = PontoDaoSqflite(banco.db));
+
+    When<Future<Object?>> pull() => when(() => api.get('/sync/pull'));
+
+    test('envia a outbox e só depois baixa os pontos', () async {
+      await enfileira(aplicacoes, 's-1', pontoId: 'ponto-1');
+      final ordem = <String>[];
+      postDoLote(api).thenAnswer((_) async {
+        ordem.add('envio');
+        return respostaDoLote([criado('s-1')]);
+      });
+      pull().thenAnswer((_) async {
+        ordem.add('pull');
+        return corpoDoPull([pontoDoPull('ponto-1')]);
+      });
+
+      final resultado = await criarServico().sincronizar();
+
+      expect(ordem, ['envio', 'pull']);
+      expect(resultado.concluida, isTrue);
+      expect(resultado.pull!.pontosSalvos, ['ponto-1']);
+      expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+      expect((await item('s-1')).estado, EstadoDoItemDaOutbox.enviado);
+    });
+
+    test('com a outbox vazia, só baixa os pontos', () async {
+      pull().thenAnswer((_) async => corpoDoPull([pontoDoPull('ponto-1')]));
+
+      final resultado = await criarServico().sincronizar();
+
+      verifyNever(() => api.post(any(), corpo: any(named: 'corpo')));
+      expect(resultado.concluida, isTrue);
+      expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+    });
+
+    test('enviarPendentes não baixa os pontos', () async {
+      await enfileira(aplicacoes, 's-1');
+      postDoLote(api).thenAnswer((_) async => respostaDoLote([criado('s-1')]));
+
+      await criarServico().enviarPendentes();
+
+      verifyNever(() => api.get(any()));
+    });
+
+    test(
+      'lote misto: aceitos, duplicados e rejeitados e depois o pull',
+      () async {
+        await enfileira(aplicacoes, 's-1');
+        await enfileira(aplicacoes, 's-2', minutos: 1);
+        await enfileira(aplicacoes, 's-3', minutos: 2);
+        postDoLote(api).thenAnswer(
+          (_) async => respostaDoLote([
+            criado('s-1'),
+            duplicado('s-2'),
+            rejeitado('s-3', codigo: 'PONTO_INEXISTENTE'),
+          ]),
+        );
+        pull().thenAnswer((_) async => corpoDoPull([pontoDoPull('ponto-1')]));
+
+        final resultado = await criarServico().sincronizar();
+
+        expect(resultado.concluida, isTrue);
+        expect((await item('s-1')).estado, EstadoDoItemDaOutbox.enviado);
+        expect((await item('s-2')).estado, EstadoDoItemDaOutbox.enviado);
+        expect((await item('s-3')).estado, EstadoDoItemDaOutbox.rejeitado);
+        expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+      },
+    );
+
+    test(
+      'sem rede no meio do envio: nada se perde e o pull não roda',
+      () async {
+        await enfileira(aplicacoes, 's-1');
+        await enfileira(aplicacoes, 's-2', minutos: 1);
+        postDoLote(api).thenThrow(
+          const FalhaDeConexaoException('Tempo esgotado.', tempoEsgotado: true),
+        );
+
+        final resultado = await criarServico().sincronizar();
+
+        expect(resultado.concluida, isFalse);
+        expect(resultado.envioCompleto, isFalse);
+        expect(resultado.pullFalhou, isTrue);
+        expect((await item('s-1')).estado, EstadoDoItemDaOutbox.pendente);
+        expect((await item('s-2')).estado, EstadoDoItemDaOutbox.pendente);
+        verifyNever(() => api.get(any()));
+      },
+    );
+
+    test(
+      'refresh expirado: os itens continuam PENDENTE, a fila não é apagada',
+      () async {
+        await enfileira(aplicacoes, 's-1');
+        postDoLote(api).thenThrow(
+          const NaoAutenticadoException('Sua sessão expirou. Entre novamente.'),
+        );
+
+        final resultado = await criarServico().sincronizar();
+
+        expect(resultado.concluida, isFalse);
+        expect((await item('s-1')).estado, EstadoDoItemDaOutbox.pendente);
+        expect(
+          (await outbox.contarPorEstado())[EstadoDoItemDaOutbox.pendente],
+          1,
+        );
+        verifyNever(() => api.get(any()));
+      },
+    );
+
+    test('pull sem rede: o envio fica completo e o banco não muda', () async {
+      await pontos.salvar(pontoDeTeste('ponto-1'));
+      pull().thenThrow(const FalhaDeConexaoException('Sem conexão.'));
+
+      final resultado = await criarServico().sincronizar();
+
+      expect(resultado.envioCompleto, isTrue);
+      expect(resultado.pullFalhou, isTrue);
+      expect(resultado.pull, isNull);
+      expect(resultado.concluida, isFalse);
+      expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+    });
+
+    test('resposta ilegível do pull: nada é apagado', () async {
+      await pontos.salvar(pontoDeTeste('ponto-1'));
+      pull().thenAnswer((_) async => {'pontos': 'não é uma lista'});
+
+      final resultado = await criarServico().sincronizar();
+
+      expect(resultado.pullFalhou, isTrue);
+      expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+    });
+
+    test('registro feito durante o pull protege o ponto reatribuído', () async {
+      await pontos.salvar(pontoDeTeste('ponto-9'));
+      pull().thenAnswer((_) async {
+        await enfileira(aplicacoes, 's-9', pontoId: 'ponto-9');
+        return corpoDoPull([pontoDoPull('ponto-1')]);
+      });
+
+      final resultado = await criarServico().sincronizar();
+
+      expect(resultado.pull!.pontosMantidos, ['ponto-9']);
+      expect(await pontos.buscarPorId('ponto-9'), isNotNull);
+    });
+
+    test('duas sincronizações simultâneas fazem um único pull', () async {
+      final liberar = Completer<void>();
+      pull().thenAnswer((_) async {
+        await liberar.future;
+        return corpoDoPull([pontoDoPull('ponto-1')]);
+      });
+      final servico = criarServico();
+
+      final primeira = servico.sincronizar();
+      final segunda = servico.sincronizar();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      liberar.complete();
+      final resultados = await Future.wait([primeira, segunda]);
+
+      verify(() => api.get('/sync/pull')).called(1);
+      expect(resultados.every((r) => r.concluida), isTrue);
+    });
+
+    test(
+      'sincronizar durante um envio em curso espera e depois baixa',
+      () async {
+        await enfileira(aplicacoes, 's-1');
+        final liberar = Completer<void>();
+        postDoLote(api).thenAnswer((_) async {
+          await liberar.future;
+          return respostaDoLote([criado('s-1')]);
+        });
+        pull().thenAnswer((_) async => corpoDoPull([pontoDoPull('ponto-1')]));
+        final servico = criarServico();
+
+        final envio = servico.enviarPendentes();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        final sincronizacao = servico.sincronizar();
+        liberar.complete();
+        await Future.wait([envio, sincronizacao]);
+
+        verify(() => api.get('/sync/pull')).called(1);
+        expect(await pontos.buscarPorId('ponto-1'), isNotNull);
+      },
+    );
   });
 }
 

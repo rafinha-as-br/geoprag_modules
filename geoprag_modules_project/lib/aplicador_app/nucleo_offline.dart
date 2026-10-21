@@ -10,11 +10,13 @@ import 'local/aplicacao_dao_sqflite.dart';
 import 'local/banco_local.dart';
 import 'local/outbox_dao.dart';
 import 'local/outbox_dao_sqflite.dart';
+import 'local/ponto_dao_sqflite.dart';
 import 'sincronizacao/core/monitor_de_conexao.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
 import 'sincronizacao/data/dispositivo_id.dart';
 import 'sincronizacao/data/gatilhos_de_sincronizacao.dart';
 import 'sincronizacao/data/monitor_de_conexao_connectivity.dart';
+import 'sincronizacao/data/reconciliador_do_pull.dart';
 import 'sincronizacao/data/servico_de_sincronizacao_impl.dart';
 
 /// As instâncias únicas do núcleo offline do App Aplicador (GEOPRAG-190): o
@@ -95,12 +97,18 @@ class NucleoOffline {
   }) async {
     final banco = await BancoLocal.abrir(fabrica: fabrica, caminho: caminho);
     final outbox = OutboxDaoSqflite(banco.db);
+    final aplicacoes = AplicacaoDaoSqflite(banco.db);
     final dispositivo = DispositivoId(
       armazenamento ?? ArmazenamentoSeguroFlutter(),
     );
     final sincronizacao = ServicoDeSincronizacaoImpl(
       api: api ?? ApiClientProvider.instancia,
       outbox: outbox,
+      reconciliador: ReconciliadorDoPull(
+        pontos: PontoDaoSqflite(banco.db),
+        outbox: outbox,
+        aplicacoes: aplicacoes,
+      ),
       dispositivoId: dispositivo.obter,
     );
     final gatilhos = GatilhosDeSincronizacao(
@@ -113,7 +121,7 @@ class NucleoOffline {
       outbox: outbox,
       sincronizacao: sincronizacao,
       registro: RegistroDeAplicacaoRepositoryImpl(
-        aplicacoes: AplicacaoDaoSqflite(banco.db),
+        aplicacoes: aplicacoes,
         sincronizacao: sincronizacao,
       ),
       gatilhos: gatilhos,
