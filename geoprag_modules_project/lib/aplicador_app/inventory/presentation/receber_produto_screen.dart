@@ -83,6 +83,12 @@ class _ReceberProdutoConteudo extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
+            const Text('Lote:', style: TextStyle(color: Colors.grey)),
+            Text(
+              recebimento.loteDescricao,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
             const Text(
               'Quantidade / Volume:',
               style: TextStyle(color: Colors.grey),
@@ -96,11 +102,18 @@ class _ReceberProdutoConteudo extends StatelessWidget {
       ),
       primaryLabel: 'Confirmar Recebimento',
       onPrimary: () async {
-        await context.read<RecebimentoConfirmacaoCubit>().confirmar();
-        if (!context.mounted) return;
+        final confirmado = await context
+            .read<RecebimentoConfirmacaoCubit>()
+            .confirmar();
+        if (!context.mounted || confirmado == null) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Recebimento confirmado! Estoque atualizado.'),
+            content: Text(
+              confirmado.pendenteSincronizacao
+                  ? 'Recebimento confirmado em ${confirmado.confirmadoEmDescricao}. '
+                        'Será enviado quando houver conexão.'
+                  : 'Recebimento confirmado! Estoque atualizado.',
+            ),
             backgroundColor: GeopragColors.green900,
           ),
         );

@@ -62,5 +62,44 @@ void main() {
       expect(find.text('2 produtos a caminho'), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
     });
+
+    testWidgets('mostra o alerta de produto a caminho quando há pendentes', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const InventarioLoaded(
+            EstoqueAtualViewModel(
+              produtoNome: 'BTI Líquido',
+              quantidadeFormatada: '10 Litros',
+              atualizadoEmDescricao: 'Última atualização hoje',
+              recebimentosPendentesCount: 1,
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.text('1 produto a caminho. Toque para confirmar o recebimento.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('não mostra o alerta quando não há pendentes', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const InventarioLoaded(
+            EstoqueAtualViewModel(
+              produtoNome: 'BTI Líquido',
+              quantidadeFormatada: '10 Litros',
+              atualizadoEmDescricao: 'Última atualização hoje',
+              recebimentosPendentesCount: 0,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Toque para confirmar'), findsNothing);
+    });
   });
 }

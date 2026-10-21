@@ -25,15 +25,35 @@ class RecebimentoRepositoryImpl implements RecebimentoRepository {
   }
 
   @override
-  Future<void> confirmar(String id) async {
+  Future<Recebimento> confirmar(String id, {DateTime? confirmadoEm}) async {
     final index = mockRecebimentos.indexWhere(
       (recebimento) => recebimento.id == id,
     );
     if (index == -1) {
       throw EntidadeNaoEncontradaException('Recebimento "$id" não encontrado.');
     }
-    mockRecebimentos[index] = mockRecebimentos[index].copyWith(
+    // Idempotente: um segundo toque não sobrescreve a ocorrência original.
+    if (mockRecebimentos[index].status == RecebimentoStatus.confirmado) {
+      return mockRecebimentos[index];
+    }
+    final agora = DateTime.now();
+    return mockRecebimentos[index] =mockRecebimentos[index].copyWith(
       status: RecebimentoStatus.confirmado,
+      confirmadoEm: confirmadoEm ?? agora,
+      registradoEm: mockRecebimentosOnline ? agora : null,
     );
+  }
+
+  @override
+  Future<List<Recebimento>> sincronizarPendentes() async {
+    if (!mockRecebimentosOnline) return [];
+    final agora = DateTime.now();
+    final sincronizados = <Recebimento>[];
+    for (var i = 0; i < mockRecebimentos.length; i++) {
+      if (!mockRecebimentos[i].pendenteSincronizacao) continue;
+      mockRecebimentos[i] = mockRecebimentos[i].copyWith(registradoEm: agora);
+      sincronizados.add(mockRecebimentos[i]);
+    }
+    return sincronizados;
   }
 }
