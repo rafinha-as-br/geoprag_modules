@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_navigator.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/visualizacao_de_ponto_screen.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/atribuir_aplicador_dialog.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -16,7 +18,7 @@ import '../gestao_de_aplicacoes_fixtures.dart';
 class MockAdminPontoDeAplicacaoRepository extends Mock
     implements AdminPontoDeAplicacaoRepository {}
 
-class MockAplicadorRepository extends Mock implements AplicadorRepository {}
+class MockAplicadorRepository extends Mock implements AplicadorResumoRepository {}
 
 class MockAdminNavigator extends Mock implements AdminNavigator {}
 
@@ -84,6 +86,71 @@ void main() {
 
       verify(() => navigator.toAplicacoes()).called(1);
       verifyNever(() => navigator.toAplicacaoBairro(any()));
+    },
+  );
+
+  testWidgets(
+    'trecho sem medidas e sem texto (cadastro mínimo da API) mostra "Não '
+    'informado" em vez de zeros',
+    (tester) async {
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(
+          larguraMetros: 0,
+          profundidadeMetros: 0,
+          velocidadeMetrosPorSegundo: 0,
+          numeroReferencia: '',
+          descricaoDoTrecho: '',
+        ),
+      );
+      await montar(tester);
+      await tester.pump();
+
+      // número/referência, trecho, largura, profundidade, velocidade e vazão.
+      expect(find.text('Não informado'), findsNWidgets(6));
+      expect(find.text('0 m'), findsNothing);
+      expect(find.textContaining('m³/s'), findsNothing);
+    },
+  );
+
+  testWidgets('trecho com medidas mostra os valores e a vazão', (
+    tester,
+  ) async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer(
+      (_) async => pontoDeAplicacao(
+        larguraMetros: 2,
+        profundidadeMetros: 0.5,
+        velocidadeMetrosPorSegundo: 0.4,
+      ),
+    );
+    await montar(tester);
+    await tester.pump();
+
+    expect(find.text('Não informado'), findsNothing);
+    expect(find.textContaining('m³/s'), findsOneWidget);
+  });
+
+  testWidgets(
+    'sem a lista de aplicadores (servidor fora), "Atribuir aplicador" avisa '
+    'em vez de falhar em silêncio',
+    (tester) async {
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(),
+      );
+      when(() => repository.listar()).thenAnswer((_) async => []);
+      when(() => aplicadorRepository.listar()).thenAnswer(
+        (_) async => throw const FalhaDeConexaoException(
+          'Sem conexão com o servidor.',
+        ),
+      );
+      await montar(tester);
+      await tester.pump();
+
+      await tester.tap(find.text('Atribuir aplicador'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(AtribuirAplicadorDialog), findsNothing);
+      expect(find.text('Sem conexão com o servidor.'), findsOneWidget);
     },
   );
 

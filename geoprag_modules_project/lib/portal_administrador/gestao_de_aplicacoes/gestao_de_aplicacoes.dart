@@ -1,7 +1,14 @@
 export 'core/admin_ponto_de_aplicacao_repository.dart';
+export 'core/aplicador_resumo.dart';
+export 'core/aplicador_resumo_repository.dart';
+export 'core/bairro.dart';
+export 'core/bairro_repository.dart';
 
 export 'data/mock_pontos_de_aplicacao.dart';
 export 'data/admin_ponto_de_aplicacao_repository_impl.dart';
+export 'data/admin_ponto_de_aplicacao_repository_http.dart';
+export 'data/aplicador_resumo_repository_http.dart';
+export 'data/bairro_repository_http.dart';
 
 export 'presentation/ponto_de_aplicacao_view_model.dart';
 export 'presentation/pontos_de_aplicacao_cubit.dart';

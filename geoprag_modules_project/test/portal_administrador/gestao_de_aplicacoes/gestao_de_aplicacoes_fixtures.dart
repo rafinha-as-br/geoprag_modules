@@ -16,6 +16,8 @@ PontoDeAplicacao pontoDeAplicacao({
   double profundidadeMetros = 0.5,
   double velocidadeMetrosPorSegundo = 0.4,
   int quantidadeDeSubpontos = 8,
+  String numeroReferencia = 'Em frente ao nº 240',
+  String descricaoDoTrecho = 'Trecho de 400 m.',
 }) {
   return PontoDeAplicacao(
     id: id,
@@ -23,8 +25,8 @@ PontoDeAplicacao pontoDeAplicacao({
     nome: nome,
     bairro: bairro,
     endereco: 'Rua Pedro Simon',
-    numeroReferencia: 'Em frente ao nº 240',
-    descricaoDoTrecho: 'Trecho de 400 m.',
+    numeroReferencia: numeroReferencia,
+    descricaoDoTrecho: descricaoDoTrecho,
     larguraMetros: larguraMetros,
     profundidadeMetros: profundidadeMetros,
     velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,

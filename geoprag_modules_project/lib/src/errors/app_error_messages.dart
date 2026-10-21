@@ -29,4 +29,13 @@ class AppErrorMessages {
       'Não foi possível processar a solicitação. Verifique os dados.';
   static const String erroDoServidor =
       'O servidor encontrou um problema. Tente novamente em instantes.';
+
+  /// A API aceitou a ação, mas reler o ponto falhou (rede, servidor).
+  static const String acaoFeitaSemAtualizarATela =
+      'A ação foi concluída, mas não foi possível atualizar a tela. '
+      'Recarregue a página.';
+
+  /// Ação do portal que ainda não foi ligada à API (GEOPRAG-198).
+  static const String acaoIndisponivelNestaVersao =
+      'Esta ação ainda não está disponível nesta versão.';
 }

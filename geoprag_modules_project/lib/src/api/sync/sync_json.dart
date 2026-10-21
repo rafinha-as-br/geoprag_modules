@@ -68,6 +68,15 @@ List<Map<String, dynamic>> listaDeObjetos(
   throw FormatException('Campo "$campo" ausente ou inválido na resposta.');
 }
 
+/// Corpo de uma resposta que é, ele mesmo, uma lista de objetos JSON (ex.:
+/// `GET /pontos`). Qualquer outra coisa é erro.
+List<Map<String, dynamic>> objetosDoCorpo(Object? corpo) {
+  if (corpo is List && corpo.every((e) => e is Map<String, dynamic>)) {
+    return corpo.cast<Map<String, dynamic>>();
+  }
+  throw const FormatException('A API devolveu algo que não é uma lista.');
+}
+
 /// Lista de textos; ausente vale lista vazia só quando [opcional].
 List<String> listaDeTextos(
   Map<String, dynamic> json,

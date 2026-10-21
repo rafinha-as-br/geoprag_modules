@@ -6,6 +6,7 @@ import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadore
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/criar_ponto_de_aplicacao_cubit.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
+import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
 import 'package:mocktail/mocktail.dart';
@@ -167,6 +168,46 @@ void main() {
     expect(chamada.captured.single, isNull);
     expect(cubit.state.feedback, isA<AcaoFeedbackSucesso>());
   });
+
+  testWidgets(
+    'ação ainda não disponível (OperacaoNaoPermitida) mostra a mensagem '
+    'clara, não o erro genérico de carregamento',
+    (tester) async {
+      when(
+        () => repository.criar(
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+          aplicadorId: any(named: 'aplicadorId'),
+        ),
+      ).thenAnswer(
+        (_) async => throw const OperacaoNaoPermitidaException(
+          'Esta ação ainda não está disponível nesta versão.',
+        ),
+      );
+
+      await montar(tester);
+      await preencher(tester);
+      await cubit.submit();
+
+      final feedback = cubit.state.feedback;
+      expect(feedback, isA<AcaoFeedbackErro>());
+      expect(
+        feedback!.mensagem,
+        'Esta ação ainda não está disponível nesta versão.',
+      );
+    },
+  );
 
   testWidgets('falha do repositório vira feedback de erro na própria tela',
       (tester) async {

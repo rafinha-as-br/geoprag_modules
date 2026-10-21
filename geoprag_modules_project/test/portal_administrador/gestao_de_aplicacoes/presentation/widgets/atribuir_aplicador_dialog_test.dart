@@ -7,13 +7,11 @@ void main() {
     AplicadorParaAtribuir(
       id: '1',
       nome: 'João Silva',
-      bairro: 'Belchior',
       quantidadePontosAtribuidos: 2,
     ),
     AplicadorParaAtribuir(
       id: '2',
       nome: 'Maria Souza',
-      bairro: 'Gasparinho',
       quantidadePontosAtribuidos: 7,
     ),
   ];

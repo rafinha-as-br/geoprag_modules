@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class AplicadorParaAtribuir {
   final String id;
   final String nome;
-  final String bairro;
 
   /// Quantos pontos já estão atribuídos a este aplicador — usado para
   /// destacar em âmbar quando a carga já está alta (GEOPRAG-110).
@@ -15,7 +14,6 @@ class AplicadorParaAtribuir {
   const AplicadorParaAtribuir({
     required this.id,
     required this.nome,
-    required this.bairro,
     required this.quantidadePontosAtribuidos,
   });
 }
@@ -93,7 +91,6 @@ class _AtribuirAplicadorDialogState extends State<AtribuirAplicadorDialog> {
                           ),
                           title: Text(aplicador.nome),
                           subtitle: Text(
-                            '${aplicador.bairro} · '
                             '${aplicador.quantidadePontosAtribuidos} ponto(s) atribuído(s)',
                             style: TextStyle(
                               color: cargaAlta
