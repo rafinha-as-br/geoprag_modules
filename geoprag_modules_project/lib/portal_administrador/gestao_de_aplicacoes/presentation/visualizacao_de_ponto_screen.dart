@@ -594,7 +594,11 @@ class _AvisoDeConflitos extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber, color: GeopragColors.statusAtrasado),
+          const Icon(
+            Icons.warning_amber,
+            color: GeopragColors.statusAtrasado,
+            semanticLabel: 'Atenção',
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -619,15 +623,29 @@ class _LinhaDeExecucao extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      isThreeLine: execucao.conflito,
       leading: execucao.conflito
-          ? const Icon(Icons.warning_amber, color: GeopragColors.statusAtrasado)
+          ? const Icon(
+              Icons.warning_amber,
+              color: GeopragColors.statusAtrasado,
+              semanticLabel: 'Registro em conflito',
+            )
           : const Icon(Icons.place_outlined),
       title: Text('Aplicada em ${_dataHora(execucao.realizadoEm)}'),
-      subtitle: Text(
-        'Registrada em ${_dataHora(execucao.registradoEm)} · '
-        '${execucao.latitude.toStringAsFixed(4)}, '
-        '${execucao.longitude.toStringAsFixed(4)}'
-        '${execucao.conflito ? '\nConflito: ${_textoDoConflito(execucao.motivoConflito)}' : ''}',
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Registrada em ${_dataHora(execucao.registradoEm)} · '
+            '${execucao.latitude.toStringAsFixed(4)}, '
+            '${execucao.longitude.toStringAsFixed(4)}',
+          ),
+          if (execucao.conflito)
+            Text(
+              'Conflito: ${_textoDoConflito(execucao.motivoConflito)}',
+              style: const TextStyle(color: GeopragColors.statusAtrasado),
+            ),
+        ],
       ),
     );
   }
