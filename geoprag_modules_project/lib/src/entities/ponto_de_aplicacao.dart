@@ -148,6 +148,28 @@ class Agendamento {
   );
 }
 
+/// Por que o servidor marcou um registro como conflito ao recebê-lo
+/// (GEOPRAG-207). Só o portal vê isso.
+enum MotivoDeConflito {
+  /// O ponto foi reatribuído a outro aplicador antes de o registro chegar.
+  pontoReatribuido,
+
+  /// O ponto estava desativado quando o registro chegou.
+  pontoDesativado,
+
+  /// O ciclo do ponto estava inativo (aplicação química cancelada).
+  pontoInativo,
+
+  /// A data agendada já tinha sido atendida por outro registro.
+  dataJaAtendida,
+
+  /// A data agendada estava cancelada.
+  dataCancelada,
+
+  /// Motivo que esta versão do app não conhece (o servidor pode acrescentar).
+  desconhecido,
+}
+
 /// Uma aplicação do produto registrada ao longo do trecho de um
 /// [PontoDeAplicacao].
 ///
@@ -156,6 +178,10 @@ class Agendamento {
 /// e só sobe ao sistema depois ("Módulo - Gestão de Aplicações", seção 5).
 /// [realizadoEm] é o instante da aplicação física — a única data válida para
 /// auditoria; [registradoEm] é quando o sistema recebeu o registro.
+///
+/// [conflito] e [motivoConflito] vêm do servidor e só existem para o portal: o
+/// registro foi aceito, mas chegou em desacordo com o estado do ponto e fica
+/// marcado para o gestor revisar. Fora do portal valem `false` e `null`.
 class Subponto {
   /// UUID v4 gerado no aparelho (GEOPRAG-188): identifica o subponto e torna
   /// o reenvio da sincronização idempotente. Nunca muda.
@@ -164,6 +190,8 @@ class Subponto {
   final double longitude;
   final DateTime realizadoEm;
   final DateTime registradoEm;
+  final bool conflito;
+  final MotivoDeConflito? motivoConflito;
 
   const Subponto({
     required this.id,
@@ -171,6 +199,8 @@ class Subponto {
     required this.longitude,
     required this.realizadoEm,
     required this.registradoEm,
+    this.conflito = false,
+    this.motivoConflito,
   });
 
   /// Cria um subponto novo, com [id] UUID v4 do [gerador].

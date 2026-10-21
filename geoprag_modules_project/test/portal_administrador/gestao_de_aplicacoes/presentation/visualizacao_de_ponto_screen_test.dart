@@ -154,6 +154,95 @@ void main() {
     },
   );
 
+  group('conflitos de sincronização (GEOPRAG-207)', () {
+    Subponto subponto(
+      String id, {
+      bool conflito = false,
+      MotivoDeConflito? motivo,
+    }) => Subponto(
+      id: id,
+      latitude: -26.9312,
+      longitude: -48.9567,
+      realizadoEm: DateTime(2026, 8, 24, 8, 12),
+      registradoEm: DateTime(2026, 8, 24, 18, 40),
+      conflito: conflito,
+      motivoConflito: motivo,
+    );
+
+    Future<void> abrir(WidgetTester tester, List<Subponto> subpontos) async {
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => pontoDeAplicacao(subpontos: subpontos),
+      );
+      await montar(tester);
+      await tester.pump();
+    }
+
+    testWidgets('sem conflito, não mostra aviso nem motivo', (tester) async {
+      await abrir(tester, [subponto('s1'), subponto('s2')]);
+
+      expect(
+        find.byKey(const Key('visualizacaoDePonto_avisoDeConflitos')),
+        findsNothing,
+      );
+      expect(find.textContaining('Conflito:'), findsNothing);
+      expect(find.byIcon(Icons.warning_amber), findsNothing);
+    });
+
+    testWidgets('um registro em conflito mostra o aviso, a marca e o motivo', (
+      tester,
+    ) async {
+      await abrir(tester, [
+        subponto('s1'),
+        subponto(
+          's2',
+          conflito: true,
+          motivo: MotivoDeConflito.pontoReatribuido,
+        ),
+      ]);
+
+      expect(
+        find.text('1 registro chegou em conflito com o estado do ponto.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Conflito: o ponto foi reatribuído'), findsOneWidget);
+      // O ícone de alerta marca a linha e o aviso; a linha sem conflito não tem.
+      expect(find.byIcon(Icons.warning_amber), findsNWidgets(2));
+      expect(find.byIcon(Icons.place_outlined), findsOneWidget);
+    });
+
+    testWidgets('vários registros em conflito são contados no aviso', (
+      tester,
+    ) async {
+      await abrir(tester, [
+        subponto('s1', conflito: true, motivo: MotivoDeConflito.dataCancelada),
+        subponto('s2', conflito: true, motivo: MotivoDeConflito.dataJaAtendida),
+        subponto('s3'),
+      ]);
+
+      expect(
+        find.text('2 registros chegaram em conflito com o estado do ponto.'),
+        findsOneWidget,
+      );
+    });
+
+    final textos = {
+      MotivoDeConflito.pontoReatribuido: 'o ponto foi reatribuído',
+      MotivoDeConflito.pontoDesativado: 'o ponto estava desativado',
+      MotivoDeConflito.pontoInativo: 'o ciclo do ponto estava encerrado',
+      MotivoDeConflito.dataJaAtendida: 'a data agendada já tinha sido atendida',
+      MotivoDeConflito.dataCancelada: 'a data agendada estava cancelada',
+      MotivoDeConflito.desconhecido: 'o registro chegou em desacordo',
+      null: 'o registro chegou em desacordo',
+    };
+    for (final MapEntry(key: motivo, value: trecho) in textos.entries) {
+      testWidgets('motivo $motivo mostra o texto em português', (tester) async {
+        await abrir(tester, [subponto('s1', conflito: true, motivo: motivo)]);
+
+        expect(find.textContaining('Conflito: $trecho'), findsOneWidget);
+      });
+    }
+  });
+
   testWidgets(
     // GEOPRAG-142: o bloco de auditoria foi removido da tela, mas o
     // histórico de execuções (informação de negócio legítima e distinta de

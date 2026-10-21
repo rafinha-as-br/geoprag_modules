@@ -235,6 +235,95 @@ void main() {
     });
   });
 
+  group('marca de conflito do subponto (GEOPRAG-207)', () {
+    Map<String, dynamic> subpontoJson(Map<String, dynamic> extras) => {
+      'id': 's-0009',
+      'latitude': -26.9,
+      'longitude': -48.9,
+      'realizadoEm': '2026-10-12T14:30:00-03:00',
+      'recebidoEm': '2026-10-12T18:05:12+00:00',
+      ...extras,
+    };
+
+    Subponto converter(Map<String, dynamic> extras) =>
+        SyncMappers.paraSubponto(SubpontoDto.fromJson(subpontoJson(extras)));
+
+    test('sem os campos (pull do aplicador) é um subponto sem conflito', () {
+      final subponto = converter({});
+
+      expect(subponto.conflito, isFalse);
+      expect(subponto.motivoConflito, isNull);
+    });
+
+    test('conflito false com motivo nulo, como o servidor devolve no normal', () {
+      final subponto = converter({'conflito': false, 'motivoConflito': null});
+
+      expect(subponto.conflito, isFalse);
+      expect(subponto.motivoConflito, isNull);
+    });
+
+    final motivos = {
+      'PONTO_REATRIBUIDO': MotivoDeConflito.pontoReatribuido,
+      'PONTO_DESATIVADO': MotivoDeConflito.pontoDesativado,
+      'PONTO_INATIVO': MotivoDeConflito.pontoInativo,
+      'DATA_JA_ATENDIDA': MotivoDeConflito.dataJaAtendida,
+      'DATA_CANCELADA': MotivoDeConflito.dataCancelada,
+    };
+    for (final MapEntry(key: texto, value: motivo) in motivos.entries) {
+      test('$texto vira $motivo', () {
+        final subponto = converter({
+          'conflito': true,
+          'motivoConflito': texto,
+        });
+
+        expect(subponto.conflito, isTrue);
+        expect(subponto.motivoConflito, motivo);
+      });
+    }
+
+    test('motivo que esta versão não conhece degrada para desconhecido', () {
+      final subponto = converter({
+        'conflito': true,
+        'motivoConflito': 'MOTIVO_NOVO',
+      });
+
+      expect(subponto.conflito, isTrue);
+      expect(subponto.motivoConflito, MotivoDeConflito.desconhecido);
+    });
+
+    test('conflito com tipo errado é recusado como resposta inválida', () {
+      expect(
+        () => SubpontoDto.fromJson(subpontoJson({'conflito': 'sim'})),
+        throwsFormatException,
+      );
+    });
+
+    test('o ponto inteiro carrega a marca dos subpontos em conflito', () {
+      final ponto = SyncMappers.paraPonto(
+        PontoDoAplicadorDto.fromJson(
+          _pontoJson(
+            extras: {
+              'subpontos': [
+                subpontoJson({'id': 's-ok'}),
+                subpontoJson({
+                  'id': 's-conflito',
+                  'conflito': true,
+                  'motivoConflito': 'PONTO_REATRIBUIDO',
+                }),
+              ],
+            },
+          ),
+        ),
+      );
+
+      expect([for (final s in ponto.subpontos) s.conflito], [false, true]);
+      expect(
+        ponto.subpontos.last.motivoConflito,
+        MotivoDeConflito.pontoReatribuido,
+      );
+    });
+  });
+
   group('SyncMappers.itensDaAplicacao / loteDeAplicacoes', () {
     Aplicacao aplicacao(String id, List<String> subpontos) => Aplicacao(
       id: id,
