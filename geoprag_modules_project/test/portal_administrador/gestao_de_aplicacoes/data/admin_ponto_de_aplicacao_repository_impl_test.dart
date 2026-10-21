@@ -3,6 +3,7 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/a
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
+import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
@@ -39,6 +40,7 @@ void main() {
   Future<PontoDeAplicacao> criar({
     String? aplicadorId,
     String bairro = 'Gasparinho',
+    int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   }) => repository.criar(
     nome: 'Córrego Novo',
     bairro: bairro,
@@ -52,6 +54,7 @@ void main() {
     distanciaEntreSubpontosMetros: 50,
     quantidadeDeSubpontos: 4,
     aplicadorId: aplicadorId,
+    toleranciaDias: toleranciaDias,
   );
 
   test('listarPorBairro devolve só os pontos daquele bairro', () async {
@@ -67,6 +70,40 @@ void main() {
       () => repository.buscarPorId('inexistente'),
       throwsA(isA<EntidadeNaoEncontradaException>()),
     );
+  });
+
+  test('ponto criado sem tolerância informada nasce com o padrão de 4 dias',
+      () async {
+    final ponto = await criar();
+
+    expect(ponto.toleranciaDias, 4);
+    expect((await repository.buscarPorId(ponto.id)).toleranciaDias, 4);
+  });
+
+  test('ponto criado aceita uma tolerância própria', () async {
+    final ponto = await criar(toleranciaDias: 10);
+
+    expect(ponto.toleranciaDias, 10);
+    expect((await repository.buscarPorId(ponto.id)).toleranciaDias, 10);
+  });
+
+  test('criar rejeita tolerância inválida e não cadastra o ponto', () async {
+    final totalAntes = mockPontosDeAplicacao.length;
+
+    await expectLater(
+      () => criar(toleranciaDias: 0),
+      throwsA(isA<OperacaoNaoPermitidaException>()),
+    );
+
+    expect(mockPontosDeAplicacao.length, totalAntes);
+  });
+
+  test('o mock tem pontos com a tolerância padrão e um com tolerância própria',
+      () async {
+    final pontos = await repository.listar();
+
+    expect(pontos.map((p) => p.toleranciaDias), contains(4));
+    expect((await repository.buscarPorId('pa2')).toleranciaDias, 7);
   });
 
   test('ponto criado sem aplicador nasce endereçado', () async {
@@ -247,6 +284,58 @@ void main() {
     });
   });
 
+  group('editarTolerancia', () {
+    test('altera a tolerância mesmo de um ponto com cadastro travado (pa1, com execução)',
+        () async {
+      expect((await repository.buscarPorId('pa1')).podeEditarCadastroCompleto,
+          isFalse);
+
+      await repository.editarTolerancia('pa1', 9);
+
+      expect((await repository.buscarPorId('pa1')).toleranciaDias, 9);
+    });
+
+    test('altera a tolerância de um ponto com cadastro liberado (pa4)', () async {
+      await repository.editarTolerancia('pa4', 2);
+
+      expect((await repository.buscarPorId('pa4')).toleranciaDias, 2);
+    });
+
+    test('não mexe no resto do ponto', () async {
+      final antes = await repository.buscarPorId('pa1');
+
+      await repository.editarTolerancia('pa1', 9);
+
+      final depois = await repository.buscarPorId('pa1');
+      expect(depois.nome, antes.nome);
+      expect(depois.agendamento, antes.agendamento);
+      expect(depois.subpontos, antes.subpontos);
+      expect(depois.dosagemMl, antes.dosagemMl);
+    });
+
+    test('rejeita zero e valor negativo sem alterar o ponto', () async {
+      final antes = (await repository.buscarPorId('pa1')).toleranciaDias;
+
+      await expectLater(
+        () => repository.editarTolerancia('pa1', 0),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      await expectLater(
+        () => repository.editarTolerancia('pa1', -2),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+
+      expect((await repository.buscarPorId('pa1')).toleranciaDias, antes);
+    });
+
+    test('falha com mensagem amigável quando o id não existe', () {
+      expect(
+        () => repository.editarTolerancia('inexistente', 5),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
+
   group('editarCadastroCompleto', () {
     Future<void> editar(String id) => repository.editarCadastroCompleto(
       id,
@@ -261,6 +350,7 @@ void main() {
       dosagemMl: 300,
       distanciaEntreSubpontosMetros: 90,
       quantidadeDeSubpontos: 12,
+      toleranciaDias: 6,
     );
 
     test('atualiza o cadastro de um ponto liberado (pa4, sem agendamento nem execução)', () async {
@@ -270,6 +360,7 @@ void main() {
       expect(ponto.nome, 'Nome editado');
       expect(ponto.larguraMetros, 9);
       expect(ponto.quantidadeDeSubpontos, 12);
+      expect(ponto.toleranciaDias, 6);
     });
 
     test('propaga a rejeição de domínio ao editar um ponto travado (pa1, com execução)', () {
@@ -446,6 +537,7 @@ void main() {
           dosagemMl: antes.dosagemMl,
           distanciaEntreSubpontosMetros: antes.distanciaEntreSubpontosMetros,
           quantidadeDeSubpontos: antes.quantidadeDeSubpontos,
+          toleranciaDias: antes.toleranciaDias,
         );
 
         final evento = mockEventosAuditoria.single;
@@ -454,6 +546,69 @@ void main() {
         expect(evento.payload['nome'], {'de': antes.nome, 'para': 'Nome editado'});
       },
     );
+
+    test('editarCadastroCompleto inclui a tolerância no delta quando ela muda',
+        () async {
+      final antes = await repository.buscarPorId('pa4');
+
+      await repository.editarCadastroCompleto(
+        'pa4',
+        nome: antes.nome,
+        bairro: antes.bairro,
+        endereco: antes.endereco,
+        numeroReferencia: antes.numeroReferencia,
+        descricaoDoTrecho: antes.descricaoDoTrecho,
+        larguraMetros: antes.larguraMetros,
+        profundidadeMetros: antes.profundidadeMetros,
+        velocidadeMetrosPorSegundo: antes.velocidadeMetrosPorSegundo,
+        dosagemMl: antes.dosagemMl,
+        distanciaEntreSubpontosMetros: antes.distanciaEntreSubpontosMetros,
+        quantidadeDeSubpontos: antes.quantidadeDeSubpontos,
+        toleranciaDias: 8,
+      );
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'cadastro_editado');
+      expect(evento.payload.keys, ['toleranciaDias']);
+      expect(evento.payload['toleranciaDias'], {'de': 4, 'para': 8});
+    });
+
+    test('editarTolerancia emite tolerancia_editada com o valor anterior e o novo',
+        () async {
+      await repository.editarTolerancia('pa1', 9);
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'tolerancia_editada');
+      expect(evento.pontoAfetadoId, 'pa1');
+      expect(evento.autor, autor);
+      expect(evento.payload, {
+        'toleranciaAnteriorDias': 4,
+        'toleranciaNovaDias': 9,
+      });
+    });
+
+    test('editarTolerancia com o mesmo valor não emite evento', () async {
+      await repository.editarTolerancia('pa1', 4);
+
+      expect(mockEventosAuditoria, isEmpty);
+    });
+
+    test('editarTolerancia inválida não emite evento', () async {
+      await expectLater(
+        () => repository.editarTolerancia('pa1', 0),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+
+      expect(mockEventosAuditoria, isEmpty);
+    });
+
+    test('criar registra a tolerância no evento ponto_criado', () async {
+      await criar(toleranciaDias: 6);
+
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'ponto_criado');
+      expect(evento.payload['toleranciaDias'], 6);
+    });
 
     test('uma ação que falha (id inexistente) não emite evento', () async {
       await expectLater(

@@ -1,4 +1,5 @@
 import '../errors/app_exceptions.dart';
+import 'atraso_de_aplicacao.dart';
 
 /// Ciclo de vida de um [PontoDeAplicacao], do cadastro à desativação.
 ///
@@ -292,6 +293,13 @@ class PontoDeAplicacao {
   /// recente.
   final List<Subponto> subpontos;
 
+  /// Tolerância de atraso deste ponto, em dias corridos: quantos dias depois
+  /// da data prevista de uma recorrência a aplicação ainda é considerada em
+  /// dia (ver [verificarAtraso]). Padrão em [toleranciaPadraoDeAtrasoEmDias];
+  /// editável a qualquer momento, inclusive com o cadastro travado — só
+  /// altera quando o aviso de atraso aparece.
+  final int toleranciaDias;
+
   PontoDeAplicacao({
     required this.id,
     required this.nome,
@@ -311,11 +319,15 @@ class PontoDeAplicacao {
     this.agendamento,
     this.estadoAnterior,
     List<Subponto> subpontos = const [],
+    this.toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   }) : subpontos = List.unmodifiable(subpontos) {
     if (estado == EstadoPontoDeAplicacao.ativa && aplicadorId == null) {
       throw const OperacaoNaoPermitidaException(
         'Um ponto ativo precisa de um aplicador responsável.',
       );
+    }
+    if (toleranciaDias < 1) {
+      throw const OperacaoNaoPermitidaException(_mensagemToleranciaInvalida);
     }
   }
 
@@ -357,8 +369,8 @@ class PontoDeAplicacao {
   /// a janela de 15 minutos do doc de objetivo original, que gerava uma
   /// inversão: um ponto recém-ativado ficava mais travado que um inativo
   /// com vários ciclos). Assim que existir um dos dois, o cadastro trava
-  /// para sempre — [nome] continua editável a qualquer momento via
-  /// [editarNome].
+  /// para sempre — [nome] e [toleranciaDias] continuam editáveis a qualquer
+  /// momento via [editarNome] e [editarTolerancia].
   bool get podeEditarCadastroCompleto => agendamento == null && subpontos.isEmpty;
 
   /// Acrescenta [subponto] ao histórico — só em um ponto
@@ -431,6 +443,14 @@ class PontoDeAplicacao {
   /// editável a qualquer momento").
   PontoDeAplicacao editarNome(String novoNome) => copyWith(nome: novoNome);
 
+  /// Altera só a [toleranciaDias] — sempre permitido, como [editarNome], mesmo
+  /// com [podeEditarCadastroCompleto] falso: a tolerância só muda quando o
+  /// aviso de atraso aparece, sem efeito em agendamento, dosagem ou histórico.
+  ///
+  /// Rejeita valor menor que 1 dia com [OperacaoNaoPermitidaException].
+  PontoDeAplicacao editarTolerancia(int novaToleranciaDias) =>
+      copyWith(toleranciaDias: novaToleranciaDias);
+
   /// Atualiza o cadastro completo do ponto (todos os campos preenchidos na
   /// criação, exceto [identificador]/[estado]/[agendamento]/[subpontos],
   /// que não são editáveis por aqui).
@@ -451,11 +471,12 @@ class PontoDeAplicacao {
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
+    required int toleranciaDias,
   }) {
     if (!podeEditarCadastroCompleto) {
       throw const OperacaoNaoPermitidaException(
         'Este ponto já tem agendamento ou execução registrada — só o nome '
-        'pode ser editado.',
+        'e a tolerância de atraso podem ser editados.',
       );
     }
     return copyWith(
@@ -470,6 +491,7 @@ class PontoDeAplicacao {
       dosagemMl: dosagemMl,
       distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
       quantidadeDeSubpontos: quantidadeDeSubpontos,
+      toleranciaDias: toleranciaDias,
     );
   }
 
@@ -577,6 +599,7 @@ class PontoDeAplicacao {
     Agendamento? agendamento,
     EstadoPontoDeAplicacao? estadoAnterior,
     List<Subponto>? subpontos,
+    int? toleranciaDias,
     bool limparAplicador = false,
     bool limparEstadoAnterior = false,
   }) {
@@ -604,9 +627,13 @@ class PontoDeAplicacao {
           ? null
           : (estadoAnterior ?? this.estadoAnterior),
       subpontos: subpontos ?? this.subpontos,
+      toleranciaDias: toleranciaDias ?? this.toleranciaDias,
     );
   }
 }
+
+const _mensagemToleranciaInvalida =
+    'A tolerância de atraso deve ser de pelo menos 1 dia.';
 
 /// Marca como [StatusDataAgendada.cancelada] toda data ainda
 /// [StatusDataAgendada.pendente] de [agendamento] — usado por
