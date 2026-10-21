@@ -35,7 +35,6 @@ class AppErrorMessages {
       'A ação foi concluída, mas não foi possível atualizar a tela. '
       'Recarregue a página.';
 
-
   // Envio da outbox (aplicador_app/sincronizacao): motivo mostrado ao lado de
   // um registro que não pôde ser enviado ou foi recusado.
 

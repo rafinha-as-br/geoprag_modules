@@ -179,10 +179,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         },
       ),
     ),
-    BaseFormField(
-      label: 'Vazão',
-      field: _PreviaDaVazao(vazao: vazaoPrevia),
-    ),
+    BaseFormField(label: 'Vazão', field: _PreviaDaVazao(vazao: vazaoPrevia)),
     BaseFormField(
       label: 'Dosagem por aplicação (ml)',
       field: GeopragNumeroDecimalInput(

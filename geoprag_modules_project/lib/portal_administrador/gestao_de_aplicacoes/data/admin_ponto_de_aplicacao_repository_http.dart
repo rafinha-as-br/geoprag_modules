@@ -93,7 +93,7 @@ class AdminPontoDeAplicacaoRepositoryHttp
     await _api.put(
       _caminho(id),
       corpo: {
-        'nome': novoNome,
+        'nome': novoNome.trim(),
         'bairroId':
             textoOpcional(atual, 'bairroId') ??
             await _idDoBairro(textoObrigatorio(atual, 'bairro')),
@@ -220,8 +220,10 @@ class AdminPontoDeAplicacaoRepositoryHttp
     return limpo.isEmpty ? null : limpo;
   }
 
-  static double? _medidaOuNula(double valor) =>
-      valor > 0 ? _duasCasas(valor) : null;
+  static double? _medidaOuNula(double valor) {
+    final arredondado = _duasCasas(valor);
+    return arredondado > 0 ? arredondado : null;
+  }
 
   static double _duasCasas(double valor) =>
       double.parse(valor.toStringAsFixed(2));
