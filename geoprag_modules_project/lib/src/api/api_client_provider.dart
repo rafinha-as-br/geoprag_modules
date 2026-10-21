@@ -31,6 +31,11 @@ class ApiClientProvider {
     aoPerderSessao: () => aoPerderSessao?.call(),
   );
 
+  /// Substitui a sessão persistente (ex.: nos testes dos apps, por uma sobre
+  /// armazenamento em memória). Chamar antes do primeiro uso do cliente.
+  @visibleForTesting
+  static void configurarSessao(SessaoSegura sessao) => _sessao = sessao;
+
   /// Substitui a instância (ex.: em testes, ou com outra configuração). Chamar
   /// antes do primeiro uso.
   static void configurar(ApiClient cliente) => _instancia = cliente;
