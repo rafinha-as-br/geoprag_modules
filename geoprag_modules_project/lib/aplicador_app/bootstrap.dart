@@ -8,11 +8,14 @@ import 'auth/presentation/login_cubit.dart';
 import 'auth/presentation/recriar_senha_cubit.dart';
 import 'auth/presentation/verificar_codigo_cubit.dart';
 import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
+import 'aplicacoes/core/registro_de_aplicacao_repository.dart';
 import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
 import 'aplicacoes/presentation/meus_pontos_cubit.dart';
 import 'aplicacoes/presentation/detalhe_do_ponto_cubit.dart';
 import 'aplicacoes/presentation/geolocalizacao_cubit.dart';
 import 'aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
+import 'nucleo_offline.dart';
+import 'sincronizacao/core/servico_de_sincronizacao.dart';
 import 'inventory/core/insumo_repository.dart';
 import 'inventory/core/recebimento_repository.dart';
 import 'inventory/data/insumo_repository_impl.dart';
@@ -46,6 +49,21 @@ class AplicadorBootstrap {
     ApiClientProvider.aoPerderSessao = aoPerderSessao;
     buildApiClient();
   }
+
+  /// Abre o núcleo offline (banco SQLite, fila de envio, serviço de
+  /// sincronização) e liga os gatilhos de envio. Chamar uma vez, em `main`,
+  /// antes de `runApp` e depois de [configurarApi] (GEOPRAG-190). Chamadas
+  /// seguintes devolvem o mesmo núcleo.
+  Future<void> iniciarNucleoOffline() => NucleoOffline.iniciar();
+
+  /// Registro de aplicações local-first. A mesma instância em todo o app.
+  RegistroDeAplicacaoRepository buildRegistroDeAplicacaoRepository() =>
+      NucleoOffline.instancia.registro;
+
+  /// Serviço de sincronização (envio da outbox). A mesma instância em todo o
+  /// app.
+  ServicoDeSincronizacao buildServicoDeSincronizacao() =>
+      NucleoOffline.instancia.sincronizacao;
 
   AuthRepository buildAuthRepository() => AuthRepositoryImpl(
     api: buildApiClient(),

@@ -29,4 +29,15 @@ class AppErrorMessages {
       'Não foi possível processar a solicitação. Verifique os dados.';
   static const String erroDoServidor =
       'O servidor encontrou um problema. Tente novamente em instantes.';
+
+  // Envio da outbox (aplicador_app/sincronizacao): motivo mostrado ao lado de
+  // um registro que não pôde ser enviado ou foi recusado.
+
+  static const String envioRespostaInesperada =
+      'O servidor respondeu de um jeito inesperado. O envio será tentado de novo.';
+  static const String envioSemResposta =
+      'O servidor não confirmou este registro. O envio será tentado de novo.';
+  static const String registroRecusado = 'Registro recusado pelo servidor.';
+  static const String registroLocalIlegivel =
+      'Registro local ilegível; não foi possível enviá-lo.';
 }
