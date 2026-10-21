@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/editar_ponto_de_aplicacao_cubit.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:mocktail/mocktail.dart';
@@ -193,6 +194,50 @@ void main() {
         (cubit.state.feedback as AcaoFeedbackErro).mensagem,
         'Travado.',
       );
+    });
+
+    test('erro da API (422) mostra a mensagem do servidor', () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(
+        () => repository.editarCadastroCompleto(
+          'pa1',
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+        ),
+      ).thenAnswer(
+        (_) async => throw const RequisicaoInvalidaException(
+          'A largura deve ser maior que zero.',
+        ),
+      );
+
+      await cubit.onSubmit();
+
+      expect(
+        (cubit.state.feedback as AcaoFeedbackErro).mensagem,
+        'A largura deve ser maior que zero.',
+      );
+    });
+
+    test('nome editado com o cadastro travado vai por editarNome', () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(subpontos: [execucaoDeTeste]),
+      );
+      when(() => repository.editarNome('pa1', any())).thenAnswer((_) async {});
+
+      await cubit.onSubmit();
+
+      verify(() => repository.editarNome('pa1', any())).called(1);
     });
   });
 }

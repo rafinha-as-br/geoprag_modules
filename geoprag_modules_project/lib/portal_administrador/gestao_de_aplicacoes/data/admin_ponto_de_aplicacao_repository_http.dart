@@ -1,27 +1,34 @@
 import '../../../src/api/api_client.dart';
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/api/sync/pull_dtos.dart';
 import '../../../src/api/sync/sync_json.dart';
 import '../../../src/api/sync/sync_mappers.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
+import '../core/bairro_repository.dart';
 
-/// [AdminPontoDeAplicacaoRepository] sobre `/pontos` (GEOPRAG-195).
+/// [AdminPontoDeAplicacaoRepository] sobre `/pontos` (GEOPRAG-195 e 198).
 ///
-/// Cobre listar, detalhar, atribuir e remover o aplicador e ativar. As demais
-/// ações do contrato (criar, editar, desativar, reativar e cancelar) ainda não
-/// foram ligadas à API (GEOPRAG-198) e respondem com
-/// [OperacaoNaoPermitidaException] em vez de operar sobre dados de mentira.
+/// Cobre listar, detalhar, criar, editar, atribuir e remover o aplicador,
+/// ativar, desativar, reativar e cancelar.
 ///
 /// O servidor é a autoridade sobre o estado: as regras de transição (`409`) e
 /// de validação (`422`) chegam como exceções com `mensagemAmigavel`, e as
 /// telas recarregam o ponto depois de cada ação.
+///
+/// Particularidades do contrato (GEOPRAG-198):
+/// - A API pede `bairroId`; o domínio usa o **nome** do bairro. O id sai de
+///   `GET /bairros` pelo nome (sem diferenciar maiúsculas).
+/// - `PUT /pontos/{id}` **substitui** o cadastro e, sem `toleranciaAtrasoDias`,
+///   volta a tolerância a 4. O domínio não a guarda, então toda edição relê o
+///   ponto e reenvia a tolerância atual (e, em [editarNome], todos os outros
+///   campos como estão: o servidor só trava a edição se eles mudarem).
 class AdminPontoDeAplicacaoRepositoryHttp
     implements AdminPontoDeAplicacaoRepository {
-  AdminPontoDeAplicacaoRepositoryHttp(this._api);
+  AdminPontoDeAplicacaoRepositoryHttp(this._api, this._bairros);
 
   final ApiClient _api;
+  final BairroRepository _bairros;
 
   @override
   Future<List<PontoDeAplicacao>> listar() => _listar();
@@ -63,13 +70,46 @@ class AdminPontoDeAplicacaoRepositoryHttp
   }
 
   @override
-  Future<void> desativar(String id) => _aindaNaoLigada();
+  Future<void> desativar(String id) async {
+    await _api.post('${_caminho(id)}/desativacao');
+  }
 
   @override
-  Future<void> reativar(String id) => _aindaNaoLigada();
+  Future<void> reativar(String id) async {
+    await _api.post('${_caminho(id)}/reativacao');
+  }
 
   @override
-  Future<void> editarNome(String id, String novoNome) => _aindaNaoLigada();
+  Future<void> cancelarAplicacaoQuimica(String id) async {
+    await _api.post('${_caminho(id)}/cancelamento');
+  }
+
+  /// Relê o ponto e reenvia o cadastro como está, só com o nome novo. O
+  /// servidor aceita mesmo com o cadastro travado porque nada além do nome
+  /// muda.
+  @override
+  Future<void> editarNome(String id, String novoNome) async {
+    final atual = _objeto(await _api.get(_caminho(id)));
+    await _api.put(
+      _caminho(id),
+      corpo: {
+        'nome': novoNome,
+        'bairroId':
+            textoOpcional(atual, 'bairroId') ??
+            await _idDoBairro(textoObrigatorio(atual, 'bairro')),
+        'endereco': atual['endereco'],
+        'numeroReferencia': ?atual['numeroReferencia'],
+        'descricaoDoTrecho': ?atual['descricaoDoTrecho'],
+        'larguraMetros': ?atual['larguraMetros'],
+        'profundidadeMetros': ?atual['profundidadeMetros'],
+        'velocidadeMetrosPorSegundo': ?atual['velocidadeMetrosPorSegundo'],
+        'dosagemMl': atual['dosagemMl'],
+        'distanciaEntreSubpontosMetros': atual['distanciaEntreSubpontosMetros'],
+        'quantidadeDeSubpontos': atual['quantidadeDeSubpontos'],
+        'toleranciaAtrasoDias': ?atual['toleranciaAtrasoDias'],
+      },
+    );
+  }
 
   @override
   Future<void> editarCadastroCompleto(
@@ -85,10 +125,26 @@ class AdminPontoDeAplicacaoRepositoryHttp
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
-  }) => _aindaNaoLigada();
-
-  @override
-  Future<void> cancelarAplicacaoQuimica(String id) => _aindaNaoLigada();
+  }) async {
+    final atual = _objeto(await _api.get(_caminho(id)));
+    await _api.put(
+      _caminho(id),
+      corpo: _corpoDoCadastro(
+        nome: nome,
+        bairroId: await _idDoBairro(bairro),
+        endereco: endereco,
+        numeroReferencia: numeroReferencia,
+        descricaoDoTrecho: descricaoDoTrecho,
+        larguraMetros: larguraMetros,
+        profundidadeMetros: profundidadeMetros,
+        velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,
+        dosagemMl: dosagemMl,
+        distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
+        quantidadeDeSubpontos: quantidadeDeSubpontos,
+        toleranciaAtrasoDias: atual['toleranciaAtrasoDias'],
+      ),
+    );
+  }
 
   @override
   Future<PontoDeAplicacao> criar({
@@ -104,9 +160,89 @@ class AdminPontoDeAplicacaoRepositoryHttp
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
     String? aplicadorId,
-  }) => _aindaNaoLigada();
+  }) async => _ponto(
+    await _api.post(
+      '/pontos',
+      corpo: _corpoDoCadastro(
+        nome: nome,
+        bairroId: await _idDoBairro(bairro),
+        endereco: endereco,
+        numeroReferencia: numeroReferencia,
+        descricaoDoTrecho: descricaoDoTrecho,
+        larguraMetros: larguraMetros,
+        profundidadeMetros: profundidadeMetros,
+        velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,
+        dosagemMl: dosagemMl,
+        distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
+        quantidadeDeSubpontos: quantidadeDeSubpontos,
+        aplicadorId: aplicadorId,
+      ),
+    ),
+  );
 
   static String _caminho(String id) => '/pontos/${Uri.encodeComponent(id)}';
+
+  /// Corpo de `POST /pontos` e `PUT /pontos/{id}`. Campos opcionais vazios (ou
+  /// medidas sem valor, `0`) vão omitidos: o servidor os guarda como "sem
+  /// valor". As medidas seguem as 2 casas decimais que a API aceita.
+  static Map<String, dynamic> _corpoDoCadastro({
+    required String nome,
+    required String bairroId,
+    required String endereco,
+    required String numeroReferencia,
+    required String descricaoDoTrecho,
+    required double larguraMetros,
+    required double profundidadeMetros,
+    required double velocidadeMetrosPorSegundo,
+    required double dosagemMl,
+    required double distanciaEntreSubpontosMetros,
+    required int quantidadeDeSubpontos,
+    Object? toleranciaAtrasoDias,
+    String? aplicadorId,
+  }) => {
+    'nome': nome.trim(),
+    'bairroId': bairroId,
+    'endereco': endereco.trim(),
+    'numeroReferencia': ?_textoOuNulo(numeroReferencia),
+    'descricaoDoTrecho': ?_textoOuNulo(descricaoDoTrecho),
+    'larguraMetros': ?_medidaOuNula(larguraMetros),
+    'profundidadeMetros': ?_medidaOuNula(profundidadeMetros),
+    'velocidadeMetrosPorSegundo': ?_medidaOuNula(velocidadeMetrosPorSegundo),
+    'dosagemMl': _duasCasas(dosagemMl),
+    'distanciaEntreSubpontosMetros': _duasCasas(distanciaEntreSubpontosMetros),
+    'quantidadeDeSubpontos': quantidadeDeSubpontos,
+    'toleranciaAtrasoDias': ?toleranciaAtrasoDias,
+    'aplicadorId': ?aplicadorId,
+  };
+
+  static String? _textoOuNulo(String texto) {
+    final limpo = texto.trim();
+    return limpo.isEmpty ? null : limpo;
+  }
+
+  static double? _medidaOuNula(double valor) =>
+      valor > 0 ? _duasCasas(valor) : null;
+
+  static double _duasCasas(double valor) =>
+      double.parse(valor.toStringAsFixed(2));
+
+  /// O `id` do bairro de nome [nome]. Lança [RequisicaoInvalidaException] com
+  /// uma mensagem clara se não houver bairro com esse nome.
+  Future<String> _idDoBairro(String nome) async {
+    final alvo = nome.trim().toLowerCase();
+    for (final bairro in await _bairros.listar()) {
+      if (bairro.nome.trim().toLowerCase() == alvo) return bairro.id;
+    }
+    throw RequisicaoInvalidaException(
+      'O bairro "${nome.trim()}" não está cadastrado. Informe um bairro '
+      'existente.',
+    );
+  }
+
+  static Map<String, dynamic> _objeto(Object? corpo) =>
+      corpo is Map<String, dynamic>
+      ? corpo
+      : throw const FormatException('A API devolveu algo que não é um ponto.');
 
   Future<List<PontoDeAplicacao>> _listar({Map<String, dynamic>? query}) async {
     final corpo = await _api.get('/pontos', query: query);
@@ -116,18 +252,6 @@ class AdminPontoDeAplicacaoRepositoryHttp
   /// Mesmo modelo `Ponto` do contrato v0 que o pull entrega ao aplicador; o
   /// que a API acrescenta (marca de conflito dos subpontos) é lido pela
   /// GEOPRAG-207.
-  static PontoDeAplicacao _ponto(Object? corpo) => SyncMappers.paraPonto(
-    PontoDoAplicadorDto.fromJson(
-      corpo is Map<String, dynamic>
-          ? corpo
-          : throw const FormatException(
-              'A API devolveu algo que não é um ponto.',
-            ),
-    ),
-  );
-
-  Future<T> _aindaNaoLigada<T>() async =>
-      throw const OperacaoNaoPermitidaException(
-        AppErrorMessages.acaoIndisponivelNestaVersao,
-      );
+  static PontoDeAplicacao _ponto(Object? corpo) =>
+      SyncMappers.paraPonto(PontoDoAplicadorDto.fromJson(_objeto(corpo)));
 }

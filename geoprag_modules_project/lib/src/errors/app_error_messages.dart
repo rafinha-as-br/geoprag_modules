@@ -35,9 +35,6 @@ class AppErrorMessages {
       'A ação foi concluída, mas não foi possível atualizar a tela. '
       'Recarregue a página.';
 
-  /// Ação do portal que ainda não foi ligada à API (GEOPRAG-198).
-  static const String acaoIndisponivelNestaVersao =
-      'Esta ação ainda não está disponível nesta versão.';
 
   // Envio da outbox (aplicador_app/sincronizacao): motivo mostrado ao lado de
   // um registro que não pôde ser enviado ou foi recusado.
