@@ -5,6 +5,9 @@ import 'usuario_dto.dart';
 class LoginRequestDto {
   const LoginRequestDto({required this.identificador, required this.senha});
 
+  /// Rota do login (pública, sem token).
+  static const String caminho = '/auth/login';
+
   final String identificador;
   final String senha;
 
@@ -31,6 +34,13 @@ class LoginResponseDto {
   final int expiresInSeconds;
   final String? refreshToken;
   final UsuarioDto usuario;
+
+  /// Lê o corpo decodificado devolvido pelo `ApiClient`; qualquer formato que
+  /// não seja um objeto JSON vira [FormatException].
+  factory LoginResponseDto.fromCorpo(Object? corpo) {
+    if (corpo is Map<String, dynamic>) return LoginResponseDto.fromJson(corpo);
+    throw const FormatException('Resposta de login em formato inesperado.');
+  }
 
   factory LoginResponseDto.fromJson(Map<String, dynamic> json) =>
       LoginResponseDto(
