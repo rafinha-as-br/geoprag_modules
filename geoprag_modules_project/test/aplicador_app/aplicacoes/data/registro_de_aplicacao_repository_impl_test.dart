@@ -36,6 +36,7 @@ void main() {
   ServicoDeSincronizacaoImpl servicoReal() => ServicoDeSincronizacaoImpl(
     api: api,
     outbox: outbox,
+    reconciliador: reconciliadorDe(banco),
     dispositivoId: () async => 'aparelho-1',
   );
 

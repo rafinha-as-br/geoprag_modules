@@ -80,3 +80,10 @@ List<Map<String, dynamic>> lotesEnviados(ApiFalsa api) => [
   ).captured)
     chamada as Map<String, dynamic>,
 ];
+
+/// Reconciliador do pull sobre o banco em memória do teste.
+ReconciliadorDoPull reconciliadorDe(BancoLocal banco) => ReconciliadorDoPull(
+  pontos: PontoDaoSqflite(banco.db),
+  outbox: OutboxDaoSqflite(banco.db),
+  aplicacoes: AplicacaoDaoSqflite(banco.db),
+);
