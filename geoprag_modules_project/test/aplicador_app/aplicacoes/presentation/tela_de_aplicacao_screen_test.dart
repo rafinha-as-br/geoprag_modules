@@ -66,6 +66,33 @@ void main() {
       verify(() => cubit.registrarSubponto()).called(1);
     });
 
+    testWidgets(
+      'sem posição do GPS mostra a orientação e mantém o botão para tentar de novo',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            const TelaDeAplicacaoEmAndamento(
+              ponto: ponto,
+              mensagemDeErro: 'O GPS está desligado.',
+            ),
+          ),
+        );
+
+        expect(find.text('O GPS está desligado.'), findsOneWidget);
+        expect(
+          tester
+              .widget<ElevatedButton>(
+                find.byKey(
+                  const Key('telaDeAplicacaoScreen_registrarSubponto'),
+                ),
+              )
+              .onPressed,
+          isNotNull,
+        );
+        expect(find.text('Cancelar / Voltar'), findsOneWidget);
+      },
+    );
+
     testWidgets('mostra spinner no botão enquanto registrando', (tester) async {
       await tester.pumpWidget(
         wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto, registrando: true)),
