@@ -76,7 +76,7 @@ void main() {
           findsOneWidget,
         );
         // Só "Sincronizar agora" é botão; o registro rejeitado é só consulta.
-        expect(find.byType(FilledButton), findsOneWidget);
+        expect(find.bySubtype<FilledButton>(), findsOneWidget);
         expect(find.byType(TextButton), findsNothing);
         expect(find.byType(OutlinedButton), findsNothing);
         expect(find.byType(IconButton), findsNothing);
@@ -170,7 +170,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Sincronizando…'), findsOneWidget);
-      final botao = tester.widget<FilledButton>(find.byType(FilledButton));
+      final botao = tester.widget<FilledButton>(find.bySubtype<FilledButton>());
       expect(botao.onPressed, isNull);
 
       espera.complete(true);
