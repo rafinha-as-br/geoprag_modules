@@ -13,6 +13,7 @@ import 'local/outbox_dao_sqflite.dart';
 import 'local/ponto_dao_sqflite.dart';
 import 'sincronizacao/core/monitor_de_conexao.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
+import 'sincronizacao/data/cursor_do_pull.dart';
 import 'sincronizacao/data/dispositivo_id.dart';
 import 'sincronizacao/data/gatilhos_de_sincronizacao.dart';
 import 'sincronizacao/data/monitor_de_conexao_connectivity.dart';
@@ -98,9 +99,8 @@ class NucleoOffline {
     final banco = await BancoLocal.abrir(fabrica: fabrica, caminho: caminho);
     final outbox = OutboxDaoSqflite(banco.db);
     final aplicacoes = AplicacaoDaoSqflite(banco.db);
-    final dispositivo = DispositivoId(
-      armazenamento ?? ArmazenamentoSeguroFlutter(),
-    );
+    final armazenamentoSeguro = armazenamento ?? ArmazenamentoSeguroFlutter();
+    final dispositivo = DispositivoId(armazenamentoSeguro);
     final sincronizacao = ServicoDeSincronizacaoImpl(
       api: api ?? ApiClientProvider.instancia,
       outbox: outbox,
@@ -110,6 +110,7 @@ class NucleoOffline {
         aplicacoes: aplicacoes,
       ),
       dispositivoId: dispositivo.obter,
+      cursor: CursorDoPull(armazenamentoSeguro),
     );
     final gatilhos = GatilhosDeSincronizacao(
       servico: sincronizacao,

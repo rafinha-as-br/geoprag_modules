@@ -4,12 +4,14 @@ import '../../../src/api/api_client.dart';
 import '../../../src/api/api_exceptions.dart';
 import '../../../src/api/sync/pull_dtos.dart';
 import '../../../src/api/sync/registro_dtos.dart';
+import '../../../src/api/sync/sync_json.dart' show formatarDataHoraComOffset;
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../local/item_da_outbox.dart';
 import '../../local/outbox_dao.dart';
 import '../core/resultado_da_sincronizacao.dart';
 import '../core/servico_de_sincronizacao.dart';
+import 'cursor_do_pull.dart';
 import 'reconciliador_do_pull.dart';
 
 /// [ServicoDeSincronizacao] sobre a outbox do SQLite e o [ApiClient].
@@ -36,12 +38,14 @@ class ServicoDeSincronizacaoImpl implements ServicoDeSincronizacao {
     required OutboxDao outbox,
     required ReconciliadorDoPull reconciliador,
     required Future<String> Function() dispositivoId,
+    CursorDoPull? cursor,
     this.tamanhoDoLote = tamanhoMaximoDoLote,
   }) : assert(tamanhoDoLote > 0 && tamanhoDoLote <= tamanhoMaximoDoLote),
        _api = api,
        _outbox = outbox,
        _reconciliador = reconciliador,
-       _dispositivoId = dispositivoId;
+       _dispositivoId = dispositivoId,
+       _cursor = cursor;
 
   static const String caminho = '/sync/aplicacoes';
   static const String caminhoDoPull = '/sync/pull';
@@ -53,6 +57,9 @@ class ServicoDeSincronizacaoImpl implements ServicoDeSincronizacao {
   final OutboxDao _outbox;
   final ReconciliadorDoPull _reconciliador;
   final Future<String> Function() _dispositivoId;
+
+  /// Sem cursor, todo pull é o snapshot completo.
+  final CursorDoPull? _cursor;
   final int tamanhoDoLote;
 
   Future<ResultadoDaSincronizacao>? _emAndamento;
@@ -127,19 +134,69 @@ class ServicoDeSincronizacaoImpl implements ServicoDeSincronizacao {
   /// `GET /sync/pull` + reconciliação. Falha de rede ou do servidor, resposta
   /// ilegível ou erro ao gravar não lançam: o banco fica como estava e o pull
   /// conta como falho.
+  ///
+  /// Com cursor guardado o pull é incremental (`desde`); sem cursor, ou se o
+  /// servidor recusar o cursor, é o snapshot completo e o cursor é refeito.
   Future<void> _baixar() async {
     _pull = null;
     try {
-      final corpo = await _api.get(caminhoDoPull);
+      final (:corpo, :incremental) = await _buscarPull();
       final resposta = PullResponseDto.fromJson(corpo! as Map<String, dynamic>);
-      _pull = await _reconciliador.reconciliar(resposta);
+      final resultado = await _reconciliador.reconciliar(
+        resposta,
+        incremental: incremental,
+      );
+      _pull = resultado;
       _pullFalhou = false;
+      await _avancarCursor(resultado);
     } on ApiException {
       // Sem rede ou servidor fora: esperado em campo, sem log de erro.
       _pullFalhou = true;
     } catch (e, stackTrace) {
       AppLogger.error('ServicoDeSincronizacaoImpl.pull', e, stackTrace);
       _pullFalhou = true;
+    }
+  }
+
+  /// O corpo de `GET /sync/pull` e se ele é incremental. Pede só o que mudou
+  /// quando há cursor e o banco tem pontos; sem cursor, com o banco vazio (um
+  /// cursor que sobreviveu a um banco recriado), ou se o servidor recusar o
+  /// cursor, pede o snapshot completo.
+  Future<({Object? corpo, bool incremental})> _buscarPull() async {
+    final desde = await _cursor?.ler();
+    if (desde != null && !await _reconciliador.semPontos()) {
+      try {
+        final corpo = await _api.get(
+          caminhoDoPull,
+          query: {'desde': formatarDataHoraComOffset(desde.toUtc())},
+        );
+        return (corpo: corpo, incremental: true);
+      } on RequisicaoInvalidaException {
+        // Cursor que o servidor não aceita: descarta e recomeça do snapshot.
+        await _cursor?.apagar();
+      }
+    }
+    return (corpo: await _api.get(caminhoDoPull), incremental: false);
+  }
+
+  /// Guarda o cursor da resposta, mas só depois de a reconciliação estar
+  /// gravada e só se não sobrou nada a rever: um ponto retirado que ficou por
+  /// causa de registro pendente, ou um ponto ilegível, só volta numa resposta
+  /// que abranja o instante do cursor antigo. Sem avançar, o pull seguinte os
+  /// traz de novo (e o ponto sai quando os pendentes forem enviados).
+  Future<void> _avancarCursor(ResultadoDoPull resultado) async {
+    final cursor = _cursor;
+    final novo = resultado.cursor;
+    if (cursor == null || novo == null) return;
+    if (resultado.pontosMantidos.isNotEmpty ||
+        resultado.pontosIgnorados.isNotEmpty) {
+      return;
+    }
+    try {
+      await cursor.gravar(novo);
+    } catch (e, stackTrace) {
+      // A reconciliação já está gravada; o pior caso é repetir o pull.
+      AppLogger.error('ServicoDeSincronizacaoImpl.cursor', e, stackTrace);
     }
   }
 

@@ -3,6 +3,7 @@ import '../../../src/api/sync/pull_dtos.dart';
 /// O que o pull fez no banco do aparelho (GEOPRAG-202).
 class ResultadoDoPull {
   const ResultadoDoPull({
+    this.incremental = false,
     this.pontosSalvos = const [],
     this.pontosRemovidos = const [],
     this.pontosMantidos = const [],
@@ -10,6 +11,10 @@ class ResultadoDoPull {
     this.produtos = const [],
     this.cursor,
   });
+
+  /// O pull foi incremental (com `desde`): a resposta trouxe só o que mudou.
+  /// Sem `desde` é o snapshot completo.
+  final bool incremental;
 
   /// Pontos inseridos ou atualizados a partir da resposta.
   final List<String> pontosSalvos;
@@ -26,11 +31,12 @@ class ResultadoDoPull {
   /// inválido). Ficam como estavam no aparelho e não impedem o resto.
   final List<String> pontosIgnorados;
 
-  /// Produtos que o aplicador pode selecionar ao registrar.
+  /// Produtos que a resposta trouxe: todos no snapshot, só os novos no pull
+  /// incremental.
   final List<ProdutoDto> produtos;
 
-  /// Instante do servidor para o pull incremental (GEOPRAG-206); `null` se o
-  /// servidor não o enviou.
+  /// Instante do servidor para o próximo pull incremental (GEOPRAG-206); `null`
+  /// se o servidor não o enviou.
   final DateTime? cursor;
 }
 
