@@ -6,17 +6,20 @@ import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/services/gerador_de_id.dart';
 import '../core/aplicador_ponto_de_aplicacao_repository.dart';
+import '../core/servico_de_localizacao.dart';
 import 'aplicacao_de_campo_view_model.dart';
 import 'tela_de_aplicacao_state.dart';
 
 /// Controla o registro de subpontos da sessão de aplicação em andamento no
 /// ponto (`pontoId`).
 ///
-/// TODO(GEOPRAG-24): latitude/longitude simuladas em [registrarSubponto] —
-/// falta integração real com GPS do dispositivo.
+/// Cada subponto carrega a posição real do GPS (GEOPRAG-191). Sem posição
+/// (permissão negada, GPS desligado, tempo esgotado) o subponto **não** é
+/// registrado: a tela mostra a orientação e o aplicador pode tentar de novo.
 class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
   TelaDeAplicacaoCubit(
     this._repository,
+    this._localizacao,
     this._pontoId, {
     GeradorDeId? geradorDeId,
   }) : _geradorDeId = geradorDeId ?? GeradorDeIdUuid(),
@@ -25,6 +28,7 @@ class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
   }
 
   final AplicadorPontoDeAplicacaoRepository _repository;
+  final ServicoDeLocalizacao _localizacao;
   final String _pontoId;
   final GeradorDeId _geradorDeId;
 
@@ -56,25 +60,32 @@ class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
     }
     emit(atual.copyWith(registrando: true));
     try {
-      final agora = DateTime.now();
+      final posicao = await _localizacao.obterPosicao();
       await _repository.registrarSubponto(
         _pontoId,
         Subponto(
           id: _geradorDeId.gerar(),
-          latitude: 0,
-          longitude: 0,
-          realizadoEm: agora,
-          registradoEm: agora,
+          latitude: posicao.latitude,
+          longitude: posicao.longitude,
+          realizadoEm: posicao.instante,
+          registradoEm: posicao.instante,
         ),
       );
+      if (isClosed) return;
       emit(
         atual.copyWith(
           subpontosRegistrados: atual.subpontosRegistrados + 1,
           registrando: false,
         ),
       );
+    } on PosicaoIndisponivelException catch (e) {
+      if (isClosed) return;
+      emit(
+        atual.copyWith(registrando: false, mensagemDeErro: e.mensagemAmigavel),
+      );
     } catch (e, stackTrace) {
       AppLogger.error('TelaDeAplicacaoCubit.registrarSubponto', e, stackTrace);
+      if (isClosed) return;
       emit(atual.copyWith(registrando: false));
     }
   }

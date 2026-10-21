@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
+import 'package:geoprag_modules/aplicador_app/aplicacoes/core/posicao_gps.dart';
+import 'package:geoprag_modules/aplicador_app/aplicacoes/core/servico_de_localizacao.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_state.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
@@ -10,8 +14,18 @@ import 'package:mocktail/mocktail.dart';
 class MockAplicadorPontoDeAplicacaoRepository extends Mock
     implements AplicadorPontoDeAplicacaoRepository {}
 
+class MockServicoDeLocalizacao extends Mock implements ServicoDeLocalizacao {}
+
 void main() {
   late MockAplicadorPontoDeAplicacaoRepository repository;
+  late MockServicoDeLocalizacao localizacao;
+
+  final posicao = PosicaoGps(
+    latitude: -26.9331,
+    longitude: -48.9528,
+    precisaoMetros: 8,
+    instante: DateTime(2026, 10, 21, 9, 30),
+  );
 
   final ponto = PontoDeAplicacao(
     id: 'pa1',
@@ -33,6 +47,8 @@ void main() {
 
   setUp(() {
     repository = MockAplicadorPontoDeAplicacaoRepository();
+    localizacao = MockServicoDeLocalizacao();
+    when(() => localizacao.obterPosicao()).thenAnswer((_) async => posicao);
     registerFallbackValue(
       Subponto(
         id: 'sp-teste-1',
@@ -49,7 +65,7 @@ void main() {
     setUp: () {
       when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
     },
-    build: () => TelaDeAplicacaoCubit(repository, 'pa1'),
+    build: () => TelaDeAplicacaoCubit(repository, localizacao, 'pa1'),
     expect: () => [
       isA<TelaDeAplicacaoEmAndamento>()
           .having((s) => s.subpontosRegistrados, 'subpontosRegistrados', 0)
@@ -63,7 +79,7 @@ void main() {
       when(() => repository.buscarPorId('pa1'))
           .thenAnswer((_) async => throw Exception('offline'));
     },
-    build: () => TelaDeAplicacaoCubit(repository, 'pa1'),
+    build: () => TelaDeAplicacaoCubit(repository, localizacao, 'pa1'),
     expect: () => [isA<TelaDeAplicacaoError>()],
   );
 
@@ -74,7 +90,7 @@ void main() {
       when(() => repository.registrarSubponto(any(), any()))
           .thenAnswer((_) async {});
     },
-    build: () => TelaDeAplicacaoCubit(repository, 'pa1'),
+    build: () => TelaDeAplicacaoCubit(repository, localizacao, 'pa1'),
     act: (cubit) async {
       await Future<void>.delayed(Duration.zero);
       await cubit.registrarSubponto();
@@ -102,7 +118,7 @@ void main() {
       when(() => repository.registrarSubponto(any(), any()))
           .thenAnswer((_) async {});
     },
-    build: () => TelaDeAplicacaoCubit(repository, 'pa1'),
+    build: () => TelaDeAplicacaoCubit(repository, localizacao, 'pa1'),
     act: (cubit) async {
       await Future<void>.delayed(Duration.zero);
       await cubit.registrarSubponto();
@@ -126,7 +142,7 @@ void main() {
       when(() => repository.registrarSubponto(any(), any()))
           .thenAnswer((_) async {});
     },
-    build: () => TelaDeAplicacaoCubit(repository, 'pa1'),
+    build: () => TelaDeAplicacaoCubit(repository, localizacao, 'pa1'),
     act: (cubit) async {
       await Future<void>.delayed(Duration.zero);
       await cubit.registrarSubponto();
@@ -146,7 +162,7 @@ void main() {
           .thenAnswer((_) async {});
     },
     build: () =>
-        TelaDeAplicacaoCubit(repository, 'pa1', geradorDeId: _GeradorFixo()),
+        TelaDeAplicacaoCubit(repository, localizacao, 'pa1', geradorDeId: _GeradorFixo()),
     act: (cubit) async {
       await Future<void>.delayed(Duration.zero);
       await cubit.registrarSubponto();
@@ -160,11 +176,79 @@ void main() {
     },
   );
 
+  test('o subponto carrega a posição e o instante lidos do GPS', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+    when(() => repository.registrarSubponto(any(), any()))
+        .thenAnswer((_) async {});
+    final cubit = TelaDeAplicacaoCubit(repository, localizacao, 'pa1');
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.registrarSubponto();
+
+    final subponto = verify(
+      () => repository.registrarSubponto('pa1', captureAny()),
+    ).captured.single as Subponto;
+    expect(subponto.latitude, posicao.latitude);
+    expect(subponto.longitude, posicao.longitude);
+    expect(subponto.realizadoEm, posicao.instante);
+    expect(subponto.registradoEm, posicao.instante);
+    await cubit.close();
+  });
+
+  for (final motivo in MotivoSemPosicao.values) {
+    test('sem posição ($motivo) não registra, orienta e deixa tentar de novo',
+        () async {
+      when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+      when(() => repository.registrarSubponto(any(), any()))
+          .thenAnswer((_) async {});
+      when(() => localizacao.obterPosicao())
+          .thenThrow(PosicaoIndisponivelException(motivo));
+      final cubit = TelaDeAplicacaoCubit(repository, localizacao, 'pa1');
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.registrarSubponto();
+
+      verifyNever(() => repository.registrarSubponto(any(), any()));
+      final semPosicao = cubit.state as TelaDeAplicacaoEmAndamento;
+      expect(semPosicao.subpontosRegistrados, 0);
+      expect(semPosicao.registrando, isFalse);
+      expect(
+        semPosicao.mensagemDeErro,
+        PosicaoIndisponivelException(motivo).mensagemAmigavel,
+      );
+
+      when(() => localizacao.obterPosicao()).thenAnswer((_) async => posicao);
+      await cubit.registrarSubponto();
+
+      final registrado = cubit.state as TelaDeAplicacaoEmAndamento;
+      expect(registrado.subpontosRegistrados, 1);
+      expect(registrado.mensagemDeErro, isNull);
+      verify(() => repository.registrarSubponto('pa1', any())).called(1);
+      await cubit.close();
+    });
+  }
+
+  test('fechar a tela durante a leitura do GPS não gera erro nem registra', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+    when(() => repository.registrarSubponto(any(), any()))
+        .thenAnswer((_) async {});
+    final leitura = Completer<PosicaoGps>();
+    when(() => localizacao.obterPosicao()).thenAnswer((_) => leitura.future);
+    final cubit = TelaDeAplicacaoCubit(repository, localizacao, 'pa1');
+    await Future<void>.delayed(Duration.zero);
+
+    final registro = cubit.registrarSubponto();
+    await cubit.close();
+    leitura.complete(posicao);
+
+    await expectLater(registro, completes);
+  });
+
   test('sem gerador injetado, o id do subponto é um UUID v4', () async {
     when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
     when(() => repository.registrarSubponto(any(), any()))
         .thenAnswer((_) async {});
-    final cubit = TelaDeAplicacaoCubit(repository, 'pa1');
+    final cubit = TelaDeAplicacaoCubit(repository, localizacao, 'pa1');
     await Future<void>.delayed(Duration.zero);
 
     await cubit.registrarSubponto();

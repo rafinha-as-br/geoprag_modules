@@ -165,6 +165,27 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
               label: const Text('Voltar para Meus Pontos'),
             ),
           ] else ...[
+            if (estado.mensagemDeErro != null) ...[
+              Container(
+                key: const Key('telaDeAplicacaoScreen_mensagemDeErro'),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: GeopragColors.statusAtrasado.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_off,
+                      color: GeopragColors.statusAtrasado,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(estado.mensagemDeErro!)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             ElevatedButton.icon(
               key: const Key('telaDeAplicacaoScreen_registrarSubponto'),
               onPressed: estado.registrando
