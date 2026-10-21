@@ -14,6 +14,7 @@ import 'local/ponto_dao_sqflite.dart';
 import 'sincronizacao/core/monitor_de_conexao.dart';
 import 'sincronizacao/core/painel_de_sincronizacao.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
+import 'sincronizacao/data/cursor_do_pull.dart';
 import 'sincronizacao/data/dispositivo_id.dart';
 import 'sincronizacao/data/gatilhos_de_sincronizacao.dart';
 import 'sincronizacao/data/monitor_de_conexao_connectivity.dart';
@@ -120,6 +121,7 @@ class NucleoOffline {
           aplicacoes: aplicacoes,
         ),
         dispositivoId: dispositivo.obter,
+        cursor: CursorDoPull(armazenamentoSeguro),
       ),
       UltimaSincronizacao(armazenamentoSeguro),
     );

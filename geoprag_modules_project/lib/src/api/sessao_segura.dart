@@ -41,6 +41,12 @@ class SessaoSegura implements SessaoDeTokens {
   static const String _chaveExpiraEm = 'geoprag.sessao.access_expira_em';
   static const String _chaveUsuario = 'geoprag.sessao.usuario';
 
+  /// Cursor do pull incremental do aplicador (GEOPRAG-206). Pertence à sessão:
+  /// é apagado com ela, para que outro login no mesmo aparelho comece pelo
+  /// snapshot completo em vez de herdar o ponto de partida do aplicador anterior.
+  static const String chaveDoCursorDoPull =
+      'geoprag.sincronizacao.cursor_do_pull';
+
   final ArmazenamentoSeguro _armazenamento;
 
   @override
@@ -73,6 +79,7 @@ class SessaoSegura implements SessaoDeTokens {
       _chaveAccess,
       _chaveRefresh,
       _chaveExpiraEm,
+      chaveDoCursorDoPull,
     ]) {
       try {
         await _armazenamento.apagar(chave);

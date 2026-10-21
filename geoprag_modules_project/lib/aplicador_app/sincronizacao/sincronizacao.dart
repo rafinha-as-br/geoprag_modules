@@ -8,6 +8,7 @@ export 'core/painel_de_sincronizacao.dart';
 export 'core/registro_sincronizavel.dart';
 export 'core/resultado_da_sincronizacao.dart';
 export 'core/servico_de_sincronizacao.dart';
+export 'data/cursor_do_pull.dart';
 export 'data/dispositivo_id.dart';
 export 'data/gatilhos_de_sincronizacao.dart';
 export 'data/espera_crescente.dart';
