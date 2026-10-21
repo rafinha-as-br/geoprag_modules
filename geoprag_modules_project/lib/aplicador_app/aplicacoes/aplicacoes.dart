@@ -1,6 +1,8 @@
 export 'core/aplicador_ponto_de_aplicacao_repository.dart';
+export 'core/registro_de_aplicacao_repository.dart';
 
 export 'data/aplicador_ponto_de_aplicacao_repository_impl.dart';
+export 'data/registro_de_aplicacao_repository_impl.dart';
 
 export 'presentation/meus_pontos_view_model.dart';
 export 'presentation/meus_pontos_state.dart';

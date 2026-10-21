@@ -38,4 +38,15 @@ class AppErrorMessages {
   /// Ação do portal que ainda não foi ligada à API (GEOPRAG-198).
   static const String acaoIndisponivelNestaVersao =
       'Esta ação ainda não está disponível nesta versão.';
+
+  // Envio da outbox (aplicador_app/sincronizacao): motivo mostrado ao lado de
+  // um registro que não pôde ser enviado ou foi recusado.
+
+  static const String envioRespostaInesperada =
+      'O servidor respondeu de um jeito inesperado. O envio será tentado de novo.';
+  static const String envioSemResposta =
+      'O servidor não confirmou este registro. O envio será tentado de novo.';
+  static const String registroRecusado = 'Registro recusado pelo servidor.';
+  static const String registroLocalIlegivel =
+      'Registro local ilegível; não foi possível enviá-lo.';
 }
