@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/theme/geoprag_colors.dart';
@@ -248,6 +249,8 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
       emitFeedback(
         const AcaoFeedbackSucesso('Ponto de aplicação cadastrado com sucesso.'),
       );
+    } on OperacaoNaoPermitidaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('CriarPontoDeAplicacaoCubit.onSubmit', e, stackTrace);
       emitFeedback(

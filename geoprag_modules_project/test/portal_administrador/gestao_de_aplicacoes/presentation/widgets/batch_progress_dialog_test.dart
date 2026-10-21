@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/batch_progress_dialog.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
 /// Guarda o resultado do `showDialog` — não pode ser o valor de retorno de
@@ -90,6 +91,45 @@ void main() {
         expect(find.textContaining('1 concluído(s); 1 falharam'), findsOneWidget);
         expect(find.textContaining('Estado inválido.'), findsOneWidget);
         expect(find.text('Tentar novamente'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'erro da API (5xx, rede, 422) mostra a mensagem do servidor, não '
+      '"Falha inesperada"',
+      (tester) async {
+        await _abrir(
+          tester,
+          ids: const ['a', 'b', 'c'],
+          executarUm: (id) async {
+            switch (id) {
+              case 'a':
+                throw const ErroDoServidorException(
+                  'O servidor encontrou um problema.',
+                );
+              case 'b':
+                throw const FalhaDeConexaoException(
+                  'Sem conexão com o servidor.',
+                );
+              default:
+                throw const RequisicaoInvalidaException(
+                  'Dados inválidos.',
+                  status: 422,
+                );
+            }
+          },
+        );
+
+        expect(
+          find.textContaining('O servidor encontrou um problema.'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Sem conexão com o servidor.'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Dados inválidos.'), findsOneWidget);
+        expect(find.textContaining('Falha inesperada'), findsNothing);
       },
     );
 

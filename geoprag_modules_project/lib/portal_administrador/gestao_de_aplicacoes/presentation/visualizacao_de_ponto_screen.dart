@@ -160,7 +160,7 @@ List<Widget> _acoesDoPonto(
             ? null
             : () async {
                 final aplicadores = await cubit.listarAplicadoresParaAtribuir();
-                if (!context.mounted) return;
+                if (aplicadores == null || !context.mounted) return;
                 final aplicadorId = await showDialog<String>(
                   context: context,
                   builder: (_) =>
@@ -336,8 +336,11 @@ class _SecaoDeLocalizacao extends StatelessWidget {
         children: [
           _Linha(rotulo: 'Bairro', valor: ponto.bairro),
           _Linha(rotulo: 'Endereço', valor: ponto.endereco),
-          _Linha(rotulo: 'Número / referência', valor: ponto.numeroReferencia),
-          _Linha(rotulo: 'Trecho', valor: ponto.descricaoDoTrecho),
+          _Linha(
+            rotulo: 'Número / referência',
+            valor: _texto(ponto.numeroReferencia),
+          ),
+          _Linha(rotulo: 'Trecho', valor: _texto(ponto.descricaoDoTrecho)),
         ],
       ),
     );
@@ -356,14 +359,14 @@ class _SecaoDeParametros extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Linha(rotulo: 'Largura', valor: '${_numero(ponto.larguraMetros)} m'),
+          _Linha(rotulo: 'Largura', valor: _medida(ponto.larguraMetros, 'm')),
           _Linha(
             rotulo: 'Profundidade',
-            valor: '${_numero(ponto.profundidadeMetros)} m',
+            valor: _medida(ponto.profundidadeMetros, 'm'),
           ),
           _Linha(
             rotulo: 'Velocidade',
-            valor: '${_numero(ponto.velocidadeMetrosPorSegundo)} m/s',
+            valor: _medida(ponto.velocidadeMetrosPorSegundo, 'm/s'),
           ),
           const SizedBox(height: 12),
           _CardDeVazao(vazao: ponto.vazao),
@@ -463,7 +466,7 @@ class _CardDeVazao extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${_numero(vazao)} m³/s',
+            vazao > 0 ? '${_numero(vazao)} m³/s' : _naoInformado,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
@@ -586,6 +589,15 @@ class _LinhaDeExecucao extends StatelessWidget {
 
 /// Formata sem casas decimais quando o valor é inteiro (2 m, não 2.0 m).
 String _numero(double valor) => formatarNumeroExibicao(valor);
+
+const _naoInformado = 'Não informado';
+
+/// O cadastro aceita deixar o trecho sem medidas (a API devolve `null`, que o
+/// domínio guarda como `0`): medida real é sempre maior que zero.
+String _medida(double valor, String unidade) =>
+    valor > 0 ? '${_numero(valor)} $unidade' : _naoInformado;
+
+String _texto(String valor) => valor.trim().isEmpty ? _naoInformado : valor;
 
 String _dataHora(DateTime data) {
   final dia = data.day.toString().padLeft(2, '0');

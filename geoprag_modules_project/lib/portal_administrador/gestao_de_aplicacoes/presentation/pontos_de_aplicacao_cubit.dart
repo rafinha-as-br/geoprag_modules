@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/widgets/base_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 import 'widgets/painel_do_dashboard.dart';
@@ -27,7 +28,7 @@ class PontosDeAplicacaoCubit
   }
 
   final AdminPontoDeAplicacaoRepository _repository;
-  final AplicadorRepository _aplicadorRepository;
+  final AplicadorResumoRepository _aplicadorRepository;
 
   List<PontoDeAplicacaoResumoViewModel> _todos = [];
   String _busca = '';
@@ -76,6 +77,8 @@ class PontosDeAplicacaoCubit
       ];
       _emitirListagem();
     } on EntidadeNaoEncontradaException catch (e) {
+      emitError(e.mensagemAmigavel);
+    } on ApiException catch (e) {
       emitError(e.mensagemAmigavel);
     } catch (e, stackTrace) {
       AppLogger.error('PontosDeAplicacaoCubit._carregar', e, stackTrace);
