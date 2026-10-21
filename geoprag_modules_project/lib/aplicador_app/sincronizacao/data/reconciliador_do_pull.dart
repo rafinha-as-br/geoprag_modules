@@ -35,18 +35,13 @@ class ReconciliadorDoPull {
   final AplicacaoDao _aplicacoes;
 
   Future<ResultadoDoPull> reconciliar(PullResponseDto resposta) async {
-    final comPendencias = await _outbox.pontoIdsComPendencias();
-
     final recebidos = <PontoDeAplicacao>[];
     final ignorados = <String>[];
     for (final dto in resposta.pontos) {
       try {
-        final ponto = SyncMappers.paraPonto(dto);
-        recebidos.add(
-          comPendencias.contains(ponto.id)
-              ? await _comBaixasLocais(ponto)
-              : ponto,
-        );
+        // A baixa vale para todo ponto recebido (não só os que tinham pendência
+        // ao começar): um registro feito durante o pull não pode "desaparecer".
+        recebidos.add(await _comBaixasLocais(SyncMappers.paraPonto(dto)));
       } on Object catch (e, stackTrace) {
         AppLogger.error('ReconciliadorDoPull ponto ${dto.id}', e, stackTrace);
         ignorados.add(dto.id);

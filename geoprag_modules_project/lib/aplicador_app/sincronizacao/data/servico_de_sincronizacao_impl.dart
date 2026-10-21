@@ -128,6 +128,7 @@ class ServicoDeSincronizacaoImpl implements ServicoDeSincronizacao {
   /// ilegível ou erro ao gravar não lançam: o banco fica como estava e o pull
   /// conta como falho.
   Future<void> _baixar() async {
+    _pull = null;
     try {
       final corpo = await _api.get(caminhoDoPull);
       final resposta = PullResponseDto.fromJson(corpo! as Map<String, dynamic>);
