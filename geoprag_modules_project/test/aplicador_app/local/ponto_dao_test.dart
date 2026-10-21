@@ -112,6 +112,27 @@ void main() {
     },
   );
 
+  test(
+    'subponto do pull que depois entra numa aplicação local passa a ser dela',
+    () async {
+      await dao.salvar(
+        pontoDeTeste('ponto-1', subpontos: [subpontoDeTeste('s-1')]),
+      );
+      final aplicacao = aplicacaoDeTeste(
+        'app-1',
+        subpontos: [subpontoDeTeste('s-1')],
+      );
+
+      await AplicacaoDaoSqflite(banco.db).gravarComOutbox(aplicacao, [
+        itemDoSubponto(aplicacao, aplicacao.subpontos.single),
+      ]);
+      await dao.remover('ponto-1');
+
+      final linhas = await banco.db.query('subpontos');
+      expect(linhas.single['aplicacao_id'], 'app-1');
+    },
+  );
+
   test('salvarTodos grava vários pontos numa transação', () async {
     await dao.salvarTodos([pontoDeTeste('a'), pontoDeTeste('b')]);
 

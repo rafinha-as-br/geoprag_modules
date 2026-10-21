@@ -38,39 +38,48 @@ class OutboxDaoSqflite implements OutboxDao {
     return [for (final linha in linhas) ConversoresDoBanco.itemDaLinha(linha)];
   }
 
+  /// O SQLite antigo (builds do Android) aceita só 999 variáveis por comando:
+  /// listas longas de ids são divididas em fatias deste tamanho, todas na mesma
+  /// transação.
+  static const int _idsPorComando = 500;
+
   @override
-  Future<void> marcarEnviando(Iterable<String> ids) async {
-    if (ids.isEmpty) return;
-    await _db.rawUpdate(
-      'UPDATE outbox SET estado = ?, tentativas = tentativas + 1, '
-      'ultima_tentativa_em = ? '
-      'WHERE estado = ? AND id IN (${_marcas(ids)})',
-      [
-        EstadoDoItemDaOutbox.enviando.valor,
-        ConversoresDoBanco.textoDoInstante(_agora()),
-        EstadoDoItemDaOutbox.pendente.valor,
-        ...ids,
-      ],
+  Future<void> marcarEnviando(Iterable<String> ids) {
+    final agora = ConversoresDoBanco.textoDoInstante(_agora());
+    return _emFatias(
+      ids,
+      (txn, fatia) => txn.rawUpdate(
+        'UPDATE outbox SET estado = ?, tentativas = tentativas + 1, '
+        'ultima_tentativa_em = ? '
+        'WHERE estado = ? AND id IN (${_marcas(fatia)})',
+        [
+          EstadoDoItemDaOutbox.enviando.valor,
+          agora,
+          EstadoDoItemDaOutbox.pendente.valor,
+          ...fatia,
+        ],
+      ),
     );
   }
 
   @override
-  Future<void> marcarEnviado(Iterable<String> ids) async {
-    if (ids.isEmpty) return;
-    await _db.rawUpdate(
+  Future<void> marcarEnviado(Iterable<String> ids) => _emFatias(
+    ids,
+    (txn, fatia) => txn.rawUpdate(
       'UPDATE outbox SET estado = ?, ultimo_erro = NULL '
-      'WHERE id IN (${_marcas(ids)})',
-      [EstadoDoItemDaOutbox.enviado.valor, ...ids],
-    );
-  }
+      'WHERE id IN (${_marcas(fatia)})',
+      [EstadoDoItemDaOutbox.enviado.valor, ...fatia],
+    ),
+  );
 
   @override
   Future<void> marcarRejeitado(String id, String motivo) async {
+    // Uma resposta atrasada de rejeição não desfaz um envio já confirmado.
     await _db.update(
       Tabelas.outbox,
       {'estado': EstadoDoItemDaOutbox.rejeitado.valor, 'ultimo_erro': motivo},
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'id = ? AND estado <> ?',
+      whereArgs: [id, EstadoDoItemDaOutbox.enviado.valor],
     );
   }
 
@@ -114,6 +123,22 @@ class OutboxDaoSqflite implements OutboxDao {
       ],
     );
     return {for (final linha in linhas) linha['ponto_id']! as String};
+  }
+
+  Future<void> _emFatias(
+    Iterable<String> ids,
+    Future<Object?> Function(DatabaseExecutor txn, List<String> fatia) comando,
+  ) async {
+    final todos = ids.toList();
+    if (todos.isEmpty) return;
+    await _db.transaction((txn) async {
+      for (var i = 0; i < todos.length; i += _idsPorComando) {
+        final fim = i + _idsPorComando < todos.length
+            ? i + _idsPorComando
+            : todos.length;
+        await comando(txn, todos.sublist(i, fim));
+      }
+    });
   }
 
   static String _marcas(Iterable<Object?> valores) =>

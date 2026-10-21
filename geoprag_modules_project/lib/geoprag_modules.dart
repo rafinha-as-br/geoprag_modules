@@ -22,6 +22,8 @@ export 'aplicador_app/aplicacoes/aplicacoes.dart';
 export 'aplicador_app/inventory/inventario.dart';
 export 'aplicador_app/reports/denuncia_de_foco.dart';
 export 'aplicador_app/tenant/tenant.dart';
+// aplicador_app/local/local.dart (SQLite) fica de fora de propósito: o portal web
+// importa este arquivo e não deve carregar o sqflite. Os apps importam direto.
 
 export 'portal_administrador/autenticacao/core/admin_navigator.dart';
 export 'portal_administrador/autenticacao/autenticacao.dart';

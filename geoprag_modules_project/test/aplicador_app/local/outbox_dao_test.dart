@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/aplicador_app/local/conversores_do_banco.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
 
 import 'apoio_do_banco.dart';
@@ -171,6 +172,64 @@ void main() {
     });
   });
 
+  test('marcarRejeitado não desfaz um envio já confirmado', () async {
+    await enfileira('s-1');
+    await dao.marcarEnviando(['s-1']);
+    await dao.marcarEnviado(['s-1']);
+
+    await dao.marcarRejeitado('s-1', 'resposta atrasada');
+
+    final item = (await dao.buscarPorId('s-1'))!;
+    expect(item.estado, EstadoDoItemDaOutbox.enviado);
+    expect(item.ultimoErro, isNull);
+  });
+
+  test(
+    'lote maior que o limite de variáveis do SQLite é processado inteiro',
+    () async {
+      const total = 1200;
+      final batch = banco.db.batch();
+      for (var i = 0; i < total; i++) {
+        batch.insert(
+          'outbox',
+          ConversoresDoBanco.linhaDoItem(
+            ItemDaOutbox.novo(
+              id: 'lote-$i',
+              tipo: TipoDoItemDaOutbox.subponto,
+              pontoId: 'ponto-1',
+              payload: '{}',
+              criadoEm: agoraDeTeste.add(Duration(seconds: i)),
+            ),
+          ),
+        );
+      }
+      await batch.commit(noResult: true);
+      final ids = [for (var i = 0; i < total; i++) 'lote-$i'];
+
+      await dao.marcarEnviando(ids);
+      expect(
+        (await dao.contarPorEstado())[EstadoDoItemDaOutbox.enviando],
+        total,
+      );
+
+      await dao.marcarEnviado(ids);
+      expect(
+        (await dao.contarPorEstado())[EstadoDoItemDaOutbox.enviado],
+        total,
+      );
+    },
+  );
+
+  test('guarda os instantes com precisão de microssegundos', () async {
+    final criadoEm = DateTime.utc(2026, 10, 20, 15, 0, 0, 123, 456);
+    final subponto = subpontoDeTeste('s-1');
+    final aplicacao = aplicacaoDeTeste('app-1', subpontos: [subponto]);
+    final item = itemDoSubponto(aplicacao, subponto, criadoEm: criadoEm);
+
+    await aplicacoes.gravarComOutbox(aplicacao, [item]);
+
+    expect(await dao.buscarPorId('s-1'), item);
+  });
   test('reenfileirarEmAndamento devolve os ENVIANDO e conta quantos', () async {
     await enfileira('s-1');
     await enfileira('s-2', minutos: 1);

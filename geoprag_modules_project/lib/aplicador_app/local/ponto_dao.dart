@@ -5,7 +5,10 @@ import '../../src/entities/ponto_de_aplicacao.dart';
 abstract interface class PontoDao {
   /// Insere ou atualiza o [ponto] e suas datas agendadas. Os subpontos que o
   /// servidor já registrou são acrescentados, nunca substituídos: um subponto
-  /// feito neste aparelho e ainda não sincronizado continua lá.
+  /// feito neste aparelho e ainda não sincronizado continua lá. As datas
+  /// agendadas, ao contrário, são **substituídas** pelas do ponto recebido: quem
+  /// sincroniza reaplica a baixa das aplicações locais ainda pendentes (a data
+  /// que elas atendem) depois de salvar.
   Future<void> salvar(PontoDeAplicacao ponto);
 
   /// [salvar] para vários pontos, numa única transação.

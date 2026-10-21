@@ -1,3 +1,4 @@
+import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import 'esquema.dart';
@@ -27,7 +28,7 @@ class BancoLocal {
     assert(migracoes.isNotEmpty, 'O esquema precisa de ao menos uma migração.');
     final f = fabrica ?? databaseFactory;
     final destino =
-        caminho ?? '${await f.getDatabasesPath()}/$nomeDoArquivoDoBanco';
+        caminho ?? p.join(await f.getDatabasesPath(), nomeDoArquivoDoBanco);
     final db = await f.openDatabase(
       destino,
       options: OpenDatabaseOptions(

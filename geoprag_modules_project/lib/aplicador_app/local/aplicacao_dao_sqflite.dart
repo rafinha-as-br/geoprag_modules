@@ -31,6 +31,14 @@ class AplicacaoDaoSqflite implements AplicacaoDao {
             ),
             conflictAlgorithm: ConflictAlgorithm.ignore,
           );
+          // Se uma linha com este `id` já existia sem aplicação (veio do pull),
+          // ela passa a pertencer a esta aplicação.
+          await txn.update(
+            Tabelas.subpontos,
+            {'aplicacao_id': aplicacao.id},
+            where: 'id = ? AND aplicacao_id IS NULL',
+            whereArgs: [subponto.id],
+          );
         }
         // Sem `ignore`: um item repetido derruba a transação inteira, e a
         // aplicação não entra sem o item que a leva ao servidor.
@@ -44,35 +52,45 @@ class AplicacaoDaoSqflite implements AplicacaoDao {
 
   @override
   Future<Aplicacao?> buscarPorId(String id) async {
-    final linhas = await _db.query(
-      Tabelas.aplicacoes,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (linhas.isEmpty) return null;
-    return _montar(linhas.single);
+    final aplicacoes = await _consultar(where: 'id = ?', argumentos: [id]);
+    return aplicacoes.isEmpty ? null : aplicacoes.single;
   }
 
   @override
-  Future<List<Aplicacao>> listarPorPonto(String pontoId) async {
-    final linhas = await _db.query(
+  Future<List<Aplicacao>> listarPorPonto(String pontoId) =>
+      _consultar(where: 'ponto_id = ?', argumentos: [pontoId]);
+
+  /// Lê as aplicações que atendem ao [where], da mais antiga para a mais
+  /// recente, com **duas** consultas ao todo (aplicações e subpontos), numa
+  /// transação para os dois resultados serem do mesmo instante.
+  Future<List<Aplicacao>> _consultar({
+    required String where,
+    required List<Object?> argumentos,
+  }) => _db.transaction((txn) async {
+    final linhas = await txn.query(
       Tabelas.aplicacoes,
-      where: 'ponto_id = ?',
-      whereArgs: [pontoId],
+      where: where,
+      whereArgs: argumentos,
       orderBy: 'rowid',
     );
-    return [for (final linha in linhas) await _montar(linha)];
-  }
+    if (linhas.isEmpty) return const <Aplicacao>[];
 
-  Future<Aplicacao> _montar(Map<String, Object?> linha) async {
-    final subpontos = await _db.query(
-      Tabelas.subpontos,
-      where: 'aplicacao_id = ?',
-      whereArgs: [linha['id']],
-      orderBy: 'realizado_em_ms, rowid',
+    final subpontosPorAplicacao = <Object?, List<Map<String, Object?>>>{};
+    final subpontos = await txn.rawQuery(
+      'SELECT * FROM ${Tabelas.subpontos} WHERE aplicacao_id IN '
+      '(SELECT id FROM ${Tabelas.aplicacoes} WHERE $where) '
+      'ORDER BY realizado_em_ms, rowid',
+      argumentos,
     );
-    return ConversoresDoBanco.aplicacaoDaLinha(linha, [
-      for (final s in subpontos) ConversoresDoBanco.subpontoDaLinha(s),
-    ]);
-  }
+    for (final linha in subpontos) {
+      (subpontosPorAplicacao[linha['aplicacao_id']] ??= []).add(linha);
+    }
+    return [
+      for (final linha in linhas)
+        ConversoresDoBanco.aplicacaoDaLinha(linha, [
+          for (final s in subpontosPorAplicacao[linha['id']] ?? const [])
+            ConversoresDoBanco.subpontoDaLinha(s),
+        ]),
+    ];
+  });
 }

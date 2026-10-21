@@ -1,5 +1,4 @@
-import '../../src/api/sync/sync_json.dart'
-    show formatarDataDeCalendario, formatarDataHoraComOffset;
+import '../../src/api/sync/sync_json.dart' show formatarDataDeCalendario;
 import '../../src/entities/aplicacao.dart';
 import '../../src/entities/ponto_de_aplicacao.dart';
 import 'item_da_outbox.dart';
@@ -9,9 +8,10 @@ import 'item_da_outbox.dart';
 class ConversoresDoBanco {
   const ConversoresDoBanco._();
 
-  /// Instante com o offset do aparelho (`2026-10-21T14:30:00-03:00`).
+  /// Instante exato, em UTC e com microssegundos (`2026-10-21T17:30:00.000Z`):
+  /// o ida-e-volta não perde precisão. O fuso do aparelho volta na leitura.
   static String textoDoInstante(DateTime instante) =>
-      formatarDataHoraComOffset(instante);
+      instante.toUtc().toIso8601String();
 
   /// Instante lido de volta, no fuso local do aparelho.
   static DateTime instanteDoTexto(String texto) =>

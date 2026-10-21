@@ -15,7 +15,7 @@ const String nomeDoArquivoDoBanco = 'geoprag.db';
 /// existente roda só as que ainda não rodou. **Nunca edite uma migração já
 /// publicada**: acrescente a próxima.
 ///
-/// Datas e horas são texto ISO-8601 com offset do aparelho; as colunas `*_ms`
+/// Instantes são texto ISO-8601 em UTC (precisão total); as colunas `*_ms`
 /// guardam o mesmo instante em milissegundos para ordenar sem depender do
 /// offset.
 const List<Migracao> migracoesDoEsquema = [

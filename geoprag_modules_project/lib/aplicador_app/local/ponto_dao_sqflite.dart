@@ -61,50 +61,69 @@ class PontoDaoSqflite implements PontoDao {
 
   @override
   Future<PontoDeAplicacao?> buscarPorId(String id) async {
-    final linhas = await _db.query(
-      Tabelas.pontos,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (linhas.isEmpty) return null;
-    return _montar(_db, linhas.single);
+    final pontos = await _consultar(where: 'id = ?', argumentos: [id]);
+    return pontos.isEmpty ? null : pontos.single;
   }
 
   @override
-  Future<List<PontoDeAplicacao>> listar({String? aplicadorId}) async {
-    final linhas = await _db.query(
+  Future<List<PontoDeAplicacao>> listar({String? aplicadorId}) => _consultar(
+    where: aplicadorId == null ? null : 'aplicador_id = ?',
+    argumentos: aplicadorId == null ? null : [aplicadorId],
+  );
+
+  /// Lê os pontos que atendem ao [where], por nome, com **três** consultas ao
+  /// todo (pontos, datas e subpontos), e não duas por ponto, numa transação
+  /// para os três resultados serem do mesmo instante.
+  Future<List<PontoDeAplicacao>> _consultar({
+    String? where,
+    List<Object?>? argumentos,
+  }) => _db.transaction((txn) async {
+    final linhas = await txn.query(
       Tabelas.pontos,
-      where: aplicadorId == null ? null : 'aplicador_id = ?',
-      whereArgs: aplicadorId == null ? null : [aplicadorId],
+      where: where,
+      whereArgs: argumentos,
       orderBy: 'nome COLLATE NOCASE, id',
     );
-    return [for (final linha in linhas) await _montar(_db, linha)];
-  }
+    if (linhas.isEmpty) return const <PontoDeAplicacao>[];
 
-  Future<PontoDeAplicacao> _montar(
-    DatabaseExecutor executor,
-    Map<String, Object?> linha,
-  ) async {
-    final id = linha['id']! as String;
-    final datas = await executor.query(
-      Tabelas.datasAgendadas,
-      where: 'ponto_id = ?',
-      whereArgs: [id],
-      orderBy: 'ordem',
+    final filtro = where == null ? '' : ' WHERE $where';
+    final datas = _agruparPorPonto(
+      await txn.rawQuery(
+        'SELECT * FROM ${Tabelas.datasAgendadas} '
+        'WHERE ponto_id IN (SELECT id FROM ${Tabelas.pontos}$filtro) '
+        'ORDER BY ordem',
+        argumentos,
+      ),
     );
-    final subpontos = await executor.query(
-      Tabelas.subpontos,
-      where: 'ponto_id = ?',
-      whereArgs: [id],
-      orderBy: 'realizado_em_ms, rowid',
+    final subpontos = _agruparPorPonto(
+      await txn.rawQuery(
+        'SELECT * FROM ${Tabelas.subpontos} '
+        'WHERE ponto_id IN (SELECT id FROM ${Tabelas.pontos}$filtro) '
+        'ORDER BY realizado_em_ms, rowid',
+        argumentos,
+      ),
     );
-    return ConversoresDoBanco.pontoDaLinha(
-      linha,
-      datas: datas,
-      subpontos: [
-        for (final s in subpontos) ConversoresDoBanco.subpontoDaLinha(s),
-      ],
-    );
+    return [
+      for (final linha in linhas)
+        ConversoresDoBanco.pontoDaLinha(
+          linha,
+          datas: datas[linha['id']] ?? const [],
+          subpontos: [
+            for (final s in subpontos[linha['id']] ?? const [])
+              ConversoresDoBanco.subpontoDaLinha(s),
+          ],
+        ),
+    ];
+  });
+
+  static Map<Object?, List<Map<String, Object?>>> _agruparPorPonto(
+    List<Map<String, Object?>> linhas,
+  ) {
+    final grupos = <Object?, List<Map<String, Object?>>>{};
+    for (final linha in linhas) {
+      (grupos[linha['ponto_id']] ??= []).add(linha);
+    }
+    return grupos;
   }
 
   @override
