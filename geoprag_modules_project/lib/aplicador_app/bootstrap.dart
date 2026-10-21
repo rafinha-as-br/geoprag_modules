@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import '../src/api/api_client.dart';
 import '../src/api/api_client_provider.dart';
 import 'auth/core/auth_repository.dart';
@@ -18,6 +20,7 @@ import 'aplicacoes/presentation/geolocalizacao_cubit.dart';
 import 'aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
 import 'nucleo_offline.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
+import 'sincronizacao/presentation/resumo_da_sincronizacao.dart';
 import 'inventory/core/insumo_repository.dart';
 import 'inventory/core/recebimento_repository.dart';
 import 'inventory/data/insumo_repository_impl.dart';
@@ -66,6 +69,11 @@ class AplicadorBootstrap {
   /// app.
   ServicoDeSincronizacao buildServicoDeSincronizacao() =>
       NucleoOffline.instancia.sincronizacao;
+
+  /// Faixa com os indicadores de sincronização (GEOPRAG-204), para
+  /// `MeusPontosScreen(resumoDaSincronizacao: ...)`. Não aparece enquanto o
+  /// núcleo offline não estiver aberto.
+  Widget buildResumoDaSincronizacao() => const ResumoDaSincronizacao();
 
   AuthRepository buildAuthRepository() => AuthRepositoryImpl(
     api: buildApiClient(),
