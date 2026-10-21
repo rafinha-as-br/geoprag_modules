@@ -15,6 +15,7 @@ void main() {
   final recebimento = Recebimento(
     id: 'r1',
     produtoNome: 'BTI Líquido',
+    lote: 'L-2026-0145',
     quantidadeDescricao: '1 Litro',
     agenteEntregador: 'João Silva',
     cargoAgenteEntregador: 'Fiscal de Agricultura',
@@ -80,20 +81,59 @@ void main() {
     'confirmar() delega ao repositório o id do recebimento carregado',
     setUp: () {
       when(() => repository.buscarPorId('r1')).thenAnswer((_) async => recebimento);
-      when(() => repository.confirmar('r1')).thenAnswer((_) async {});
+      when(() => repository.confirmar('r1')).thenAnswer(
+        (_) async => recebimento.copyWith(
+          status: RecebimentoStatus.confirmado,
+          confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+        ),
+      );
     },
     build: () => RecebimentoConfirmacaoCubit(repository, recebimentoId: 'r1'),
     act: (cubit) async {
       await Future<void>.delayed(Duration.zero);
       await cubit.confirmar();
     },
-    // `confirmar()` não emite nenhum novo estado hoje — só delega ao
-    // repositório (ver TODO no cubit sobre feedback de sucesso).
+    // `confirmar()` não emite novo estado — delega ao repositório e devolve
+    // o resultado para a tela dar o feedback.
     expect: () => [isA<RecebimentoConfirmacaoLoaded>()],
     verify: (_) {
       verify(() => repository.confirmar('r1')).called(1);
     },
   );
+
+  test('confirmar() devolve a ViewModel com data/hora da confirmação', () async {
+    when(() => repository.buscarPorId('r1')).thenAnswer((_) async => recebimento);
+    when(() => repository.confirmar('r1')).thenAnswer(
+      (_) async => recebimento.copyWith(
+        status: RecebimentoStatus.confirmado,
+        confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+        registradoEm: DateTime(2026, 10, 20, 21, 30),
+      ),
+    );
+    final cubit = RecebimentoConfirmacaoCubit(repository, recebimentoId: 'r1');
+    await Future<void>.delayed(Duration.zero);
+
+    final resultado = await cubit.confirmar();
+
+    expect(resultado!.confirmadoEmDescricao, '20/10/2026 às 21:30');
+    expect(resultado.pendenteSincronizacao, isFalse);
+  });
+
+  test('confirmar() sinaliza pendência de sincronização quando offline', () async {
+    when(() => repository.buscarPorId('r1')).thenAnswer((_) async => recebimento);
+    when(() => repository.confirmar('r1')).thenAnswer(
+      (_) async => recebimento.copyWith(
+        status: RecebimentoStatus.confirmado,
+        confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+      ),
+    );
+    final cubit = RecebimentoConfirmacaoCubit(repository, recebimentoId: 'r1');
+    await Future<void>.delayed(Duration.zero);
+
+    final resultado = await cubit.confirmar();
+
+    expect(resultado!.pendenteSincronizacao, isTrue);
+  });
 
   blocTest<RecebimentoConfirmacaoCubit, RecebimentoConfirmacaoState>(
     'confirmar() não chama o repositório se o estado atual não for Loaded',

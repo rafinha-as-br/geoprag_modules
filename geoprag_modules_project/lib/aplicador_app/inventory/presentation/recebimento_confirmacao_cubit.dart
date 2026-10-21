@@ -52,9 +52,12 @@ class RecebimentoConfirmacaoCubit extends Cubit<RecebimentoConfirmacaoState> {
     }
   }
 
-  Future<void> confirmar() async {
+  /// Confirma o recebimento carregado e devolve o estado resultante, ou
+  /// `null` se não houver recebimento carregado.
+  Future<RecebimentoDetalheViewModel?> confirmar() async {
     final atual = state;
-    if (atual is! RecebimentoConfirmacaoLoaded) return;
-    await _repository.confirmar(atual.recebimento.id);
+    if (atual is! RecebimentoConfirmacaoLoaded) return null;
+    final confirmado = await _repository.confirmar(atual.recebimento.id);
+    return RecebimentoDetalheViewModel.fromEntity(confirmado);
   }
 }

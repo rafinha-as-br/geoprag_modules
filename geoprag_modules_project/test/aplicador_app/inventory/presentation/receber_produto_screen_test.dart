@@ -19,6 +19,7 @@ void main() {
   final recebimento = Recebimento(
     id: 'r1',
     produtoNome: 'BTI Líquido',
+    lote: 'L-2026-0145',
     quantidadeDescricao: '1 Litro',
     agenteEntregador: 'João Silva',
     cargoAgenteEntregador: 'Fiscal de Agricultura',
@@ -55,6 +56,7 @@ void main() {
           find.text('João Silva (Fiscal de Agricultura)'),
           findsOneWidget,
         );
+        expect(find.text('L-2026-0145'), findsOneWidget);
         expect(find.text('1 Litro'), findsAtLeastNWidgets(1));
         // "Confirmar Recebimento" também é o título da AppBar — restringe
         // ao botão para não colidir com o finder.
@@ -69,7 +71,13 @@ void main() {
     testWidgets(
       'confirmar chama o Cubit, mostra feedback e navega para o inventário',
       (tester) async {
-        when(() => repository.confirmar('r1')).thenAnswer((_) async {});
+        when(() => repository.confirmar('r1')).thenAnswer(
+          (_) async => recebimento.copyWith(
+            status: RecebimentoStatus.confirmado,
+            confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+            registradoEm: DateTime(2026, 10, 20, 21, 30),
+          ),
+        );
 
         await tester.pumpWidget(wrap());
         await tester.pumpAndSettle();
@@ -89,11 +97,43 @@ void main() {
     );
 
     testWidgets(
+      'confirmação offline avisa a data/hora e que será enviada depois',
+      (tester) async {
+        when(() => repository.confirmar('r1')).thenAnswer(
+          (_) async => recebimento.copyWith(
+            status: RecebimentoStatus.confirmado,
+            confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+          ),
+        );
+
+        await tester.pumpWidget(wrap());
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          find.widgetWithText(ElevatedButton, 'Confirmar Recebimento'),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Recebimento confirmado em 20/10/2026 às 21:30. '
+            'Será enviado quando houver conexão.',
+          ),
+          findsOneWidget,
+        );
+        verify(() => navigator.toInventario()).called(1);
+      },
+    );
+
+    testWidgets(
       'cancelar/voltar chama o navigator sem confirmar nada',
       (tester) async {
         await tester.pumpWidget(wrap());
         await tester.pumpAndSettle();
 
+        // A tela rola; com o campo Lote o botão fica abaixo da dobra do
+        // viewport de teste.
+        await tester.ensureVisible(find.text('Cancelar / Voltar'));
         await tester.tap(find.text('Cancelar / Voltar'));
         await tester.pumpAndSettle();
 
