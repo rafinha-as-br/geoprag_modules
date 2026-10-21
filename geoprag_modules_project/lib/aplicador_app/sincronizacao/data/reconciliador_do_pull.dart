@@ -15,7 +15,11 @@ import '../core/resultado_da_sincronizacao.dart';
 /// - **Nunca apaga ponto com registro pendente** na outbox: um ponto que o
 ///   servidor retirou do aplicador (reatribuído, por exemplo) continua visível
 ///   até os pendentes serem enviados; o pull seguinte o remove.
-/// - Quem não tem pendência e saiu da resposta sai do aparelho.
+/// - Quem não tem pendência e saiu da resposta sai do aparelho. Isso vale para
+///   o snapshot completo; no pull **incremental** (GEOPRAG-206) a resposta traz
+///   só os pontos alterados, então "ausente da resposta" não quer dizer
+///   "retirado": só saem do aparelho os pontos listados em `removidos`, ainda
+///   assim nunca os que têm registro pendente.
 /// - Reaplica a baixa das aplicações locais ainda não enviadas: o pull traz a
 ///   data agendada como o servidor a conhece (ainda pendente), mas o aplicador
 ///   já a atendeu neste aparelho.
@@ -34,7 +38,15 @@ class ReconciliadorDoPull {
   final OutboxDao _outbox;
   final AplicacaoDao _aplicacoes;
 
-  Future<ResultadoDoPull> reconciliar(PullResponseDto resposta) async {
+  /// O aparelho não guarda nenhum ponto. Um cursor guardado não vale nesse caso
+  /// (o banco foi recriado): o pull incremental deixaria a lista incompleta.
+  Future<bool> semPontos() async => (await _pontos.listar()).isEmpty;
+
+  /// [incremental]: a [resposta] veio de um pull com `desde` (só o que mudou).
+  Future<ResultadoDoPull> reconciliar(
+    PullResponseDto resposta, {
+    bool incremental = false,
+  }) async {
     final recebidos = <PontoDeAplicacao>[];
     final ignorados = <String>[];
     for (final dto in resposta.pontos) {
@@ -54,17 +66,25 @@ class ReconciliadorDoPull {
     final idsDaResposta = {for (final p in resposta.pontos) p.id};
     final removidos = <String>[];
     final mantidos = <String>[];
-    for (final local in await _pontos.listar()) {
-      if (idsDaResposta.contains(local.id)) continue;
-      if (pendentesAgora.contains(local.id)) {
-        mantidos.add(local.id);
+    final locais = [for (final local in await _pontos.listar()) local.id];
+    final candidatos = incremental
+        ? [
+            for (final id in resposta.removidos)
+              if (locais.contains(id)) id,
+          ]
+        : locais;
+    for (final id in candidatos) {
+      if (idsDaResposta.contains(id)) continue;
+      if (pendentesAgora.contains(id)) {
+        mantidos.add(id);
       } else {
-        await _pontos.remover(local.id);
-        removidos.add(local.id);
+        await _pontos.remover(id);
+        removidos.add(id);
       }
     }
 
     return ResultadoDoPull(
+      incremental: incremental,
       pontosSalvos: [for (final p in recebidos) p.id],
       pontosRemovidos: removidos,
       pontosMantidos: mantidos,
