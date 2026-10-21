@@ -4,14 +4,27 @@ import 'admin_account.dart';
 /// recuperação de senha, cujo restante do fluxo depende do papel da conta
 /// (Administrador principal vs. Sub-Administrador — ver [AdminRole]).
 ///
-/// TODO(GEOPRAG-24): contrato real dos endpoints ainda não validado com o
-/// backend — ver "Contrato de Endpoints — Módulo Autenticação" (GEOPRAG-22).
+/// Login, logout e restauração da sessão falam com a API real
+/// (`POST /auth/login`, GEOPRAG-187). O restante do fluxo de senha continua
+/// simulado: o contrato v0 não tem endpoints para ele.
 abstract class AdminAuthRepository {
+  /// Autentica por e-mail (ou CPF). Guarda a sessão no navegador e devolve a
+  /// conta, com `id` e `tenantId` vindos do servidor.
+  ///
+  /// Lança [InvalidCredentialsException] se a conta é de um aplicador, e as
+  /// exceções da API (`ApiException`) para credenciais recusadas, usuário
+  /// desativado, falta de rede etc.
   Future<AdminAccount> login({
     required String identifier,
     required String senha,
   });
+
+  /// Encerra a sessão local (apaga token e conta guardados).
   Future<void> logout();
+
+  /// Sessão guardada no navegador, ainda dentro da validade do access token
+  /// (o portal não tem refresh token). `null` quando não há sessão utilizável.
+  Future<AdminAccount?> sessaoAtual();
 
   /// Usado pelo fluxo "esqueci minha senha" para decidir, pelo papel da
   /// conta, se a redefinição segue direto (Administrador) ou precisa de

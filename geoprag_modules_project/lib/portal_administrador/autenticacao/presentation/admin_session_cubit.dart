@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/errors/app_exceptions.dart';
+import '../../../src/errors/app_logger.dart';
 import '../../../src/permissions/capacidade.dart';
 import '../core/admin_account.dart';
+import '../core/admin_auth_repository.dart';
 import '../core/capacidades_por_cargo.dart';
 import 'admin_session_state.dart';
 
@@ -13,12 +15,40 @@ import 'admin_session_state.dart';
 /// `SidebarMenu` precisam saber o cargo atual antes de qualquer tela ser
 /// montada, então não pode ser um Cubit escopado por rota.
 class AdminSessionCubit extends Cubit<AdminSessionState> {
-  AdminSessionCubit() : super(const AdminSessionSemAcesso());
+  AdminSessionCubit({AdminAuthRepository? repository})
+    : _repository = repository,
+      super(const AdminSessionSemAcesso());
+
+  final AdminAuthRepository? _repository;
+
+  /// Reabre a sessão guardada no navegador (GEOPRAG-187). Chamado uma vez,
+  /// antes de o app aparecer.
+  Future<void> restaurar() async {
+    try {
+      final conta = await _repository?.sessaoAtual();
+      if (conta != null) emit(AdminSessionAutenticado(conta));
+    } catch (e, stackTrace) {
+      // Sem leitura do armazenamento, o portal segue sem sessão e pede o login.
+      AppLogger.error('AdminSessionCubit.restaurar', e, stackTrace);
+    }
+  }
 
   void iniciarSessao(AdminAccount conta) =>
       emit(AdminSessionAutenticado(conta));
 
-  void encerrarSessao() => emit(const AdminSessionSemAcesso());
+  /// Logout: apaga a sessão guardada (token e conta) e volta a `SemAcesso`.
+  Future<void> encerrarSessao() async {
+    try {
+      await _repository?.logout();
+    } catch (e, stackTrace) {
+      AppLogger.error('AdminSessionCubit.encerrarSessao', e, stackTrace);
+    }
+    emit(const AdminSessionSemAcesso());
+  }
+
+  /// A API já apagou o token (sessão expirada sem refresh): só falta voltar ao
+  /// login.
+  void sessaoPerdida() => emit(const AdminSessionSemAcesso());
 
   /// Esquema de permissões por capacidade (GEOPRAG-112) — consulta única
   /// usada pela UI (ex.: `GatedActionButton`) para decidir se uma ação deve

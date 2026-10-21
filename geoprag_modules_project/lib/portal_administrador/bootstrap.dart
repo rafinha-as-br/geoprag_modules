@@ -71,7 +71,18 @@ class AdminBootstrap {
   /// [ApiClientProvider]); a troca dos repositórios mock pelos reais usa este.
   ApiClient buildApiClient() => ApiClientProvider.instancia;
 
-  AdminAuthRepository buildAdminAuthRepository() => AdminAuthRepositoryImpl();
+  /// Liga a perda de sessão (token expirado sem refresh) ao app e cria o cliente
+  /// HTTP. Chamar uma vez, em `main`, antes de qualquer outra fábrica
+  /// (GEOPRAG-187).
+  void configurarApi({required void Function() aoPerderSessao}) {
+    ApiClientProvider.aoPerderSessao = aoPerderSessao;
+    buildApiClient();
+  }
+
+  AdminAuthRepository buildAdminAuthRepository() => AdminAuthRepositoryImpl(
+    api: buildApiClient(),
+    sessao: ApiClientProvider.sessao,
+  );
   TenantRepository buildTenantRepository() => AdminTenantRepositoryImpl();
   SolicitacaoRedefinicaoRepository buildSolicitacaoRedefinicaoRepository() =>
       SolicitacaoRedefinicaoRepositoryImpl();
@@ -202,5 +213,6 @@ class AdminBootstrap {
 
   /// Sessão do administrador logado (GEOPRAG-36) — mesma exceção de escopo
   /// raiz do [buildTenantCubit], ver `AdminSessionCubit`.
-  AdminSessionCubit buildAdminSessionCubit() => AdminSessionCubit();
+  AdminSessionCubit buildAdminSessionCubit() =>
+      AdminSessionCubit(repository: buildAdminAuthRepository());
 }

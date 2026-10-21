@@ -1,9 +1,10 @@
 export 'core/usuario.dart';
 export 'core/auth_repository.dart';
 
-export 'data/mock_usuarios.dart';
 export 'data/auth_repository_impl.dart';
 
+export 'presentation/aplicador_sessao_cubit.dart';
+export 'presentation/aplicador_sessao_state.dart';
 export 'presentation/login_cubit.dart';
 export 'presentation/esqueci_senha_cubit.dart';
 export 'presentation/verificar_codigo_cubit.dart';

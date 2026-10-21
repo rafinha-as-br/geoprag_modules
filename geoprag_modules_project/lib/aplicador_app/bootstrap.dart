@@ -2,6 +2,7 @@ import '../src/api/api_client.dart';
 import '../src/api/api_client_provider.dart';
 import 'auth/core/auth_repository.dart';
 import 'auth/data/auth_repository_impl.dart';
+import 'auth/presentation/aplicador_sessao_cubit.dart';
 import 'auth/presentation/esqueci_senha_cubit.dart';
 import 'auth/presentation/login_cubit.dart';
 import 'auth/presentation/recriar_senha_cubit.dart';
@@ -39,15 +40,30 @@ class AplicadorBootstrap {
   /// [ApiClientProvider]); a troca dos repositórios mock pelos reais usa este.
   ApiClient buildApiClient() => ApiClientProvider.instancia;
 
-  AuthRepository buildAuthRepository() => AuthRepositoryImpl();
+  /// Liga a perda de sessão (refresh recusado) ao app e cria o cliente HTTP.
+  /// Chamar uma vez, em `main`, antes de qualquer outra fábrica (GEOPRAG-187).
+  void configurarApi({required void Function() aoPerderSessao}) {
+    ApiClientProvider.aoPerderSessao = aoPerderSessao;
+    buildApiClient();
+  }
+
+  AuthRepository buildAuthRepository() => AuthRepositoryImpl(
+    api: buildApiClient(),
+    sessao: ApiClientProvider.sessao,
+  );
   TenantRepository buildTenantRepository() => TenantRepositoryImpl();
-  AplicadorPontoDeAplicacaoRepository buildAplicadorPontoDeAplicacaoRepository() =>
+  AplicadorPontoDeAplicacaoRepository
+  buildAplicadorPontoDeAplicacaoRepository() =>
       AplicadorPontoDeAplicacaoRepositoryImpl();
   InsumoRepository buildInsumoRepository() => InsumoRepositoryImpl();
   RecebimentoRepository buildRecebimentoRepository() =>
       RecebimentoRepositoryImpl();
   DenunciaDeFocoRepository buildDenunciaDeFocoRepository() =>
       DenunciaDeFocoRepositoryImpl();
+
+  /// Sessão do aplicador logado — provida na raiz, ver [AplicadorSessaoCubit].
+  AplicadorSessaoCubit buildAplicadorSessaoCubit() =>
+      AplicadorSessaoCubit(buildAuthRepository());
 
   LoginCubit buildLoginCubit() => LoginCubit(buildAuthRepository());
   EsqueciSenhaCubit buildEsqueciSenhaCubit() =>

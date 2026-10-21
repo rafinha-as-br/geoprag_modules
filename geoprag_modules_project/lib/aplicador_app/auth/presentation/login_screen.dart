@@ -5,6 +5,7 @@ import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_auth_step_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import '../core/usuario.dart';
+import 'aplicador_sessao_cubit.dart';
 import 'auth_action_state.dart';
 import 'login_cubit.dart';
 
@@ -33,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<LoginCubit, AuthActionState<Usuario>>(
       listener: (context, state) {
         if (state is AuthActionSuccess<Usuario>) {
+          context.read<AplicadorSessaoCubit>().iniciarSessao(state.data);
           AplicadorNavigatorScope.of(context).toPonto();
         } else if (state is AuthActionFailure<Usuario>) {
           ScaffoldMessenger.of(

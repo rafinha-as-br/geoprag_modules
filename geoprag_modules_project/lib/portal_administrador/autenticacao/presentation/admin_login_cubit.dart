@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/api/api_exceptions.dart';
 import '../core/admin_account.dart';
 import '../core/admin_auth_exceptions.dart';
 import '../core/admin_auth_repository.dart';
@@ -24,6 +25,10 @@ class AdminLoginCubit extends Cubit<AuthActionState<AdminAccount>> {
       emit(AuthActionSuccess(account));
     } on InvalidCredentialsException {
       emit(const AuthActionFailure('Credenciais inválidas.'));
+    } on ApiException catch (e) {
+      // Mensagem do servidor (credenciais recusadas, usuário desativado) ou da
+      // camada HTTP (sem conexão, tempo esgotado).
+      emit(AuthActionFailure(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('AdminLoginCubit.submit', e, stackTrace);
       emit(

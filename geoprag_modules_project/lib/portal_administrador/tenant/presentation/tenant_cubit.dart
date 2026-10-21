@@ -17,7 +17,9 @@ class AdminTenantCubit extends Cubit<AdminTenantState> {
 
   Future<void> load(String tenantId) async {
     final cached = await _repository.readCached();
-    if (cached != null) {
+    // O cache só vale para o mesmo tenant: o tenant agora vem do login (GEOPRAG-187)
+    // e outro usuário não pode ver, nem por um instante, a config do anterior.
+    if (cached != null && cached.tenantId == tenantId) {
       emit(AdminTenantReady(cached));
     }
     try {
