@@ -60,33 +60,64 @@ class SessaoSegura implements SessaoDeTokens {
     }
   }
 
+  /// Apaga a sessão inteira. Tenta todas as chaves mesmo que uma falhe — o
+  /// usuário primeiro, porque é dele que a restauração depende — e só então
+  /// relança o primeiro erro, para um logout nunca deixar a sessão para trás
+  /// por causa de uma chave.
   @override
   Future<void> limpar() async {
-    await _armazenamento.apagar(_chaveAccess);
-    await _armazenamento.apagar(_chaveRefresh);
-    await _armazenamento.apagar(_chaveExpiraEm);
-    await _armazenamento.apagar(_chaveUsuario);
+    Object? primeiroErro;
+    StackTrace? pilha;
+    for (final chave in const [
+      _chaveUsuario,
+      _chaveAccess,
+      _chaveRefresh,
+      _chaveExpiraEm,
+    ]) {
+      try {
+        await _armazenamento.apagar(chave);
+      } catch (e, s) {
+        primeiroErro ??= e;
+        pilha ??= s;
+      }
+    }
+    if (primeiroErro != null) {
+      Error.throwWithStackTrace(primeiroErro, pilha!);
+    }
   }
 
   /// Guarda a sessão de um login bem-sucedido: tokens, validade do access
-  /// token e usuário. Substitui qualquer sessão anterior.
+  /// token e usuário. Substitui qualquer sessão anterior. Se a gravação falha
+  /// no meio, desfaz o que gravou: nunca sobram tokens de um login que a tela
+  /// considerou falho.
   Future<void> iniciar(
     LoginResponseDto resposta, {
     required DateTime agora,
   }) async {
     await limpar();
-    await salvar(
-      accessToken: resposta.accessToken,
-      refreshToken: resposta.refreshToken,
-    );
-    await _armazenamento.gravar(
-      _chaveExpiraEm,
-      agora.add(Duration(seconds: resposta.expiresInSeconds)).toIso8601String(),
-    );
-    await _armazenamento.gravar(
-      _chaveUsuario,
-      jsonEncode(resposta.usuario.toJson()),
-    );
+    try {
+      await salvar(
+        accessToken: resposta.accessToken,
+        refreshToken: resposta.refreshToken,
+      );
+      await _armazenamento.gravar(
+        _chaveExpiraEm,
+        agora
+            .add(Duration(seconds: resposta.expiresInSeconds))
+            .toIso8601String(),
+      );
+      await _armazenamento.gravar(
+        _chaveUsuario,
+        jsonEncode(resposta.usuario.toJson()),
+      );
+    } catch (_) {
+      try {
+        await limpar();
+      } catch (_) {
+        // Sem o que fazer além de relançar a falha original abaixo.
+      }
+      rethrow;
+    }
   }
 
   /// Lê a sessão guardada. Devolve `null` — e apaga o que sobrou — se ela está

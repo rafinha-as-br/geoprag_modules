@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/src/api/armazenamento_seguro.dart';
 import 'package:geoprag_modules/src/api/auth/login_dtos.dart';
 import 'package:geoprag_modules/src/api/auth/usuario_dto.dart';
 import 'package:geoprag_modules/src/api/sessao_segura.dart';
@@ -104,6 +105,40 @@ void main() {
     expect(armazenamento.dados, isEmpty);
   });
 
+  group('falhas do armazenamento', () {
+    test(
+      'limpar apaga as demais chaves mesmo se uma falhar, e relança o erro',
+      () async {
+        await sessao.iniciar(login(), agora: agora);
+        final comFalha = _ArmazenamentoQueFalha(
+          armazenamento,
+          apagarFalhaEm: 'geoprag.sessao.access_token',
+        );
+
+        await expectLater(
+          SessaoSegura(armazenamento: comFalha).limpar(),
+          throwsA(isA<StateError>()),
+        );
+
+        expect(armazenamento.dados.keys, ['geoprag.sessao.access_token']);
+      },
+    );
+
+    test('iniciar desfaz o que gravou se uma gravação falhar', () async {
+      final comFalha = _ArmazenamentoQueFalha(
+        armazenamento,
+        gravarFalhaEm: 'geoprag.sessao.usuario',
+      );
+
+      await expectLater(
+        SessaoSegura(armazenamento: comFalha).iniciar(login(), agora: agora),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(armazenamento.dados, isEmpty);
+    });
+  });
+
   group('SessaoSalva.accessTokenExpirado', () {
     final salva = SessaoSalva(
       usuario: UsuarioDto.fromJson(
@@ -139,4 +174,28 @@ void main() {
       expect(semValidade.accessTokenExpirado(agora), isFalse);
     });
   });
+}
+
+/// Armazenamento que falha ao gravar/apagar uma chave específica.
+class _ArmazenamentoQueFalha implements ArmazenamentoSeguro {
+  _ArmazenamentoQueFalha(this._base, {this.gravarFalhaEm, this.apagarFalhaEm});
+
+  final ArmazenamentoEmMemoria _base;
+  final String? gravarFalhaEm;
+  final String? apagarFalhaEm;
+
+  @override
+  Future<String?> ler(String chave) => _base.ler(chave);
+
+  @override
+  Future<void> gravar(String chave, String valor) async {
+    if (chave == gravarFalhaEm) throw StateError('falha ao gravar $chave');
+    await _base.gravar(chave, valor);
+  }
+
+  @override
+  Future<void> apagar(String chave) async {
+    if (chave == apagarFalhaEm) throw StateError('falha ao apagar $chave');
+    await _base.apagar(chave);
+  }
 }

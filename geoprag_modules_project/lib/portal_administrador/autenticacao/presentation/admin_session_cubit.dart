@@ -36,14 +36,15 @@ class AdminSessionCubit extends Cubit<AdminSessionState> {
   void iniciarSessao(AdminAccount conta) =>
       emit(AdminSessionAutenticado(conta));
 
-  /// Logout: apaga a sessão guardada (token e conta) e volta a `SemAcesso`.
+  /// Logout: volta a `SemAcesso` na hora (a UI não espera o armazenamento) e
+  /// então apaga a sessão guardada (token e conta).
   Future<void> encerrarSessao() async {
+    emit(const AdminSessionSemAcesso());
     try {
       await _repository?.logout();
     } catch (e, stackTrace) {
       AppLogger.error('AdminSessionCubit.encerrarSessao', e, stackTrace);
     }
-    emit(const AdminSessionSemAcesso());
   }
 
   /// A API já apagou o token (sessão expirada sem refresh): só falta voltar ao

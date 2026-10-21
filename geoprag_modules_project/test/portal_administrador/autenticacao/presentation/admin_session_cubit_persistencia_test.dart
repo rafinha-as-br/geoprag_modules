@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
@@ -80,6 +82,24 @@ void main() {
     act: (cubit) => cubit.encerrarSessao(),
     expect: () => [isA<AdminSessionSemAcesso>()],
     verify: (_) => verify(() => repository.logout()).called(1),
+  );
+
+  test(
+    'encerrarSessao emite SemAcesso antes de o armazenamento terminar de '
+    'apagar (o botão Sair navega logo em seguida e o guard já não vê sessão)',
+    () async {
+      final apagando = Completer<void>();
+      when(() => repository.logout()).thenAnswer((_) => apagando.future);
+      final cubit = AdminSessionCubit(repository: repository);
+      cubit.iniciarSessao(conta);
+
+      final encerrando = cubit.encerrarSessao();
+
+      expect(cubit.state, isA<AdminSessionSemAcesso>());
+      apagando.complete();
+      await encerrando;
+      await cubit.close();
+    },
   );
 
   blocTest<AdminSessionCubit, AdminSessionState>(

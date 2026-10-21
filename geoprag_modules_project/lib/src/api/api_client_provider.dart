@@ -37,7 +37,9 @@ class ApiClientProvider {
   static void configurarSessao(SessaoSegura sessao) => _sessao = sessao;
 
   /// Substitui a instância (ex.: em testes, ou com outra configuração). Chamar
-  /// antes do primeiro uso.
+  /// antes do primeiro uso. Os repositórios de autenticação gravam o login em
+  /// [sessao]: um cliente com outra sessão precisa vir junto de
+  /// [configurarSessao] com a mesma, senão o login e o `Authorization` divergem.
   static void configurar(ApiClient cliente) => _instancia = cliente;
 
   @visibleForTesting

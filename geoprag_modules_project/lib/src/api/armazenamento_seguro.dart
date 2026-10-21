@@ -1,8 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Armazenamento chave-valor cifrado do aparelho (Keystore no Android,
-/// WebCrypto no navegador). É uma interface para que a [SessaoSegura] seja
-/// testável sem plugin nativo.
+/// Armazenamento chave-valor cifrado do aparelho (Keystore no Android). É uma
+/// interface para que a [SessaoSegura] seja testável sem plugin nativo.
+///
+/// No navegador o `flutter_secure_storage` guarda no `localStorage` do mesmo
+/// origin (cifrado por WebCrypto, mas com a chave ao alcance da página): isso
+/// não protege contra script injetado (XSS), então o access token do portal só
+/// é tão seguro quanto o origin dele.
 abstract interface class ArmazenamentoSeguro {
   Future<String?> ler(String chave);
 

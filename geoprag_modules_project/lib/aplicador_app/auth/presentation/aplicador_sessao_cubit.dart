@@ -28,14 +28,15 @@ class AplicadorSessaoCubit extends Cubit<AplicadorSessaoState> {
   void iniciarSessao(Usuario usuario) =>
       emit(AplicadorSessaoAutenticada(usuario));
 
-  /// Logout voluntário: apaga a sessão do aparelho e volta ao estado sem acesso.
+  /// Logout voluntário: volta ao estado sem acesso na hora (a UI não espera o
+  /// armazenamento) e então apaga a sessão do aparelho.
   Future<void> encerrarSessao() async {
+    emit(const AplicadorSessaoSemAcesso());
     try {
       await _repository.logout();
     } catch (e, stackTrace) {
       AppLogger.error('AplicadorSessaoCubit.encerrarSessao', e, stackTrace);
     }
-    emit(const AplicadorSessaoSemAcesso());
   }
 
   /// A API já apagou os tokens (refresh recusado): só falta voltar ao login.
