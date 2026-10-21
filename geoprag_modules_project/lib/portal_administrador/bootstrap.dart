@@ -93,14 +93,17 @@ class AdminBootstrap {
   EventoAuditoriaRepository buildEventoAuditoriaRepository() =>
       EventoAuditoriaRepositoryImpl();
 
-  /// Pontos de aplicação pela API (GEOPRAG-195).
+  /// Pontos de aplicação pela API (GEOPRAG-195 e 198).
   ///
   /// [contaAtual] já não entra no repositório: o autor de cada ação vem do
   /// token e a auditoria é do servidor. O parâmetro continua aqui para os apps
   /// não precisarem mudar as chamadas.
   AdminPontoDeAplicacaoRepository buildAdminPontoDeAplicacaoRepository({
     required AdminAccount contaAtual,
-  }) => AdminPontoDeAplicacaoRepositoryHttp(buildApiClient());
+  }) => AdminPontoDeAplicacaoRepositoryHttp(
+    buildApiClient(),
+    buildBairroRepository(),
+  );
 
   /// Aplicadores como a Gestão de Aplicações os usa (`GET /aplicadores`).
   AplicadorResumoRepository buildAplicadorResumoRepository() =>
@@ -164,7 +167,7 @@ class AdminBootstrap {
     required AdminAccount contaAtual,
   }) => CriarPontoDeAplicacaoCubit(
     buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
-    buildAplicadorRepository(),
+    buildAplicadorResumoRepository(),
   );
   EditarPontoDeAplicacaoCubit buildEditarPontoDeAplicacaoCubit(
     String pontoId, {

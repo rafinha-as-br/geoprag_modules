@@ -1,3 +1,4 @@
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
@@ -73,6 +74,8 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
       _carregando = false;
       _rebuildFields();
     } on EntidadeNaoEncontradaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
+    } on ApiException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('EditarPontoDeAplicacaoCubit._carregar', e, stackTrace);
@@ -242,6 +245,8 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
     } on EntidadeNaoEncontradaException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } on OperacaoNaoPermitidaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
+    } on ApiException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('EditarPontoDeAplicacaoCubit.onSubmit', e, stackTrace);

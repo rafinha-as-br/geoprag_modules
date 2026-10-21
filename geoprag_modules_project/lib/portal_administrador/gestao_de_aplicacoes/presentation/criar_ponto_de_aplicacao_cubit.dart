@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
@@ -9,8 +10,8 @@ import '../../../src/widgets/base_form_screen.dart';
 import '../../../src/widgets/geoprag_numero_decimal_input.dart';
 import '../../../src/widgets/geoprag_numero_inteiro_input.dart';
 import '../../../src/widgets/geoprag_texto_input.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import '../core/aplicador_resumo.dart';
+import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 
 /// Cadastro de um Ponto de Aplicação novo.
@@ -31,7 +32,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
   }
 
   final AdminPontoDeAplicacaoRepository _repository;
-  final AplicadorRepository _aplicadorRepository;
+  final AplicadorResumoRepository _aplicadorRepository;
 
   String? _nome;
   String? _bairro;
@@ -45,7 +46,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
   double? _distancia;
   int? _quantidadeDeSubpontos;
 
-  List<Aplicador> _aplicadores = [];
+  List<AplicadorResumo> _aplicadores = [];
   String? _aplicadorId;
 
   static BaseFormModel _initialModel() => BaseFormModel(
@@ -60,7 +61,11 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
 
   Future<void> _carregarAplicadores() async {
     try {
-      _aplicadores = await _aplicadorRepository.listar();
+      // Só aplicador ativo pode receber um ponto (o servidor recusa o demais).
+      _aplicadores = [
+        for (final aplicador in await _aplicadorRepository.listar())
+          if (aplicador.ativo) aplicador,
+      ];
       _rebuildFields();
     } catch (e, stackTrace) {
       AppLogger.error(
@@ -250,6 +255,8 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         const AcaoFeedbackSucesso('Ponto de aplicação cadastrado com sucesso.'),
       );
     } on OperacaoNaoPermitidaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
+    } on ApiException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('CriarPontoDeAplicacaoCubit.onSubmit', e, stackTrace);
