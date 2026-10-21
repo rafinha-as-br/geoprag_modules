@@ -9,6 +9,8 @@ import 'auth/presentation/recriar_senha_cubit.dart';
 import 'auth/presentation/verificar_codigo_cubit.dart';
 import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'aplicacoes/core/registro_de_aplicacao_repository.dart';
+import 'aplicacoes/core/servico_de_localizacao.dart';
+import 'aplicacoes/data/servico_de_localizacao_geolocator.dart';
 import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
 import 'aplicacoes/presentation/meus_pontos_cubit.dart';
 import 'aplicacoes/presentation/detalhe_do_ponto_cubit.dart';
@@ -73,6 +75,10 @@ class AplicadorBootstrap {
   AplicadorPontoDeAplicacaoRepository
   buildAplicadorPontoDeAplicacaoRepository() =>
       AplicadorPontoDeAplicacaoRepositoryImpl();
+
+  /// GPS real do aparelho (GEOPRAG-191); sem rede.
+  ServicoDeLocalizacao buildServicoDeLocalizacao() =>
+      ServicoDeLocalizacaoGeolocator();
   InsumoRepository buildInsumoRepository() => InsumoRepositoryImpl();
   RecebimentoRepository buildRecebimentoRepository() =>
       RecebimentoRepositoryImpl();
@@ -99,9 +105,17 @@ class AplicadorBootstrap {
     pontoId,
   );
   GeolocalizacaoCubit buildGeolocalizacaoCubit(String pontoId) =>
-      GeolocalizacaoCubit(buildAplicadorPontoDeAplicacaoRepository(), pontoId);
+      GeolocalizacaoCubit(
+        buildAplicadorPontoDeAplicacaoRepository(),
+        buildServicoDeLocalizacao(),
+        pontoId,
+      );
   TelaDeAplicacaoCubit buildTelaDeAplicacaoCubit(String pontoId) =>
-      TelaDeAplicacaoCubit(buildAplicadorPontoDeAplicacaoRepository(), pontoId);
+      TelaDeAplicacaoCubit(
+        buildAplicadorPontoDeAplicacaoRepository(),
+        buildServicoDeLocalizacao(),
+        pontoId,
+      );
   InventarioCubit buildInventarioCubit() =>
       InventarioCubit(buildInsumoRepository(), buildRecebimentoRepository());
   RecebimentosCubit buildRecebimentosCubit() =>
