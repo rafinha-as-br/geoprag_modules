@@ -49,4 +49,21 @@ class AppErrorMessages {
   static const String registroRecusado = 'Registro recusado pelo servidor.';
   static const String registroLocalIlegivel =
       'Registro local ilegível; não foi possível enviá-lo.';
+
+  // GPS (aplicador_app/aplicacoes): sem posição o app não registra e orienta.
+
+  static const String localizacaoPermissaoNegada =
+      'O app precisa da sua localização para validar a chegada e registrar. '
+      'Permita o acesso à localização e tente novamente.';
+  static const String localizacaoPermissaoNegadaParaSempre =
+      'O acesso à localização está bloqueado. Libere a localização para o app '
+      'nas configurações do aparelho e tente novamente.';
+  static const String localizacaoServicoDesligado =
+      'O GPS está desligado. Ligue a localização do aparelho e tente '
+      'novamente.';
+  static const String localizacaoIndisponivel =
+      'Não foi possível obter sua posição. Tente novamente.';
+  static const String localizacaoTempoEsgotado =
+      'Não foi possível obter sua posição a tempo. Vá para um local aberto e '
+      'tente novamente.';
 }

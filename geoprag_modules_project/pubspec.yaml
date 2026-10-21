@@ -25,6 +25,7 @@ dependencies:
   path: ^1.9.0
   flutter_secure_storage: ^9.2.4
   connectivity_plus: ^7.3.2
+  geolocator: '>=14.0.0 <14.0.2'
   # Limite do xml (vem do connectivity_plus, via nm e dbus): a 7.x exige Dart
   # 3.11 e o CI roda em 3.9. Mesma razão dos limites do sqflite acima; remover
   # quando o CI subir de versão.

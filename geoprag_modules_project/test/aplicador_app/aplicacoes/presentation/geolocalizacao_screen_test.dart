@@ -21,6 +21,7 @@ void main() {
   Widget wrap(GeolocalizacaoState state) {
     cubit = MockGeolocalizacaoCubit();
     navigator = MockAplicadorNavigator();
+    when(() => cubit.verificarChegada()).thenAnswer((_) async {});
     whenListen(cubit, Stream.value(state), initialState: state);
     return MaterialApp(
       home: AplicadorNavigatorScope(
@@ -55,18 +56,10 @@ void main() {
     execucoesRegistradas: 2,
   );
 
+  ElevatedButton botaoIniciar(WidgetTester tester) =>
+      tester.widget(find.widgetWithText(ElevatedButton, 'Iniciar Aplicação'));
+
   group('GeolocalizacaoScreen', () {
-    testWidgets('mostra a distância cadastrada do ponto, não mais 150m fixo', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        wrap(const GeolocalizacaoLoaded(ponto: primeiraAplicacao)),
-      );
-
-      expect(find.textContaining('aprox. 75m de distância'), findsOneWidget);
-      expect(find.textContaining('150m'), findsNothing);
-    });
-
     testWidgets('identifica a primeira aplicação', (tester) async {
       await tester.pumpWidget(
         wrap(const GeolocalizacaoLoaded(ponto: primeiraAplicacao)),
@@ -89,33 +82,100 @@ void main() {
       expect(find.text('Trajeto da visita anterior'), findsOneWidget);
     });
 
-    testWidgets('toca em "Simular chegada" e chama confirmarChegada', (
+    testWidgets('enquanto lê o GPS, mostra o progresso e bloqueia o botão', (
       tester,
     ) async {
       await tester.pumpWidget(
-        wrap(const GeolocalizacaoLoaded(ponto: primeiraAplicacao)),
+        wrap(const GeolocalizacaoLoaded(ponto: revisita)),
       );
 
-      await tester.ensureVisible(find.text('Simular chegada ao ponto (Mock)'));
-      await tester.tap(find.text('Simular chegada ao ponto (Mock)'));
-      verify(() => cubit.confirmarChegada()).called(1);
+      expect(find.text('Verificando sua localização…'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(botaoIniciar(tester).onPressed, isNull);
+    });
+
+    testWidgets('fora do raio mostra a distância medida e bloqueia o botão', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const GeolocalizacaoLoaded(
+            ponto: revisita,
+            verificacao: ChegadaForaDoRaio(250.4),
+          ),
+        ),
+      );
+
+      expect(find.text('Desloque-se até o ponto'), findsOneWidget);
+      expect(find.textContaining('aprox. 250 m'), findsOneWidget);
+      expect(find.textContaining('até 100 m'), findsOneWidget);
+      expect(botaoIniciar(tester).onPressed, isNull);
     });
 
     testWidgets(
-      'toca em "Iniciar Aplicação" (dentro do raio) e navega com o pontoId',
+      'sem posição mostra a orientação, não deixa iniciar e permite tentar de novo',
       (tester) async {
         await tester.pumpWidget(
           wrap(
             const GeolocalizacaoLoaded(
-              ponto: primeiraAplicacao,
-              dentroDoRaio: true,
+              ponto: revisita,
+              verificacao: ChegadaSemPosicao('O GPS está desligado.'),
             ),
           ),
+        );
+
+        expect(find.text('O GPS está desligado.'), findsOneWidget);
+        expect(botaoIniciar(tester).onPressed, isNull);
+
+        await tester.ensureVisible(
+          find.byKey(const Key('geolocalizacaoScreen_tentarDeNovo')),
+        );
+        await tester.tap(
+          find.byKey(const Key('geolocalizacaoScreen_tentarDeNovo')),
+        );
+        verify(() => cubit.verificarChegada()).called(1);
+      },
+    );
+
+    testWidgets(
+      'dentro do raio libera "Iniciar Aplicação" e navega com o pontoId',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            const GeolocalizacaoLoaded(
+              ponto: revisita,
+              verificacao: ChegadaConfirmada(distanciaMetros: 42),
+            ),
+          ),
+        );
+
+        expect(find.text('Você chegou ao local!'), findsOneWidget);
+        expect(
+          find.byKey(const Key('geolocalizacaoScreen_tentarDeNovo')),
+          findsNothing,
         );
 
         await tester.ensureVisible(find.text('Iniciar Aplicação'));
         await tester.tap(find.text('Iniciar Aplicação'));
         verify(() => navigator.toAplicacaoRegistrar('pa1')).called(1);
+      },
+    );
+
+    testWidgets(
+      'na primeira aplicação a chegada não é validada e libera o início',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            const GeolocalizacaoLoaded(
+              ponto: primeiraAplicacao,
+              verificacao: ChegadaConfirmada(),
+            ),
+          ),
+        );
+
+        expect(find.text('Pronto para iniciar'), findsOneWidget);
+        expect(find.textContaining('referência do ponto'), findsOneWidget);
+        expect(botaoIniciar(tester).onPressed, isNotNull);
       },
     );
   });
