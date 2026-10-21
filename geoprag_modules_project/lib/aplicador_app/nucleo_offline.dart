@@ -12,12 +12,16 @@ import 'local/outbox_dao.dart';
 import 'local/outbox_dao_sqflite.dart';
 import 'local/ponto_dao_sqflite.dart';
 import 'sincronizacao/core/monitor_de_conexao.dart';
+import 'sincronizacao/core/painel_de_sincronizacao.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
 import 'sincronizacao/data/dispositivo_id.dart';
 import 'sincronizacao/data/gatilhos_de_sincronizacao.dart';
 import 'sincronizacao/data/monitor_de_conexao_connectivity.dart';
+import 'sincronizacao/data/painel_de_sincronizacao_impl.dart';
 import 'sincronizacao/data/reconciliador_do_pull.dart';
+import 'sincronizacao/data/servico_de_sincronizacao_acompanhado.dart';
 import 'sincronizacao/data/servico_de_sincronizacao_impl.dart';
+import 'sincronizacao/data/ultima_sincronizacao.dart';
 
 /// As instâncias únicas do núcleo offline do App Aplicador (GEOPRAG-190): o
 /// banco, a fila (outbox), o serviço de sincronização e o repositório de
@@ -33,6 +37,7 @@ class NucleoOffline {
     required this.banco,
     required this.outbox,
     required this.sincronizacao,
+    required this.painel,
     required this.registro,
     required GatilhosDeSincronizacao gatilhos,
   }) : _gatilhos = gatilhos;
@@ -51,6 +56,9 @@ class NucleoOffline {
   final BancoLocal banco;
   final OutboxDao outbox;
   final ServicoDeSincronizacao sincronizacao;
+
+  /// Indicadores de sincronização para a interface (GEOPRAG-204).
+  final PainelDeSincronizacao painel;
   final RegistroDeAplicacaoRepository registro;
   final GatilhosDeSincronizacao _gatilhos;
 
@@ -98,18 +106,22 @@ class NucleoOffline {
     final banco = await BancoLocal.abrir(fabrica: fabrica, caminho: caminho);
     final outbox = OutboxDaoSqflite(banco.db);
     final aplicacoes = AplicacaoDaoSqflite(banco.db);
-    final dispositivo = DispositivoId(
-      armazenamento ?? ArmazenamentoSeguroFlutter(),
-    );
-    final sincronizacao = ServicoDeSincronizacaoImpl(
-      api: api ?? ApiClientProvider.instancia,
-      outbox: outbox,
-      reconciliador: ReconciliadorDoPull(
-        pontos: PontoDaoSqflite(banco.db),
+    final armazenamentoSeguro = armazenamento ?? ArmazenamentoSeguroFlutter();
+    final dispositivo = DispositivoId(armazenamentoSeguro);
+    // Todos os gatilhos usam o serviço acompanhado: é ele que guarda o horário
+    // da última sincronização e avisa a interface (GEOPRAG-204).
+    final sincronizacao = ServicoDeSincronizacaoAcompanhado(
+      ServicoDeSincronizacaoImpl(
+        api: api ?? ApiClientProvider.instancia,
         outbox: outbox,
-        aplicacoes: aplicacoes,
+        reconciliador: ReconciliadorDoPull(
+          pontos: PontoDaoSqflite(banco.db),
+          outbox: outbox,
+          aplicacoes: aplicacoes,
+        ),
+        dispositivoId: dispositivo.obter,
       ),
-      dispositivoId: dispositivo.obter,
+      UltimaSincronizacao(armazenamentoSeguro),
     );
     final gatilhos = GatilhosDeSincronizacao(
       servico: sincronizacao,
@@ -120,6 +132,10 @@ class NucleoOffline {
       banco: banco,
       outbox: outbox,
       sincronizacao: sincronizacao,
+      painel: PainelDeSincronizacaoImpl(
+        registros: outbox,
+        servico: sincronizacao,
+      ),
       registro: RegistroDeAplicacaoRepositoryImpl(
         aplicacoes: aplicacoes,
         sincronizacao: sincronizacao,

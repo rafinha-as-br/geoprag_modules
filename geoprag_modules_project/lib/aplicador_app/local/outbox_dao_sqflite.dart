@@ -4,9 +4,10 @@ import 'conversores_do_banco.dart';
 import 'esquema.dart';
 import 'item_da_outbox.dart';
 import 'outbox_dao.dart';
+import 'registro_da_fila.dart';
 
 /// [OutboxDao] sobre o SQLite do aparelho.
-class OutboxDaoSqflite implements OutboxDao {
+class OutboxDaoSqflite implements OutboxDao, RegistrosDaFilaDao {
   /// [agora] é o relógio das tentativas; injetável para os testes.
   OutboxDaoSqflite(this._db, {DateTime Function()? agora})
     : _agora = agora ?? DateTime.now;
@@ -123,6 +124,32 @@ class OutboxDaoSqflite implements OutboxDao {
       ],
     );
     return {for (final linha in linhas) linha['ponto_id']! as String};
+  }
+
+  @override
+  Future<List<RegistroDaFila>> registrosParaExibir({
+    int enviadosRecentes = 100,
+  }) async {
+    final linhas = await _db.rawQuery(
+      'SELECT o.*, p.nome AS ponto_nome FROM outbox o '
+      'LEFT JOIN pontos p ON p.id = o.ponto_id '
+      'WHERE o.estado <> ? OR o.id IN ('
+      'SELECT id FROM outbox WHERE estado = ? '
+      'ORDER BY criado_em_ms DESC, rowid DESC LIMIT ?) '
+      'ORDER BY o.criado_em_ms DESC, o.rowid DESC',
+      [
+        EstadoDoItemDaOutbox.enviado.valor,
+        EstadoDoItemDaOutbox.enviado.valor,
+        enviadosRecentes,
+      ],
+    );
+    return [
+      for (final linha in linhas)
+        RegistroDaFila(
+          item: ConversoresDoBanco.itemDaLinha(linha),
+          pontoNome: linha['ponto_nome'] as String?,
+        ),
+    ];
   }
 
   Future<void> _emFatias(
