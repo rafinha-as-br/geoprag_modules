@@ -3,71 +3,169 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_acc
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_auth_exceptions.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/data/admin_auth_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/data/mock_admin_accounts.dart';
+import 'package:geoprag_modules/src/api/api_client.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
+import 'package:geoprag_modules/src/api/auth/usuario_dto.dart';
+import 'package:geoprag_modules/src/api/sessao_segura.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../../support/armazenamento_em_memoria.dart';
+import '../../../support/login_fixtures.dart';
+
+class MockApiClient extends Mock implements ApiClient {}
 
 void main() {
+  late MockApiClient api;
+  late ArmazenamentoEmMemoria armazenamento;
+  late SessaoSegura sessao;
   late AdminAuthRepositoryImpl repository;
+  var agora = DateTime.utc(2026, 10, 20, 12);
+
+  void respondeLogin(Map<String, dynamic> corpo) => when(
+    () => api.post(
+      any(),
+      corpo: any(named: 'corpo'),
+      autenticado: any(named: 'autenticado'),
+    ),
+  ).thenAnswer((_) async => corpo);
+
+  // O portal não recebe refresh token.
+  Map<String, dynamic> loginAdmin({
+    PerfilDto perfil = PerfilDto.administrador,
+    int expiresInSeconds = 900,
+  }) => respostaDeLogin(
+    perfil: perfil,
+    refreshToken: null,
+    expiresInSeconds: expiresInSeconds,
+  );
 
   setUp(() {
-    repository = AdminAuthRepositoryImpl();
+    api = MockApiClient();
+    armazenamento = ArmazenamentoEmMemoria();
+    sessao = SessaoSegura(armazenamento: armazenamento);
+    agora = DateTime.utc(2026, 10, 20, 12);
+    repository = AdminAuthRepositoryImpl(
+      api: api,
+      sessao: sessao,
+      agora: () => agora,
+    );
   });
 
   group('login', () {
-    test('retorna a conta quando e-mail e senha conferem', () async {
-      final account = mockAdminAccounts.first;
+    test(
+      'chama POST /auth/login sem token, com o identificador sem espaços',
+      () async {
+        respondeLogin(loginAdmin());
 
-      final result = await repository.login(
-        identifier: account.email,
-        senha: mockAdminSenha,
-      );
+        await repository.login(
+          identifier: '  admin@gaspar.sc.gov.br ',
+          senha: 'abc12345',
+        );
 
-      expect(result.email, account.email);
-      expect(result.role, account.role);
-    });
+        verify(
+          () => api.post(
+            '/auth/login',
+            corpo: {
+              'identificador': 'admin@gaspar.sc.gov.br',
+              'senha': 'abc12345',
+            },
+            autenticado: false,
+          ),
+        ).called(1);
+      },
+    );
 
-    test('é case-insensitive para o e-mail', () async {
-      final account = mockAdminAccounts.first;
+    test(
+      'devolve a conta com id, tenantId e cargo do servidor e guarda a sessão',
+      () async {
+        respondeLogin(loginAdmin(perfil: PerfilDto.subAdministrador));
 
-      final result = await repository.login(
-        identifier: account.email.toUpperCase(),
-        senha: mockAdminSenha,
-      );
+        final conta = await repository.login(identifier: 'x', senha: 'y');
 
-      expect(result.email, account.email);
-    });
+        expect(conta.id, 'u-0001');
+        expect(conta.tenantId, 'gaspar-sc');
+        expect(conta.role, AdminRole.subAdministrador);
+        expect(await sessao.accessToken(), 'access-1');
+        expect(await sessao.refreshToken(), isNull);
+      },
+    );
 
-    test('remove espaços em branco do identifier antes de comparar', () async {
-      final account = mockAdminAccounts.first;
+    test('recusa conta de aplicador e não guarda nada', () async {
+      respondeLogin(respostaDeLogin());
 
-      final result = await repository.login(
-        identifier: '  ${account.email}  ',
-        senha: mockAdminSenha,
-      );
-
-      expect(result.email, account.email);
-    });
-
-    test('lança InvalidCredentialsException para e-mail inexistente', () {
-      expect(
-        () => repository.login(
-          identifier: 'ninguem@gaspar.sc.gov.br',
-          senha: mockAdminSenha,
-        ),
+      await expectLater(
+        repository.login(identifier: 'x', senha: 'y'),
         throwsA(isA<InvalidCredentialsException>()),
       );
+      expect(armazenamento.dados, isEmpty);
     });
 
-    test('lança InvalidCredentialsException quando a senha não confere', () {
-      final account = mockAdminAccounts.first;
+    test(
+      'credenciais recusadas pelo servidor propagam a mensagem dele',
+      () async {
+        when(
+          () => api.post(
+            any(),
+            corpo: any(named: 'corpo'),
+            autenticado: any(named: 'autenticado'),
+          ),
+        ).thenThrow(const AcessoNegadoException('Usuário desativado'));
 
-      expect(
-        () =>
-            repository.login(identifier: account.email, senha: 'senha-errada'),
-        throwsA(isA<InvalidCredentialsException>()),
-      );
+        await expectLater(
+          repository.login(identifier: 'x', senha: 'y'),
+          throwsA(
+            isA<AcessoNegadoException>().having(
+              (e) => e.mensagemAmigavel,
+              'mensagem',
+              'Usuário desativado',
+            ),
+          ),
+        );
+        expect(armazenamento.dados, isEmpty);
+      },
+    );
+  });
+
+  group('sessaoAtual', () {
+    test('sem sessão guardada devolve null', () async {
+      expect(await repository.sessaoAtual(), isNull);
+    });
+
+    test(
+      'reabre a sessão enquanto o access token está dentro da validade',
+      () async {
+        respondeLogin(loginAdmin());
+        await repository.login(identifier: 'x', senha: 'y');
+        agora = agora.add(const Duration(minutes: 10));
+
+        final conta = await repository.sessaoAtual();
+
+        expect(conta!.id, 'u-0001');
+        expect(conta.role, AdminRole.administrador);
+      },
+    );
+
+    test('access token vencido (ou quase) encerra a sessão guardada', () async {
+      respondeLogin(loginAdmin());
+      await repository.login(identifier: 'x', senha: 'y');
+      agora = agora.add(const Duration(seconds: 890));
+
+      expect(await repository.sessaoAtual(), isNull);
+      expect(armazenamento.dados, isEmpty);
     });
   });
 
-  group('findByEmail', () {
+  test('logout apaga token e conta do navegador', () async {
+    respondeLogin(loginAdmin());
+    await repository.login(identifier: 'x', senha: 'y');
+
+    await repository.logout();
+
+    expect(armazenamento.dados, isEmpty);
+    expect(await repository.sessaoAtual(), isNull);
+  });
+
+  group('findByEmail (sem endpoint no contrato v0)', () {
     test(
       'retorna a conta correspondente ao e-mail (case-insensitive)',
       () async {
@@ -93,11 +191,7 @@ void main() {
     );
   });
 
-  group('demais operações mockadas', () {
-    test('logout completa sem lançar exceção', () async {
-      await expectLater(repository.logout(), completes);
-    });
-
+  group('demais operações simuladas', () {
     test('resetPassword completa sem lançar exceção', () async {
       await expectLater(
         repository.resetPassword(novaSenha: 'nova-senha-123'),
