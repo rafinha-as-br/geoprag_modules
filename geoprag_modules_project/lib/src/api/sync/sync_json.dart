@@ -17,6 +17,13 @@ String? textoOpcional(Map<String, dynamic> json, String campo) {
   throw FormatException('Campo "$campo" inválido na resposta.');
 }
 
+bool? booleanoOpcional(Map<String, dynamic> json, String campo) {
+  final valor = json[campo];
+  if (valor == null) return null;
+  if (valor is bool) return valor;
+  throw FormatException('Campo "$campo" inválido na resposta.');
+}
+
 int inteiroObrigatorio(Map<String, dynamic> json, String campo) {
   final valor = json[campo];
   if (valor is int) return valor;

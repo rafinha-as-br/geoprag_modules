@@ -13,8 +13,11 @@ class ProdutoDto {
   );
 }
 
-/// Subponto já registrado, como o pull o devolve. O aplicador não recebe a
-/// marca de conflito (ela é só do portal).
+/// Subponto já registrado, como o pull e `GET /pontos` o devolvem.
+///
+/// [conflito] e [motivoConflito] são a extensão do contrato v0 que a API dá só
+/// aos perfis de administração (GEOPRAG-199); o aplicador não os recebe, e para
+/// o portal são opcionais (ausentes valem "sem conflito").
 class SubpontoDto {
   const SubpontoDto({
     required this.id,
@@ -22,6 +25,8 @@ class SubpontoDto {
     required this.longitude,
     required this.realizadoEm,
     required this.recebidoEm,
+    this.conflito = false,
+    this.motivoConflito,
   });
 
   final String id;
@@ -34,12 +39,22 @@ class SubpontoDto {
   /// Relógio do servidor.
   final DateTime recebidoEm;
 
+  /// O registro chegou em desacordo com o estado do ponto.
+  final bool conflito;
+
+  /// `PONTO_REATRIBUIDO`, `PONTO_DESATIVADO`, `PONTO_INATIVO`,
+  /// `DATA_JA_ATENDIDA` ou `DATA_CANCELADA`; o texto cru, para que um valor
+  /// novo do servidor não quebre a leitura.
+  final String? motivoConflito;
+
   factory SubpontoDto.fromJson(Map<String, dynamic> json) => SubpontoDto(
     id: textoObrigatorio(json, 'id'),
     latitude: numeroObrigatorio(json, 'latitude'),
     longitude: numeroObrigatorio(json, 'longitude'),
     realizadoEm: dataHoraObrigatoria(json, 'realizadoEm'),
     recebidoEm: dataHoraObrigatoria(json, 'recebidoEm'),
+    conflito: booleanoOpcional(json, 'conflito') ?? false,
+    motivoConflito: textoOpcional(json, 'motivoConflito'),
   );
 }
 

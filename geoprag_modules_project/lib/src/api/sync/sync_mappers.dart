@@ -42,7 +42,22 @@ class SyncMappers {
     longitude: dto.longitude,
     realizadoEm: dto.realizadoEm,
     registradoEm: dto.recebidoEm,
+    conflito: dto.conflito,
+    motivoConflito: dto.motivoConflito == null
+        ? null
+        : _motivoDeConflito(dto.motivoConflito!),
   );
+
+  /// Motivo que o servidor mandar e esta versão não conhecer vira
+  /// [MotivoDeConflito.desconhecido]: a marca de conflito continua visível.
+  static MotivoDeConflito _motivoDeConflito(String valor) => switch (valor) {
+    'PONTO_REATRIBUIDO' => MotivoDeConflito.pontoReatribuido,
+    'PONTO_DESATIVADO' => MotivoDeConflito.pontoDesativado,
+    'PONTO_INATIVO' => MotivoDeConflito.pontoInativo,
+    'DATA_JA_ATENDIDA' => MotivoDeConflito.dataJaAtendida,
+    'DATA_CANCELADA' => MotivoDeConflito.dataCancelada,
+    _ => MotivoDeConflito.desconhecido,
+  };
 
   /// [PontoDoAplicadorDto] do pull → [PontoDeAplicacao].
   ///
