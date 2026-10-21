@@ -1,13 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/bairro.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/bairro_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_http.dart';
 import 'package:geoprag_modules/src/api/api_client.dart';
 import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _ApiFalsa extends Mock implements ApiClient {}
+
+class _BairrosFalsos extends Mock implements BairroRepository {}
 
 /// `Ponto` como a API o devolve (seed `PA-003`: ativo, com data em atraso).
 Map<String, Object?> pontoAtivoJson({String id = 'p-3'}) => {
@@ -77,11 +80,13 @@ Map<String, Object?> pontoEnderecadoJson() => {
 
 void main() {
   late _ApiFalsa api;
+  late _BairrosFalsos bairros;
   late AdminPontoDeAplicacaoRepositoryHttp repositorio;
 
   setUp(() {
     api = _ApiFalsa();
-    repositorio = AdminPontoDeAplicacaoRepositoryHttp(api);
+    bairros = _BairrosFalsos();
+    repositorio = AdminPontoDeAplicacaoRepositoryHttp(api, bairros);
   });
 
   group('leitura', () {
@@ -313,59 +318,316 @@ void main() {
     );
   });
 
-  group('ações que ainda não foram ligadas à API (GEOPRAG-198)', () {
-    final acoes =
-        <String, Future<Object?> Function(AdminPontoDeAplicacaoRepositoryHttp)>{
-          'desativar': (r) => r.desativar('p-1'),
-          'reativar': (r) => r.reativar('p-1'),
-          'editarNome': (r) => r.editarNome('p-1', 'Novo nome'),
-          'cancelarAplicacaoQuimica': (r) => r.cancelarAplicacaoQuimica('p-1'),
-          'editarCadastroCompleto': (r) => r.editarCadastroCompleto(
-            'p-1',
-            nome: 'n',
-            bairro: 'b',
-            endereco: 'e',
-            numeroReferencia: '1',
-            descricaoDoTrecho: 'd',
-            larguraMetros: 1,
-            profundidadeMetros: 1,
-            velocidadeMetrosPorSegundo: 1,
-            dosagemMl: 1,
-            distanciaEntreSubpontosMetros: 1,
-            quantidadeDeSubpontos: 1,
-          ),
-          'criar': (r) => r.criar(
-            nome: 'n',
-            bairro: 'b',
-            endereco: 'e',
-            numeroReferencia: '1',
-            descricaoDoTrecho: 'd',
-            larguraMetros: 1,
-            profundidadeMetros: 1,
-            velocidadeMetrosPorSegundo: 1,
-            dosagemMl: 1,
-            distanciaEntreSubpontosMetros: 1,
-            quantidadeDeSubpontos: 1,
-          ),
-        };
+  group('ações do ciclo de vida (GEOPRAG-198)', () {
+    final transicoes = <String, (String, Future<void> Function())>{};
 
-    for (final MapEntry(key: nome, value: acao) in acoes.entries) {
-      test(
-        '$nome responde que não está disponível e não chama a API',
-        () async {
-          await expectLater(
-            acao(repositorio),
-            throwsA(
-              isA<OperacaoNaoPermitidaException>().having(
-                (e) => e.mensagemAmigavel,
-                'mensagem',
-                AppErrorMessages.acaoIndisponivelNestaVersao,
-              ),
+    setUp(() {
+      transicoes
+        ..clear()
+        ..addAll({
+          'desativar': (
+            '/pontos/p-1/desativacao',
+            () => repositorio.desativar('p-1'),
+          ),
+          'reativar': (
+            '/pontos/p-1/reativacao',
+            () => repositorio.reativar('p-1'),
+          ),
+          'cancelarAplicacaoQuimica': (
+            '/pontos/p-1/cancelamento',
+            () => repositorio.cancelarAplicacaoQuimica('p-1'),
+          ),
+        });
+      when(() => api.post(any())).thenAnswer((_) async => pontoAtivoJson());
+    });
+
+    for (final nome in ['desativar', 'reativar', 'cancelarAplicacaoQuimica']) {
+      test('$nome faz POST no caminho da transição, sem corpo', () async {
+        final (caminho, acao) = transicoes[nome]!;
+
+        await acao();
+
+        verify(() => api.post(caminho)).called(1);
+      });
+
+      test('$nome devolve o 409 do servidor com a mensagem dele', () async {
+        final (_, acao) = transicoes[nome]!;
+        when(() => api.post(any())).thenThrow(
+          const OperacaoNaoPermitidaException('O ponto já está desativado.'),
+        );
+
+        await expectLater(
+          acao(),
+          throwsA(
+            isA<OperacaoNaoPermitidaException>().having(
+              (e) => e.mensagemAmigavel,
+              'mensagem',
+              'O ponto já está desativado.',
             ),
-          );
-          verifyZeroInteractions(api);
-        },
-      );
+          ),
+        );
+      });
     }
+  });
+
+  group('criar e editar (GEOPRAG-198)', () {
+    setUp(() {
+      when(() => bairros.listar()).thenAnswer(
+        (_) async => const [
+          Bairro(id: 'b-1', nome: 'Centro'),
+          Bairro(id: 'b-2', nome: 'Bela Vista'),
+        ],
+      );
+    });
+
+    Future<PontoDeAplicacao> criar({
+      String bairro = 'bela vista',
+      String? aplicadorId,
+      double largura = 1.5,
+      String referencia = ' 45 ',
+    }) => repositorio.criar(
+      nome: ' Travessa da Colina ',
+      bairro: bairro,
+      endereco: 'Travessa da Colina',
+      numeroReferencia: referencia,
+      descricaoDoTrecho: 'Trecho da canaleta',
+      larguraMetros: largura,
+      profundidadeMetros: 0.3,
+      velocidadeMetrosPorSegundo: 0.8,
+      dosagemMl: 25,
+      distanciaEntreSubpontosMetros: 5,
+      quantidadeDeSubpontos: 6,
+      aplicadorId: aplicadorId,
+    );
+
+    Map<String, dynamic> corpoDoPost() =>
+        verify(
+              () => api.post('/pontos', corpo: captureAny(named: 'corpo')),
+            ).captured.single
+            as Map<String, dynamic>;
+
+    Map<String, dynamic> corpoDoPut(String id) =>
+        verify(
+              () => api.put('/pontos/$id', corpo: captureAny(named: 'corpo')),
+            ).captured.single
+            as Map<String, dynamic>;
+
+    test(
+      'criar faz POST /pontos com o bairroId e devolve o ponto criado',
+      () async {
+        when(
+          () => api.post('/pontos', corpo: any(named: 'corpo')),
+        ).thenAnswer((_) async => pontoAtivoJson());
+
+        final ponto = await criar(aplicadorId: 'ap-3');
+
+        expect(ponto.id, 'p-3');
+        expect(corpoDoPost(), {
+          'nome': 'Travessa da Colina',
+          'bairroId': 'b-2',
+          'endereco': 'Travessa da Colina',
+          'numeroReferencia': '45',
+          'descricaoDoTrecho': 'Trecho da canaleta',
+          'larguraMetros': 1.5,
+          'profundidadeMetros': 0.3,
+          'velocidadeMetrosPorSegundo': 0.8,
+          'dosagemMl': 25.0,
+          'distanciaEntreSubpontosMetros': 5.0,
+          'quantidadeDeSubpontos': 6,
+          'aplicadorId': 'ap-3',
+        });
+      },
+    );
+
+    test('criar sem aplicador e sem medida omite os campos vazios', () async {
+      when(
+        () => api.post('/pontos', corpo: any(named: 'corpo')),
+      ).thenAnswer((_) async => pontoEnderecadoJson());
+
+      await criar(largura: 0, referencia: '  ');
+
+      final corpo = corpoDoPost();
+      expect(corpo.containsKey('aplicadorId'), isFalse);
+      expect(corpo.containsKey('larguraMetros'), isFalse);
+      expect(corpo.containsKey('numeroReferencia'), isFalse);
+      expect(corpo.containsKey('toleranciaAtrasoDias'), isFalse);
+    });
+
+    test('as medidas vão com no máximo 2 casas decimais', () async {
+      when(
+        () => api.post('/pontos', corpo: any(named: 'corpo')),
+      ).thenAnswer((_) async => pontoAtivoJson());
+
+      await criar(largura: 0.1 + 0.2);
+
+      expect(corpoDoPost()['larguraMetros'], 0.3);
+    });
+
+    test('bairro que não existe: erro claro e nada vai à API', () async {
+      await expectLater(
+        criar(bairro: 'Lugar nenhum'),
+        throwsA(
+          isA<RequisicaoInvalidaException>().having(
+            (e) => e.mensagemAmigavel,
+            'mensagem',
+            contains('Lugar nenhum'),
+          ),
+        ),
+      );
+      verifyNever(() => api.post(any(), corpo: any(named: 'corpo')));
+    });
+
+    test('422 do servidor chega com a mensagem dele', () async {
+      when(() => api.post('/pontos', corpo: any(named: 'corpo'))).thenThrow(
+        const RequisicaoInvalidaException('A largura deve ser maior que zero.'),
+      );
+
+      await expectLater(
+        criar(),
+        throwsA(
+          isA<RequisicaoInvalidaException>().having(
+            (e) => e.mensagemAmigavel,
+            'mensagem',
+            'A largura deve ser maior que zero.',
+          ),
+        ),
+      );
+    });
+
+    test(
+      'editarCadastroCompleto faz PUT e reenvia a tolerância atual',
+      () async {
+        when(() => api.get('/pontos/p-3')).thenAnswer(
+          (_) async => {...pontoAtivoJson(), 'toleranciaAtrasoDias': 9},
+        );
+        when(
+          () => api.put('/pontos/p-3', corpo: any(named: 'corpo')),
+        ).thenAnswer((_) async => pontoAtivoJson());
+
+        await repositorio.editarCadastroCompleto(
+          'p-3',
+          nome: 'Novo nome',
+          bairro: 'Centro',
+          endereco: 'Rua nova',
+          numeroReferencia: '10',
+          descricaoDoTrecho: 'Outro trecho',
+          larguraMetros: 2,
+          profundidadeMetros: 0.5,
+          velocidadeMetrosPorSegundo: 0.4,
+          dosagemMl: 30,
+          distanciaEntreSubpontosMetros: 8,
+          quantidadeDeSubpontos: 5,
+        );
+
+        final corpo = corpoDoPut('p-3');
+        expect(corpo['nome'], 'Novo nome');
+        expect(corpo['bairroId'], 'b-1');
+        expect(corpo['endereco'], 'Rua nova');
+        expect(corpo['quantidadeDeSubpontos'], 5);
+        expect(corpo['toleranciaAtrasoDias'], 9);
+        expect(corpo.containsKey('aplicadorId'), isFalse);
+      },
+    );
+
+    test(
+      'editarNome reenvia o cadastro como está, só com o nome novo',
+      () async {
+        when(
+          () => api.get('/pontos/p-3'),
+        ).thenAnswer((_) async => pontoAtivoJson());
+        when(
+          () => api.put('/pontos/p-3', corpo: any(named: 'corpo')),
+        ).thenAnswer((_) async => pontoAtivoJson());
+
+        await repositorio.editarNome('p-3', 'Nome melhor');
+
+        expect(corpoDoPut('p-3'), {
+          'nome': 'Nome melhor',
+          'bairroId': 'b-2',
+          'endereco': 'Travessa da Colina',
+          'numeroReferencia': '45',
+          'descricaoDoTrecho': 'Trecho da canaleta',
+          'larguraMetros': 1.5,
+          'profundidadeMetros': 0.3,
+          'velocidadeMetrosPorSegundo': 0.8,
+          'dosagemMl': 25.0,
+          'distanciaEntreSubpontosMetros': 5.0,
+          'quantidadeDeSubpontos': 6,
+          'toleranciaAtrasoDias': 4,
+        });
+        verifyNever(() => bairros.listar());
+      },
+    );
+
+    test('editarNome de ponto sem medidas não envia campo nulo', () async {
+      when(
+        () => api.get('/pontos/p-1'),
+      ).thenAnswer((_) async => pontoEnderecadoJson());
+      when(
+        () => api.put('/pontos/p-1', corpo: any(named: 'corpo')),
+      ).thenAnswer((_) async => pontoEnderecadoJson());
+
+      await repositorio.editarNome('p-1', 'Rua das Flores, trecho 2');
+
+      final corpo = corpoDoPut('p-1');
+      expect(corpo.values.any((v) => v == null), isFalse);
+      expect(corpo.containsKey('larguraMetros'), isFalse);
+    });
+
+    test(
+      '409 ao editar o cadastro travado chega com a mensagem do servidor',
+      () async {
+        when(
+          () => api.get('/pontos/p-3'),
+        ).thenAnswer((_) async => pontoAtivoJson());
+        when(
+          () => api.put('/pontos/p-3', corpo: any(named: 'corpo')),
+        ).thenThrow(
+          const OperacaoNaoPermitidaException(
+            'O cadastro do ponto só pode ser alterado enquanto ele não tem '
+            'agendamento vigente nem aplicação registrada.',
+          ),
+        );
+
+        await expectLater(
+          repositorio.editarCadastroCompleto(
+            'p-3',
+            nome: 'n',
+            bairro: 'Centro',
+            endereco: 'e',
+            numeroReferencia: '1',
+            descricaoDoTrecho: 'd',
+            larguraMetros: 1,
+            profundidadeMetros: 1,
+            velocidadeMetrosPorSegundo: 1,
+            dosagemMl: 1,
+            distanciaEntreSubpontosMetros: 1,
+            quantidadeDeSubpontos: 1,
+          ),
+          throwsA(
+            isA<OperacaoNaoPermitidaException>().having(
+              (e) => e.mensagemAmigavel,
+              'mensagem',
+              contains('agendamento vigente'),
+            ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'ponto inexistente ao editar o nome chega como não encontrado',
+      () async {
+        when(() => api.get('/pontos/x')).thenThrow(
+          const EntidadeNaoEncontradaException('Ponto não encontrado.'),
+        );
+
+        await expectLater(
+          repositorio.editarNome('x', 'Nome'),
+          throwsA(isA<EntidadeNaoEncontradaException>()),
+        );
+        verifyNever(() => api.put(any(), corpo: any(named: 'corpo')));
+      },
+    );
   });
 }
