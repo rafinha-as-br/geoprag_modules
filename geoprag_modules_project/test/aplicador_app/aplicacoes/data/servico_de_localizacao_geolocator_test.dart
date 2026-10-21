@@ -178,6 +178,17 @@ void main() {
     );
   });
 
+  test('falha inesperada do plugin vira posição indisponível', () async {
+    when(
+      () => plataforma.checkPermission(),
+    ).thenThrow(StateError('plugin quebrado'));
+
+    await expectLater(
+      servico().obterPosicao(),
+      throwsA(semPosicaoPor(MotivoSemPosicao.indisponivel)),
+    );
+  });
+
   test('permissão revogada durante a leitura vira permissão negada', () async {
     when(
       () => plataforma.getCurrentPosition(

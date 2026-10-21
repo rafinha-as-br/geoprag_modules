@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
 
+import '../../../src/errors/app_logger.dart';
 import '../core/posicao_gps.dart';
 import '../core/servico_de_localizacao.dart';
 
@@ -23,6 +24,22 @@ class ServicoDeLocalizacaoGeolocator implements ServicoDeLocalizacao {
 
   @override
   Future<PosicaoGps> obterPosicao() async {
+    try {
+      return await _ler();
+    } on PosicaoIndisponivelException {
+      rethrow;
+    } catch (e, stackTrace) {
+      // Falha inesperada do plugin: o aplicador recebe a orientação genérica.
+      AppLogger.error(
+        'ServicoDeLocalizacaoGeolocator.obterPosicao',
+        e,
+        stackTrace,
+      );
+      throw const PosicaoIndisponivelException(MotivoSemPosicao.indisponivel);
+    }
+  }
+
+  Future<PosicaoGps> _ler() async {
     if (!await _plataforma.isLocationServiceEnabled()) {
       throw const PosicaoIndisponivelException(
         MotivoSemPosicao.servicoDesligado,

@@ -170,7 +170,7 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
                 key: const Key('telaDeAplicacaoScreen_mensagemDeErro'),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: GeopragColors.statusAtrasado.withOpacity(0.1),
+                  color: GeopragColors.statusAtrasado.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(

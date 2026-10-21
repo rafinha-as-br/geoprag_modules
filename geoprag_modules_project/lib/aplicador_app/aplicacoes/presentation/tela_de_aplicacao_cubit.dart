@@ -71,6 +71,7 @@ class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
           registradoEm: posicao.instante,
         ),
       );
+      if (isClosed) return;
       emit(
         atual.copyWith(
           subpontosRegistrados: atual.subpontosRegistrados + 1,
@@ -78,11 +79,13 @@ class TelaDeAplicacaoCubit extends Cubit<TelaDeAplicacaoState> {
         ),
       );
     } on PosicaoIndisponivelException catch (e) {
+      if (isClosed) return;
       emit(
         atual.copyWith(registrando: false, mensagemDeErro: e.mensagemAmigavel),
       );
     } catch (e, stackTrace) {
       AppLogger.error('TelaDeAplicacaoCubit.registrarSubponto', e, stackTrace);
+      if (isClosed) return;
       emit(atual.copyWith(registrando: false));
     }
   }

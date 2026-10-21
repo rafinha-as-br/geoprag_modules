@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
@@ -225,6 +227,22 @@ void main() {
       await cubit.close();
     });
   }
+
+  test('fechar a tela durante a leitura do GPS não gera erro nem registra', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+    when(() => repository.registrarSubponto(any(), any()))
+        .thenAnswer((_) async {});
+    final leitura = Completer<PosicaoGps>();
+    when(() => localizacao.obterPosicao()).thenAnswer((_) => leitura.future);
+    final cubit = TelaDeAplicacaoCubit(repository, localizacao, 'pa1');
+    await Future<void>.delayed(Duration.zero);
+
+    final registro = cubit.registrarSubponto();
+    await cubit.close();
+    leitura.complete(posicao);
+
+    await expectLater(registro, completes);
+  });
 
   test('sem gerador injetado, o id do subponto é um UUID v4', () async {
     when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);

@@ -60,17 +60,18 @@ class GeolocalizacaoCubit extends Cubit<GeolocalizacaoState> {
     final atual = state;
     if (atual is! GeolocalizacaoLoaded || _verificando) return;
     _verificando = true;
-    if (atual.verificacao is! ChegadaVerificando) {
-      emit(atual.copyWith(verificacao: const ChegadaVerificando()));
-    }
-    final VerificacaoDeChegada resultado;
     try {
-      resultado = await _avaliar();
+      if (atual.verificacao is! ChegadaVerificando) {
+        emit(atual.copyWith(verificacao: const ChegadaVerificando()));
+      }
+      final resultado = await _avaliar();
+      final corrente = state;
+      if (!isClosed && corrente is GeolocalizacaoLoaded) {
+        emit(corrente.copyWith(verificacao: resultado));
+      }
     } finally {
       _verificando = false;
     }
-    if (isClosed) return;
-    emit(atual.copyWith(verificacao: resultado));
   }
 
   Future<VerificacaoDeChegada> _avaliar() async {

@@ -14,6 +14,9 @@ enum MotivoSemPosicao {
 
   /// O GPS não deu uma posição a tempo.
   tempoEsgotado,
+
+  /// Falha inesperada ao ler o GPS (plugin, plataforma).
+  indisponivel,
 }
 
 /// Lançada por [ServicoDeLocalizacao.obterPosicao] quando não há posição.
@@ -34,6 +37,7 @@ class PosicaoIndisponivelException implements Exception {
     MotivoSemPosicao.servicoDesligado =>
       AppErrorMessages.localizacaoServicoDesligado,
     MotivoSemPosicao.tempoEsgotado => AppErrorMessages.localizacaoTempoEsgotado,
+    MotivoSemPosicao.indisponivel => AppErrorMessages.localizacaoIndisponivel,
   };
 
   @override
