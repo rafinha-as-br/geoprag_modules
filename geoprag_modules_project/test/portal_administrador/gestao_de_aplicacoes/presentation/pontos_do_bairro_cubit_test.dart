@@ -47,6 +47,7 @@ void main() {
 
   setUp(() {
     repository = MockAdminPontoDeAplicacaoRepository();
+    when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
     aplicadorRepository = MockAplicadorRepository();
     when(
       () => aplicadorRepository.listar(),
@@ -73,6 +74,18 @@ void main() {
     expect(cubit.state.title, 'Gasparinho');
     expect(cubit.state.items.single.id, 'pa1');
     verify(() => repository.listarPorBairro('Gasparinho')).called(1);
+  });
+
+  test('marca na listagem do bairro os pontos em atraso', () async {
+    when(
+      () => repository.idsDePontosEmAtraso(),
+    ).thenAnswer((_) async => {'pa1'});
+    final cubit = await carregar([
+      pontoDeAplicacao(),
+      pontoDeAplicacao(id: 'pa9', identificador: '#GAS9'),
+    ]);
+
+    expect(cubit.state.items.map((p) => p.emAtraso), [true, false]);
   });
 
   test('a tela do bairro mostra também os pontos desativados', () async {

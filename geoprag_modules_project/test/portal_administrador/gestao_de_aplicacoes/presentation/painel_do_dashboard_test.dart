@@ -53,6 +53,9 @@ void main() {
     List<PontoDeAplicacaoResumoViewModel> alertas = const [],
     List<CoberturaDeBairroViewModel> coberturas = cobertura,
     bool incluirDesativados = false,
+    int quantidadeEmAtraso = 0,
+    bool apenasEmAtraso = false,
+    ValueChanged<bool>? onAlternarApenasEmAtraso,
     ValueChanged<bool>? onAlternarIncluirDesativados,
     ValueChanged<EstadoPontoDeAplicacao?>? onFiltrarPorEstado,
   }) {
@@ -64,6 +67,9 @@ void main() {
             child: PainelDoDashboard(
               alertas: alertas,
               cobertura: coberturas,
+              quantidadeEmAtraso: quantidadeEmAtraso,
+              apenasEmAtraso: apenasEmAtraso,
+              onAlternarApenasEmAtraso: onAlternarApenasEmAtraso ?? (_) {},
               incluirDesativados: incluirDesativados,
               estadoSelecionado: null,
               onBuscar: (_) {},
@@ -96,6 +102,34 @@ void main() {
     expect(find.textContaining('Córrego Belchior'), findsOneWidget);
   });
 
+  testWidgets('o contador mostra quantos pontos estão em atraso',
+      (tester) async {
+    await tester.pumpWidget(wrap(quantidadeEmAtraso: 3));
+
+    expect(find.text('3 pontos em atraso'), findsOneWidget);
+  });
+
+  testWidgets('o contador singulariza um ponto e avisa quando não há nenhum',
+      (tester) async {
+    await tester.pumpWidget(wrap(quantidadeEmAtraso: 1));
+    expect(find.text('1 ponto em atraso'), findsOneWidget);
+
+    await tester.pumpWidget(wrap());
+    expect(find.text('Nenhum ponto em atraso'), findsOneWidget);
+  });
+
+  testWidgets('o filtro "Em atraso" começa desmarcado e avisa a mudança',
+      (tester) async {
+    bool? apenas;
+    await tester.pumpWidget(wrap(onAlternarApenasEmAtraso: (v) => apenas = v));
+
+    final filtro = find.widgetWithText(CheckboxListTile, 'Em atraso');
+    expect(tester.widget<CheckboxListTile>(filtro).value, isFalse);
+
+    await tester.tap(filtro);
+    expect(apenas, isTrue);
+  });
+
   testWidgets('cada bairro coberto vira um cartão com a contagem de pontos',
       (tester) async {
     await tester.pumpWidget(wrap());
@@ -123,11 +157,11 @@ void main() {
     );
 
     final checkbox = tester.widget<CheckboxListTile>(
-      find.byType(CheckboxListTile),
+      find.widgetWithText(CheckboxListTile, 'Incluir desativados'),
     );
     expect(checkbox.value, isFalse);
 
-    await tester.tap(find.byType(CheckboxListTile));
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Incluir desativados'));
     await tester.pump();
 
     expect(incluir, isTrue);

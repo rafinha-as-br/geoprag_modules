@@ -35,11 +35,15 @@ class PontoDeAplicacaoDetalheCubit
     try {
       final ponto = await _repository.buscarPorId(_pontoId);
       final aplicadorNome = await _nomeDoAplicador(ponto.aplicadorId);
+      final emAtraso = (await _repository.idsDePontosEmAtraso()).contains(
+        ponto.id,
+      );
       emit(
         PontoDeAplicacaoDetalheLoaded(
           PontoDeAplicacaoDetalhadoViewModel.fromEntity(
             ponto,
             aplicadorNome: aplicadorNome,
+            emAtraso: emAtraso,
           ),
         ),
       );
@@ -99,6 +103,11 @@ class PontoDeAplicacaoDetalheCubit
   Future<void> cancelarAplicacaoQuimica() => _executarAcao(
     () => _repository.cancelarAplicacaoQuimica(_pontoId),
     'Aplicação química cancelada — o ponto está inativo.',
+  );
+
+  Future<void> removerAlertaDeAtraso() => _executarAcao(
+    () => _repository.removerAlertaDeAtraso(_pontoId),
+    'Alerta de atraso removido.',
   );
 
   /// Aplicadores candidatos para o `AtribuirAplicadorDialog`, com a

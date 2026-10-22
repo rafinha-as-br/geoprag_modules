@@ -61,6 +61,19 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// quando o valor muda.
   Future<void> editarTolerancia(String id, int novaToleranciaDias);
 
+  /// Ids dos pontos que hoje estão em atraso (GEOPRAG-160), decididos
+  /// exclusivamente pela regra de domínio compartilhada
+  /// ([PontoDeAplicacao.estadoDeAtraso]) — a UI não recalcula atraso. Um
+  /// alerta removido manualmente não conta.
+  Future<Set<String>> idsDePontosEmAtraso();
+
+  /// Remove o alerta de atraso do ponto [id] — só do atraso atual: se a
+  /// próxima recorrência atrasar, o alerta volta. Emite evento de auditoria
+  /// (quem removeu e quando). Lança `EntidadeNaoEncontradaException` se o [id]
+  /// não existir, ou `OperacaoNaoPermitidaException` se o ponto não estiver
+  /// em atraso. Nunca bloqueia nenhuma outra ação sobre o ponto.
+  Future<void> removerAlertaDeAtraso(String id);
+
   /// Atualiza o cadastro completo do ponto [id]. Lança
   /// `EntidadeNaoEncontradaException` se o [id] não existir, ou
   /// `OperacaoNaoPermitidaException` se o cadastro estiver travado (ver

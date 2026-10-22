@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
+import 'package:geoprag_modules/src/atraso/alerta_de_atraso_repository_impl.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
 import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
@@ -16,16 +17,22 @@ void main() {
     perfil: 'administrador',
   );
 
+  var hoje = DateTime(2026, 10, 10);
+
   setUp(() {
+    hoje = DateTime(2026, 10, 10);
     repository = AdminPontoDeAplicacaoRepositoryImpl(
       eventoAuditoriaRepository: EventoAuditoriaRepositoryImpl(),
+      alertaDeAtrasoRepository: AlertaDeAtrasoRepositoryImpl(),
       autor: autor,
+      agora: () => hoje,
     );
     snapshotOriginal = List.of(mockPontosDeAplicacao);
   });
 
   tearDown(() {
     mockEventosAuditoria.clear();
+    mockAlertasDeAtrasoRemovidos.clear();
   });
 
   // A fonte mockada é uma lista global: sem isso, um `criar` (que adiciona)
@@ -617,6 +624,119 @@ void main() {
       );
 
       expect(mockEventosAuditoria, isEmpty);
+    });
+  });
+
+  group('alerta de atraso (GEOPRAG-160)', () {
+    // Ciclo de 3 datas semanais a partir de 01/10: com "hoje" em 10/10 e a
+    // tolerância padrão de 4 dias, a primeira data (01/10) está em atraso.
+    Future<PontoDeAplicacao> pontoAtivoComCiclo({int? toleranciaDias}) async {
+      final ponto = await criar(
+        aplicadorId: '1',
+        toleranciaDias: toleranciaDias ?? toleranciaPadraoDeAtrasoEmDias,
+      );
+      await repository.ativar(
+        ponto.id,
+        Agendamento.gerar(
+          dataInicio: DateTime(2026, 10, 1),
+          intervaloDias: 7,
+          quantidadeRecorrencias: 3,
+        ),
+      );
+      mockEventosAuditoria.clear();
+      return ponto;
+    }
+
+    test('ponto cuja data pendente passou da tolerância está em atraso',
+        () async {
+      final ponto = await pontoAtivoComCiclo();
+
+      expect(await repository.idsDePontosEmAtraso(), contains(ponto.id));
+    });
+
+    test('no último dia da tolerância ainda está em dia', () async {
+      final ponto = await pontoAtivoComCiclo();
+      hoje = DateTime(2026, 10, 5);
+
+      expect(await repository.idsDePontosEmAtraso(), isNot(contains(ponto.id)));
+    });
+
+    test('usa a tolerância do próprio ponto', () async {
+      final ponto = await pontoAtivoComCiclo(toleranciaDias: 12);
+
+      expect(await repository.idsDePontosEmAtraso(), isNot(contains(ponto.id)));
+    });
+
+    test('ponto sem agendamento nunca está em atraso', () async {
+      final ponto = await criar(aplicadorId: '1');
+
+      expect(await repository.idsDePontosEmAtraso(), isNot(contains(ponto.id)));
+    });
+
+    test('remover o alerta tira o ponto do atraso e emite auditoria', () async {
+      final ponto = await pontoAtivoComCiclo();
+
+      await repository.removerAlertaDeAtraso(ponto.id);
+
+      expect(await repository.idsDePontosEmAtraso(), isNot(contains(ponto.id)));
+      final evento = mockEventosAuditoria.single;
+      expect(evento.tipo, 'alerta_atraso_removido');
+      expect(evento.pontoAfetadoId, ponto.id);
+      expect(evento.autor, autor);
+      expect(evento.payload['dataAgendadaId'], '2026-10-01-0');
+    });
+
+    test('a remoção vale só para o atraso atual: a próxima recorrência '
+        'atrasada volta a alertar', () async {
+      final ponto = await pontoAtivoComCiclo();
+      await repository.removerAlertaDeAtraso(ponto.id);
+
+      // A aplicação atrasada é concluída (cumpre 01/10) e a seguinte (08/10)
+      // também passa da tolerância em 20/10.
+      final index = mockPontosDeAplicacao.indexWhere((p) => p.id == ponto.id);
+      for (var i = 0; i < ponto.quantidadeDeSubpontos; i++) {
+        mockPontosDeAplicacao[index] = mockPontosDeAplicacao[index]
+            .registrarSubponto(
+              Subponto(
+                latitude: -26.9,
+                longitude: -48.9,
+                realizadoEm: DateTime(2026, 10, 9),
+                registradoEm: DateTime(2026, 10, 9),
+              ),
+            );
+      }
+      hoje = DateTime(2026, 10, 20);
+
+      expect(await repository.idsDePontosEmAtraso(), contains(ponto.id));
+    });
+
+    test('remover o alerta de um ponto em dia é rejeitado, sem evento',
+        () async {
+      final ponto = await pontoAtivoComCiclo(toleranciaDias: 12);
+
+      await expectLater(
+        () => repository.removerAlertaDeAtraso(ponto.id),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      expect(mockEventosAuditoria, isEmpty);
+    });
+
+    test('remover duas vezes o mesmo alerta é rejeitado na segunda', () async {
+      final ponto = await pontoAtivoComCiclo();
+      await repository.removerAlertaDeAtraso(ponto.id);
+
+      await expectLater(
+        () => repository.removerAlertaDeAtraso(ponto.id),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      expect(mockEventosAuditoria, hasLength(1));
+    });
+
+    test('remover o alerta de id inexistente falha com mensagem amigável', () {
+      expect(
+        () => repository.removerAlertaDeAtraso('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
     });
   });
 }

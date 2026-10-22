@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
+import 'package:geoprag_modules/src/atraso/alerta_de_atraso_repository_impl.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
 import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
@@ -170,6 +171,7 @@ void main() {
 
         final portal = AdminPontoDeAplicacaoRepositoryImpl(
           eventoAuditoriaRepository: EventoAuditoriaRepositoryImpl(),
+          alertaDeAtrasoRepository: AlertaDeAtrasoRepositoryImpl(),
           autor: const AutorUsuario(
             email: 'admin@gaspar.sc.gov.br',
             perfil: 'Administrador',
