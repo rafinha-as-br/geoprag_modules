@@ -22,6 +22,7 @@ void main() {
 
     setUp(() async {
       repository = MockAdminPontoDeAplicacaoRepository();
+      when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
       aplicadorRepository = MockAplicadorRepository();
       when(() => aplicadorRepository.listar()).thenAnswer((_) async => []);
       when(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../src/theme/geoprag_status.dart';
 import '../../../../src/widgets/base_list_screen.dart';
 import '../../../../src/widgets/geoprag_status_badge.dart';
 import '../../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
@@ -76,10 +77,24 @@ colunasDePontoDeAplicacao({
     GeopragDataColumn(
       label: 'Estado',
       width: const FlexColumnWidth(2),
-      cellBuilder: (context, ponto) => GeopragStatusBadge(
-        status: ponto.estado.status,
-        label: ponto.estado.rotulo,
-        dense: true,
+      cellBuilder: (context, ponto) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GeopragStatusBadge(
+            status: ponto.estado.status,
+            label: ponto.estado.rotulo,
+            dense: true,
+          ),
+          if (ponto.emAtraso) ...[
+            const SizedBox(height: 4),
+            const GeopragStatusBadge(
+              status: GeopragStatus.atrasado,
+              label: 'Em atraso',
+              dense: true,
+            ),
+          ],
+        ],
       ),
     ),
     GeopragDataColumn(

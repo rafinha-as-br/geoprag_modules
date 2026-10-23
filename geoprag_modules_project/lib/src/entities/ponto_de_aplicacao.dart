@@ -351,6 +351,34 @@ class PontoDeAplicacao {
   bool get ativoSemRegistro =>
       estado == EstadoPontoDeAplicacao.ativa && subpontos.isEmpty;
 
+  /// A recorrência a que o alerta de atraso se refere (GEOPRAG-160): a data
+  /// pendente mais antiga de um ponto em operação — a mesma que a próxima
+  /// aplicação concluída cumpre. `null` quando não há o que atrasar.
+  DataAgendada? get dataDoAlertaDeAtraso =>
+      estado == EstadoPontoDeAplicacao.ativa
+      ? agendamento?.proximaDataPendente
+      : null;
+
+  /// Situação de atraso do ponto em [dataDeReferencia], decidida
+  /// exclusivamente por [verificarAtraso] com a [toleranciaDias] do ponto.
+  ///
+  /// [alertasRemovidos] são os ids de [DataAgendada] cujo alerta o
+  /// administrador removeu manualmente: a remoção vale só para a recorrência
+  /// removida, então a próxima que atrasar volta a alertar.
+  EstadoDeAtraso estadoDeAtraso({
+    required DateTime dataDeReferencia,
+    Set<String> alertasRemovidos = const {},
+  }) {
+    final recorrencia = dataDoAlertaDeAtraso;
+    return verificarAtraso(
+      dataPrevista: recorrencia?.data.toLocal(),
+      dataDeReferencia: dataDeReferencia,
+      toleranciaEmDias: toleranciaDias,
+      alertaRemovidoManualmente:
+          recorrencia != null && alertasRemovidos.contains(recorrencia.id),
+    );
+  }
+
   /// Todas as datas do [agendamento] vigente já foram concluídas — a
   /// última recorrência do ciclo foi cumprida (GEOPRAG-110).
   ///
