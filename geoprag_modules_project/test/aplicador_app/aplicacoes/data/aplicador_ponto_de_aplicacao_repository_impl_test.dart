@@ -200,4 +200,131 @@ void main() {
       );
     });
   });
+
+  group('atraso calculado localmente (GEOPRAG-161)', () {
+    // Ponto próprio: 2 subpontos por aplicação e 2 recorrências (01/10 e
+    // 16/10), tolerância padrão de 4 dias — último dia em dia: 05/10.
+    PontoDeAplicacao pontoComCiclo() => PontoDeAplicacao(
+      id: 'pa-atraso',
+      identificador: '#ATR1',
+      nome: 'Córrego do atraso',
+      bairro: 'Gasparinho',
+      endereco: 'Rua Pedro Simon',
+      numeroReferencia: 'Em frente ao nº 240',
+      descricaoDoTrecho: 'Trecho de 100 m.',
+      larguraMetros: 2,
+      profundidadeMetros: 0.5,
+      velocidadeMetrosPorSegundo: 0.4,
+      dosagemMl: 120,
+      distanciaEntreSubpontosMetros: 50,
+      quantidadeDeSubpontos: 2,
+      aplicadorId: 'aplicador-atraso',
+      estado: EstadoPontoDeAplicacao.ativa,
+      agendamento: Agendamento.gerar(
+        dataInicio: DateTime(2026, 10, 1),
+        intervaloDias: 15,
+        quantidadeRecorrencias: 2,
+      ),
+    );
+
+    Subponto subponto(int minuto) => Subponto(
+      latitude: -26.93,
+      longitude: -48.95,
+      realizadoEm: DateTime(2026, 10, 6, 9, minuto),
+      registradoEm: DateTime(2026, 10, 6, 9, minuto),
+    );
+
+    AplicadorPontoDeAplicacaoRepositoryImpl comHoje(
+      DateTime hoje, {
+      AlertaDeAtrasoRepositoryImpl? alertas,
+    }) => AplicadorPontoDeAplicacaoRepositoryImpl(
+      alertaDeAtrasoRepository: alertas,
+      agora: () => hoje,
+    );
+
+    setUp(() => mockPontosDeAplicacao.add(pontoComCiclo()));
+    tearDown(mockAlertasDeAtrasoRemovidos.clear);
+
+    test('no último dia da tolerância ainda está em dia', () async {
+      final repo = comHoje(DateTime(2026, 10, 5, 23, 59));
+
+      expect(await repo.estaEmAtraso('pa-atraso'), isFalse);
+      expect(
+        await repo.idsDePontosEmAtraso('aplicador-atraso'),
+        isNot(contains('pa-atraso')),
+      );
+    });
+
+    test('no dia seguinte ao fim da tolerância está em atraso', () async {
+      final repo = comHoje(DateTime(2026, 10, 6));
+
+      expect(await repo.estaEmAtraso('pa-atraso'), isTrue);
+      expect(await repo.idsDePontosEmAtraso('aplicador-atraso'), {
+        'pa-atraso',
+      });
+    });
+
+    test('só lista pontos do aplicador informado', () async {
+      final repo = comHoje(DateTime(2026, 10, 6));
+
+      expect(
+        await repo.idsDePontosEmAtraso('outro-aplicador'),
+        isNot(contains('pa-atraso')),
+      );
+    });
+
+    test('concluir a aplicação faz o alerta sumir na hora, sem sincronizar',
+        () async {
+      final repo = comHoje(DateTime(2026, 10, 6));
+      expect(await repo.estaEmAtraso('pa-atraso'), isTrue);
+
+      await repo.registrarSubponto('pa-atraso', subponto(0));
+      expect(await repo.estaEmAtraso('pa-atraso'), isTrue);
+
+      await repo.registrarSubponto('pa-atraso', subponto(1));
+
+      expect(await repo.estaEmAtraso('pa-atraso'), isFalse);
+      expect(
+        await repo.idsDePontosEmAtraso('aplicador-atraso'),
+        isNot(contains('pa-atraso')),
+      );
+    });
+
+    test('o registro da aplicação continua possível em ponto em atraso',
+        () async {
+      final repo = comHoje(DateTime(2026, 10, 6));
+      expect(await repo.estaEmAtraso('pa-atraso'), isTrue);
+
+      await repo.registrarSubponto('pa-atraso', subponto(0));
+
+      expect((await repo.buscarPorId('pa-atraso')).subpontos, hasLength(1));
+    });
+
+    test('remoção manual feita no Portal some no App; a próxima recorrência '
+        'atrasada volta a alertar', () async {
+      final alertas = AlertaDeAtrasoRepositoryImpl();
+      final repo = comHoje(DateTime(2026, 10, 6), alertas: alertas);
+      final ponto = await repo.buscarPorId('pa-atraso');
+
+      await alertas.remover(
+        pontoId: 'pa-atraso',
+        dataAgendadaId: ponto.agendamento!.datas.first.id,
+      );
+      expect(await repo.estaEmAtraso('pa-atraso'), isFalse);
+
+      // Cumprida a 1ª recorrência, a seguinte (16/10) passa a ser a vigente;
+      // passada a tolerância dela (16/10 + 4 dias), o alerta volta.
+      await repo.registrarSubponto('pa-atraso', subponto(0));
+      await repo.registrarSubponto('pa-atraso', subponto(1));
+      final depois = comHoje(DateTime(2026, 10, 21), alertas: alertas);
+      expect(await depois.estaEmAtraso('pa-atraso'), isTrue);
+    });
+
+    test('lança EntidadeNaoEncontradaException para ponto inexistente', () {
+      expect(
+        () => comHoje(DateTime(2026, 10, 6)).estaEmAtraso('inexistente'),
+        throwsA(isA<EntidadeNaoEncontradaException>()),
+      );
+    });
+  });
 }

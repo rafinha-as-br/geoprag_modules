@@ -16,6 +16,17 @@ abstract class AplicadorPontoDeAplicacaoRepository {
 
   Future<PontoDeAplicacao> buscarPorId(String id);
 
+  /// Ids dos pontos de [aplicadorId] com a aplicação em atraso (GEOPRAG-161).
+  ///
+  /// Calculado localmente, sem rede, pela regra de domínio compartilhada
+  /// (`verificarAtraso`) — por isso funciona offline. É só um aviso: não
+  /// bloqueia nenhuma ação sobre o ponto.
+  Future<Set<String>> idsDePontosEmAtraso(String aplicadorId);
+
+  /// Se o ponto [id] está com a aplicação em atraso (mesma regra e mesmas
+  /// garantias de [idsDePontosEmAtraso]).
+  Future<bool> estaEmAtraso(String id);
+
   /// Registra uma aplicação real no ponto [id]. GEOPRAG-111 trata o
   /// subponto como um contador simples — cada chamada apenas soma mais um
   /// [Subponto] ao histórico, sem validar ordem ou posição esperada.
