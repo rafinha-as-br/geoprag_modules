@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../src/entities/atraso_de_aplicacao.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/state/acao_feedback.dart';
@@ -43,6 +44,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
   double? _dosagem;
   double? _distancia;
   int? _quantidadeDeSubpontos;
+  int? _toleranciaDias = toleranciaPadraoDeAtrasoEmDias;
 
   List<Aplicador> _aplicadores = [];
   String? _aplicadorId;
@@ -205,6 +207,16 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
       ),
     ),
     BaseFormField(
+      label: 'Tolerância de atraso (dias)',
+      field: GeopragNumeroInteiroInput(
+        label: 'Tolerância de atraso (dias)',
+        initialValue: _toleranciaDias,
+        mensagemObrigatorio: 'Informe a tolerância de atraso em dias.',
+        mensagemInvalido: 'A tolerância deve ser de pelo menos 1 dia.',
+        onChanged: (valor) => _toleranciaDias = valor,
+      ),
+    ),
+    BaseFormField(
       label: 'Aplicador responsável (opcional)',
       field: DropdownButtonFormField<String?>(
         initialValue: _aplicadorId,
@@ -244,6 +256,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         distanciaEntreSubpontosMetros: _distancia!,
         quantidadeDeSubpontos: _quantidadeDeSubpontos!,
         aplicadorId: _aplicadorId,
+        toleranciaDias: _toleranciaDias!,
       );
       emitFeedback(
         const AcaoFeedbackSucesso('Ponto de aplicação cadastrado com sucesso.'),

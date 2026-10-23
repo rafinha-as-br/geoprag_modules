@@ -9,6 +9,7 @@ import '../../../portal_administrador/gestao_de_aplicacoes/presentation/ponto_de
     show EstadoPontoDeAplicacaoApresentacao;
 import '../../core/aplicador_navigator.dart';
 import 'meus_pontos_cubit.dart';
+import 'mensagem_de_atraso.dart';
 import 'meus_pontos_state.dart';
 import 'meus_pontos_view_model.dart';
 
@@ -141,6 +142,29 @@ class _PontoDoAplicadorCard extends StatelessWidget {
                   ),
                 ],
               ),
+              if (ponto.emAtraso) ...[
+                const SizedBox(height: 8),
+                Row(
+                  key: Key('meusPontosScreen_atraso_${ponto.id}'),
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: GeopragColors.statusAtrasado,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        mensagemDeAtrasoDoPonto,
+                        style: TextStyle(
+                          color: GeopragColors.statusAtrasado,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (ponto.ativoSemRegistro) ...[
                 const SizedBox(height: 8),
                 Row(

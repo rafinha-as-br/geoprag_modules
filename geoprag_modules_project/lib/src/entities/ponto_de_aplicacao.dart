@@ -1,4 +1,5 @@
 import '../errors/app_exceptions.dart';
+import 'atraso_de_aplicacao.dart';
 
 /// Ciclo de vida de um [PontoDeAplicacao], do cadastro à desativação.
 ///
@@ -39,16 +40,22 @@ enum StatusDataAgendada {
 /// depois de gerada (GEOPRAG-75) — por isso é um registro próprio, e não
 /// apenas um índice calculado a partir de [Agendamento.dataInicio].
 class DataAgendada {
+  /// Identificador estável: continua o mesmo quando a [data] é editada, e é
+  /// o que um [Subponto] guarda para dizer qual recorrência a aplicação
+  /// concluída cumpriu.
+  final String id;
   final DateTime data;
   final StatusDataAgendada status;
 
   const DataAgendada({
+    required this.id,
     required this.data,
     this.status = StatusDataAgendada.pendente,
   });
 
   DataAgendada copyWith({DateTime? data, StatusDataAgendada? status}) {
     return DataAgendada(
+      id: id,
       data: data ?? this.data,
       status: status ?? this.status,
     );
@@ -57,10 +64,13 @@ class DataAgendada {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DataAgendada && other.data == data && other.status == status);
+      (other is DataAgendada &&
+          other.id == id &&
+          other.data == data &&
+          other.status == status);
 
   @override
-  int get hashCode => Object.hash(data, status);
+  int get hashCode => Object.hash(id, data, status);
 }
 
 /// Agendamento do ciclo de aplicações de um [PontoDeAplicacao]: quando a
@@ -93,13 +103,54 @@ class Agendamento {
     required int intervaloDias,
     required int quantidadeRecorrencias,
   }) {
+    final prefixoDoCiclo = dataInicio.toIso8601String().substring(0, 10);
     return Agendamento(
       dataInicio: dataInicio,
       intervaloDias: intervaloDias,
       quantidadeRecorrencias: quantidadeRecorrencias,
       datas: [
         for (var i = 0; i < quantidadeRecorrencias; i++)
-          DataAgendada(data: dataInicio.add(Duration(days: intervaloDias * i))),
+          DataAgendada(
+            id: '$prefixoDoCiclo-$i',
+            data: dataInicio.add(Duration(days: intervaloDias * i)),
+          ),
+      ],
+    );
+  }
+
+  Agendamento copyWith({List<DataAgendada>? datas}) {
+    return Agendamento(
+      dataInicio: dataInicio,
+      intervaloDias: intervaloDias,
+      quantidadeRecorrencias: quantidadeRecorrencias,
+      datas: datas ?? this.datas,
+    );
+  }
+
+  /// A data ainda [StatusDataAgendada.pendente] mais antiga — a que a próxima
+  /// aplicação concluída cumpre. Compara pelo dia, e não pela posição na
+  /// lista, porque cada data pode ser editada individualmente. `null` quando
+  /// não há nenhuma pendente.
+  DataAgendada? get proximaDataPendente {
+    DataAgendada? maisAntiga;
+    for (final data in datas) {
+      if (data.status != StatusDataAgendada.pendente) continue;
+      if (maisAntiga == null || data.data.isBefore(maisAntiga.data)) {
+        maisAntiga = data;
+      }
+    }
+    return maisAntiga;
+  }
+
+  /// Devolve um [Agendamento] com a data [idDaData] marcada como
+  /// [StatusDataAgendada.concluida]; as demais ficam como estão.
+  Agendamento comDataConcluida(String idDaData) {
+    return copyWith(
+      datas: [
+        for (final data in datas)
+          data.id == idDaData
+              ? data.copyWith(status: StatusDataAgendada.concluida)
+              : data,
       ],
     );
   }
@@ -143,12 +194,31 @@ class Subponto {
   final DateTime realizadoEm;
   final DateTime registradoEm;
 
+  /// Preenchido só no subponto que **conclui** uma aplicação: o [DataAgendada.id]
+  /// da recorrência que essa aplicação cumpriu. `null` nos demais subpontos,
+  /// e também quando o ponto não tinha data pendente a cumprir.
+  final String? dataAgendadaId;
+
   const Subponto({
     required this.latitude,
     required this.longitude,
     required this.realizadoEm,
     required this.registradoEm,
+    this.dataAgendadaId,
   });
+
+  /// Cópia deste subponto vinculada à recorrência [idDaData]. Só é usada no
+  /// momento em que o subponto concluinte é registrado: subpontos já
+  /// confirmados não são alterados.
+  Subponto comDataAgendada(String idDaData) {
+    return Subponto(
+      latitude: latitude,
+      longitude: longitude,
+      realizadoEm: realizadoEm,
+      registradoEm: registradoEm,
+      dataAgendadaId: idDaData,
+    );
+  }
 }
 
 /// Um ponto de aplicação: o trecho cadastrado pelo administrador onde o
@@ -223,6 +293,13 @@ class PontoDeAplicacao {
   /// recente.
   final List<Subponto> subpontos;
 
+  /// Tolerância de atraso deste ponto, em dias corridos: quantos dias depois
+  /// da data prevista de uma recorrência a aplicação ainda é considerada em
+  /// dia (ver [verificarAtraso]). Padrão em [toleranciaPadraoDeAtrasoEmDias];
+  /// editável a qualquer momento, inclusive com o cadastro travado — só
+  /// altera quando o aviso de atraso aparece.
+  final int toleranciaDias;
+
   PontoDeAplicacao({
     required this.id,
     required this.nome,
@@ -242,11 +319,15 @@ class PontoDeAplicacao {
     this.agendamento,
     this.estadoAnterior,
     List<Subponto> subpontos = const [],
+    this.toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   }) : subpontos = List.unmodifiable(subpontos) {
     if (estado == EstadoPontoDeAplicacao.ativa && aplicadorId == null) {
       throw const OperacaoNaoPermitidaException(
         'Um ponto ativo precisa de um aplicador responsável.',
       );
+    }
+    if (toleranciaDias < 1) {
+      throw const OperacaoNaoPermitidaException(_mensagemToleranciaInvalida);
     }
   }
 
@@ -270,6 +351,34 @@ class PontoDeAplicacao {
   bool get ativoSemRegistro =>
       estado == EstadoPontoDeAplicacao.ativa && subpontos.isEmpty;
 
+  /// A recorrência a que o alerta de atraso se refere (GEOPRAG-160): a data
+  /// pendente mais antiga de um ponto em operação — a mesma que a próxima
+  /// aplicação concluída cumpre. `null` quando não há o que atrasar.
+  DataAgendada? get dataDoAlertaDeAtraso =>
+      estado == EstadoPontoDeAplicacao.ativa
+      ? agendamento?.proximaDataPendente
+      : null;
+
+  /// Situação de atraso do ponto em [dataDeReferencia], decidida
+  /// exclusivamente por [verificarAtraso] com a [toleranciaDias] do ponto.
+  ///
+  /// [alertasRemovidos] são os ids de [DataAgendada] cujo alerta o
+  /// administrador removeu manualmente: a remoção vale só para a recorrência
+  /// removida, então a próxima que atrasar volta a alertar.
+  EstadoDeAtraso estadoDeAtraso({
+    required DateTime dataDeReferencia,
+    Set<String> alertasRemovidos = const {},
+  }) {
+    final recorrencia = dataDoAlertaDeAtraso;
+    return verificarAtraso(
+      dataPrevista: recorrencia?.data.toLocal(),
+      dataDeReferencia: dataDeReferencia,
+      toleranciaEmDias: toleranciaDias,
+      alertaRemovidoManualmente:
+          recorrencia != null && alertasRemovidos.contains(recorrencia.id),
+    );
+  }
+
   /// Todas as datas do [agendamento] vigente já foram concluídas — a
   /// última recorrência do ciclo foi cumprida (GEOPRAG-110).
   ///
@@ -288,9 +397,40 @@ class PontoDeAplicacao {
   /// a janela de 15 minutos do doc de objetivo original, que gerava uma
   /// inversão: um ponto recém-ativado ficava mais travado que um inativo
   /// com vários ciclos). Assim que existir um dos dois, o cadastro trava
-  /// para sempre — [nome] continua editável a qualquer momento via
-  /// [editarNome].
+  /// para sempre — [nome] e [toleranciaDias] continuam editáveis a qualquer
+  /// momento via [editarNome] e [editarTolerancia].
   bool get podeEditarCadastroCompleto => agendamento == null && subpontos.isEmpty;
+
+  /// Acrescenta [subponto] ao histórico — só em um ponto
+  /// [EstadoPontoDeAplicacao.ativa].
+  ///
+  /// Uma aplicação é concluída a cada [quantidadeDeSubpontos] subpontos: quando
+  /// este é o que a conclui e há agendamento com data pendente, essa aplicação
+  /// cumpre a data pendente **mais antiga** — ela vira
+  /// [StatusDataAgendada.concluida] e o subponto concluinte guarda o vínculo
+  /// ([Subponto.dataAgendadaId]).
+  ///
+  /// Sem agendamento, ou sem data pendente, o subponto só é acrescentado: não
+  /// há recorrência a cumprir e nada falha. Os subpontos anteriores nunca são
+  /// alterados. A contagem considera o histórico inteiro do ponto.
+  PontoDeAplicacao registrarSubponto(Subponto subponto) {
+    if (estado != EstadoPontoDeAplicacao.ativa) {
+      throw const OperacaoNaoPermitidaException(
+        'Só é possível registrar aplicação em um ponto ativo.',
+      );
+    }
+    final historico = [...subpontos, subponto];
+    final concluiAplicacao =
+        quantidadeDeSubpontos > 0 &&
+        historico.length % quantidadeDeSubpontos == 0;
+    final cumprida = concluiAplicacao ? agendamento?.proximaDataPendente : null;
+    if (cumprida == null) return copyWith(subpontos: historico);
+    historico[historico.length - 1] = subponto.comDataAgendada(cumprida.id);
+    return copyWith(
+      subpontos: historico,
+      agendamento: agendamento!.comDataConcluida(cumprida.id),
+    );
+  }
 
   /// Vincula um aplicador responsável ao ponto, promovendo-o de
   /// [EstadoPontoDeAplicacao.enderecada] para
@@ -331,6 +471,14 @@ class PontoDeAplicacao {
   /// editável a qualquer momento").
   PontoDeAplicacao editarNome(String novoNome) => copyWith(nome: novoNome);
 
+  /// Altera só a [toleranciaDias] — sempre permitido, como [editarNome], mesmo
+  /// com [podeEditarCadastroCompleto] falso: a tolerância só muda quando o
+  /// aviso de atraso aparece, sem efeito em agendamento, dosagem ou histórico.
+  ///
+  /// Rejeita valor menor que 1 dia com [OperacaoNaoPermitidaException].
+  PontoDeAplicacao editarTolerancia(int novaToleranciaDias) =>
+      copyWith(toleranciaDias: novaToleranciaDias);
+
   /// Atualiza o cadastro completo do ponto (todos os campos preenchidos na
   /// criação, exceto [identificador]/[estado]/[agendamento]/[subpontos],
   /// que não são editáveis por aqui).
@@ -351,11 +499,12 @@ class PontoDeAplicacao {
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
+    required int toleranciaDias,
   }) {
     if (!podeEditarCadastroCompleto) {
       throw const OperacaoNaoPermitidaException(
         'Este ponto já tem agendamento ou execução registrada — só o nome '
-        'pode ser editado.',
+        'e a tolerância de atraso podem ser editados.',
       );
     }
     return copyWith(
@@ -370,6 +519,7 @@ class PontoDeAplicacao {
       dosagemMl: dosagemMl,
       distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
       quantidadeDeSubpontos: quantidadeDeSubpontos,
+      toleranciaDias: toleranciaDias,
     );
   }
 
@@ -477,6 +627,7 @@ class PontoDeAplicacao {
     Agendamento? agendamento,
     EstadoPontoDeAplicacao? estadoAnterior,
     List<Subponto>? subpontos,
+    int? toleranciaDias,
     bool limparAplicador = false,
     bool limparEstadoAnterior = false,
   }) {
@@ -504,18 +655,19 @@ class PontoDeAplicacao {
           ? null
           : (estadoAnterior ?? this.estadoAnterior),
       subpontos: subpontos ?? this.subpontos,
+      toleranciaDias: toleranciaDias ?? this.toleranciaDias,
     );
   }
 }
+
+const _mensagemToleranciaInvalida =
+    'A tolerância de atraso deve ser de pelo menos 1 dia.';
 
 /// Marca como [StatusDataAgendada.cancelada] toda data ainda
 /// [StatusDataAgendada.pendente] de [agendamento] — usado por
 /// [PontoDeAplicacao.desativar].
 Agendamento _cancelarDatasPendentes(Agendamento agendamento) {
-  return Agendamento(
-    dataInicio: agendamento.dataInicio,
-    intervaloDias: agendamento.intervaloDias,
-    quantidadeRecorrencias: agendamento.quantidadeRecorrencias,
+  return agendamento.copyWith(
     datas: [
       for (final data in agendamento.datas)
         data.status == StatusDataAgendada.pendente

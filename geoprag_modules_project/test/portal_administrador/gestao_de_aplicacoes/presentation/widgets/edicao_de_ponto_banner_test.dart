@@ -27,6 +27,22 @@ void main() {
     });
 
     testWidgets(
+      'travada: avisa que o nome e a tolerância de atraso continuam editáveis',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Material(child: EdicaoDePontoBanner(liberada: false)),
+          ),
+        );
+
+        expect(
+          find.textContaining('só o nome e a tolerância de atraso continuam editáveis'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
       'travada: não promete que cancelar a aplicação química libera o cadastro',
       (tester) async {
         // O cadastro trava permanentemente assim que existe agendamento —

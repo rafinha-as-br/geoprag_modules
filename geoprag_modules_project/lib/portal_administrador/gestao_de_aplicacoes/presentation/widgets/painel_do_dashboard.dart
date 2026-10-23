@@ -6,6 +6,7 @@ import '../../../../src/theme/geoprag_status.dart';
 import '../../../../src/widgets/geoprag_filter_dropdown.dart';
 import '../../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../../../src/widgets/geoprag_search_field.dart';
+import '../../../../src/widgets/geoprag_status_badge.dart';
 import '../../../autenticacao/core/admin_navigator.dart';
 import '../ponto_de_aplicacao_view_model.dart';
 
@@ -22,6 +23,12 @@ const _todosOsEstados = 'Todos os estados';
 class PainelDoDashboard extends StatelessWidget {
   final List<PontoDeAplicacaoResumoViewModel> alertas;
   final List<CoberturaDeBairroViewModel> cobertura;
+
+  /// Quantos pontos estão com a aplicação em atraso (GEOPRAG-160), sobre a
+  /// carga completa — independe dos filtros da tabela.
+  final int quantidadeEmAtraso;
+  final bool apenasEmAtraso;
+  final ValueChanged<bool> onAlternarApenasEmAtraso;
   final bool incluirDesativados;
   final EstadoPontoDeAplicacao? estadoSelecionado;
   final ValueChanged<String> onBuscar;
@@ -32,6 +39,9 @@ class PainelDoDashboard extends StatelessWidget {
     super.key,
     required this.alertas,
     required this.cobertura,
+    required this.quantidadeEmAtraso,
+    required this.apenasEmAtraso,
+    required this.onAlternarApenasEmAtraso,
     required this.incluirDesativados,
     required this.estadoSelecionado,
     required this.onBuscar,
@@ -48,6 +58,8 @@ class PainelDoDashboard extends StatelessWidget {
           _BlocoDeAlertas(alertas: alertas),
           const SizedBox(height: 16),
         ],
+        _ContadorDeAtraso(quantidade: quantidadeEmAtraso),
+        const SizedBox(height: 16),
         _MapaDeCobertura(cobertura: cobertura),
         const SizedBox(height: 16),
         GeopragSearchField(
@@ -78,6 +90,16 @@ class PainelDoDashboard extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: CheckboxListTile(
+                value: apenasEmAtraso,
+                onChanged: (valor) => onAlternarApenasEmAtraso(valor ?? false),
+                title: const Text('Em atraso'),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: CheckboxListTile(
                 value: incluirDesativados,
                 onChanged: (valor) =>
                     onAlternarIncluirDesativados(valor ?? false),
@@ -89,6 +111,30 @@ class PainelDoDashboard extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Contador de pontos com a aplicação em atraso (GEOPRAG-160): vermelho
+/// quando há algum, verde quando não há — o administrador vê o panorama sem
+/// precisar filtrar a tabela.
+class _ContadorDeAtraso extends StatelessWidget {
+  const _ContadorDeAtraso({required this.quantidade});
+
+  final int quantidade;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GeopragStatusBadge(
+        status: quantidade > 0 ? GeopragStatus.atrasado : GeopragStatus.emDia,
+        label: switch (quantidade) {
+          0 => 'Nenhum ponto em atraso',
+          1 => '1 ponto em atraso',
+          _ => '$quantidade pontos em atraso',
+        },
+      ),
     );
   }
 }

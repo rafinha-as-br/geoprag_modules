@@ -1,3 +1,5 @@
+import '../src/atraso/alerta_de_atraso_repository.dart';
+import '../src/atraso/alerta_de_atraso_repository_impl.dart';
 import '../src/auditoria/evento_auditoria.dart';
 import '../src/auditoria/evento_auditoria_repository.dart';
 import '../src/auditoria/evento_auditoria_repository_impl.dart';
@@ -72,6 +74,8 @@ class AdminBootstrap {
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
   EventoAuditoriaRepository buildEventoAuditoriaRepository() =>
       EventoAuditoriaRepositoryImpl();
+  AlertaDeAtrasoRepository buildAlertaDeAtrasoRepository() =>
+      AlertaDeAtrasoRepositoryImpl();
 
   /// [contaAtual] vira o [AutorUsuario] de cada [EventoAuditoria] emitido
   /// pelo repositório (GEOPRAG-113) — quem chama esta fábrica (uma rota
@@ -81,6 +85,7 @@ class AdminBootstrap {
     required AdminAccount contaAtual,
   }) => AdminPontoDeAplicacaoRepositoryImpl(
     eventoAuditoriaRepository: buildEventoAuditoriaRepository(),
+    alertaDeAtrasoRepository: buildAlertaDeAtrasoRepository(),
     autor: AutorUsuario(email: contaAtual.email, perfil: contaAtual.role.name),
   );
   AdministradorRepository buildAdministradorRepository() =>

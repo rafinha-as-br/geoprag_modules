@@ -46,6 +46,10 @@ class PontoDeAplicacaoResumoViewModel {
   /// destaca esses casos num bloco de alertas.
   final bool ativoSemRegistro;
 
+  /// Aplicação do ponto em atraso (GEOPRAG-160) — decidido pelo repositório
+  /// via regra de domínio; a listagem só exibe.
+  final bool emAtraso;
+
   const PontoDeAplicacaoResumoViewModel({
     required this.id,
     required this.identificador,
@@ -56,11 +60,13 @@ class PontoDeAplicacaoResumoViewModel {
     required this.execucoesRegistradas,
     required this.quantidadeDeSubpontos,
     required this.ativoSemRegistro,
+    this.emAtraso = false,
   });
 
   factory PontoDeAplicacaoResumoViewModel.fromEntity(
     PontoDeAplicacao entity, {
     String? aplicadorNome,
+    bool emAtraso = false,
   }) {
     return PontoDeAplicacaoResumoViewModel(
       id: entity.id,
@@ -72,6 +78,7 @@ class PontoDeAplicacaoResumoViewModel {
       execucoesRegistradas: entity.subpontos.length,
       quantidadeDeSubpontos: entity.quantidadeDeSubpontos,
       ativoSemRegistro: entity.ativoSemRegistro,
+      emAtraso: emAtraso,
     );
   }
 
@@ -140,6 +147,10 @@ class PontoDeAplicacaoDetalhadoViewModel {
   /// oferecer "Desatribuir aplicador" sem precisar de outra consulta.
   final String? aplicadorId;
 
+  /// Aplicação em atraso (GEOPRAG-160): a tela destaca o ponto e oferece
+  /// remover o alerta.
+  final bool emAtraso;
+
   const PontoDeAplicacaoDetalhadoViewModel({
     required this.id,
     required this.identificador,
@@ -160,11 +171,13 @@ class PontoDeAplicacaoDetalhadoViewModel {
     required this.execucoes,
     this.agendamento,
     this.aplicadorId,
+    this.emAtraso = false,
   });
 
   factory PontoDeAplicacaoDetalhadoViewModel.fromEntity(
     PontoDeAplicacao entity, {
     String? aplicadorNome,
+    bool emAtraso = false,
   }) {
     return PontoDeAplicacaoDetalhadoViewModel(
       id: entity.id,
@@ -186,6 +199,7 @@ class PontoDeAplicacaoDetalhadoViewModel {
       execucoes: entity.subpontos,
       agendamento: entity.agendamento,
       aplicadorId: entity.aplicadorId,
+      emAtraso: emAtraso,
     );
   }
 }

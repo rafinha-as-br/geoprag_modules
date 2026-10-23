@@ -168,6 +168,154 @@ void main() {
     expect(cubit.state.feedback, isA<AcaoFeedbackSucesso>());
   });
 
+  group('tolerância de atraso', () {
+    const mensagemInvalida = 'A tolerância deve ser de pelo menos 1 dia.';
+
+    // Último campo de texto: vem depois de "Subpontos por ciclo" (índice 10).
+    Finder campoDeTolerancia() => find.byType(TextFormField).at(11);
+
+    void stubCriarQualquer() {
+      when(
+        () => repository.criar(
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+          aplicadorId: any(named: 'aplicadorId'),
+          toleranciaDias: any(named: 'toleranciaDias'),
+        ),
+      ).thenAnswer((_) async => pontoDeAplicacao());
+    }
+
+    testWidgets('o campo já vem preenchido com o padrão de 4 dias',
+        (tester) async {
+      await montar(tester);
+
+      expect(find.text('Tolerância de atraso (dias)'), findsWidgets);
+      expect(
+        tester.widget<TextFormField>(campoDeTolerancia()).initialValue,
+        '4',
+      );
+    });
+
+    testWidgets('sem mexer no campo, cadastra com a tolerância padrão',
+        (tester) async {
+      stubCriarQualquer();
+      await montar(tester);
+      await preencher(tester);
+
+      await cubit.submit();
+
+      verify(
+        () => repository.criar(
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+          aplicadorId: any(named: 'aplicadorId'),
+          toleranciaDias: 4,
+        ),
+      ).called(1);
+    });
+
+    testWidgets('cadastra com a tolerância própria quando o valor é trocado',
+        (tester) async {
+      stubCriarQualquer();
+      await montar(tester);
+      await preencher(tester);
+      await tester.enterText(campoDeTolerancia(), '10');
+      await tester.pump();
+
+      await cubit.submit();
+
+      verify(
+        () => repository.criar(
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+          aplicadorId: any(named: 'aplicadorId'),
+          toleranciaDias: 10,
+        ),
+      ).called(1);
+    });
+
+    testWidgets('zero é barrado com mensagem amigável e nada é cadastrado',
+        (tester) async {
+      stubCriarQualquer();
+      await montar(tester);
+      await preencher(tester);
+      await tester.enterText(campoDeTolerancia(), '0');
+      await tester.pump();
+
+      final enviou = await cubit.submit();
+      await tester.pump();
+
+      expect(enviou, isFalse);
+      expect(find.text(mensagemInvalida), findsOneWidget);
+      verifyNever(
+        () => repository.criar(
+          nome: any(named: 'nome'),
+          bairro: any(named: 'bairro'),
+          endereco: any(named: 'endereco'),
+          numeroReferencia: any(named: 'numeroReferencia'),
+          descricaoDoTrecho: any(named: 'descricaoDoTrecho'),
+          larguraMetros: any(named: 'larguraMetros'),
+          profundidadeMetros: any(named: 'profundidadeMetros'),
+          velocidadeMetrosPorSegundo: any(named: 'velocidadeMetrosPorSegundo'),
+          dosagemMl: any(named: 'dosagemMl'),
+          distanciaEntreSubpontosMetros: any(
+            named: 'distanciaEntreSubpontosMetros',
+          ),
+          quantidadeDeSubpontos: any(named: 'quantidadeDeSubpontos'),
+          aplicadorId: any(named: 'aplicadorId'),
+          toleranciaDias: any(named: 'toleranciaDias'),
+        ),
+      );
+    });
+
+    testWidgets('vazio é barrado pedindo a tolerância', (tester) async {
+      await montar(tester);
+      await preencher(tester);
+      await tester.enterText(campoDeTolerancia(), '');
+      await tester.pump();
+
+      final enviou = await cubit.submit();
+      await tester.pump();
+
+      expect(enviou, isFalse);
+      expect(find.text('Informe a tolerância de atraso em dias.'),
+          findsOneWidget);
+    });
+  });
+
   testWidgets('falha do repositório vira feedback de erro na própria tela',
       (tester) async {
     when(

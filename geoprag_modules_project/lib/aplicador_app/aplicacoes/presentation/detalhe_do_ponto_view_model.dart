@@ -16,6 +16,10 @@ class DetalheDoPontoDesignadoViewModel {
   final int quantidadeDeSubpontos;
   final List<Subponto> execucoes;
 
+  /// Aplicação do ponto em atraso (GEOPRAG-161): a tela avisa, mas nunca
+  /// impede [podeIniciarAplicacao].
+  final bool emAtraso;
+
   const DetalheDoPontoDesignadoViewModel({
     required this.id,
     required this.identificador,
@@ -29,6 +33,7 @@ class DetalheDoPontoDesignadoViewModel {
     required this.distanciaEntreSubpontosMetros,
     required this.quantidadeDeSubpontos,
     required this.execucoes,
+    this.emAtraso = false,
   });
 
   /// Nenhuma aplicação foi registrada ainda neste ponto — a primeira visita
@@ -41,8 +46,9 @@ class DetalheDoPontoDesignadoViewModel {
   bool get podeIniciarAplicacao => estado == EstadoPontoDeAplicacao.ativa;
 
   factory DetalheDoPontoDesignadoViewModel.fromEntity(
-    PontoDeAplicacao entity,
-  ) {
+    PontoDeAplicacao entity, {
+    bool emAtraso = false,
+  }) {
     return DetalheDoPontoDesignadoViewModel(
       id: entity.id,
       identificador: entity.identificador,
@@ -56,6 +62,7 @@ class DetalheDoPontoDesignadoViewModel {
       distanciaEntreSubpontosMetros: entity.distanciaEntreSubpontosMetros,
       quantidadeDeSubpontos: entity.quantidadeDeSubpontos,
       execucoes: entity.subpontos,
+      emAtraso: emAtraso,
     );
   }
 

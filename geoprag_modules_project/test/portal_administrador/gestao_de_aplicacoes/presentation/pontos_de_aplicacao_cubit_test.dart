@@ -3,6 +3,7 @@ import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadore
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/pontos_de_aplicacao_cubit.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/painel_do_dashboard.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:mocktail/mocktail.dart';
@@ -69,6 +70,7 @@ void main() {
 
   setUp(() {
     repository = MockAdminPontoDeAplicacaoRepository();
+    when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
     aplicadorRepository = MockAplicadorRepository();
     when(() => aplicadorRepository.listar()).thenAnswer((_) async => [aplicador]);
   });
@@ -91,6 +93,35 @@ void main() {
     final cubit = await carregar([enderecado]);
 
     expect(cubit.state.items.single.aplicadorNome, isNull);
+  });
+
+  test('marca os pontos em atraso e conta quantos são', () async {
+    when(
+      () => repository.idsDePontosEmAtraso(),
+    ).thenAnswer((_) async => {'pa1'});
+    final cubit = await carregar([ativoComExecucao, ativoSemExecucao]);
+
+    expect(cubit.state.items.map((p) => p.emAtraso), [true, false]);
+    final painel = cubit.state.filter as PainelDoDashboard;
+    expect(painel.quantidadeEmAtraso, 1);
+  });
+
+  test('o filtro "em atraso" restringe a listagem, mas o contador não muda',
+      () async {
+    when(
+      () => repository.idsDePontosEmAtraso(),
+    ).thenAnswer((_) async => {'pa1'});
+    final cubit = await carregar([ativoComExecucao, ativoSemExecucao]);
+
+    cubit.alternarApenasEmAtraso(true);
+
+    expect(cubit.state.items.map((p) => p.id), ['pa1']);
+    final painel = cubit.state.filter as PainelDoDashboard;
+    expect(painel.apenasEmAtraso, isTrue);
+    expect(painel.quantidadeEmAtraso, 1);
+
+    cubit.alternarApenasEmAtraso(false);
+    expect(cubit.state.items.map((p) => p.id), ['pa1', 'pa2']);
   });
 
   test('desativados ficam fora da listagem por padrão', () async {

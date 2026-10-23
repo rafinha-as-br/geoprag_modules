@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/theme/geoprag_status.dart';
 import '../../../src/utils/form_validators.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/base_screen_feedback.dart';
@@ -113,6 +114,30 @@ List<Widget> _acoesDoPonto(
       label: const Text('Editar'),
     ),
   ];
+
+  if (ponto.emAtraso) {
+    botoes.add(
+      OutlinedButton.icon(
+        onPressed: processando
+            ? null
+            : () async {
+                final confirmado = await _confirmarAcaoSimples(
+                  context,
+                  titulo: 'Remover alerta de atraso',
+                  mensagem:
+                      'O alerta some só para este atraso e a remoção fica '
+                      'registrada na auditoria. Se a próxima aplicação '
+                      'atrasar, o alerta volta. Nenhuma ação sobre o ponto '
+                      'é bloqueada. Confirma?',
+                  rotuloConfirmar: 'Remover alerta',
+                );
+                if (confirmado) await cubit.removerAlertaDeAtraso();
+              },
+        icon: const Icon(Icons.notifications_off_outlined),
+        label: const Text('Remover alerta de atraso'),
+      ),
+    );
+  }
 
   if (ponto.estado == EstadoPontoDeAplicacao.ativa) {
     botoes.add(
@@ -279,9 +304,20 @@ class _ConteudoDoPonto extends StatelessWidget {
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: GeopragStatusBadge(
-            status: ponto.estado.status,
-            label: ponto.estado.rotulo,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              GeopragStatusBadge(
+                status: ponto.estado.status,
+                label: ponto.estado.rotulo,
+              ),
+              if (ponto.emAtraso)
+                const GeopragStatusBadge(
+                  status: GeopragStatus.atrasado,
+                  label: 'Em atraso',
+                ),
+            ],
           ),
         ),
         if (feedback != null) ...[

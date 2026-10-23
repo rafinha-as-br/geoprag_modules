@@ -1,3 +1,4 @@
+import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 
 /// Ponto de Aplicação de teste com os campos obrigatórios já preenchidos —
@@ -16,6 +17,7 @@ PontoDeAplicacao pontoDeAplicacao({
   double profundidadeMetros = 0.5,
   double velocidadeMetrosPorSegundo = 0.4,
   int quantidadeDeSubpontos = 8,
+  int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
 }) {
   return PontoDeAplicacao(
     id: id,
@@ -36,6 +38,7 @@ PontoDeAplicacao pontoDeAplicacao({
     agendamento: agendamento,
     estadoAnterior: estadoAnterior,
     subpontos: subpontos,
+    toleranciaDias: toleranciaDias,
   );
 }
 

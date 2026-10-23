@@ -8,6 +8,7 @@ import '../../core/aplicador_navigator.dart';
 import 'detalhe_do_ponto_cubit.dart';
 import 'detalhe_do_ponto_state.dart';
 import 'detalhe_do_ponto_view_model.dart';
+import 'mensagem_de_atraso.dart';
 
 /// Tela "Detalhe do Ponto Designado" (GEOPRAG-111) — dosagem em destaque,
 /// instrução de campo usando a distância cadastrada do ponto (nunca mais
@@ -64,6 +65,10 @@ class _Conteudo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (ponto.emAtraso) ...[
+          const _AvisoDeAtraso(),
+          const SizedBox(height: 16),
+        ],
         _BadgePrimeiraOuRevisita(primeiraAplicacao: ponto.primeiraAplicacao),
         const SizedBox(height: 16),
         _DosagemDestaque(dosagemFormatada: ponto.dosagemFormatada),
@@ -74,6 +79,44 @@ class _Conteudo extends StatelessWidget {
         const SizedBox(height: 32),
         _HistoricoDeAplicacoes(execucoes: ponto.execucoes),
       ],
+    );
+  }
+}
+
+/// Aviso de atraso (GEOPRAG-161): só informa, nunca bloqueia nem esconde o
+/// botão de iniciar a aplicação.
+class _AvisoDeAtraso extends StatelessWidget {
+  const _AvisoDeAtraso();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('detalheDoPontoDesignadoScreen_avisoDeAtraso'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: GeopragColors.statusAtrasado.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: GeopragColors.statusAtrasado),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: GeopragColors.statusAtrasado,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '$mensagemDeAtrasoDoPonto $complementoDoAvisoDeAtraso',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: GeopragColors.statusAtrasado,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

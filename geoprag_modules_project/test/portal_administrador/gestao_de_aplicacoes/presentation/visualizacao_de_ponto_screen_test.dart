@@ -27,6 +27,7 @@ void main() {
 
   setUp(() {
     repository = MockAdminPontoDeAplicacaoRepository();
+    when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
     aplicadorRepository = MockAplicadorRepository();
     navigator = MockAdminNavigator();
   });
@@ -93,9 +94,9 @@ void main() {
     // auditoria) continua visível.
     'não mostra o bloco de auditoria, mas mantém o histórico de execuções',
     (tester) async {
-      when(() => repository.buscarPorId('pa1')).thenAnswer(
-        (_) async => pontoDeAplicacao(subpontos: [execucaoDeTeste]),
-      );
+      when(
+        () => repository.buscarPorId('pa1'),
+      ).thenAnswer((_) async => pontoDeAplicacao(subpontos: [execucaoDeTeste]));
       await montar(tester);
       await tester.pump();
 
@@ -104,4 +105,51 @@ void main() {
       expect(find.textContaining('Aplicada em'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'ponto em atraso mostra o selo e permite remover o alerta, sem bloquear '
+    'as demais ações',
+    (tester) async {
+      when(
+        () => repository.idsDePontosEmAtraso(),
+      ).thenAnswer((_) async => {'pa1'});
+      when(
+        () => repository.buscarPorId('pa1'),
+      ).thenAnswer((_) async => pontoDeAplicacao());
+      when(() => repository.removerAlertaDeAtraso('pa1')).thenAnswer((_) async {
+        when(
+          () => repository.idsDePontosEmAtraso(),
+        ).thenAnswer((_) async => {});
+      });
+      await montar(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Em atraso'), findsOneWidget);
+      expect(find.text('Remover alerta de atraso'), findsOneWidget);
+      expect(find.text('Desativar'), findsOneWidget);
+      expect(find.text('Editar'), findsOneWidget);
+
+      await tester.tap(find.text('Remover alerta de atraso'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remover alerta'));
+      await tester.pumpAndSettle();
+
+      verify(() => repository.removerAlertaDeAtraso('pa1')).called(1);
+      expect(find.text('Em atraso'), findsNothing);
+      expect(find.text('Remover alerta de atraso'), findsNothing);
+    },
+  );
+
+  testWidgets('ponto em dia não oferece remover alerta nem mostra o selo', (
+    tester,
+  ) async {
+    when(
+      () => repository.buscarPorId('pa1'),
+    ).thenAnswer((_) async => pontoDeAplicacao());
+    await montar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Em atraso'), findsNothing);
+    expect(find.text('Remover alerta de atraso'), findsNothing);
+  });
 }

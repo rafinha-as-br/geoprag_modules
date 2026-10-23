@@ -114,4 +114,56 @@ void main() {
       verify(() => navigator.toPontoDetalhe('pa1')).called(1);
     });
   });
+
+  group('MeusPontosScreen — alerta de atraso (GEOPRAG-161)', () {
+    PontoDoAplicadorResumoViewModel pontoComAtraso({required bool emAtraso}) =>
+        PontoDoAplicadorResumoViewModel(
+          id: 'pa1',
+          identificador: '#GAS1',
+          nome: 'Córrego Gasparinho',
+          bairro: 'Gasparinho',
+          estado: EstadoPontoDeAplicacao.ativa,
+          dosagemFormatada: '120 ml',
+          execucoesRegistradas: 2,
+          quantidadeDeSubpontos: 8,
+          ativoSemRegistro: false,
+          emAtraso: emAtraso,
+        );
+
+    testWidgets('sinaliza o ponto em atraso com texto simples', (tester) async {
+      await tester.pumpWidget(
+        wrap(MeusPontosLoaded([pontoComAtraso(emAtraso: true)])),
+      );
+
+      expect(
+        find.byKey(const Key('meusPontosScreen_atraso_pa1')),
+        findsOneWidget,
+      );
+      expect(find.text('Esta aplicação está atrasada.'), findsOneWidget);
+    });
+
+    testWidgets('não sinaliza o ponto em dia', (tester) async {
+      await tester.pumpWidget(
+        wrap(MeusPontosLoaded([pontoComAtraso(emAtraso: false)])),
+      );
+
+      expect(
+        find.byKey(const Key('meusPontosScreen_atraso_pa1')),
+        findsNothing,
+      );
+      expect(find.text('Esta aplicação está atrasada.'), findsNothing);
+    });
+
+    testWidgets('o card em atraso continua abrindo o detalhe do ponto', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(MeusPontosLoaded([pontoComAtraso(emAtraso: true)])),
+      );
+
+      await tester.tap(find.text('Córrego Gasparinho'));
+
+      verify(() => navigator.toPontoDetalhe('pa1')).called(1);
+    });
+  });
 }

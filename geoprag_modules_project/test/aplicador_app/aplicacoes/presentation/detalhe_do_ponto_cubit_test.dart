@@ -33,6 +33,7 @@ void main() {
 
   setUp(() {
     repository = MockAplicadorPontoDeAplicacaoRepository();
+    when(() => repository.estaEmAtraso(any())).thenAnswer((_) async => false);
   });
 
   blocTest<DetalheDoPontoDesignadoCubit, DetalheDoPontoDesignadoState>(
@@ -81,6 +82,37 @@ void main() {
         (s) => s.message,
         'message',
         isNot(contains('Exception')),
+      ),
+    ],
+  );
+
+  blocTest<DetalheDoPontoDesignadoCubit, DetalheDoPontoDesignadoState>(
+    'carrega o ponto em atraso quando o repository aponta atraso (GEOPRAG-161)',
+    setUp: () {
+      when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+      when(() => repository.estaEmAtraso('pa1')).thenAnswer((_) async => true);
+    },
+    build: () => DetalheDoPontoDesignadoCubit(repository, 'pa1'),
+    expect: () => [
+      isA<DetalheDoPontoDesignadoLoaded>().having(
+        (s) => s.ponto.emAtraso,
+        'ponto.emAtraso',
+        isTrue,
+      ),
+    ],
+  );
+
+  blocTest<DetalheDoPontoDesignadoCubit, DetalheDoPontoDesignadoState>(
+    'carrega o ponto em dia por padrão',
+    setUp: () {
+      when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
+    },
+    build: () => DetalheDoPontoDesignadoCubit(repository, 'pa1'),
+    expect: () => [
+      isA<DetalheDoPontoDesignadoLoaded>().having(
+        (s) => s.ponto.emAtraso,
+        'ponto.emAtraso',
+        isFalse,
       ),
     ],
   );
