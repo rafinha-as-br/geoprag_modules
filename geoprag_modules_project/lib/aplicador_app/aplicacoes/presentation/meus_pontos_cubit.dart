@@ -26,11 +26,19 @@ class MeusPontosCubit extends Cubit<MeusPontosState> {
     emit(const MeusPontosLoading());
     try {
       final pontos = await _repository.listarMeusPontos(_aplicadorId);
+      final emAtraso = await _repository.idsDePontosEmAtraso(_aplicadorId);
       final ordenados = [...pontos]
         ..sort(compararPontosDoAplicadorPorUrgencia);
       emit(
         MeusPontosLoaded(
-          ordenados.map(PontoDoAplicadorResumoViewModel.fromEntity).toList(),
+          ordenados
+              .map(
+                (ponto) => PontoDoAplicadorResumoViewModel.fromEntity(
+                  ponto,
+                  emAtraso: emAtraso.contains(ponto.id),
+                ),
+              )
+              .toList(),
         ),
       );
     } catch (e, stackTrace) {

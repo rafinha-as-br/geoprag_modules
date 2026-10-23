@@ -40,6 +40,9 @@ void main() {
 
   setUp(() {
     repository = MockAplicadorPontoDeAplicacaoRepository();
+    when(
+      () => repository.idsDePontosEmAtraso(any()),
+    ).thenAnswer((_) async => <String>{});
   });
 
   blocTest<MeusPontosCubit, MeusPontosState>(
@@ -98,4 +101,27 @@ void main() {
     expect(cubit.state, isA<MeusPontosLoaded>());
     verify(() => repository.listarMeusPontos('1')).called(2);
   });
+
+  blocTest<MeusPontosCubit, MeusPontosState>(
+    'marca em atraso só os pontos que o repository aponta (GEOPRAG-161)',
+    setUp: () {
+      when(() => repository.listarMeusPontos('1')).thenAnswer(
+        (_) async => [
+          ponto(id: 'atrasado', nome: 'A', estado: EstadoPontoDeAplicacao.ativa),
+          ponto(id: 'emDia', nome: 'B', estado: EstadoPontoDeAplicacao.ativa),
+        ],
+      );
+      when(
+        () => repository.idsDePontosEmAtraso('1'),
+      ).thenAnswer((_) async => {'atrasado'});
+    },
+    build: () => MeusPontosCubit(repository, '1'),
+    expect: () => [
+      isA<MeusPontosLoaded>().having(
+        (s) => {for (final p in s.pontos) p.id: p.emAtraso},
+        'emAtraso por id',
+        {'atrasado': true, 'emDia': false},
+      ),
+    ],
+  );
 }
