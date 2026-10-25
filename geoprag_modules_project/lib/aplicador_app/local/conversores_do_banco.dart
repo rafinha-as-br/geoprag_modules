@@ -39,6 +39,7 @@ class ConversoresDoBanco {
       'aplicador_id': ponto.aplicadorId,
       'estado': ponto.estado.name,
       'estado_anterior': ponto.estadoAnterior?.name,
+      'tolerancia_dias': ponto.toleranciaDias,
       'agendamento_data_inicio': agendamento == null
           ? null
           : formatarDataDeCalendario(agendamento.dataInicio),
@@ -91,10 +92,14 @@ class ConversoresDoBanco {
                     status: StatusDataAgendada.values.byName(
                       d['status']! as String,
                     ),
+                    alertaRemovidoEm: d['alerta_removido_em'] == null
+                        ? null
+                        : instanteDoTexto(d['alerta_removido_em']! as String),
                   ),
               ],
             ),
       subpontos: subpontos,
+      toleranciaDias: linha['tolerancia_dias']! as int,
     );
   }
 
@@ -108,6 +113,9 @@ class ConversoresDoBanco {
     'data': formatarDataDeCalendario(data.data),
     'status': data.status.name,
     'ordem': ordem,
+    'alerta_removido_em': data.alertaRemovidoEm == null
+        ? null
+        : textoDoInstante(data.alertaRemovidoEm!),
   };
 
   static Map<String, Object?> linhaDoSubponto(

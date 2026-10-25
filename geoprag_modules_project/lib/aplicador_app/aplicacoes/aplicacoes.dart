@@ -4,7 +4,7 @@ export 'core/regra_de_chegada.dart';
 export 'core/registro_de_aplicacao_repository.dart';
 export 'core/servico_de_localizacao.dart';
 
-export 'data/aplicador_ponto_de_aplicacao_repository_impl.dart';
+export 'data/aplicador_ponto_de_aplicacao_repository_local.dart';
 export 'data/registro_de_aplicacao_repository_impl.dart';
 export 'data/servico_de_localizacao_geolocator.dart';
 

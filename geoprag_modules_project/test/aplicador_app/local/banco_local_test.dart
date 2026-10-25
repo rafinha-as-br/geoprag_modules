@@ -26,6 +26,7 @@ void main() {
           'datas_agendadas',
           'outbox',
           'pontos',
+          'produtos',
           'subpontos',
         ]);
       },
@@ -56,9 +57,11 @@ void main() {
   });
 
   group('migração de esquema', () {
-    const v2 = Migracao(2, [
+    // Uma migração hipotética depois da última real, para provar o mecanismo.
+    final proxima = migracoesDoEsquema.last.versao + 1;
+    final v2 = Migracao(proxima, [
       'ALTER TABLE outbox ADD COLUMN prioridade INTEGER NOT NULL DEFAULT 0',
-      'CREATE TABLE produtos (id TEXT PRIMARY KEY, nome TEXT NOT NULL)',
+      'CREATE TABLE extras (id TEXT PRIMARY KEY, nome TEXT NOT NULL)',
     ]);
 
     test('banco existente roda só a migração nova e mantém os dados', () async {
@@ -81,8 +84,8 @@ void main() {
       );
       addTearDown(depois.fechar);
 
-      expect(await versaoDoBanco(depois.db), 2);
-      expect(await tabelas(depois), contains('produtos'));
+      expect(await versaoDoBanco(depois.db), proxima);
+      expect(await tabelas(depois), contains('extras'));
       final item = await depois.db.query('outbox');
       expect(item.single['id'], 's-1');
       expect(item.single['prioridade'], 0);
@@ -98,8 +101,8 @@ void main() {
       );
       addTearDown(banco.fechar);
 
-      expect(await versaoDoBanco(banco.db), 2);
-      expect(await tabelas(banco), containsAll(['outbox', 'produtos']));
+      expect(await versaoDoBanco(banco.db), proxima);
+      expect(await tabelas(banco), containsAll(['outbox', 'extras']));
     });
 
     test('reabrir na mesma versão não repete migração', () async {

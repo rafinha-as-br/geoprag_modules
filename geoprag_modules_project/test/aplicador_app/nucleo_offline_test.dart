@@ -2,12 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/bootstrap.dart';
 import 'package:geoprag_modules/aplicador_app/nucleo_offline.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../support/armazenamento_em_memoria.dart';
 import 'sincronizacao/apoio_da_sincronizacao.dart';
+import 'sincronizacao/apoio_do_pull.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -157,6 +159,54 @@ void main() {
     final nucleo = await abrir();
 
     expect(identical(NucleoOffline.instancia, nucleo), isTrue);
+  });
+
+  test('GEOPRAG-203: depois de uma sincronização, sem rede o aplicador vê o '
+      'ponto com o alerta de atraso e registra a aplicação', () async {
+    // Data prevista no passado distante: em atraso com qualquer relógio.
+    final ponto = pontoDoPull('ponto-1');
+    ((ponto['agendamento'] as Map)['datas'] as List).first['data'] =
+        '2020-01-01';
+    when(
+      () => api.get('/sync/pull'),
+    ).thenAnswer((_) async => corpoDoPull([ponto]));
+    final nucleo = await abrir();
+    expect((await nucleo.sincronizacao.sincronizar()).concluida, isTrue);
+
+    // Modo avião.
+    const semRede = FalhaDeConexaoException('Sem conexão.');
+    when(() => api.get('/sync/pull')).thenThrow(semRede);
+    when(() => api.post(any(), corpo: any(named: 'corpo'))).thenThrow(semRede);
+
+    expect(
+      [for (final p in await nucleo.pontos.listarMeusPontos('aplicador-1')) p.id],
+      ['ponto-1'],
+    );
+    expect(await nucleo.pontos.idsDePontosEmAtraso('aplicador-1'), {'ponto-1'});
+    final produtos = await nucleo.registro.listarProdutos();
+    expect(produtos.map((p) => p.id), ['produto-1']);
+
+    final aplicacao = await nucleo.registro.iniciarAplicacao(
+      pontoId: 'ponto-1',
+      aplicadorId: 'aplicador-1',
+      dataAgendadaId: 'ponto-1-d1',
+      produtoId: produtos.single.id,
+      localizacao: _localizacao,
+    );
+    for (var i = 0; i < 3; i++) {
+      await nucleo.registro.registrarSubponto(
+        aplicacaoId: aplicacao.id,
+        latitude: -26.9,
+        longitude: -48.9,
+      );
+    }
+
+    expect(await nucleo.pontos.idsDePontosEmAtraso('aplicador-1'), isEmpty);
+    expect(
+      (await nucleo.pontos.buscarPorId('ponto-1')).subpontos,
+      hasLength(3),
+    );
+    expect(await nucleo.outbox.pontoIdsComPendencias(), {'ponto-1'});
   });
 
   test('depois de redefinir, o núcleo precisa ser aberto de novo', () async {

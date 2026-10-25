@@ -12,4 +12,6 @@ export 'outbox_dao.dart';
 export 'outbox_dao_sqflite.dart';
 export 'ponto_dao.dart';
 export 'ponto_dao_sqflite.dart';
+export 'produto_dao.dart';
+export 'produto_dao_sqflite.dart';
 export 'registro_da_fila.dart';

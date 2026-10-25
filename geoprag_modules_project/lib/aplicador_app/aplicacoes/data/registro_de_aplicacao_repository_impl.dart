@@ -3,17 +3,19 @@ import 'dart:async';
 import '../../../src/api/sync/sync_mappers.dart';
 import '../../../src/entities/aplicacao.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/entities/produto.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/services/gerador_de_id.dart';
 import '../../local/aplicacao_dao.dart';
 import '../../local/item_da_outbox.dart';
+import '../../local/produto_dao.dart';
 import '../../sincronizacao/core/servico_de_sincronizacao.dart';
 import '../core/registro_de_aplicacao_repository.dart';
 
 /// [RegistroDeAplicacaoRepository] sobre o SQLite do aparelho.
 ///
-/// Só toca o [AplicacaoDao] e o [ServicoDeSincronizacao]: não conhece o
+/// Só toca os DAOs e o [ServicoDeSincronizacao]: não conhece o
 /// `ApiClient` nem o token. Uma falha do envio (rede, servidor, sessão) nunca
 /// chega a quem registrou; o item continua na outbox, `PENDENTE`.
 class RegistroDeAplicacaoRepositoryImpl
@@ -22,17 +24,23 @@ class RegistroDeAplicacaoRepositoryImpl
   RegistroDeAplicacaoRepositoryImpl({
     required AplicacaoDao aplicacoes,
     required ServicoDeSincronizacao sincronizacao,
+    required ProdutoDao produtos,
     GeradorDeId? gerador,
     DateTime Function()? agora,
   }) : _aplicacoes = aplicacoes,
        _sincronizacao = sincronizacao,
+       _produtos = produtos,
        _gerador = gerador ?? GeradorDeIdUuid(),
        _agora = agora ?? DateTime.now;
 
   final AplicacaoDao _aplicacoes;
   final ServicoDeSincronizacao _sincronizacao;
+  final ProdutoDao _produtos;
   final GeradorDeId _gerador;
   final DateTime Function() _agora;
+
+  @override
+  Future<List<Produto>> listarProdutos() => _produtos.listar();
 
   @override
   Future<Aplicacao> iniciarAplicacao({

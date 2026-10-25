@@ -13,7 +13,6 @@ import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'aplicacoes/core/registro_de_aplicacao_repository.dart';
 import 'aplicacoes/core/servico_de_localizacao.dart';
 import 'aplicacoes/data/servico_de_localizacao_geolocator.dart';
-import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_impl.dart';
 import 'aplicacoes/presentation/meus_pontos_cubit.dart';
 import 'aplicacoes/presentation/detalhe_do_ponto_cubit.dart';
 import 'aplicacoes/presentation/geolocalizacao_cubit.dart';
@@ -80,9 +79,11 @@ class AplicadorBootstrap {
     sessao: ApiClientProvider.sessao,
   );
   TenantRepository buildTenantRepository() => TenantRepositoryImpl();
+
+  /// Pontos do aplicador, lidos do banco do aparelho (GEOPRAG-203). Exige o
+  /// núcleo offline aberto.
   AplicadorPontoDeAplicacaoRepository
-  buildAplicadorPontoDeAplicacaoRepository() =>
-      AplicadorPontoDeAplicacaoRepositoryImpl();
+  buildAplicadorPontoDeAplicacaoRepository() => NucleoOffline.instancia.pontos;
 
   /// GPS real do aparelho (GEOPRAG-191); sem rede.
   ServicoDeLocalizacao buildServicoDeLocalizacao() =>
@@ -104,8 +105,12 @@ class AplicadorBootstrap {
       VerificarCodigoCubit(buildAuthRepository());
   RecriarSenhaCubit buildRecriarSenhaCubit() =>
       RecriarSenhaCubit(buildAuthRepository());
-  MeusPontosCubit buildMeusPontosCubit(String aplicadorId) =>
-      MeusPontosCubit(buildAplicadorPontoDeAplicacaoRepository(), aplicadorId);
+  MeusPontosCubit buildMeusPontosCubit(String aplicadorId) => MeusPontosCubit(
+    buildAplicadorPontoDeAplicacaoRepository(),
+    aplicadorId,
+    sincronizacao: buildServicoDeSincronizacao(),
+    aoSincronizar: NucleoOffline.instancia.painel.aoMudar,
+  );
   DetalheDoPontoDesignadoCubit buildDetalheDoPontoDesignadoCubit(
     String pontoId,
   ) => DetalheDoPontoDesignadoCubit(
@@ -118,12 +123,16 @@ class AplicadorBootstrap {
         buildServicoDeLocalizacao(),
         pontoId,
       );
-  TelaDeAplicacaoCubit buildTelaDeAplicacaoCubit(String pontoId) =>
-      TelaDeAplicacaoCubit(
-        buildAplicadorPontoDeAplicacaoRepository(),
-        buildServicoDeLocalizacao(),
-        pontoId,
-      );
+  TelaDeAplicacaoCubit buildTelaDeAplicacaoCubit(
+    String pontoId,
+    String aplicadorId,
+  ) => TelaDeAplicacaoCubit(
+    buildAplicadorPontoDeAplicacaoRepository(),
+    buildRegistroDeAplicacaoRepository(),
+    buildServicoDeLocalizacao(),
+    pontoId,
+    aplicadorId,
+  );
   InventarioCubit buildInventarioCubit() =>
       InventarioCubit(buildInsumoRepository(), buildRecebimentoRepository());
   RecebimentosCubit buildRecebimentosCubit() =>

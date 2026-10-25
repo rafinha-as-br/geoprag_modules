@@ -235,4 +235,42 @@ void main() {
     expect([for (final p in resultado.produtos) p.id], ['produto-1']);
     expect(resultado.cursor, DateTime.utc(2026, 10, 21, 10));
   });
+
+  test('guarda os produtos do pull e soma os do pull seguinte', () async {
+    final produtos = ProdutoDaoSqflite(banco.db);
+
+    await reconciliador.reconciliar(respostaDoPull([]));
+    expect([for (final p in await produtos.listar()) p.id], ['produto-1']);
+
+    await reconciliador.reconciliar(
+      respostaDoPull(
+        [],
+        produtos: [
+          {'id': 'produto-2', 'nome': 'Outro'},
+        ],
+      ),
+      incremental: true,
+    );
+    expect([for (final p in await produtos.listar()) p.id], [
+      'produto-1',
+      'produto-2',
+    ]);
+  });
+
+  test('guarda a tolerância e a remoção do alerta que o pull traz', () async {
+    final ponto = pontoDoPull('ponto-1')..['toleranciaAtrasoDias'] = 7;
+    ((ponto['agendamento'] as Map)['datas'] as List).first['alertaRemovidoEm'] =
+        '2026-10-28T14:30:00Z';
+
+    await reconciliador.reconciliar(respostaDoPull([ponto]));
+    final lido = (await pontos.buscarPorId('ponto-1'))!;
+
+    expect(lido.toleranciaDias, 7);
+    expect(
+      lido.agendamento!.datas.first.alertaRemovidoEm!.isAtSameMomentAs(
+        DateTime.utc(2026, 10, 28, 14, 30),
+      ),
+      isTrue,
+    );
+  });
 }
