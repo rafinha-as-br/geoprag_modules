@@ -64,6 +64,7 @@ class DataAgendadaDto {
     required this.id,
     required this.data,
     required this.status,
+    this.alertaRemovidoEm,
   });
 
   final String id;
@@ -74,11 +75,16 @@ class DataAgendadaDto {
   /// `PENDENTE`, `CONCLUIDA` ou `CANCELADA`.
   final String status;
 
+  /// Instante da remoção manual do alerta de atraso (extensão da GEOPRAG-216);
+  /// ausente ou nulo quando o alerta não foi removido.
+  final DateTime? alertaRemovidoEm;
+
   factory DataAgendadaDto.fromJson(Map<String, dynamic> json) =>
       DataAgendadaDto(
         id: textoObrigatorio(json, 'id'),
         data: dataDeCalendario(json, 'data'),
         status: textoObrigatorio(json, 'status'),
+        alertaRemovidoEm: dataHoraOpcional(json, 'alertaRemovidoEm'),
       );
 }
 

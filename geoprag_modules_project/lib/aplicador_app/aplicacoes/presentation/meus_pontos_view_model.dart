@@ -16,6 +16,10 @@ class PontoDoAplicadorResumoViewModel {
   /// ordenação por urgência da lista destaca primeiro.
   final bool ativoSemRegistro;
 
+  /// Aplicação do ponto em atraso (GEOPRAG-161) — decidido pelo repository
+  /// via regra de domínio; a lista só sinaliza.
+  final bool emAtraso;
+
   const PontoDoAplicadorResumoViewModel({
     required this.id,
     required this.identificador,
@@ -26,9 +30,13 @@ class PontoDoAplicadorResumoViewModel {
     required this.execucoesRegistradas,
     required this.quantidadeDeSubpontos,
     required this.ativoSemRegistro,
+    this.emAtraso = false,
   });
 
-  factory PontoDoAplicadorResumoViewModel.fromEntity(PontoDeAplicacao entity) {
+  factory PontoDoAplicadorResumoViewModel.fromEntity(
+    PontoDeAplicacao entity, {
+    bool emAtraso = false,
+  }) {
     return PontoDoAplicadorResumoViewModel(
       id: entity.id,
       identificador: entity.identificador,
@@ -39,6 +47,7 @@ class PontoDoAplicadorResumoViewModel {
       execucoesRegistradas: entity.subpontos.length,
       quantidadeDeSubpontos: entity.quantidadeDeSubpontos,
       ativoSemRegistro: entity.ativoSemRegistro,
+      emAtraso: emAtraso,
     );
   }
 

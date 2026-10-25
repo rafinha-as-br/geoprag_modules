@@ -34,6 +34,7 @@ class PontosDeAplicacaoCubit
   String _busca = '';
   EstadoPontoDeAplicacao? _estado;
   bool _incluirDesativados = false;
+  bool _apenasEmAtraso = false;
 
   static BaseListScreenModel<PontoDeAplicacaoResumoViewModel>
   _initialModel() {
@@ -64,6 +65,7 @@ class PontosDeAplicacaoCubit
     emitLoading();
     try {
       final pontos = await _repository.listar();
+      final idsEmAtraso = await _repository.idsDePontosEmAtraso();
       final nomesPorAplicadorId = {
         for (final aplicador in await _aplicadorRepository.listar())
           aplicador.id: aplicador.nome,
@@ -73,6 +75,7 @@ class PontosDeAplicacaoCubit
           PontoDeAplicacaoResumoViewModel.fromEntity(
             ponto,
             aplicadorNome: nomesPorAplicadorId[ponto.aplicadorId],
+            emAtraso: idsEmAtraso.contains(ponto.id),
           ),
       ];
       _emitirListagem();
@@ -101,6 +104,11 @@ class PontosDeAplicacaoCubit
     _emitirListagem();
   }
 
+  void alternarApenasEmAtraso(bool apenas) {
+    _apenasEmAtraso = apenas;
+    _emitirListagem();
+  }
+
   /// Emite listagem e painel juntos: o painel exibe alertas e cobertura
   /// derivados da carga completa, então ele precisa ser remontado sempre que
   /// os dados mudam — não só na construção do Cubit.
@@ -111,6 +119,9 @@ class PontosDeAplicacaoCubit
         filter: PainelDoDashboard(
           alertas: _todos.where((ponto) => ponto.ativoSemRegistro).toList(),
           cobertura: _cobertura(),
+          quantidadeEmAtraso: _todos.where((ponto) => ponto.emAtraso).length,
+          apenasEmAtraso: _apenasEmAtraso,
+          onAlternarApenasEmAtraso: alternarApenasEmAtraso,
           incluirDesativados: _incluirDesativados,
           estadoSelecionado: _estado,
           onBuscar: buscar,
@@ -127,6 +138,7 @@ class PontosDeAplicacaoCubit
     return _todos.where((ponto) {
       if (!_incluirDesativados && ponto.desativado) return false;
       if (_estado != null && ponto.estado != _estado) return false;
+      if (_apenasEmAtraso && !ponto.emAtraso) return false;
       if (_busca.isEmpty) return true;
       return ponto.nome.toLowerCase().contains(_busca) ||
           ponto.identificador.toLowerCase().contains(_busca) ||

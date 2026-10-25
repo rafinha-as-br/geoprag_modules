@@ -434,6 +434,7 @@ void main() {
           'dosagemMl': 25.0,
           'distanciaEntreSubpontosMetros': 5.0,
           'quantidadeDeSubpontos': 6,
+          'toleranciaAtrasoDias': 4,
           'aplicadorId': 'ap-3',
         });
       },
@@ -450,7 +451,7 @@ void main() {
       expect(corpo.containsKey('aplicadorId'), isFalse);
       expect(corpo.containsKey('larguraMetros'), isFalse);
       expect(corpo.containsKey('numeroReferencia'), isFalse);
-      expect(corpo.containsKey('toleranciaAtrasoDias'), isFalse);
+      expect(corpo['toleranciaAtrasoDias'], 4);
     });
 
     test('as medidas vão com no máximo 2 casas decimais', () async {
@@ -495,11 +496,8 @@ void main() {
     });
 
     test(
-      'editarCadastroCompleto faz PUT e reenvia a tolerância atual',
+      'editarCadastroCompleto faz PUT e envia a tolerância informada',
       () async {
-        when(() => api.get('/pontos/p-3')).thenAnswer(
-          (_) async => {...pontoAtivoJson(), 'toleranciaAtrasoDias': 9},
-        );
         when(
           () => api.put('/pontos/p-3', corpo: any(named: 'corpo')),
         ).thenAnswer((_) async => pontoAtivoJson());
@@ -517,6 +515,7 @@ void main() {
           dosagemMl: 30,
           distanciaEntreSubpontosMetros: 8,
           quantidadeDeSubpontos: 5,
+          toleranciaDias: 9,
         );
 
         final corpo = corpoDoPut('p-3');
@@ -603,6 +602,7 @@ void main() {
             dosagemMl: 1,
             distanciaEntreSubpontosMetros: 1,
             quantidadeDeSubpontos: 1,
+            toleranciaDias: 4,
           ),
           throwsA(
             isA<OperacaoNaoPermitidaException>().having(
@@ -629,5 +629,176 @@ void main() {
         verifyNever(() => api.put(any(), corpo: any(named: 'corpo')));
       },
     );
+  });
+
+  group('atraso e tolerância (GEOPRAG-216)', () {
+    Map<String, dynamic> corpoDoPut(String id) =>
+        verify(
+              () => api.put('/pontos/$id', corpo: captureAny(named: 'corpo')),
+            ).captured.single
+            as Map<String, dynamic>;
+
+    // Ponto ativo com a data d-2 (12/10) pendente e tolerância de 4 dias: o
+    // último dia em dia é 16/10.
+    Map<String, Object?> pontoComAlerta({String? alertaRemovidoEm}) {
+      final base = pontoAtivoJson();
+      final agendamento = base['agendamento']! as Map<String, Object?>;
+      final datas = [
+        for (final d
+            in (agendamento['datas']! as List<Object?>)
+                .cast<Map<String, Object?>>())
+          {...d, if (d['id'] == 'd-2') 'alertaRemovidoEm': alertaRemovidoEm},
+      ];
+      return {
+        ...base,
+        'agendamento': {...agendamento, 'datas': datas},
+      };
+    }
+
+    AdminPontoDeAplicacaoRepositoryHttp comHoje(DateTime hoje) =>
+        AdminPontoDeAplicacaoRepositoryHttp(api, bairros, agora: () => hoje);
+
+    test(
+      'idsDePontosEmAtraso aplica a regra do domínio aos pontos lidos',
+      () async {
+        when(
+          () => api.get('/pontos', query: any(named: 'query')),
+        ).thenAnswer((_) async => [pontoComAlerta(), pontoEnderecadoJson()]);
+
+        expect(
+          await comHoje(DateTime(2026, 10, 16, 23, 59)).idsDePontosEmAtraso(),
+          isEmpty,
+        );
+        expect(await comHoje(DateTime(2026, 10, 17)).idsDePontosEmAtraso(), {
+          'p-3',
+        });
+      },
+    );
+
+    test('alerta removido no servidor (alertaRemovidoEm) não conta', () async {
+      when(() => api.get('/pontos', query: any(named: 'query'))).thenAnswer(
+        (_) async => [pontoComAlerta(alertaRemovidoEm: '2026-10-18T10:00:00Z')],
+      );
+
+      expect(
+        await comHoje(DateTime(2026, 10, 20)).idsDePontosEmAtraso(),
+        isEmpty,
+      );
+    });
+
+    test('a tolerância do ponto vem do campo toleranciaAtrasoDias', () async {
+      when(() => api.get('/pontos', query: any(named: 'query'))).thenAnswer(
+        (_) async => [
+          {...pontoComAlerta(), 'toleranciaAtrasoDias': 10},
+        ],
+      );
+
+      // 12/10 + 10 dias = 22/10 é o último dia em dia.
+      expect(
+        await comHoje(DateTime(2026, 10, 22)).idsDePontosEmAtraso(),
+        isEmpty,
+      );
+      expect(await comHoje(DateTime(2026, 10, 23)).idsDePontosEmAtraso(), {
+        'p-3',
+      });
+    });
+
+    test('removerAlertaDeAtraso faz POST em /remocao-de-alerta', () async {
+      when(
+        () => api.post('/pontos/p-3/remocao-de-alerta'),
+      ).thenAnswer((_) async => pontoAtivoJson());
+
+      await repositorio.removerAlertaDeAtraso('p-3');
+
+      verify(() => api.post('/pontos/p-3/remocao-de-alerta')).called(1);
+    });
+
+    test('409 fora de atraso chega com a mensagem do servidor', () async {
+      when(() => api.post('/pontos/p-3/remocao-de-alerta')).thenThrow(
+        const OperacaoNaoPermitidaException('O ponto não está em atraso.'),
+      );
+
+      await expectLater(
+        repositorio.removerAlertaDeAtraso('p-3'),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test(
+      'editarTolerancia reenvia o cadastro como está, com a tolerância nova',
+      () async {
+        when(
+          () => api.get('/pontos/p-3'),
+        ).thenAnswer((_) async => pontoAtivoJson());
+        when(
+          () => api.put('/pontos/p-3', corpo: any(named: 'corpo')),
+        ).thenAnswer((_) async => pontoAtivoJson());
+
+        await repositorio.editarTolerancia('p-3', 7);
+
+        final corpo = corpoDoPut('p-3');
+        expect(corpo['toleranciaAtrasoDias'], 7);
+        expect(corpo['nome'], 'Travessa da Colina');
+        expect(corpo['bairroId'], 'b-2');
+      },
+    );
+
+    test('editarTolerancia barra valor menor que 1 sem chamar a API', () async {
+      when(
+        () => api.get('/pontos/p-3'),
+      ).thenAnswer((_) async => pontoAtivoJson());
+
+      await expectLater(
+        repositorio.editarTolerancia('p-3', 0),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      verifyNever(() => api.put(any(), corpo: any(named: 'corpo')));
+    });
+
+    test('criar envia a tolerância (padrão 4 quando não informada)', () async {
+      when(
+        () => bairros.listar(),
+      ).thenAnswer((_) async => [const Bairro(id: 'b-1', nome: 'Centro')]);
+      when(
+        () => api.post('/pontos', corpo: any(named: 'corpo')),
+      ).thenAnswer((_) async => pontoEnderecadoJson());
+
+      Future<void> criar({int? tolerancia}) => tolerancia == null
+          ? repositorio.criar(
+              nome: 'n',
+              bairro: 'Centro',
+              endereco: 'e',
+              numeroReferencia: '1',
+              descricaoDoTrecho: 'd',
+              larguraMetros: 1,
+              profundidadeMetros: 1,
+              velocidadeMetrosPorSegundo: 1,
+              dosagemMl: 1,
+              distanciaEntreSubpontosMetros: 1,
+              quantidadeDeSubpontos: 1,
+            )
+          : repositorio.criar(
+              nome: 'n',
+              bairro: 'Centro',
+              endereco: 'e',
+              numeroReferencia: '1',
+              descricaoDoTrecho: 'd',
+              larguraMetros: 1,
+              profundidadeMetros: 1,
+              velocidadeMetrosPorSegundo: 1,
+              dosagemMl: 1,
+              distanciaEntreSubpontosMetros: 1,
+              quantidadeDeSubpontos: 1,
+              toleranciaDias: tolerancia,
+            );
+
+      await criar();
+      await criar(tolerancia: 10);
+
+      final corpos = verify(
+        () => api.post('/pontos', corpo: captureAny(named: 'corpo')),
+      ).captured.cast<Map<String, dynamic>>();
+      expect(corpos.map((c) => c['toleranciaAtrasoDias']), [4, 10]);
+    });
   });
 }

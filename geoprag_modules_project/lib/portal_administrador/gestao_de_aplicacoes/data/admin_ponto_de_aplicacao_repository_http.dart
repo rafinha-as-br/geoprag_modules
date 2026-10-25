@@ -3,6 +3,7 @@ import '../../../src/api/api_exceptions.dart';
 import '../../../src/api/sync/pull_dtos.dart';
 import '../../../src/api/sync/sync_json.dart';
 import '../../../src/api/sync/sync_mappers.dart';
+import '../../../src/entities/atraso_de_aplicacao.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import '../core/bairro_repository.dart';
@@ -10,7 +11,9 @@ import '../core/bairro_repository.dart';
 /// [AdminPontoDeAplicacaoRepository] sobre `/pontos` (GEOPRAG-195 e 198).
 ///
 /// Cobre listar, detalhar, criar, editar, atribuir e remover o aplicador,
-/// ativar, desativar, reativar e cancelar.
+/// ativar, desativar, reativar, cancelar, editar a tolerância de atraso e
+/// remover o alerta de atraso (`POST /pontos/{id}/remocao-de-alerta`,
+/// GEOPRAG-216).
 ///
 /// O servidor é a autoridade sobre o estado: as regras de transição (`409`) e
 /// de validação (`422`) chegam como exceções com `mensagemAmigavel`, e as
@@ -20,15 +23,25 @@ import '../core/bairro_repository.dart';
 /// - A API pede `bairroId`; o domínio usa o **nome** do bairro. O id sai de
 ///   `GET /bairros` pelo nome (sem diferenciar maiúsculas).
 /// - `PUT /pontos/{id}` **substitui** o cadastro e, sem `toleranciaAtrasoDias`,
-///   volta a tolerância a 4. O domínio não a guarda, então toda edição relê o
-///   ponto e reenvia a tolerância atual (e, em [editarNome], todos os outros
-///   campos como estão: o servidor só trava a edição se eles mudarem).
+///   volta a tolerância a 4. Por isso [editarCadastroCompleto] sempre envia a
+///   tolerância, e [editarNome] e [editarTolerancia] relêem o ponto e reenviam
+///   todos os outros campos como estão: o servidor só trava a edição se eles
+///   mudarem.
+/// - O atraso não vem pronto da API: [idsDePontosEmAtraso] aplica a regra do
+///   domínio ([PontoDeAplicacao.estadoDeAtraso]) aos pontos lidos, e a remoção
+///   manual do alerta chega em `DataAgendada.alertaRemovidoEm`.
 class AdminPontoDeAplicacaoRepositoryHttp
     implements AdminPontoDeAplicacaoRepository {
-  AdminPontoDeAplicacaoRepositoryHttp(this._api, this._bairros);
+  /// [agora] é o "hoje" da verificação de atraso; só os testes o trocam.
+  AdminPontoDeAplicacaoRepositoryHttp(
+    this._api,
+    this._bairros, {
+    DateTime Function() agora = DateTime.now,
+  }) : _agora = agora;
 
   final ApiClient _api;
   final BairroRepository _bairros;
+  final DateTime Function() _agora;
 
   @override
   Future<List<PontoDeAplicacao>> listar() => _listar();
@@ -92,23 +105,61 @@ class AdminPontoDeAplicacaoRepositoryHttp
     final atual = _objeto(await _api.get(_caminho(id)));
     await _api.put(
       _caminho(id),
+      corpo: {...await _corpoDoCadastroAtual(atual), 'nome': novoNome.trim()},
+    );
+  }
+
+  /// Corpo de `PUT /pontos/{id}` com o cadastro de [atual] como está.
+  Future<Map<String, dynamic>> _corpoDoCadastroAtual(
+    Map<String, dynamic> atual,
+  ) async => {
+    'nome': atual['nome'],
+    'bairroId':
+        textoOpcional(atual, 'bairroId') ??
+        await _idDoBairro(textoObrigatorio(atual, 'bairro')),
+    'endereco': atual['endereco'],
+    'numeroReferencia': ?atual['numeroReferencia'],
+    'descricaoDoTrecho': ?atual['descricaoDoTrecho'],
+    'larguraMetros': ?atual['larguraMetros'],
+    'profundidadeMetros': ?atual['profundidadeMetros'],
+    'velocidadeMetrosPorSegundo': ?atual['velocidadeMetrosPorSegundo'],
+    'dosagemMl': atual['dosagemMl'],
+    'distanciaEntreSubpontosMetros': atual['distanciaEntreSubpontosMetros'],
+    'quantidadeDeSubpontos': atual['quantidadeDeSubpontos'],
+    'toleranciaAtrasoDias': ?atual['toleranciaAtrasoDias'],
+  };
+
+  /// Relê o ponto e reenvia o cadastro como está, só com a tolerância nova. A
+  /// regra de valor mínimo é a do domínio ([PontoDeAplicacao.editarTolerancia]).
+  @override
+  Future<void> editarTolerancia(String id, int novaToleranciaDias) async {
+    final atual = _objeto(await _api.get(_caminho(id)));
+    _ponto(atual).editarTolerancia(novaToleranciaDias);
+    await _api.put(
+      _caminho(id),
       corpo: {
-        'nome': novoNome.trim(),
-        'bairroId':
-            textoOpcional(atual, 'bairroId') ??
-            await _idDoBairro(textoObrigatorio(atual, 'bairro')),
-        'endereco': atual['endereco'],
-        'numeroReferencia': ?atual['numeroReferencia'],
-        'descricaoDoTrecho': ?atual['descricaoDoTrecho'],
-        'larguraMetros': ?atual['larguraMetros'],
-        'profundidadeMetros': ?atual['profundidadeMetros'],
-        'velocidadeMetrosPorSegundo': ?atual['velocidadeMetrosPorSegundo'],
-        'dosagemMl': atual['dosagemMl'],
-        'distanciaEntreSubpontosMetros': atual['distanciaEntreSubpontosMetros'],
-        'quantidadeDeSubpontos': atual['quantidadeDeSubpontos'],
-        'toleranciaAtrasoDias': ?atual['toleranciaAtrasoDias'],
+        ...await _corpoDoCadastroAtual(atual),
+        'toleranciaAtrasoDias': novaToleranciaDias,
       },
     );
+  }
+
+  @override
+  Future<Set<String>> idsDePontosEmAtraso() async {
+    final agora = _agora();
+    return {
+      for (final ponto in await _listar())
+        if (ponto.estadoDeAtraso(dataDeReferencia: agora) ==
+            EstadoDeAtraso.emAtraso)
+          ponto.id,
+    };
+  }
+
+  /// O servidor decide se o alerta existe: fora de atraso (ou já removido) ele
+  /// responde `409`, e a mensagem chega como exceção da API.
+  @override
+  Future<void> removerAlertaDeAtraso(String id) async {
+    await _api.post('${_caminho(id)}/remocao-de-alerta');
   }
 
   @override
@@ -125,8 +176,8 @@ class AdminPontoDeAplicacaoRepositoryHttp
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
+    required int toleranciaDias,
   }) async {
-    final atual = _objeto(await _api.get(_caminho(id)));
     await _api.put(
       _caminho(id),
       corpo: _corpoDoCadastro(
@@ -141,7 +192,7 @@ class AdminPontoDeAplicacaoRepositoryHttp
         dosagemMl: dosagemMl,
         distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
         quantidadeDeSubpontos: quantidadeDeSubpontos,
-        toleranciaAtrasoDias: atual['toleranciaAtrasoDias'],
+        toleranciaAtrasoDias: toleranciaDias,
       ),
     );
   }
@@ -160,6 +211,7 @@ class AdminPontoDeAplicacaoRepositoryHttp
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
     String? aplicadorId,
+    int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   }) async => _ponto(
     await _api.post(
       '/pontos',
@@ -176,6 +228,7 @@ class AdminPontoDeAplicacaoRepositoryHttp
         distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
         quantidadeDeSubpontos: quantidadeDeSubpontos,
         aplicadorId: aplicadorId,
+        toleranciaAtrasoDias: toleranciaDias,
       ),
     ),
   );

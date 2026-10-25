@@ -39,6 +39,7 @@ export 'src/api/api_exceptions.dart';
 export 'src/api/sessao_de_tokens.dart';
 export 'src/api/armazenamento_seguro.dart';
 export 'src/api/sessao_segura.dart';
+export 'src/entities/atraso_de_aplicacao.dart';
 export 'portal_administrador/gestao_de_aplicacoes/gestao_de_aplicacoes.dart';
 export 'portal_administrador/gerenciamento_de_aplicadores/gerenciamento_de_aplicadores.dart';
 export 'portal_administrador/gerenciamento_de_administradores/gerenciamento_de_administradores.dart';

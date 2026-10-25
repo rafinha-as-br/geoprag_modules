@@ -1,4 +1,5 @@
 import '../../entities/aplicacao.dart';
+import '../../entities/atraso_de_aplicacao.dart';
 import '../../entities/ponto_de_aplicacao.dart';
 import 'pull_dtos.dart';
 import 'registro_dtos.dart';
@@ -65,8 +66,8 @@ class SyncMappers {
   /// três medidas do trecho, mas a entidade as exige. Quando ausentes ficam
   /// como texto vazio e `0` (vazão `0`, "sem medida"), valores que o
   /// aplicador não exibe; o portal (GEOPRAG-195) deve tornar esses campos
-  /// opcionais na entidade. `bairroId` e `toleranciaAtrasoDias` não têm campo
-  /// na entidade e são descartados.
+  /// opcionais na entidade. `bairroId` não tem campo na entidade e é
+  /// descartado; `toleranciaAtrasoDias` ausente vale o padrão.
   ///
   /// Lança [FormatException] para `estado`/`status` desconhecidos e as
   /// exceções da própria entidade se o ponto violar uma invariante (ex.:
@@ -95,6 +96,8 @@ class SyncMappers {
           ? null
           : _agendamento(dto.agendamento!),
       subpontos: [for (final s in dto.subpontos) paraSubponto(s)],
+      toleranciaDias:
+          dto.toleranciaAtrasoDias ?? toleranciaPadraoDeAtrasoEmDias,
     );
   }
 
@@ -104,7 +107,12 @@ class SyncMappers {
     quantidadeRecorrencias: dto.quantidadeRecorrencias,
     datas: [
       for (final d in dto.datas)
-        DataAgendada(id: d.id, data: d.data, status: _statusData(d.status)),
+        DataAgendada(
+          id: d.id,
+          data: d.data,
+          status: _statusData(d.status),
+          alertaRemovidoEm: d.alertaRemovidoEm,
+        ),
     ],
   );
 

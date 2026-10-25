@@ -77,6 +77,7 @@ class PontosDoBairroCubit
     emitLoading();
     try {
       final pontos = await _repository.listarPorBairro(_bairro);
+      final idsEmAtraso = await _repository.idsDePontosEmAtraso();
       final nomesPorAplicadorId = {
         for (final aplicador in await _aplicadorRepository.listar())
           aplicador.id: aplicador.nome,
@@ -86,6 +87,7 @@ class PontosDoBairroCubit
           PontoDeAplicacaoResumoViewModel.fromEntity(
             ponto,
             aplicadorNome: nomesPorAplicadorId[ponto.aplicadorId],
+            emAtraso: idsEmAtraso.contains(ponto.id),
           ),
       ];
       emit(

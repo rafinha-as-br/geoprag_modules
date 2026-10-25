@@ -18,8 +18,7 @@ import 'widgets/atribuir_aplicador_dialog.dart';
 /// diálogos (que precisam de `BuildContext`) ficam a cargo da tela — o
 /// Cubit nunca recebe `BuildContext`, só o dado já coletado (ex.:
 /// `Agendamento`, `aplicadorId`).
-class PontoDeAplicacaoDetalheCubit
-    extends Cubit<PontoDeAplicacaoDetalheState> {
+class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
   PontoDeAplicacaoDetalheCubit(
     this._repository,
     this._aplicadorRepository,
@@ -39,10 +38,14 @@ class PontoDeAplicacaoDetalheCubit
     try {
       final ponto = await _repository.buscarPorId(_pontoId);
       final aplicadorNome = await _nomeDoAplicador(ponto.aplicadorId);
+      final emAtraso = (await _repository.idsDePontosEmAtraso()).contains(
+        ponto.id,
+      );
       return PontoDeAplicacaoDetalheLoaded(
         PontoDeAplicacaoDetalhadoViewModel.fromEntity(
           ponto,
           aplicadorNome: aplicadorNome,
+          emAtraso: emAtraso,
         ),
       );
     } on EntidadeNaoEncontradaException catch (e) {
@@ -83,10 +86,8 @@ class PontoDeAplicacaoDetalheCubit
     'Ciclo ativado com sucesso.',
   );
 
-  Future<void> desativar() => _executarAcao(
-    () => _repository.desativar(_pontoId),
-    'Ponto desativado.',
-  );
+  Future<void> desativar() =>
+      _executarAcao(() => _repository.desativar(_pontoId), 'Ponto desativado.');
 
   Future<void> reativar() =>
       _executarAcao(() => _repository.reativar(_pontoId), 'Ponto reativado.');
@@ -104,6 +105,11 @@ class PontoDeAplicacaoDetalheCubit
   Future<void> cancelarAplicacaoQuimica() => _executarAcao(
     () => _repository.cancelarAplicacaoQuimica(_pontoId),
     'Aplicação química cancelada — o ponto está inativo.',
+  );
+
+  Future<void> removerAlertaDeAtraso() => _executarAcao(
+    () => _repository.removerAlertaDeAtraso(_pontoId),
+    'Alerta de atraso removido.',
   );
 
   /// Aplicadores candidatos para o `AtribuirAplicadorDialog`, com a
@@ -167,7 +173,9 @@ class PontoDeAplicacaoDetalheCubit
       final recarregado = await _buscar();
       if (recarregado is PontoDeAplicacaoDetalheLoaded) {
         emit(
-          recarregado.copyWith(feedback: AcaoFeedbackSucesso(mensagemDeSucesso)),
+          recarregado.copyWith(
+            feedback: AcaoFeedbackSucesso(mensagemDeSucesso),
+          ),
         );
       } else {
         // A ação já valeu no servidor; só a releitura falhou. Trocar a tela
@@ -203,11 +211,17 @@ class PontoDeAplicacaoDetalheCubit
         ),
       );
     } catch (e, stackTrace) {
-      AppLogger.error('PontoDeAplicacaoDetalheCubit._executarAcao', e, stackTrace);
+      AppLogger.error(
+        'PontoDeAplicacaoDetalheCubit._executarAcao',
+        e,
+        stackTrace,
+      );
       emit(
         estadoAtual.copyWith(
           processando: false,
-          feedback: const AcaoFeedbackErro(AppErrorMessages.carregamentoGenerico),
+          feedback: const AcaoFeedbackErro(
+            AppErrorMessages.carregamentoGenerico,
+          ),
         ),
       );
     }

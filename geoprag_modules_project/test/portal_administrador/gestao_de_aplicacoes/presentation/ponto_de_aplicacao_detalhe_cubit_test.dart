@@ -31,6 +31,7 @@ void main() {
 
   setUp(() {
     repository = MockAdminPontoDeAplicacaoRepository();
+    when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
     aplicadorRepository = MockAplicadorRepository();
   });
 
@@ -59,6 +60,47 @@ void main() {
 
     final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
     expect(state.ponto.vazao, closeTo(0.4, 0.0001));
+  });
+
+  test('o ponto em atraso chega ao detalhe marcado como em atraso', () async {
+    when(
+      () => repository.idsDePontosEmAtraso(),
+    ).thenAnswer((_) async => {'pa1'});
+    final cubit = await carregar(pontoDeAplicacao());
+
+    final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+    expect(state.ponto.emAtraso, isTrue);
+  });
+
+  test('removerAlertaDeAtraso chama o repositório, recarrega e dá feedback',
+      () async {
+    when(
+      () => repository.idsDePontosEmAtraso(),
+    ).thenAnswer((_) async => {'pa1'});
+    when(() => repository.removerAlertaDeAtraso('pa1')).thenAnswer((_) async {
+      when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
+    });
+    final cubit = await carregar(pontoDeAplicacao());
+
+    await cubit.removerAlertaDeAtraso();
+
+    verify(() => repository.removerAlertaDeAtraso('pa1')).called(1);
+    final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+    expect(state.ponto.emAtraso, isFalse);
+    expect(state.feedback, isA<AcaoFeedbackSucesso>());
+  });
+
+  test('removerAlertaDeAtraso rejeitado vira feedback de erro amigável',
+      () async {
+    when(() => repository.removerAlertaDeAtraso('pa1')).thenThrow(
+      const OperacaoNaoPermitidaException('Este ponto não está em atraso.'),
+    );
+    final cubit = await carregar(pontoDeAplicacao());
+
+    await cubit.removerAlertaDeAtraso();
+
+    final feedback = (cubit.state as PontoDeAplicacaoDetalheLoaded).feedback;
+    expect(feedback, isA<AcaoFeedbackErro>());
   });
 
   test('resolve o nome do aplicador quando o ponto está direcionado', () async {

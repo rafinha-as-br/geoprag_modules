@@ -1,5 +1,7 @@
 import '../src/api/api_client.dart';
 import '../src/api/api_client_provider.dart';
+import '../src/atraso/alerta_de_atraso_repository.dart';
+import '../src/atraso/alerta_de_atraso_repository_impl.dart';
 import '../src/auditoria/evento_auditoria_repository.dart';
 import '../src/auditoria/evento_auditoria_repository_impl.dart';
 import 'autenticacao/core/admin_account.dart';
@@ -92,6 +94,8 @@ class AdminBootstrap {
   AplicadorRepository buildAplicadorRepository() => AplicadorRepositoryImpl();
   EventoAuditoriaRepository buildEventoAuditoriaRepository() =>
       EventoAuditoriaRepositoryImpl();
+  AlertaDeAtrasoRepository buildAlertaDeAtrasoRepository() =>
+      AlertaDeAtrasoRepositoryImpl();
 
   /// Pontos de aplicação pela API (GEOPRAG-195 e 198).
   ///

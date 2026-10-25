@@ -1,5 +1,7 @@
+import '../../../src/atraso/alerta_de_atraso_repository.dart';
 import '../../../src/auditoria/evento_auditoria.dart';
 import '../../../src/auditoria/evento_auditoria_repository.dart';
+import '../../../src/entities/atraso_de_aplicacao.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
@@ -19,14 +21,21 @@ import 'mock_pontos_de_aplicacao.dart';
 /// contrato de endpoints deste módulo for validado com o backend.
 class AdminPontoDeAplicacaoRepositoryImpl
     implements AdminPontoDeAplicacaoRepository {
+  /// [agora] é o "hoje" da verificação de atraso; só os testes o trocam.
   AdminPontoDeAplicacaoRepositoryImpl({
     required EventoAuditoriaRepository eventoAuditoriaRepository,
+    required AlertaDeAtrasoRepository alertaDeAtrasoRepository,
     required AutorEvento autor,
+    DateTime Function() agora = DateTime.now,
   }) : _eventoAuditoriaRepository = eventoAuditoriaRepository,
-       _autor = autor;
+       _alertaDeAtrasoRepository = alertaDeAtrasoRepository,
+       _autor = autor,
+       _agora = agora;
 
   final EventoAuditoriaRepository _eventoAuditoriaRepository;
+  final AlertaDeAtrasoRepository _alertaDeAtrasoRepository;
   final AutorEvento _autor;
+  final DateTime Function() _agora;
   int _contadorDeEventos = 0;
 
   Future<void> _registrarEvento(
@@ -148,6 +157,58 @@ class AdminPontoDeAplicacaoRepositoryImpl
   }
 
   @override
+  Future<void> editarTolerancia(String id, int novaToleranciaDias) async {
+    final antes = await _atualizar(
+      id,
+      (ponto) => ponto.editarTolerancia(novaToleranciaDias),
+    );
+    // Reenviar o valor que já estava gravado não é uma mudança: sem evento.
+    if (antes.toleranciaDias == novaToleranciaDias) return;
+    await _registrarEvento(id, 'tolerancia_editada', {
+      'toleranciaAnteriorDias': antes.toleranciaDias,
+      'toleranciaNovaDias': novaToleranciaDias,
+    });
+  }
+
+  @override
+  Future<Set<String>> idsDePontosEmAtraso() async {
+    final pontos = _comTransicoesAutomaticas(mockPontosDeAplicacao);
+    return {
+      for (final ponto in pontos)
+        if (await _estadoDeAtraso(ponto) == EstadoDeAtraso.emAtraso) ponto.id,
+    };
+  }
+
+  @override
+  Future<void> removerAlertaDeAtraso(String id) async {
+    final ponto = await buscarPorId(id);
+    final recorrencia = ponto.dataDoAlertaDeAtraso;
+    if (recorrencia == null ||
+        await _estadoDeAtraso(ponto) != EstadoDeAtraso.emAtraso) {
+      throw const OperacaoNaoPermitidaException(
+        'Este ponto não está com a aplicação em atraso.',
+      );
+    }
+    await _alertaDeAtrasoRepository.remover(
+      pontoId: id,
+      dataAgendadaId: recorrencia.id,
+    );
+    await _registrarEvento(id, 'alerta_atraso_removido', {
+      'dataAgendadaId': recorrencia.id,
+      'dataPrevista': recorrencia.data.toIso8601String(),
+      'toleranciaDias': ponto.toleranciaDias,
+    });
+  }
+
+  Future<EstadoDeAtraso> _estadoDeAtraso(PontoDeAplicacao ponto) async =>
+      ponto.estadoDeAtraso(
+        dataDeReferencia: _agora(),
+        alertasRemovidos: await _alertaDeAtrasoRepository.listarRemovidos(
+          ponto.id,
+        ),
+      );
+
+  @override
   Future<void> editarCadastroCompleto(
     String id, {
     required String nome,
@@ -161,6 +222,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
     required double dosagemMl,
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
+    required int toleranciaDias,
   }) async {
     final antes = await _atualizar(
       id,
@@ -176,6 +238,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
         dosagemMl: dosagemMl,
         distanciaEntreSubpontosMetros: distanciaEntreSubpontosMetros,
         quantidadeDeSubpontos: quantidadeDeSubpontos,
+        toleranciaDias: toleranciaDias,
       ),
     );
     await _registrarEvento(
@@ -194,6 +257,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
           'dosagemMl': antes.dosagemMl,
           'distanciaEntreSubpontosMetros': antes.distanciaEntreSubpontosMetros,
           'quantidadeDeSubpontos': antes.quantidadeDeSubpontos,
+          'toleranciaDias': antes.toleranciaDias,
         },
         {
           'nome': nome,
@@ -207,6 +271,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
           'dosagemMl': dosagemMl,
           'distanciaEntreSubpontosMetros': distanciaEntreSubpontosMetros,
           'quantidadeDeSubpontos': quantidadeDeSubpontos,
+          'toleranciaDias': toleranciaDias,
         },
       ),
     );
@@ -262,6 +327,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
     required double distanciaEntreSubpontosMetros,
     required int quantidadeDeSubpontos,
     String? aplicadorId,
+    int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
   }) async {
     final ponto = PontoDeAplicacao(
       id: 'pa${mockPontosDeAplicacao.length + 1}',
@@ -281,6 +347,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
       estado: aplicadorId == null
           ? EstadoPontoDeAplicacao.enderecada
           : EstadoPontoDeAplicacao.direcionada,
+      toleranciaDias: toleranciaDias,
     );
     mockPontosDeAplicacao.add(ponto);
     await _registrarEvento(ponto.id, 'ponto_criado', {
@@ -288,6 +355,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
       'bairro': bairro,
       'aplicadorId': aplicadorId,
       'estadoInicial': ponto.estado.name,
+      'toleranciaDias': toleranciaDias,
     });
     return ponto;
   }

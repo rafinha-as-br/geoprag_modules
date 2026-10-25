@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/api/api_exceptions.dart';
+import '../../../src/entities/atraso_de_aplicacao.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
@@ -45,6 +46,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
   double? _dosagem;
   double? _distancia;
   int? _quantidadeDeSubpontos;
+  int? _toleranciaDias = toleranciaPadraoDeAtrasoEmDias;
 
   List<AplicadorResumo> _aplicadores = [];
   String? _aplicadorId;
@@ -179,7 +181,10 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         },
       ),
     ),
-    BaseFormField(label: 'Vazão', field: _PreviaDaVazao(vazao: vazaoPrevia)),
+    BaseFormField(
+      label: 'Vazão',
+      field: _PreviaDaVazao(vazao: vazaoPrevia),
+    ),
     BaseFormField(
       label: 'Dosagem por aplicação (ml)',
       field: GeopragNumeroDecimalInput(
@@ -208,6 +213,16 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         mensagemObrigatorio: 'Informe quantos subpontos compõem o ciclo.',
         mensagemInvalido: 'Informe quantos subpontos compõem o ciclo.',
         onChanged: (valor) => _quantidadeDeSubpontos = valor,
+      ),
+    ),
+    BaseFormField(
+      label: 'Tolerância de atraso (dias)',
+      field: GeopragNumeroInteiroInput(
+        label: 'Tolerância de atraso (dias)',
+        initialValue: _toleranciaDias,
+        mensagemObrigatorio: 'Informe a tolerância de atraso em dias.',
+        mensagemInvalido: 'A tolerância deve ser de pelo menos 1 dia.',
+        onChanged: (valor) => _toleranciaDias = valor,
       ),
     ),
     BaseFormField(
@@ -250,6 +265,7 @@ class CriarPontoDeAplicacaoCubit extends BaseFormController {
         distanciaEntreSubpontosMetros: _distancia!,
         quantidadeDeSubpontos: _quantidadeDeSubpontos!,
         aplicadorId: _aplicadorId,
+        toleranciaDias: _toleranciaDias!,
       );
       emitFeedback(
         const AcaoFeedbackSucesso('Ponto de aplicação cadastrado com sucesso.'),

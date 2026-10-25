@@ -57,6 +57,9 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     quantidadeDeSubpontos: 5,
     aplicadorId: '2',
     estado: EstadoPontoDeAplicacao.ativa,
+    // Tolerância própria, diferente do padrão de 4 dias: a tolerância é por
+    // ponto (GEOPRAG-174). Os demais pontos usam o padrão.
+    toleranciaDias: 7,
   ),
   PontoDeAplicacao(
     id: 'pa3',
