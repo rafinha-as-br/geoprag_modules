@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:printing/printing.dart';
 
+import '../../../src/errors/app_error_messages.dart';
+import '../../../src/errors/app_logger.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/base_detail_screen.dart';
 import '../../../src/widgets/geoprag_back_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../core/distribuicao.dart';
+import 'comprovante_recebimento_pdf.dart';
 import 'distribuicao_detalhe_cubit.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
@@ -35,6 +39,16 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
             },
             actions: [
               OutlinedButton.icon(
+                onPressed: switch (state) {
+                  DistribuicaoDetalheLoaded(:final distribuicao)
+                      when distribuicao.statusConfirmacao == 'confirmado' =>
+                    () => _baixarComprovante(context, distribuicao),
+                  _ => null,
+                },
+                icon: const Icon(Icons.picture_as_pdf),
+                label: const Text('Gerar Comprovante (PDF)'),
+              ),
+              OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.edit),
                 label: const Text('Editar Registro'),
@@ -48,6 +62,25 @@ class VisualizacaoSaidaScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+Future<void> _baixarComprovante(
+  BuildContext context,
+  DistribuicaoDetalhadaViewModel distribuicao,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    final bytes = await gerarComprovanteRecebimentoPdf(distribuicao);
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'comprovante-recebimento.pdf',
+    );
+  } catch (e, stackTrace) {
+    AppLogger.error('VisualizacaoSaidaScreen._baixarComprovante', e, stackTrace);
+    messenger.showSnackBar(
+      const SnackBar(content: Text(AppErrorMessages.carregamentoGenerico)),
     );
   }
 }
