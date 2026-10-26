@@ -10,6 +10,7 @@ class ProdutoResumoViewModel {
   final String lote;
   final String licitacao;
   final int quantidade;
+  final int quantidadeOriginal;
   final String unidadeMedida;
   final DateTime dataValidade;
   final String status;
@@ -20,6 +21,7 @@ class ProdutoResumoViewModel {
     required this.lote,
     required this.licitacao,
     required this.quantidade,
+    required this.quantidadeOriginal,
     required this.unidadeMedida,
     required this.dataValidade,
     required this.status,
@@ -32,10 +34,53 @@ class ProdutoResumoViewModel {
       lote: entity.lote,
       licitacao: entity.licitacao,
       quantidade: entity.quantidade,
+      quantidadeOriginal: entity.quantidadeOriginal,
       unidadeMedida: entity.unidadeMedida,
       dataValidade: entity.dataValidade,
       status: entity.status,
     );
+  }
+}
+
+/// Entregas parciais já recebidas de uma licitação (GEOPRAG-163): cada
+/// entrada de estoque vinculada a ela, com o volume total por unidade de
+/// medida (a soma é do volume recebido — `quantidadeOriginal` —, não do saldo).
+class EntregasLicitacaoViewModel {
+  final String licitacao;
+  final List<ProdutoResumoViewModel> entregas;
+  final Map<String, int> totalPorUnidade;
+
+  const EntregasLicitacaoViewModel({
+    required this.licitacao,
+    required this.entregas,
+    required this.totalPorUnidade,
+  });
+
+  /// Agrupa as entradas por licitação, preservando a ordem de chegada.
+  static List<EntregasLicitacaoViewModel> agrupar(
+    List<ProdutoResumoViewModel> produtos,
+  ) {
+    final porLicitacao = <String, List<ProdutoResumoViewModel>>{};
+    for (final p in produtos) {
+      porLicitacao.putIfAbsent(p.licitacao, () => []).add(p);
+    }
+    return [
+      for (final e in porLicitacao.entries)
+        EntregasLicitacaoViewModel(
+          licitacao: e.key,
+          entregas: e.value,
+          totalPorUnidade: _somarPorUnidade(e.value),
+        ),
+    ];
+  }
+
+  static Map<String, int> _somarPorUnidade(List<ProdutoResumoViewModel> lotes) {
+    final total = <String, int>{};
+    for (final p in lotes) {
+      total[p.unidadeMedida] =
+          (total[p.unidadeMedida] ?? 0) + p.quantidadeOriginal;
+    }
+    return total;
   }
 }
 
