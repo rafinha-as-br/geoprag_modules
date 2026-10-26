@@ -17,6 +17,8 @@ PontoDeAplicacao pontoDeAplicacao({
   double profundidadeMetros = 0.5,
   double velocidadeMetrosPorSegundo = 0.4,
   int quantidadeDeSubpontos = 8,
+  String numeroReferencia = 'Em frente ao nº 240',
+  String descricaoDoTrecho = 'Trecho de 400 m.',
   int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
 }) {
   return PontoDeAplicacao(
@@ -25,8 +27,8 @@ PontoDeAplicacao pontoDeAplicacao({
     nome: nome,
     bairro: bairro,
     endereco: 'Rua Pedro Simon',
-    numeroReferencia: 'Em frente ao nº 240',
-    descricaoDoTrecho: 'Trecho de 400 m.',
+    numeroReferencia: numeroReferencia,
+    descricaoDoTrecho: descricaoDoTrecho,
     larguraMetros: larguraMetros,
     profundidadeMetros: profundidadeMetros,
     velocidadeMetrosPorSegundo: velocidadeMetrosPorSegundo,
@@ -43,6 +45,7 @@ PontoDeAplicacao pontoDeAplicacao({
 }
 
 final Subponto execucaoDeTeste = Subponto(
+  id: 'sp-teste-1',
   latitude: -26.9312,
   longitude: -48.9567,
   realizadoEm: DateTime(2026, 8, 24, 8, 12),

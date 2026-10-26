@@ -185,7 +185,7 @@ List<Widget> _acoesDoPonto(
             ? null
             : () async {
                 final aplicadores = await cubit.listarAplicadoresParaAtribuir();
-                if (!context.mounted) return;
+                if (aplicadores == null || !context.mounted) return;
                 final aplicadorId = await showDialog<String>(
                   context: context,
                   builder: (_) =>
@@ -347,6 +347,11 @@ class _ConteudoDoPonto extends StatelessWidget {
                 )
               : Column(
                   children: [
+                    _AvisoDeConflitos(
+                      quantidade: ponto.execucoes
+                          .where((execucao) => execucao.conflito)
+                          .length,
+                    ),
                     for (final execucao in ponto.execucoes)
                       _LinhaDeExecucao(execucao: execucao),
                   ],
@@ -372,8 +377,11 @@ class _SecaoDeLocalizacao extends StatelessWidget {
         children: [
           _Linha(rotulo: 'Bairro', valor: ponto.bairro),
           _Linha(rotulo: 'Endereço', valor: ponto.endereco),
-          _Linha(rotulo: 'Número / referência', valor: ponto.numeroReferencia),
-          _Linha(rotulo: 'Trecho', valor: ponto.descricaoDoTrecho),
+          _Linha(
+            rotulo: 'Número / referência',
+            valor: _texto(ponto.numeroReferencia),
+          ),
+          _Linha(rotulo: 'Trecho', valor: _texto(ponto.descricaoDoTrecho)),
         ],
       ),
     );
@@ -392,14 +400,14 @@ class _SecaoDeParametros extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Linha(rotulo: 'Largura', valor: '${_numero(ponto.larguraMetros)} m'),
+          _Linha(rotulo: 'Largura', valor: _medida(ponto.larguraMetros, 'm')),
           _Linha(
             rotulo: 'Profundidade',
-            valor: '${_numero(ponto.profundidadeMetros)} m',
+            valor: _medida(ponto.profundidadeMetros, 'm'),
           ),
           _Linha(
             rotulo: 'Velocidade',
-            valor: '${_numero(ponto.velocidadeMetrosPorSegundo)} m/s',
+            valor: _medida(ponto.velocidadeMetrosPorSegundo, 'm/s'),
           ),
           const SizedBox(height: 12),
           _CardDeVazao(vazao: ponto.vazao),
@@ -499,7 +507,7 @@ class _CardDeVazao extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${_numero(vazao)} m³/s',
+            vazao > 0 ? '${_numero(vazao)} m³/s' : _naoInformado,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
@@ -600,6 +608,48 @@ class _Linha extends StatelessWidget {
   }
 }
 
+/// Resumo no topo das execuções quando há registro em conflito. Só leitura: o
+/// servidor não oferece ação de "marcar como revisado".
+class _AvisoDeConflitos extends StatelessWidget {
+  const _AvisoDeConflitos({required this.quantidade});
+
+  final int quantidade;
+
+  @override
+  Widget build(BuildContext context) {
+    if (quantidade == 0) return const SizedBox.shrink();
+    return Container(
+      key: const Key('visualizacaoDePonto_avisoDeConflitos'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: GeopragColors.statusAtrasado.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: GeopragColors.statusAtrasado),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.warning_amber,
+            color: GeopragColors.statusAtrasado,
+            semanticLabel: 'Atenção',
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              quantidade == 1
+                  ? '1 registro chegou em conflito com o estado do ponto.'
+                  : '$quantidade registros chegaram em conflito com o '
+                        'estado do ponto.',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LinhaDeExecucao extends StatelessWidget {
   const _LinhaDeExecucao({required this.execucao});
 
@@ -609,19 +659,62 @@ class _LinhaDeExecucao extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.place_outlined),
+      isThreeLine: execucao.conflito,
+      leading: execucao.conflito
+          ? const Icon(
+              Icons.warning_amber,
+              color: GeopragColors.statusAtrasado,
+              semanticLabel: 'Registro em conflito',
+            )
+          : const Icon(Icons.place_outlined),
       title: Text('Aplicada em ${_dataHora(execucao.realizadoEm)}'),
-      subtitle: Text(
-        'Registrada em ${_dataHora(execucao.registradoEm)} · '
-        '${execucao.latitude.toStringAsFixed(4)}, '
-        '${execucao.longitude.toStringAsFixed(4)}',
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Registrada em ${_dataHora(execucao.registradoEm)} · '
+            '${execucao.latitude.toStringAsFixed(4)}, '
+            '${execucao.longitude.toStringAsFixed(4)}',
+          ),
+          if (execucao.conflito)
+            Text(
+              'Conflito: ${_textoDoConflito(execucao.motivoConflito)}',
+              style: const TextStyle(color: GeopragColors.statusAtrasado),
+            ),
+        ],
       ),
     );
   }
 }
 
+/// O motivo do conflito em linguagem do gestor. Um motivo que esta versão não
+/// conhece, ou ausente, cai num texto genérico: o conflito continua visível.
+String _textoDoConflito(MotivoDeConflito? motivo) => switch (motivo) {
+  MotivoDeConflito.pontoReatribuido =>
+    'o ponto foi reatribuído a outro aplicador antes de o registro chegar.',
+  MotivoDeConflito.pontoDesativado =>
+    'o ponto estava desativado quando o registro chegou.',
+  MotivoDeConflito.pontoInativo =>
+    'o ciclo do ponto estava encerrado quando o registro chegou.',
+  MotivoDeConflito.dataJaAtendida =>
+    'a data agendada já tinha sido atendida por outro registro.',
+  MotivoDeConflito.dataCancelada =>
+    'a data agendada estava cancelada quando o registro chegou.',
+  MotivoDeConflito.desconhecido ||
+  null => 'o registro chegou em desacordo com o estado do ponto.',
+};
+
 /// Formata sem casas decimais quando o valor é inteiro (2 m, não 2.0 m).
 String _numero(double valor) => formatarNumeroExibicao(valor);
+
+const _naoInformado = 'Não informado';
+
+/// O cadastro aceita deixar o trecho sem medidas (a API devolve `null`, que o
+/// domínio guarda como `0`): medida real é sempre maior que zero.
+String _medida(double valor, String unidade) =>
+    valor > 0 ? '${_numero(valor)} $unidade' : _naoInformado;
+
+String _texto(String valor) => valor.trim().isEmpty ? _naoInformado : valor;
 
 String _dataHora(DateTime data) {
   final dia = data.day.toString().padLeft(2, '0');

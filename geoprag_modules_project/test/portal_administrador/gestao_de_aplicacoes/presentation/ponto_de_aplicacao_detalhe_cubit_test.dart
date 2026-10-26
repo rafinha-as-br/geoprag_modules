@@ -1,11 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_state.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
+import 'package:geoprag_modules/src/errors/app_error_messages.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/state/acao_feedback.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,28 +17,16 @@ import '../gestao_de_aplicacoes_fixtures.dart';
 class MockAdminPontoDeAplicacaoRepository extends Mock
     implements AdminPontoDeAplicacaoRepository {}
 
-class MockAplicadorRepository extends Mock implements AplicadorRepository {}
+class MockAplicadorRepository extends Mock implements AplicadorResumoRepository {}
 
 void main() {
   late MockAdminPontoDeAplicacaoRepository repository;
   late MockAplicadorRepository aplicadorRepository;
 
-  final aplicador = Aplicador(
+  const aplicador = AplicadorResumo(
     id: '1',
     nome: 'João Silva',
     status: UsuarioStatus.ativo,
-    dataCriacao: DateTime(2026, 5, 10),
-    email: 'joao.silva@email.com',
-    cpf: '111.111.111-11',
-    dataNascimento: DateTime(1988, 4, 12),
-    sexo: 'Masculino',
-    telefone: '(47) 99111-1111',
-    cep: '89010-000',
-    rua: 'Rua das Flores',
-    numero: '50',
-    bairro: 'Belchior',
-    cidade: 'Blumenau',
-    uf: 'SC',
   );
 
   setUp(() {
@@ -48,8 +38,8 @@ void main() {
   Future<PontoDeAplicacaoDetalheCubit> carregar(PontoDeAplicacao ponto) async {
     when(() => repository.buscarPorId('pa1')).thenAnswer((_) async => ponto);
     when(
-      () => aplicadorRepository.buscarPorId('1'),
-    ).thenAnswer((_) async => aplicador);
+      () => aplicadorRepository.listar(),
+    ).thenAnswer((_) async => [aplicador]);
     final cubit = PontoDeAplicacaoDetalheCubit(
       repository,
       aplicadorRepository,
@@ -131,7 +121,7 @@ void main() {
 
     final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
     expect(state.ponto.aplicadorNome, isNull);
-    verifyNever(() => aplicadorRepository.buscarPorId(any()));
+    verifyNever(() => aplicadorRepository.listar());
   });
 
   test('aplicador vinculado que sumiu do cadastro não derruba a tela do ponto',
@@ -142,10 +132,9 @@ void main() {
         aplicadorId: '9',
       ),
     );
-    when(() => aplicadorRepository.buscarPorId('9')).thenAnswer(
-      (_) async =>
-          throw const EntidadeNaoEncontradaException('Aplicador não existe.'),
-    );
+    when(
+      () => aplicadorRepository.listar(),
+    ).thenAnswer((_) async => [aplicador]);
 
     final cubit = PontoDeAplicacaoDetalheCubit(
       repository,
@@ -157,6 +146,47 @@ void main() {
     final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
     expect(state.ponto.id, 'pa1');
     expect(state.ponto.aplicadorNome, isNull);
+  });
+
+  test('lista de aplicadores fora do ar não derruba a tela do ponto', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer(
+      (_) async => pontoDeAplicacao(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ),
+    );
+    when(() => aplicadorRepository.listar()).thenAnswer(
+      (_) async => throw const FalhaDeConexaoException('Sem conexão.'),
+    );
+
+    final cubit = PontoDeAplicacaoDetalheCubit(
+      repository,
+      aplicadorRepository,
+      'pa1',
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+    expect(state.ponto.aplicadorNome, isNull);
+  });
+
+  test('erro do servidor ao carregar mostra a mensagem amigável', () async {
+    when(() => repository.buscarPorId('pa1')).thenAnswer(
+      (_) async => throw const ErroDoServidorException(
+        'O servidor encontrou um problema.',
+        status: 503,
+      ),
+    );
+
+    final cubit = PontoDeAplicacaoDetalheCubit(
+      repository,
+      aplicadorRepository,
+      'pa1',
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final state = cubit.state as PontoDeAplicacaoDetalheError;
+    expect(state.message, 'O servidor encontrou um problema.');
   });
 
   test('mostra a mensagem de negócio quando o ponto não existe', () async {
@@ -335,9 +365,127 @@ void main() {
       final opcoes = await cubit.listarAplicadoresParaAtribuir();
 
       expect(opcoes, hasLength(1));
-      expect(opcoes.single.id, '1');
-      expect(opcoes.single.bairro, 'Belchior');
+      expect(opcoes!.single.id, '1');
       expect(opcoes.single.quantidadePontosAtribuidos, 2);
+    });
+
+    test('listarAplicadoresParaAtribuir deixa de fora o aplicador desativado',
+        () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => aplicadorRepository.listar()).thenAnswer(
+        (_) async => [
+          aplicador,
+          const AplicadorResumo(
+            id: '2',
+            nome: 'Maria Souza',
+            status: UsuarioStatus.desativado,
+          ),
+        ],
+      );
+      when(() => repository.listar()).thenAnswer((_) async => []);
+
+      final opcoes = await cubit.listarAplicadoresParaAtribuir();
+
+      expect(opcoes!.map((o) => o.id), ['1']);
+    });
+
+    test('listarAplicadoresParaAtribuir sem a lista: devolve null e avisa',
+        () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => aplicadorRepository.listar()).thenAnswer(
+        (_) async => throw const FalhaDeConexaoException(
+          'Sem conexão com o servidor.',
+        ),
+      );
+      when(() => repository.listar()).thenAnswer((_) async => []);
+
+      final opcoes = await cubit.listarAplicadoresParaAtribuir();
+
+      expect(opcoes, isNull);
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        'Sem conexão com o servidor.',
+      );
+    });
+
+    test('erro de validação (422) do servidor chega como feedback amigável',
+        () async {
+      final cubit = await carregar(
+        pontoDeAplicacao(estado: EstadoPontoDeAplicacao.direcionada, aplicadorId: '1'),
+      );
+      when(() => repository.ativar('pa1', agendamento)).thenAnswer(
+        (_) async => throw const RequisicaoInvalidaException(
+          'A data da primeira aplicação não pode estar no passado.',
+          status: 422,
+        ),
+      );
+
+      await cubit.ativar(agendamento);
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        'A data da primeira aplicação não pode estar no passado.',
+      );
+      expect(state.processando, isFalse);
+    });
+
+    test('conflito (409) ao atribuir chega como feedback amigável', () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => repository.atribuirAplicador('pa1', '1')).thenAnswer(
+        (_) async => throw const OperacaoNaoPermitidaException(
+          'O aplicador está desativado e não pode ser atribuído a um ponto.',
+        ),
+      );
+
+      await cubit.atribuirAplicador('1');
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        'O aplicador está desativado e não pode ser atribuído a um ponto.',
+      );
+    });
+
+    test(
+        'ação feita no servidor mas releitura falhou: mantém a tela e avisa, '
+        'em vez de trocar por erro de carregamento', () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => repository.atribuirAplicador('pa1', '1')).thenAnswer((_) async {});
+      when(() => repository.buscarPorId('pa1')).thenAnswer(
+        (_) async => throw const FalhaDeConexaoException(
+          'Sem conexão com o servidor.',
+        ),
+      );
+
+      await cubit.atribuirAplicador('1');
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(state.processando, isFalse);
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        AppErrorMessages.acaoFeitaSemAtualizarATela,
+      );
+    });
+
+    test('servidor fora do ar durante a ação vira feedback, não exceção',
+        () async {
+      final cubit = await carregar(pontoDeAplicacao());
+      when(() => repository.atribuirAplicador('pa1', '1')).thenAnswer(
+        (_) async => throw const FalhaDeConexaoException(
+          'Sem conexão com o servidor.',
+        ),
+      );
+
+      await cubit.atribuirAplicador('1');
+
+      final state = cubit.state as PontoDeAplicacaoDetalheLoaded;
+      expect(
+        (state.feedback as AcaoFeedbackErro).mensagem,
+        'Sem conexão com o servidor.',
+      );
+      expect(state.processando, isFalse);
     });
   });
 }

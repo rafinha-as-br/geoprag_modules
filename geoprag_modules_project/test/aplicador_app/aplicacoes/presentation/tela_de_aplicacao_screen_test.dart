@@ -7,6 +7,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_ap
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_screen.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_state.dart';
 import 'package:geoprag_modules/aplicador_app/core/aplicador_navigator.dart';
+import 'package:geoprag_modules/src/entities/produto.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTelaDeAplicacaoCubit extends MockCubit<TelaDeAplicacaoState>
@@ -23,6 +24,7 @@ void main() {
     navigator = MockAplicadorNavigator();
     whenListen(cubit, Stream.value(state), initialState: state);
     when(() => cubit.registrarSubponto()).thenAnswer((_) async {});
+    when(() => cubit.selecionarProduto(any())).thenReturn(null);
     return MaterialApp(
       home: AplicadorNavigatorScope(
         navigator: navigator,
@@ -45,6 +47,9 @@ void main() {
     execucoesRegistradas: 0,
   );
 
+  const larvicida = Produto(id: 'produto-1', nome: 'Larvicida');
+  const outro = Produto(id: 'produto-2', nome: 'Outro');
+
   group('TelaDeAplicacaoScreen', () {
     testWidgets('mostra dosagem e o contador de subpontos', (tester) async {
       await tester.pumpWidget(
@@ -58,12 +63,117 @@ void main() {
 
     testWidgets('toca em "Registrar Subponto" e chama o cubit', (tester) async {
       await tester.pumpWidget(
-        wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto)),
+        wrap(
+          const TelaDeAplicacaoEmAndamento(
+            ponto: ponto,
+            produtos: [larvicida],
+            produtoSelecionadoId: 'produto-1',
+          ),
+        ),
       );
 
       await tester.ensureVisible(find.text('Registrar Subponto'));
       await tester.tap(find.text('Registrar Subponto'));
       verify(() => cubit.registrarSubponto()).called(1);
+    });
+
+    testWidgets(
+      'sem posição do GPS mostra a orientação e mantém o botão para tentar de novo',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(
+            const TelaDeAplicacaoEmAndamento(
+              ponto: ponto,
+              produtos: [larvicida],
+              produtoSelecionadoId: 'produto-1',
+              mensagemDeErro: 'O GPS está desligado.',
+            ),
+          ),
+        );
+
+        expect(find.text('O GPS está desligado.'), findsOneWidget);
+        expect(
+          tester
+              .widget<ElevatedButton>(
+                find.byKey(
+                  const Key('telaDeAplicacaoScreen_registrarSubponto'),
+                ),
+              )
+              .onPressed,
+          isNotNull,
+        );
+        expect(find.text('Cancelar / Voltar'), findsOneWidget);
+      },
+    );
+
+    testWidgets('sem produto escolhido o botão fica desligado e o seletor '
+        'lista os produtos do aparelho', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const TelaDeAplicacaoEmAndamento(
+            ponto: ponto,
+            produtos: [larvicida, outro],
+          ),
+        ),
+      );
+
+      expect(
+        tester
+            .widget<ElevatedButton>(
+              find.byKey(const Key('telaDeAplicacaoScreen_registrarSubponto')),
+            )
+            .onPressed,
+        isNull,
+      );
+
+      await tester.ensureVisible(
+        find.byKey(const Key('telaDeAplicacaoScreen_produto')),
+      );
+      await tester.tap(find.byKey(const Key('telaDeAplicacaoScreen_produto')));
+      await tester.pumpAndSettle();
+      expect(find.text('Larvicida'), findsWidgets);
+      await tester.tap(find.text('Outro').last);
+      await tester.pumpAndSettle();
+      verify(() => cubit.selecionarProduto('produto-2')).called(1);
+    });
+
+    testWidgets('sem nenhum produto no aparelho explica e não deixa registrar',
+        (tester) async {
+      await tester.pumpWidget(
+        wrap(const TelaDeAplicacaoEmAndamento(ponto: ponto)),
+      );
+
+      expect(
+        find.byKey(const Key('telaDeAplicacaoScreen_semProdutos')),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<ElevatedButton>(
+              find.byKey(const Key('telaDeAplicacaoScreen_registrarSubponto')),
+            )
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('depois do primeiro subponto o produto não muda mais',
+        (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const TelaDeAplicacaoEmAndamento(
+            ponto: ponto,
+            subpontosRegistrados: 1,
+            produtos: [larvicida, outro],
+            produtoSelecionadoId: 'produto-1',
+          ),
+        ),
+      );
+
+      final seletor = tester.widget<DropdownButtonFormField<String>>(
+        find.byKey(const Key('telaDeAplicacaoScreen_produto')),
+      );
+      expect(seletor.onChanged, isNull);
     });
 
     testWidgets('mostra spinner no botão enquanto registrando', (tester) async {

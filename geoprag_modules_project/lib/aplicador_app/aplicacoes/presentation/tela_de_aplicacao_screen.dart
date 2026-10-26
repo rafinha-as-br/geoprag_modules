@@ -150,7 +150,8 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Aplicação registrada com sucesso! (Sincronizado)',
+                      'Aplicação registrada com sucesso! O envio ao servidor '
+                      'é automático, assim que houver conexão.',
                     ),
                   ),
                 ],
@@ -165,9 +166,33 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
               label: const Text('Voltar para Meus Pontos'),
             ),
           ] else ...[
+            _SeletorDeProduto(estado: estado),
+            const SizedBox(height: 16),
+            if (estado.mensagemDeErro != null) ...[
+              Container(
+                key: const Key('telaDeAplicacaoScreen_mensagemDeErro'),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: GeopragColors.statusAtrasado.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_off,
+                      color: GeopragColors.statusAtrasado,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(estado.mensagemDeErro!)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             ElevatedButton.icon(
               key: const Key('telaDeAplicacaoScreen_registrarSubponto'),
-              onPressed: estado.registrando
+              onPressed:
+                  estado.registrando || estado.produtoSelecionadoId == null
                   ? null
                   : () {
                       context.read<TelaDeAplicacaoCubit>().registrarSubponto();
@@ -197,6 +222,45 @@ class _TelaDeAplicacaoContent extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Escolha do produto da aplicação (GEOPRAG-203), com a lista que o pull
+/// deixou no aparelho. Depois do primeiro subponto fica só como leitura.
+class _SeletorDeProduto extends StatelessWidget {
+  const _SeletorDeProduto({required this.estado});
+
+  final TelaDeAplicacaoEmAndamento estado;
+
+  @override
+  Widget build(BuildContext context) {
+    if (estado.produtos.isEmpty) {
+      return const Text(
+        'Nenhum produto disponível no aparelho. Sincronize para baixar os '
+        'produtos e tente de novo.',
+        key: Key('telaDeAplicacaoScreen_semProdutos'),
+        textAlign: TextAlign.center,
+      );
+    }
+    return DropdownButtonFormField<String>(
+      key: const Key('telaDeAplicacaoScreen_produto'),
+      initialValue: estado.produtoSelecionadoId,
+      decoration: const InputDecoration(
+        labelText: 'Produto',
+        border: OutlineInputBorder(),
+      ),
+      items: [
+        for (final produto in estado.produtos)
+          DropdownMenuItem(value: produto.id, child: Text(produto.nome)),
+      ],
+      onChanged: estado.iniciada || estado.registrando
+          ? null
+          : (id) {
+              if (id != null) {
+                context.read<TelaDeAplicacaoCubit>().selecionarProduto(id);
+              }
+            },
     );
   }
 }

@@ -683,7 +683,11 @@ void main() {
       expect(evento.tipo, 'alerta_atraso_removido');
       expect(evento.pontoAfetadoId, ponto.id);
       expect(evento.autor, autor);
-      expect(evento.payload['dataAgendadaId'], '2026-10-01-0');
+      final atual = await repository.buscarPorId(ponto.id);
+      expect(
+        evento.payload['dataAgendadaId'],
+        atual.agendamento!.datas.first.id,
+      );
     });
 
     test('a remoção vale só para o atraso atual: a próxima recorrência '
@@ -698,6 +702,7 @@ void main() {
         mockPontosDeAplicacao[index] = mockPontosDeAplicacao[index]
             .registrarSubponto(
               Subponto(
+                id: 'sp-$i',
                 latitude: -26.9,
                 longitude: -48.9,
                 realizadoEm: DateTime(2026, 10, 9),

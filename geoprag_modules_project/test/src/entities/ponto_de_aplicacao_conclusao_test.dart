@@ -38,6 +38,7 @@ PontoDeAplicacao _pontoAtivo({
 }
 
 Subponto _subponto([int minuto = 0]) => Subponto(
+  id: 'sp-$minuto',
   latitude: -26.93,
   longitude: -48.95,
   realizadoEm: DateTime(2026, 10, 2, 9, minuto),

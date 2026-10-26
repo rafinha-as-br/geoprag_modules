@@ -6,6 +6,8 @@ import '../core/admin_account.dart';
 /// autorização do Administrador principal).
 final List<AdminAccount> mockAdminAccounts = [
   AdminAccount(
+    id: 'adm-1',
+    tenantId: 'gaspar-sc',
     email: 'admin@gaspar.sc.gov.br',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',
@@ -15,6 +17,8 @@ final List<AdminAccount> mockAdminAccounts = [
     role: AdminRole.administrador,
   ),
   AdminAccount(
+    id: 'adm-2',
+    tenantId: 'gaspar-sc',
     email: 'celia.ramos@gaspar.sc.gov.br',
     nome: 'Célia Ramos',
     cpf: '987.654.321-00',

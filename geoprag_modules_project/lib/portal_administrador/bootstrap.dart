@@ -1,6 +1,7 @@
+import '../src/api/api_client.dart';
+import '../src/api/api_client_provider.dart';
 import '../src/atraso/alerta_de_atraso_repository.dart';
 import '../src/atraso/alerta_de_atraso_repository_impl.dart';
-import '../src/auditoria/evento_auditoria.dart';
 import '../src/auditoria/evento_auditoria_repository.dart';
 import '../src/auditoria/evento_auditoria_repository_impl.dart';
 import 'autenticacao/core/admin_account.dart';
@@ -27,7 +28,11 @@ import 'gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'gerenciamento_de_aplicadores/presentation/aplicadores_cubit.dart';
 import 'gerenciamento_de_aplicadores/presentation/criar_aplicador_cubit.dart';
 import 'gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
-import 'gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
+import 'gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
+import 'gestao_de_aplicacoes/core/bairro_repository.dart';
+import 'gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_http.dart';
+import 'gestao_de_aplicacoes/data/aplicador_resumo_repository_http.dart';
+import 'gestao_de_aplicacoes/data/bairro_repository_http.dart';
 import 'gestao_de_aplicacoes/presentation/criar_ponto_de_aplicacao_cubit.dart';
 import 'gestao_de_aplicacoes/presentation/editar_ponto_de_aplicacao_cubit.dart';
 import 'gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
@@ -67,7 +72,22 @@ import 'tenant/presentation/tenant_cubit.dart';
 class AdminBootstrap {
   const AdminBootstrap();
 
-  AdminAuthRepository buildAdminAuthRepository() => AdminAuthRepositoryImpl();
+  /// Cliente HTTP compartilhado (uma instância por processo, ver
+  /// [ApiClientProvider]); a troca dos repositórios mock pelos reais usa este.
+  ApiClient buildApiClient() => ApiClientProvider.instancia;
+
+  /// Liga a perda de sessão (token expirado sem refresh) ao app e cria o cliente
+  /// HTTP. Chamar uma vez, em `main`, antes de qualquer outra fábrica
+  /// (GEOPRAG-187).
+  void configurarApi({required void Function() aoPerderSessao}) {
+    ApiClientProvider.aoPerderSessao = aoPerderSessao;
+    buildApiClient();
+  }
+
+  AdminAuthRepository buildAdminAuthRepository() => AdminAuthRepositoryImpl(
+    api: buildApiClient(),
+    sessao: ApiClientProvider.sessao,
+  );
   TenantRepository buildTenantRepository() => AdminTenantRepositoryImpl();
   SolicitacaoRedefinicaoRepository buildSolicitacaoRedefinicaoRepository() =>
       SolicitacaoRedefinicaoRepositoryImpl();
@@ -77,17 +97,24 @@ class AdminBootstrap {
   AlertaDeAtrasoRepository buildAlertaDeAtrasoRepository() =>
       AlertaDeAtrasoRepositoryImpl();
 
-  /// [contaAtual] vira o [AutorUsuario] de cada [EventoAuditoria] emitido
-  /// pelo repositório (GEOPRAG-113) — quem chama esta fábrica (uma rota
-  /// autenticada do app) já tem a sessão em mãos, então a conta entra aqui
-  /// em vez do repositório resolver sozinho uma sessão que não é dele.
+  /// Pontos de aplicação pela API (GEOPRAG-195 e 198).
+  ///
+  /// [contaAtual] já não entra no repositório: o autor de cada ação vem do
+  /// token e a auditoria é do servidor. O parâmetro continua aqui para os apps
+  /// não precisarem mudar as chamadas.
   AdminPontoDeAplicacaoRepository buildAdminPontoDeAplicacaoRepository({
     required AdminAccount contaAtual,
-  }) => AdminPontoDeAplicacaoRepositoryImpl(
-    eventoAuditoriaRepository: buildEventoAuditoriaRepository(),
-    alertaDeAtrasoRepository: buildAlertaDeAtrasoRepository(),
-    autor: AutorUsuario(email: contaAtual.email, perfil: contaAtual.role.name),
+  }) => AdminPontoDeAplicacaoRepositoryHttp(
+    buildApiClient(),
+    buildBairroRepository(),
   );
+
+  /// Aplicadores como a Gestão de Aplicações os usa (`GET /aplicadores`).
+  AplicadorResumoRepository buildAplicadorResumoRepository() =>
+      AplicadorResumoRepositoryHttp(buildApiClient());
+
+  BairroRepository buildBairroRepository() =>
+      BairroRepositoryHttp(buildApiClient());
   AdministradorRepository buildAdministradorRepository() =>
       AdministradorRepositoryImpl();
   ResumoGeralRepository buildResumoGeralRepository() =>
@@ -122,14 +149,14 @@ class AdminBootstrap {
     required AdminAccount contaAtual,
   }) => PontosDeAplicacaoCubit(
     buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
-    buildAplicadorRepository(),
+    buildAplicadorResumoRepository(),
   );
   PontosDoBairroCubit buildPontosDoBairroCubit(
     String bairro, {
     required AdminAccount contaAtual,
   }) => PontosDoBairroCubit(
     buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
-    buildAplicadorRepository(),
+    buildAplicadorResumoRepository(),
     bairro,
   );
   PontoDeAplicacaoDetalheCubit buildPontoDeAplicacaoDetalheCubit(
@@ -137,14 +164,14 @@ class AdminBootstrap {
     required AdminAccount contaAtual,
   }) => PontoDeAplicacaoDetalheCubit(
     buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
-    buildAplicadorRepository(),
+    buildAplicadorResumoRepository(),
     pontoId,
   );
   CriarPontoDeAplicacaoCubit buildCriarPontoDeAplicacaoCubit({
     required AdminAccount contaAtual,
   }) => CriarPontoDeAplicacaoCubit(
     buildAdminPontoDeAplicacaoRepository(contaAtual: contaAtual),
-    buildAplicadorRepository(),
+    buildAplicadorResumoRepository(),
   );
   EditarPontoDeAplicacaoCubit buildEditarPontoDeAplicacaoCubit(
     String pontoId, {
@@ -201,5 +228,6 @@ class AdminBootstrap {
 
   /// Sessão do administrador logado (GEOPRAG-36) — mesma exceção de escopo
   /// raiz do [buildTenantCubit], ver `AdminSessionCubit`.
-  AdminSessionCubit buildAdminSessionCubit() => AdminSessionCubit();
+  AdminSessionCubit buildAdminSessionCubit() =>
+      AdminSessionCubit(repository: buildAdminAuthRepository());
 }

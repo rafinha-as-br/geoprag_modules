@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/pontos_do_bairro_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/barra_acao_em_lote_pontos.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../gestao_de_aplicacoes_fixtures.dart';
@@ -12,7 +13,7 @@ import '../../gestao_de_aplicacoes_fixtures.dart';
 class MockAdminPontoDeAplicacaoRepository extends Mock
     implements AdminPontoDeAplicacaoRepository {}
 
-class MockAplicadorRepository extends Mock implements AplicadorRepository {}
+class MockAplicadorRepository extends Mock implements AplicadorResumoRepository {}
 
 void main() {
   group('BarraAcaoEmLotePontos', () {
@@ -93,6 +94,46 @@ void main() {
 
       expect(cubit.state.idsSelecionados, isEmpty);
     });
+
+    testWidgets(
+      'lista de aplicadores indisponível: avisa em um snackbar e não abre o '
+      'diálogo',
+      (tester) async {
+        when(() => aplicadorRepository.listar()).thenAnswer(
+          (_) async => throw const FalhaDeConexaoException(
+            'Sem conexão com o servidor.',
+          ),
+        );
+        cubit.alternarSelecaoDeTodosVisiveis();
+        await tester.pumpWidget(wrap());
+
+        await tester.tap(find.text('Atribuir aplicador'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.text('Sem conexão com o servidor.'), findsOneWidget);
+        expect(find.byType(AlertDialog), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'resposta fora do formato também vira aviso, não exceção solta',
+      (tester) async {
+        when(() => aplicadorRepository.listar()).thenAnswer(
+          (_) async => throw const FormatException('corpo inválido'),
+        );
+        cubit.alternarSelecaoDeTodosVisiveis();
+        await tester.pumpWidget(wrap());
+
+        await tester.tap(find.text('Atribuir aplicador'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.textContaining('FormatException'), findsNothing);
+        expect(find.byType(AlertDialog), findsNothing);
+      },
+    );
 
     testWidgets('desabilita os botões enquanto processandoAcaoEmLote', (
       tester,

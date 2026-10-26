@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/lote_de_pontos_reconciliacao.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/pontos_do_bairro_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/batch_reconcile_dialog.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:mocktail/mocktail.dart';
@@ -14,28 +15,16 @@ import '../gestao_de_aplicacoes_fixtures.dart';
 class MockAdminPontoDeAplicacaoRepository extends Mock
     implements AdminPontoDeAplicacaoRepository {}
 
-class MockAplicadorRepository extends Mock implements AplicadorRepository {}
+class MockAplicadorRepository extends Mock implements AplicadorResumoRepository {}
 
 void main() {
   late MockAdminPontoDeAplicacaoRepository repository;
   late MockAplicadorRepository aplicadorRepository;
 
-  final aplicador = Aplicador(
+  const aplicador = AplicadorResumo(
     id: '1',
     nome: 'João Silva',
     status: UsuarioStatus.ativo,
-    dataCriacao: DateTime(2026, 5, 10),
-    email: 'joao.silva@email.com',
-    cpf: '111.111.111-11',
-    dataNascimento: DateTime(1988, 4, 12),
-    sexo: 'Masculino',
-    telefone: '(47) 99111-1111',
-    cep: '89010-000',
-    rua: 'Rua das Flores',
-    numero: '50',
-    bairro: 'Belchior',
-    cidade: 'Blumenau',
-    uf: 'SC',
   );
 
   final desativado = pontoDeAplicacao(
@@ -164,6 +153,43 @@ void main() {
       expect(opcoes, hasLength(1));
       expect(opcoes.single.id, '1');
       expect(opcoes.single.nome, 'João Silva');
+    });
+
+    test('listarAplicadoresDisponiveis deixa de fora o aplicador desativado',
+        () async {
+      final cubit = await carregar([pontoDeAplicacao()]);
+      when(() => aplicadorRepository.listar()).thenAnswer(
+        (_) async => [
+          aplicador,
+          const AplicadorResumo(
+            id: '2',
+            nome: 'Maria Souza',
+            status: UsuarioStatus.desativado,
+          ),
+        ],
+      );
+
+      final opcoes = await cubit.listarAplicadoresDisponiveis();
+
+      expect(opcoes.map((o) => o.id), ['1']);
+    });
+
+    test('erro do servidor ao carregar o bairro mostra a mensagem da API',
+        () async {
+      when(() => repository.listarPorBairro('Gasparinho')).thenAnswer(
+        (_) async => throw const FalhaDeConexaoException(
+          'Sem conexão com o servidor.',
+        ),
+      );
+
+      final cubit = PontosDoBairroCubit(
+        repository,
+        aplicadorRepository,
+        'Gasparinho',
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.errorMessage, 'Sem conexão com o servidor.');
     });
 
     test('executarUm(ativar) chama repository.ativar com o agendamento',

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../src/theme/geoprag_colors.dart';
 import '../../../src/widgets/geoprag_map_placeholder.dart';
 import '../../core/aplicador_navigator.dart';
+import '../core/regra_de_chegada.dart';
 import 'aplicacao_de_campo_view_model.dart';
 import 'geolocalizacao_cubit.dart';
 import 'geolocalizacao_state.dart';
@@ -39,8 +40,8 @@ class GeolocalizacaoScreen extends StatelessWidget {
                 ),
               ),
             ),
-            GeolocalizacaoLoaded(:final ponto, :final dentroDoRaio) =>
-              _GeolocalizacaoContent(ponto: ponto, dentroDoRaio: dentroDoRaio),
+            GeolocalizacaoLoaded(:final ponto, :final verificacao) =>
+              _GeolocalizacaoContent(ponto: ponto, verificacao: verificacao),
           };
         },
       ),
@@ -51,11 +52,43 @@ class GeolocalizacaoScreen extends StatelessWidget {
 class _GeolocalizacaoContent extends StatelessWidget {
   const _GeolocalizacaoContent({
     required this.ponto,
-    required this.dentroDoRaio,
+    required this.verificacao,
   });
 
   final PontoParaAplicacaoViewModel ponto;
-  final bool dentroDoRaio;
+  final VerificacaoDeChegada verificacao;
+
+  bool get dentroDoRaio => verificacao is ChegadaConfirmada;
+
+  /// Sem posição ou fora do raio: dá para ler o GPS de novo.
+  bool get podeTentarDeNovo =>
+      verificacao is ChegadaSemPosicao || verificacao is ChegadaForaDoRaio;
+
+  String get _titulo => switch (verificacao) {
+    ChegadaVerificando() => 'Verificando sua localização…',
+    ChegadaSemPosicao() => 'Não foi possível obter sua localização',
+    ChegadaForaDoRaio() => 'Desloque-se até o ponto',
+    ChegadaConfirmada(distanciaMetros: null) => 'Pronto para iniciar',
+    ChegadaConfirmada() => 'Você chegou ao local!',
+  };
+
+  String get _descricao {
+    final local = '${ponto.nome} (${ponto.enderecoFormatado})';
+    final raio = RegraDeChegada.raioDeChegadaMetros.round();
+    return switch (verificacao) {
+      ChegadaVerificando() => 'Aguarde enquanto o GPS localiza você.',
+      ChegadaSemPosicao(:final mensagem) => mensagem,
+      ChegadaForaDoRaio(:final distanciaMetros) =>
+        'Você está a aprox. ${distanciaMetros.round()} m do ponto $local. '
+            'É preciso estar a até $raio m para iniciar a aplicação.',
+      ChegadaConfirmada(distanciaMetros: null) =>
+        'Esta é a primeira aplicação do ponto $local. Sua posição no registro '
+            'passa a ser a referência do ponto.',
+      ChegadaConfirmada(:final distanciaMetros?) =>
+        'Você está a aprox. ${distanciaMetros.round()} m do ponto $local. '
+            'Pode prosseguir com o registro da aplicação.',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,9 +194,7 @@ class _GeolocalizacaoContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  dentroDoRaio
-                      ? 'Você chegou ao local!'
-                      : 'Desloque-se até o ponto',
+                  _titulo,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -175,13 +206,7 @@ class _GeolocalizacaoContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  dentroDoRaio
-                      ? 'Sua localização atual corresponde ao ponto '
-                            '${ponto.nome} (${ponto.enderecoFormatado}). Você '
-                            'pode prosseguir com o registro da aplicação.'
-                      : 'Você está fora do raio de cobertura permitido do '
-                            'ponto ${ponto.nome} (${ponto.enderecoFormatado}) '
-                            '(aprox. ${ponto.distanciaEntreSubpontosMetros.round()}m de distância).',
+                  _descricao,
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
@@ -190,13 +215,16 @@ class _GeolocalizacaoContent extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                if (!dentroDoRaio)
+                if (verificacao is ChegadaVerificando)
+                  const Center(child: CircularProgressIndicator()),
+                if (podeTentarDeNovo)
                   OutlinedButton.icon(
+                    key: const Key('geolocalizacaoScreen_tentarDeNovo'),
                     onPressed: () {
-                      context.read<GeolocalizacaoCubit>().confirmarChegada();
+                      context.read<GeolocalizacaoCubit>().verificarChegada();
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Simular chegada ao ponto (Mock)'),
+                    label: const Text('Tentar novamente'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: GeopragColors.blue600,
                       padding: const EdgeInsets.symmetric(vertical: 16),

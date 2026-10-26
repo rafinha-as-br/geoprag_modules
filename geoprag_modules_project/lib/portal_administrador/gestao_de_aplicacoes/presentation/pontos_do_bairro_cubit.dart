@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/widgets/base_list_screen.dart';
 import '../../../src/widgets/geoprag_search_field.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'lote_de_pontos_reconciliacao.dart';
 import 'ponto_de_aplicacao_view_model.dart';
@@ -47,7 +48,7 @@ class PontosDoBairroCubit
   }
 
   final AdminPontoDeAplicacaoRepository _repository;
-  final AplicadorRepository _aplicadorRepository;
+  final AplicadorResumoRepository _aplicadorRepository;
   final String _bairro;
 
   List<PontoDeAplicacaoResumoViewModel> _todos = [];
@@ -107,6 +108,8 @@ class PontosDoBairroCubit
       );
     } on EntidadeNaoEncontradaException catch (e) {
       emitError(e.mensagemAmigavel);
+    } on ApiException catch (e) {
+      emitError(e.mensagemAmigavel);
     } catch (e, stackTrace) {
       AppLogger.error('PontosDoBairroCubit._carregar', e, stackTrace);
       emitError(AppErrorMessages.carregamentoGenerico);
@@ -138,9 +141,10 @@ class PontosDoBairroCubit
   ReconciliacaoDoLote reconciliar(AcaoEmLote acao) =>
       reconciliarLote(acao: acao, selecionados: selecionados);
 
+  /// Só aplicadores ativos: o servidor recusa (`409`) um desativado.
   Future<List<AplicadorOpcao>> listarAplicadoresDisponiveis() async => [
     for (final aplicador in await _aplicadorRepository.listar())
-      AplicadorOpcao(id: aplicador.id, nome: aplicador.nome),
+      if (aplicador.ativo) AplicadorOpcao(id: aplicador.id, nome: aplicador.nome),
   ];
 
   /// Executa [acao] sobre um único ponto [id], usando os dados extras

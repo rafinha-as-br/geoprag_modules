@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/state/acao_feedback.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';
 import 'ponto_de_aplicacao_view_model.dart';
@@ -17,8 +18,7 @@ import 'widgets/atribuir_aplicador_dialog.dart';
 /// diálogos (que precisam de `BuildContext`) ficam a cargo da tela — o
 /// Cubit nunca recebe `BuildContext`, só o dado já coletado (ex.:
 /// `Agendamento`, `aplicadorId`).
-class PontoDeAplicacaoDetalheCubit
-    extends Cubit<PontoDeAplicacaoDetalheState> {
+class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
   PontoDeAplicacaoDetalheCubit(
     this._repository,
     this._aplicadorRepository,
@@ -28,46 +28,50 @@ class PontoDeAplicacaoDetalheCubit
   }
 
   final AdminPontoDeAplicacaoRepository _repository;
-  final AplicadorRepository _aplicadorRepository;
+  final AplicadorResumoRepository _aplicadorRepository;
   final String _pontoId;
 
-  Future<void> _carregar() async {
+  Future<void> _carregar() async => emit(await _buscar());
+
+  /// O ponto como a tela o mostra: carregado, ou o erro com a mensagem pronta.
+  Future<PontoDeAplicacaoDetalheState> _buscar() async {
     try {
       final ponto = await _repository.buscarPorId(_pontoId);
       final aplicadorNome = await _nomeDoAplicador(ponto.aplicadorId);
       final emAtraso = (await _repository.idsDePontosEmAtraso()).contains(
         ponto.id,
       );
-      emit(
-        PontoDeAplicacaoDetalheLoaded(
-          PontoDeAplicacaoDetalhadoViewModel.fromEntity(
-            ponto,
-            aplicadorNome: aplicadorNome,
-            emAtraso: emAtraso,
-          ),
+      return PontoDeAplicacaoDetalheLoaded(
+        PontoDeAplicacaoDetalhadoViewModel.fromEntity(
+          ponto,
+          aplicadorNome: aplicadorNome,
+          emAtraso: emAtraso,
         ),
       );
     } on EntidadeNaoEncontradaException catch (e) {
-      emit(PontoDeAplicacaoDetalheError(e.mensagemAmigavel));
+      return PontoDeAplicacaoDetalheError(e.mensagemAmigavel);
+    } on ApiException catch (e) {
+      return PontoDeAplicacaoDetalheError(e.mensagemAmigavel);
     } catch (e, stackTrace) {
       AppLogger.error('PontoDeAplicacaoDetalheCubit._carregar', e, stackTrace);
-      emit(
-        const PontoDeAplicacaoDetalheError(
-          AppErrorMessages.carregamentoGenerico,
-        ),
+      return const PontoDeAplicacaoDetalheError(
+        AppErrorMessages.carregamentoGenerico,
       );
     }
   }
 
   /// O nome do responsável é enriquecimento da tela, não o dado dela: se o
-  /// aplicador vinculado não for encontrado, o ponto continua sendo exibido
-  /// sem o nome, em vez de a tela inteira virar erro por causa de um
-  /// cadastro de aplicador ausente.
+  /// aplicador vinculado não for encontrado, ou a lista de aplicadores não
+  /// puder ser lida (rede, resposta fora do formato), o ponto continua sendo
+  /// exibido sem o nome, em vez de a tela inteira virar erro por causa disso.
   Future<String?> _nomeDoAplicador(String? aplicadorId) async {
     if (aplicadorId == null) return null;
     try {
-      return (await _aplicadorRepository.buscarPorId(aplicadorId)).nome;
-    } on EntidadeNaoEncontradaException catch (e, stackTrace) {
+      for (final aplicador in await _aplicadorRepository.listar()) {
+        if (aplicador.id == aplicadorId) return aplicador.nome;
+      }
+      return null;
+    } catch (e, stackTrace) {
       AppLogger.error(
         'PontoDeAplicacaoDetalheCubit._nomeDoAplicador',
         e,
@@ -82,10 +86,8 @@ class PontoDeAplicacaoDetalheCubit
     'Ciclo ativado com sucesso.',
   );
 
-  Future<void> desativar() => _executarAcao(
-    () => _repository.desativar(_pontoId),
-    'Ponto desativado.',
-  );
+  Future<void> desativar() =>
+      _executarAcao(() => _repository.desativar(_pontoId), 'Ponto desativado.');
 
   Future<void> reativar() =>
       _executarAcao(() => _repository.reativar(_pontoId), 'Ponto reativado.');
@@ -113,25 +115,46 @@ class PontoDeAplicacaoDetalheCubit
   /// Aplicadores candidatos para o `AtribuirAplicadorDialog`, com a
   /// contagem de pontos já atribuídos a cada um (para o destaque de carga
   /// alta) — cruza os dois repositórios disponíveis ao Cubit.
-  Future<List<AplicadorParaAtribuir>> listarAplicadoresParaAtribuir() async {
-    final aplicadores = await _aplicadorRepository.listar();
-    final pontos = await _repository.listar();
-    final contagemPorAplicador = <String, int>{};
-    for (final ponto in pontos) {
-      final id = ponto.aplicadorId;
-      if (id != null) {
-        contagemPorAplicador[id] = (contagemPorAplicador[id] ?? 0) + 1;
+  ///
+  /// Só aplicadores ativos: o servidor recusa (`409`) um desativado. Devolve
+  /// `null`, com o erro no feedback da tela, se a lista não puder ser lida.
+  Future<List<AplicadorParaAtribuir>?> listarAplicadoresParaAtribuir() async {
+    try {
+      final aplicadores = await _aplicadorRepository.listar();
+      final pontos = await _repository.listar();
+      final contagemPorAplicador = <String, int>{};
+      for (final ponto in pontos) {
+        final id = ponto.aplicadorId;
+        if (id != null) {
+          contagemPorAplicador[id] = (contagemPorAplicador[id] ?? 0) + 1;
+        }
       }
+      return [
+        for (final aplicador in aplicadores.where((a) => a.ativo))
+          AplicadorParaAtribuir(
+            id: aplicador.id,
+            nome: aplicador.nome,
+            quantidadePontosAtribuidos: contagemPorAplicador[aplicador.id] ?? 0,
+          ),
+      ];
+    } on ApiException catch (e) {
+      _avisarErro(e.mensagemAmigavel);
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'PontoDeAplicacaoDetalheCubit.listarAplicadoresParaAtribuir',
+        e,
+        stackTrace,
+      );
+      _avisarErro(AppErrorMessages.carregamentoGenerico);
     }
-    return [
-      for (final aplicador in aplicadores)
-        AplicadorParaAtribuir(
-          id: aplicador.id,
-          nome: aplicador.nome,
-          bairro: aplicador.bairro ?? 'Bairro não informado',
-          quantidadePontosAtribuidos: contagemPorAplicador[aplicador.id] ?? 0,
-        ),
-    ];
+    return null;
+  }
+
+  void _avisarErro(String mensagem) {
+    final estado = state;
+    if (estado is PontoDeAplicacaoDetalheLoaded) {
+      emit(estado.copyWith(feedback: AcaoFeedbackErro(mensagem)));
+    }
   }
 
   /// Executa uma ação individual (ativar/desativar/reativar/atribuir ou
@@ -147,12 +170,22 @@ class PontoDeAplicacaoDetalheCubit
     emit(estadoAtual.copyWith(processando: true, limparFeedback: true));
     try {
       await acao();
-      await _carregar();
-      final estadoRecarregado = state;
-      if (estadoRecarregado is PontoDeAplicacaoDetalheLoaded) {
+      final recarregado = await _buscar();
+      if (recarregado is PontoDeAplicacaoDetalheLoaded) {
         emit(
-          estadoRecarregado.copyWith(
+          recarregado.copyWith(
             feedback: AcaoFeedbackSucesso(mensagemDeSucesso),
+          ),
+        );
+      } else {
+        // A ação já valeu no servidor; só a releitura falhou. Trocar a tela
+        // por um erro de carregamento faria o usuário repetir uma ação feita.
+        emit(
+          estadoAtual.copyWith(
+            processando: false,
+            feedback: const AcaoFeedbackErro(
+              AppErrorMessages.acaoFeitaSemAtualizarATela,
+            ),
           ),
         );
       }
@@ -170,12 +203,25 @@ class PontoDeAplicacaoDetalheCubit
           feedback: AcaoFeedbackErro(e.mensagemAmigavel),
         ),
       );
-    } catch (e, stackTrace) {
-      AppLogger.error('PontoDeAplicacaoDetalheCubit._executarAcao', e, stackTrace);
+    } on ApiException catch (e) {
       emit(
         estadoAtual.copyWith(
           processando: false,
-          feedback: const AcaoFeedbackErro(AppErrorMessages.carregamentoGenerico),
+          feedback: AcaoFeedbackErro(e.mensagemAmigavel),
+        ),
+      );
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'PontoDeAplicacaoDetalheCubit._executarAcao',
+        e,
+        stackTrace,
+      );
+      emit(
+        estadoAtual.copyWith(
+          processando: false,
+          feedback: const AcaoFeedbackErro(
+            AppErrorMessages.carregamentoGenerico,
+          ),
         ),
       );
     }

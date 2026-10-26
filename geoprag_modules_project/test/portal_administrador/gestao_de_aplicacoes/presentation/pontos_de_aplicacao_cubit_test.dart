@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
-import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo.dart';
+import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/pontos_de_aplicacao_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/painel_do_dashboard.dart';
+import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/usuario.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,28 +14,17 @@ import '../gestao_de_aplicacoes_fixtures.dart';
 class MockAdminPontoDeAplicacaoRepository extends Mock
     implements AdminPontoDeAplicacaoRepository {}
 
-class MockAplicadorRepository extends Mock implements AplicadorRepository {}
+class MockAplicadorRepository extends Mock
+    implements AplicadorResumoRepository {}
 
 void main() {
   late MockAdminPontoDeAplicacaoRepository repository;
   late MockAplicadorRepository aplicadorRepository;
 
-  final aplicador = Aplicador(
+  const aplicador = AplicadorResumo(
     id: '1',
     nome: 'João Silva',
     status: UsuarioStatus.ativo,
-    dataCriacao: DateTime(2026, 5, 10),
-    email: 'joao.silva@email.com',
-    cpf: '111.111.111-11',
-    dataNascimento: DateTime(1988, 4, 12),
-    sexo: 'Masculino',
-    telefone: '(47) 99111-1111',
-    cep: '89010-000',
-    rua: 'Rua das Flores',
-    numero: '50',
-    bairro: 'Belchior',
-    cidade: 'Blumenau',
-    uf: 'SC',
   );
 
   final ativoComExecucao = pontoDeAplicacao(
@@ -72,7 +62,9 @@ void main() {
     repository = MockAdminPontoDeAplicacaoRepository();
     when(() => repository.idsDePontosEmAtraso()).thenAnswer((_) async => {});
     aplicadorRepository = MockAplicadorRepository();
-    when(() => aplicadorRepository.listar()).thenAnswer((_) async => [aplicador]);
+    when(
+      () => aplicadorRepository.listar(),
+    ).thenAnswer((_) async => [aplicador]);
   });
 
   Future<PontosDeAplicacaoCubit> carregar(List<PontoDeAplicacao> pontos) async {
@@ -106,23 +98,25 @@ void main() {
     expect(painel.quantidadeEmAtraso, 1);
   });
 
-  test('o filtro "em atraso" restringe a listagem, mas o contador não muda',
-      () async {
-    when(
-      () => repository.idsDePontosEmAtraso(),
-    ).thenAnswer((_) async => {'pa1'});
-    final cubit = await carregar([ativoComExecucao, ativoSemExecucao]);
+  test(
+    'o filtro "em atraso" restringe a listagem, mas o contador não muda',
+    () async {
+      when(
+        () => repository.idsDePontosEmAtraso(),
+      ).thenAnswer((_) async => {'pa1'});
+      final cubit = await carregar([ativoComExecucao, ativoSemExecucao]);
 
-    cubit.alternarApenasEmAtraso(true);
+      cubit.alternarApenasEmAtraso(true);
 
-    expect(cubit.state.items.map((p) => p.id), ['pa1']);
-    final painel = cubit.state.filter as PainelDoDashboard;
-    expect(painel.apenasEmAtraso, isTrue);
-    expect(painel.quantidadeEmAtraso, 1);
+      expect(cubit.state.items.map((p) => p.id), ['pa1']);
+      final painel = cubit.state.filter as PainelDoDashboard;
+      expect(painel.apenasEmAtraso, isTrue);
+      expect(painel.quantidadeEmAtraso, 1);
 
-    cubit.alternarApenasEmAtraso(false);
-    expect(cubit.state.items.map((p) => p.id), ['pa1', 'pa2']);
-  });
+      cubit.alternarApenasEmAtraso(false);
+      expect(cubit.state.items.map((p) => p.id), ['pa1', 'pa2']);
+    },
+  );
 
   test('desativados ficam fora da listagem por padrão', () async {
     final cubit = await carregar([enderecado, desativado]);
@@ -130,14 +124,16 @@ void main() {
     expect(cubit.state.items.map((p) => p.id), ['pa3']);
   });
 
-  test('o checkbox de incluir desativados traz os desativados de volta',
-      () async {
-    final cubit = await carregar([enderecado, desativado]);
+  test(
+    'o checkbox de incluir desativados traz os desativados de volta',
+    () async {
+      final cubit = await carregar([enderecado, desativado]);
 
-    cubit.alternarIncluirDesativados(true);
+      cubit.alternarIncluirDesativados(true);
 
-    expect(cubit.state.items.map((p) => p.id), ['pa3', 'pa4']);
-  });
+      expect(cubit.state.items.map((p) => p.id), ['pa3', 'pa4']);
+    },
+  );
 
   test('filtro por estado restringe a listagem àquele estado', () async {
     final cubit = await carregar([ativoComExecucao, enderecado]);
@@ -164,9 +160,54 @@ void main() {
     expect(alertas.map((p) => p.id), ['pa2']);
   });
 
+  test(
+    'erro do servidor (5xx) na listagem mostra a mensagem amigável da API',
+    () async {
+      when(() => repository.listar()).thenAnswer(
+        (_) async => throw const ErroDoServidorException(
+          'O servidor encontrou um problema. Tente novamente em instantes.',
+          status: 503,
+        ),
+      );
+
+      final cubit = PontosDeAplicacaoCubit(repository, aplicadorRepository);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        cubit.state.errorMessage,
+        'O servidor encontrou um problema. Tente novamente em instantes.',
+      );
+      expect(cubit.state.isLoading, isFalse);
+    },
+  );
+
+  test(
+    'sem conexão a listagem mostra a mensagem da API, não a genérica',
+    () async {
+      when(() => repository.listar()).thenAnswer(
+        (_) async =>
+            throw const FalhaDeConexaoException('Sem conexão com o servidor.'),
+      );
+
+      final cubit = PontosDeAplicacaoCubit(repository, aplicadorRepository);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.errorMessage, 'Sem conexão com o servidor.');
+    },
+  );
+
+  test('lista de pontos vazia mostra a tela vazia, sem erro', () async {
+    final cubit = await carregar([]);
+
+    expect(cubit.state.errorMessage, isNull);
+    expect(cubit.state.items, isEmpty);
+  });
+
   test('emite mensagem amigável quando o repositório falha, sem vazar a '
       'exceção bruta', () async {
-    when(() => repository.listar()).thenAnswer((_) async => throw Exception('offline'));
+    when(
+      () => repository.listar(),
+    ).thenAnswer((_) async => throw Exception('offline'));
 
     final cubit = PontosDeAplicacaoCubit(repository, aplicadorRepository);
     await Future<void>.delayed(Duration.zero);

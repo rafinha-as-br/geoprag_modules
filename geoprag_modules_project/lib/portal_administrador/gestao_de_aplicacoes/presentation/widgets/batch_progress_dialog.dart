@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../src/api/api_exceptions.dart';
 import '../../../../src/errors/app_exceptions.dart';
 import '../../../../src/errors/app_logger.dart';
 
@@ -70,13 +71,15 @@ class _BatchProgressDialogState extends State<BatchProgressDialog> {
   }
 
   /// Erros de domínio (`EntidadeNaoEncontradaException`/
-  /// `OperacaoNaoPermitidaException`) já trazem uma mensagem pronta para a
-  /// UI. Qualquer outra exceção é inesperada — registrada via [AppLogger]
-  /// (nunca engolida silenciosamente) antes de mostrar uma mensagem genérica.
+  /// `OperacaoNaoPermitidaException`) e da API (`ApiException`: rede, `403`,
+  /// `422`…) já trazem uma mensagem pronta para a UI. Qualquer outra exceção
+  /// é inesperada — registrada via [AppLogger] (nunca engolida
+  /// silenciosamente) antes de mostrar uma mensagem genérica.
   String _mensagemDeErro(String id, Object e, StackTrace stackTrace) {
     return switch (e) {
       EntidadeNaoEncontradaException(:final mensagemAmigavel) => mensagemAmigavel,
       OperacaoNaoPermitidaException(:final mensagemAmigavel) => mensagemAmigavel,
+      ApiException(:final mensagemAmigavel) => mensagemAmigavel,
       _ => () {
         AppLogger.error('BatchProgressDialog._executar (id=$id)', e, stackTrace);
         return 'Falha inesperada.';

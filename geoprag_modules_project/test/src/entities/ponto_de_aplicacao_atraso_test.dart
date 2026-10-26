@@ -39,20 +39,44 @@ void main() {
     });
 
     test('alerta removido da recorrência atual: em dia', () {
+      final ponto = ativo();
       expect(
-        ativo().estadoDeAtraso(
+        ponto.estadoDeAtraso(
           dataDeReferencia: DateTime(2026, 10, 6),
-          alertasRemovidos: {'2026-10-01-0'},
+          alertasRemovidos: {ponto.agendamento!.datas[0].id},
         ),
         EstadoDeAtraso.emDia,
       );
     });
 
-    test('remoção de outra recorrência não vale para a atual', () {
+    test('alerta removido no servidor (alertaRemovidoEm): em dia', () {
+      final ponto = ativo();
+      final datas = ponto.agendamento!.datas;
+      final removido = ponto.copyWith(
+        agendamento: ponto.agendamento!.copyWith(
+          datas: [
+            DataAgendada(
+              id: datas[0].id,
+              data: datas[0].data,
+              alertaRemovidoEm: DateTime.utc(2026, 10, 6, 12),
+            ),
+            ...datas.skip(1),
+          ],
+        ),
+      );
+
       expect(
-        ativo().estadoDeAtraso(
+        removido.estadoDeAtraso(dataDeReferencia: DateTime(2026, 10, 6)),
+        EstadoDeAtraso.emDia,
+      );
+    });
+
+    test('remoção de outra recorrência não vale para a atual', () {
+      final ponto = ativo();
+      expect(
+        ponto.estadoDeAtraso(
           dataDeReferencia: DateTime(2026, 10, 6),
-          alertasRemovidos: {'2026-10-01-1'},
+          alertasRemovidos: {ponto.agendamento!.datas[1].id},
         ),
         EstadoDeAtraso.emAtraso,
       );

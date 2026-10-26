@@ -22,6 +22,8 @@ void main() {
         () => repository.findByEmail('celia.ramos@gaspar.sc.gov.br'),
       ).thenAnswer(
         (_) async => AdminAccount(
+    id: 'adm-teste',
+    tenantId: 'gaspar-sc',
           email: 'celia.ramos@gaspar.sc.gov.br',
           nome: 'Célia Ramos',
           cpf: '987.654.321-00',

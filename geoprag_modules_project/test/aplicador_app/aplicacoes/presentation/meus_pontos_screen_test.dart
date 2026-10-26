@@ -19,7 +19,7 @@ void main() {
   late MockMeusPontosCubit cubit;
   late MockAplicadorNavigator navigator;
 
-  Widget wrap(MeusPontosState state) {
+  Widget wrap(MeusPontosState state, {Widget? resumoDaSincronizacao}) {
     cubit = MockMeusPontosCubit();
     navigator = MockAplicadorNavigator();
     whenListen(cubit, Stream.value(state), initialState: state);
@@ -28,7 +28,7 @@ void main() {
         navigator: navigator,
         child: BlocProvider<MeusPontosCubit>.value(
           value: cubit,
-          child: const MeusPontosScreen(),
+          child: MeusPontosScreen(resumoDaSincronizacao: resumoDaSincronizacao),
         ),
       ),
     );
@@ -71,15 +71,26 @@ void main() {
       );
     });
 
-    testWidgets('renderiza o card do ponto, o banner offline e o bottom nav', (
-      tester,
-    ) async {
+    testWidgets('renderiza o card do ponto e o bottom nav', (tester) async {
       await tester.pumpWidget(wrap(MeusPontosLoaded([resumo])));
 
       expect(find.text('Córrego Gasparinho'), findsOneWidget);
       expect(find.text('#GAS1 · Gasparinho'), findsOneWidget);
-      expect(find.textContaining('Sincronização automática'), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
+    });
+
+    testWidgets('mostra a faixa de sincronização quando o app a fornece', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          MeusPontosLoaded([resumo]),
+          resumoDaSincronizacao: const Text('Faixa de sincronização'),
+        ),
+      );
+
+      expect(find.text('Faixa de sincronização'), findsOneWidget);
+      expect(find.text('Córrego Gasparinho'), findsOneWidget);
     });
 
     testWidgets('destaca alerta quando o ponto está ativo sem registro', (
