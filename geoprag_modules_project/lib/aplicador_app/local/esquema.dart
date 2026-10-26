@@ -1,3 +1,6 @@
+import '../../src/entities/atraso_de_aplicacao.dart'
+    show toleranciaPadraoDeAtrasoEmDias;
+
 /// Uma etapa do esquema do banco local: os comandos que levam o banco da
 /// versão anterior à [versao].
 class Migracao {
@@ -96,6 +99,19 @@ CREATE TABLE outbox (
     'CREATE INDEX idx_outbox_estado ON outbox (estado, criado_em_ms)',
     'CREATE INDEX idx_outbox_ponto ON outbox (ponto_id)',
   ]),
+  // GEOPRAG-203: o que o aplicador precisa para trabalhar sem rede. A tolerância
+  // e a remoção manual do alerta (GEOPRAG-216) decidem o aviso de atraso local;
+  // os produtos são a escolha do registro de aplicação.
+  Migracao(2, [
+    'ALTER TABLE pontos ADD COLUMN tolerancia_dias INTEGER NOT NULL '
+        'DEFAULT $toleranciaPadraoDeAtrasoEmDias',
+    'ALTER TABLE datas_agendadas ADD COLUMN alerta_removido_em TEXT',
+    '''
+CREATE TABLE produtos (
+  id TEXT PRIMARY KEY,
+  nome TEXT NOT NULL
+)''',
+  ]),
 ];
 
 /// Nomes das tabelas do esquema, para os DAOs não repetirem texto solto.
@@ -105,4 +121,5 @@ abstract final class Tabelas {
   static const String aplicacoes = 'aplicacoes';
   static const String subpontos = 'subpontos';
   static const String outbox = 'outbox';
+  static const String produtos = 'produtos';
 }

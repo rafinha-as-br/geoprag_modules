@@ -2,11 +2,13 @@ import '../../../src/api/sync/pull_dtos.dart';
 import '../../../src/api/sync/sync_mappers.dart';
 import '../../../src/entities/aplicacao.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/entities/produto.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../local/aplicacao_dao.dart';
 import '../../local/item_da_outbox.dart';
 import '../../local/outbox_dao.dart';
 import '../../local/ponto_dao.dart';
+import '../../local/produto_dao.dart';
 import '../core/resultado_da_sincronizacao.dart';
 
 /// Aplica a resposta do pull ao banco local (GEOPRAG-202).
@@ -23,6 +25,8 @@ import '../core/resultado_da_sincronizacao.dart';
 /// - Reaplica a baixa das aplicações locais ainda não enviadas: o pull traz a
 ///   data agendada como o servidor a conhece (ainda pendente), mas o aplicador
 ///   já a atendeu neste aparelho.
+/// - Guarda os produtos da resposta (GEOPRAG-203), somando aos que já tem: o
+///   incremental traz só os novos.
 /// - Um ponto ilegível é ignorado sozinho: o resto da resposta segue e o ponto
 ///   fica como estava.
 class ReconciliadorDoPull {
@@ -30,13 +34,16 @@ class ReconciliadorDoPull {
     required PontoDao pontos,
     required OutboxDao outbox,
     required AplicacaoDao aplicacoes,
+    required ProdutoDao produtos,
   }) : _pontos = pontos,
        _outbox = outbox,
-       _aplicacoes = aplicacoes;
+       _aplicacoes = aplicacoes,
+       _produtos = produtos;
 
   final PontoDao _pontos;
   final OutboxDao _outbox;
   final AplicacaoDao _aplicacoes;
+  final ProdutoDao _produtos;
 
   /// O aparelho não guarda nenhum ponto. Um cursor guardado não vale nesse caso
   /// (o banco foi recriado): o pull incremental deixaria a lista incompleta.
@@ -47,6 +54,9 @@ class ReconciliadorDoPull {
     PullResponseDto resposta, {
     bool incremental = false,
   }) async {
+    await _produtos.salvarTodos([
+      for (final p in resposta.produtos) Produto(id: p.id, nome: p.nome),
+    ]);
     final recebidos = <PontoDeAplicacao>[];
     final ignorados = <String>[];
     for (final dto in resposta.pontos) {

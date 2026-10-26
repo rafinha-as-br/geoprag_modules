@@ -47,6 +47,35 @@ void main() {
     expect([for (final s in lido.subpontos) s.id], ['s-1', 's-2']);
   });
 
+  test('guarda a tolerância de atraso e a remoção manual do alerta', () async {
+    final base = pontoDeTeste('ponto-1').editarTolerancia(9);
+    final datas = base.agendamento!.datas;
+    final removidoEm = DateTime.utc(2026, 10, 28, 14, 30);
+    await dao.salvar(
+      base.copyWith(
+        agendamento: base.agendamento!.copyWith(
+          datas: [
+            DataAgendada(
+              id: datas.first.id,
+              data: datas.first.data,
+              alertaRemovidoEm: removidoEm,
+            ),
+            datas.last,
+          ],
+        ),
+      ),
+    );
+
+    final lido = (await dao.buscarPorId('ponto-1'))!;
+
+    expect(lido.toleranciaDias, 9);
+    expect(
+      lido.agendamento!.datas.first.alertaRemovidoEm!.isAtSameMomentAs(removidoEm),
+      isTrue,
+    );
+    expect(lido.agendamento!.datas.last.alertaRemovidoEm, isNull);
+  });
+
   test('ponto ainda sem aplicador e sem agendamento volta sem eles', () async {
     await dao.salvar(
       pontoDeTeste(

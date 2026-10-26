@@ -61,4 +61,9 @@ Map<String, dynamic> corpoDoPull(
 PullResponseDto respostaDoPull(
   List<Map<String, dynamic>> pontos, {
   String? cursor,
-}) => PullResponseDto.fromJson(corpoDoPull(pontos, cursor: cursor));
+  List<Map<String, dynamic>>? produtos,
+}) => PullResponseDto.fromJson(
+  produtos == null
+      ? corpoDoPull(pontos, cursor: cursor)
+      : corpoDoPull(pontos, cursor: cursor, produtos: produtos),
+);

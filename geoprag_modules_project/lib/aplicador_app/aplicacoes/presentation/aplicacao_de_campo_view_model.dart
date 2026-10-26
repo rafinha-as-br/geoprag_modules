@@ -14,6 +14,10 @@ class PontoParaAplicacaoViewModel {
   final int quantidadeDeSubpontos;
   final int execucoesRegistradas;
 
+  /// A data agendada que a próxima aplicação cumpre (a pendente mais antiga),
+  /// ou `null` se o ponto não tem nenhuma pendente.
+  final String? proximaDataAgendadaId;
+
   const PontoParaAplicacaoViewModel({
     required this.id,
     required this.nome,
@@ -23,6 +27,7 @@ class PontoParaAplicacaoViewModel {
     required this.distanciaEntreSubpontosMetros,
     required this.quantidadeDeSubpontos,
     required this.execucoesRegistradas,
+    this.proximaDataAgendadaId,
   });
 
   /// Nenhuma aplicação foi registrada ainda neste ponto — a primeira visita
@@ -39,6 +44,7 @@ class PontoParaAplicacaoViewModel {
       distanciaEntreSubpontosMetros: entity.distanciaEntreSubpontosMetros,
       quantidadeDeSubpontos: entity.quantidadeDeSubpontos,
       execucoesRegistradas: entity.subpontos.length,
+      proximaDataAgendadaId: entity.agendamento?.proximaDataPendente?.id,
     );
   }
 

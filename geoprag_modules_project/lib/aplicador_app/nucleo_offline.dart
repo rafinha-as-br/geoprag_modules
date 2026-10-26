@@ -4,13 +4,16 @@ import 'package:sqflite/sqflite.dart';
 import '../src/api/api_client.dart';
 import '../src/api/api_client_provider.dart';
 import '../src/api/armazenamento_seguro.dart';
+import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'aplicacoes/core/registro_de_aplicacao_repository.dart';
+import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_local.dart';
 import 'aplicacoes/data/registro_de_aplicacao_repository_impl.dart';
 import 'local/aplicacao_dao_sqflite.dart';
 import 'local/banco_local.dart';
 import 'local/outbox_dao.dart';
 import 'local/outbox_dao_sqflite.dart';
 import 'local/ponto_dao_sqflite.dart';
+import 'local/produto_dao_sqflite.dart';
 import 'sincronizacao/core/monitor_de_conexao.dart';
 import 'sincronizacao/core/painel_de_sincronizacao.dart';
 import 'sincronizacao/core/servico_de_sincronizacao.dart';
@@ -25,8 +28,8 @@ import 'sincronizacao/data/servico_de_sincronizacao_impl.dart';
 import 'sincronizacao/data/ultima_sincronizacao.dart';
 
 /// As instâncias únicas do núcleo offline do App Aplicador (GEOPRAG-190): o
-/// banco, a fila (outbox), o serviço de sincronização e o repositório de
-/// registro.
+/// banco, a fila (outbox), o serviço de sincronização e os repositórios de
+/// registro e de pontos.
 ///
 /// Existem uma vez por processo: duas filas no mesmo banco enviariam o mesmo
 /// registro duas vezes, e dois bancos abertos disputariam o arquivo. Por isso
@@ -40,6 +43,7 @@ class NucleoOffline {
     required this.sincronizacao,
     required this.painel,
     required this.registro,
+    required this.pontos,
     required GatilhosDeSincronizacao gatilhos,
   }) : _gatilhos = gatilhos;
 
@@ -61,6 +65,9 @@ class NucleoOffline {
   /// Indicadores de sincronização para a interface (GEOPRAG-204).
   final PainelDeSincronizacao painel;
   final RegistroDeAplicacaoRepository registro;
+
+  /// Os pontos do aplicador, lidos do banco (GEOPRAG-203).
+  final AplicadorPontoDeAplicacaoRepository pontos;
   final GatilhosDeSincronizacao _gatilhos;
 
   /// Abre o banco, monta os serviços e liga os gatilhos de envio (abrir o app,
@@ -107,6 +114,8 @@ class NucleoOffline {
     final banco = await BancoLocal.abrir(fabrica: fabrica, caminho: caminho);
     final outbox = OutboxDaoSqflite(banco.db);
     final aplicacoes = AplicacaoDaoSqflite(banco.db);
+    final pontos = PontoDaoSqflite(banco.db);
+    final produtos = ProdutoDaoSqflite(banco.db);
     final armazenamentoSeguro = armazenamento ?? ArmazenamentoSeguroFlutter();
     final dispositivo = DispositivoId(armazenamentoSeguro);
     // Todos os gatilhos usam o serviço acompanhado: é ele que guarda o horário
@@ -116,9 +125,10 @@ class NucleoOffline {
         api: api ?? ApiClientProvider.instancia,
         outbox: outbox,
         reconciliador: ReconciliadorDoPull(
-          pontos: PontoDaoSqflite(banco.db),
+          pontos: pontos,
           outbox: outbox,
           aplicacoes: aplicacoes,
+          produtos: produtos,
         ),
         dispositivoId: dispositivo.obter,
         cursor: CursorDoPull(armazenamentoSeguro),
@@ -141,6 +151,11 @@ class NucleoOffline {
       registro: RegistroDeAplicacaoRepositoryImpl(
         aplicacoes: aplicacoes,
         sincronizacao: sincronizacao,
+        produtos: produtos,
+      ),
+      pontos: AplicadorPontoDeAplicacaoRepositoryLocal(
+        pontos: pontos,
+        aplicacoes: aplicacoes,
       ),
       gatilhos: gatilhos,
     );

@@ -7,6 +7,7 @@ import 'package:geoprag_modules/aplicador_app/local/local.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
 import 'package:geoprag_modules/src/api/api_exceptions.dart';
 import 'package:geoprag_modules/src/entities/aplicacao.dart';
+import 'package:geoprag_modules/src/entities/produto.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 import 'package:geoprag_modules/src/services/gerador_de_id.dart';
 import 'package:mocktail/mocktail.dart';
@@ -29,6 +30,7 @@ void main() {
   }) => RegistroDeAplicacaoRepositoryImpl(
     aplicacoes: aplicacoes,
     sincronizacao: sincronizacao,
+    produtos: ProdutoDaoSqflite(banco.db),
     gerador: gerador ?? GeradorSequencial(),
     agora: () => agora,
   );
@@ -59,6 +61,19 @@ void main() {
   });
 
   tearDown(() => banco.fechar());
+
+  test('listarProdutos devolve os produtos que o pull guardou', () async {
+    final repositorio = criarRepositorio(servicoReal());
+    expect(await repositorio.listarProdutos(), isEmpty);
+
+    await ProdutoDaoSqflite(banco.db).salvarTodos(const [
+      Produto(id: 'produto-1', nome: 'Larvicida'),
+    ]);
+
+    expect(await repositorio.listarProdutos(), const [
+      Produto(id: 'produto-1', nome: 'Larvicida'),
+    ]);
+  });
 
   group('iniciarAplicacao', () {
     test('grava a aplicação sem subpontos e sem nada na outbox', () async {

@@ -86,4 +86,5 @@ ReconciliadorDoPull reconciliadorDe(BancoLocal banco) => ReconciliadorDoPull(
   pontos: PontoDaoSqflite(banco.db),
   outbox: OutboxDaoSqflite(banco.db),
   aplicacoes: AplicacaoDaoSqflite(banco.db),
+  produtos: ProdutoDaoSqflite(banco.db),
 );

@@ -1,4 +1,5 @@
 import '../../../src/entities/aplicacao.dart';
+import '../../../src/entities/produto.dart';
 
 /// Registro de aplicações feito em campo, **local-first** (GEOPRAG-190).
 ///
@@ -7,6 +8,10 @@ import '../../../src/entities/aplicacao.dart';
 /// e offline passam pelo mesmo caminho: a diferença é só se o envio da outbox
 /// tem sucesso. Registrar **nunca** exige rede nem token válido.
 abstract interface class RegistroDeAplicacaoRepository {
+  /// Produtos que o aplicador pode escolher ao registrar, lidos do aparelho (o
+  /// pull os traz). Vazio até a primeira sincronização.
+  Future<List<Produto>> listarProdutos();
+
   /// Abre uma aplicação nova (a visita ao ponto), ainda sem subpontos, com
   /// [realizadoEm] (agora, se omitido) e a [localizacao] capturada. Nada vai ao
   /// servidor até o primeiro subponto.
