@@ -6,6 +6,7 @@ void main() {
   final entity = Recebimento(
     id: 'r1',
     produtoNome: 'BTI Líquido',
+    lote: 'L-2026-0145',
     quantidadeDescricao: '1 Litro',
     agenteEntregador: 'João Silva',
     cargoAgenteEntregador: 'Fiscal de Agricultura',
@@ -72,6 +73,26 @@ void main() {
       final viewModel = RecebimentoDetalheViewModel.fromEntity(entity);
 
       expect(viewModel.tituloProduto, 'BTI Líquido - 1 Litro');
+    });
+
+    test('inclui o lote e ainda não tem confirmação quando pendente', () {
+      final viewModel = RecebimentoDetalheViewModel.fromEntity(entity);
+
+      expect(viewModel.loteDescricao, 'L-2026-0145');
+      expect(viewModel.confirmadoEmDescricao, isNull);
+      expect(viewModel.pendenteSincronizacao, isFalse);
+    });
+
+    test('confirmação sem registro no servidor fica pendente de sincronização', () {
+      final viewModel = RecebimentoDetalheViewModel.fromEntity(
+        entity.copyWith(
+          status: RecebimentoStatus.confirmado,
+          confirmadoEm: DateTime(2026, 10, 20, 21, 30),
+        ),
+      );
+
+      expect(viewModel.confirmadoEmDescricao, '20/10/2026 às 21:30');
+      expect(viewModel.pendenteSincronizacao, isTrue);
     });
   });
 }

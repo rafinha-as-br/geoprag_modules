@@ -15,6 +15,7 @@ void main() {
     Recebimento(
       id: 'r1',
       produtoNome: 'BTI Líquido',
+      lote: 'L-2026-0145',
       quantidadeDescricao: '1 Litro',
       agenteEntregador: 'João Silva',
       cargoAgenteEntregador: 'Fiscal de Agricultura',
@@ -24,6 +25,7 @@ void main() {
     Recebimento(
       id: 'r2',
       produtoNome: 'BTI Sólido',
+      lote: 'L-2026-0145',
       quantidadeDescricao: '500g',
       agenteEntregador: 'João Silva',
       cargoAgenteEntregador: 'Fiscal de Agricultura',

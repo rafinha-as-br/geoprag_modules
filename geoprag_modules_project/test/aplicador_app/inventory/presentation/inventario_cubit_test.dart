@@ -28,6 +28,7 @@ void main() {
   final recebimentoPendente = Recebimento(
     id: 'r1',
     produtoNome: 'BTI Líquido',
+    lote: 'L-2026-0145',
     quantidadeDescricao: '1 Litro',
     agenteEntregador: 'João Silva',
     cargoAgenteEntregador: 'Fiscal de Agricultura',
