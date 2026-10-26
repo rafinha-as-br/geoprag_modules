@@ -89,4 +89,29 @@ void main() {
       expect(viewModel.bairro, 'Belchior');
     });
   });
+
+  group('DistribuicaoDetalhadaViewModel.confirmadoEm', () {
+    test('formata data e hora da confirmação, ou fica nulo sem ela', () {
+      final confirmada = Distribuicao(
+        id: 'd1',
+        produtoId: 'p1',
+        quantidade: 2,
+        unidade: 'Litros',
+        dataEntrega: DateTime(2026, 6, 1),
+        responsavel: 'João Silva',
+        bairroResponsavel: 'Belchior',
+        statusConfirmacao: 'confirmado',
+        confirmadoEm: DateTime(2026, 6, 2, 9, 5),
+      );
+
+      expect(
+        DistribuicaoDetalhadaViewModel.fromEntity(confirmada, 'x').confirmadoEm,
+        '02/06/2026 09:05',
+      );
+      expect(
+        DistribuicaoDetalhadaViewModel.fromEntity(entity, 'x').confirmadoEm,
+        isNull,
+      );
+    });
+  });
 }

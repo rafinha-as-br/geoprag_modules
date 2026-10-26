@@ -10,6 +10,7 @@ final List<Distribuicao> mockDistribuicoes = [
     responsavel: 'João Silva',
     bairroResponsavel: 'Belchior',
     statusConfirmacao: 'confirmado',
+    confirmadoEm: DateTime.now().subtract(const Duration(days: 9)),
   ),
   Distribuicao(
     id: 'd2',
@@ -20,6 +21,7 @@ final List<Distribuicao> mockDistribuicoes = [
     responsavel: 'Pedro Alves',
     bairroResponsavel: 'Macucos',
     statusConfirmacao: 'confirmado',
+    confirmadoEm: DateTime.now().subtract(const Duration(days: 9)),
   ),
   Distribuicao(
     id: 'd3',

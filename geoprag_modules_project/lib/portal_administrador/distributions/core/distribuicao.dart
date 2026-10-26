@@ -16,6 +16,9 @@ class Distribuicao {
   final String
   statusConfirmacao; // 'aguardando_aceite' | 'confirmado' | 'recusado'
 
+  /// Data/hora em que o aplicador confirmou o recebimento no App (GEOPRAG-166).
+  final DateTime? confirmadoEm;
+
   const Distribuicao({
     required this.id,
     required this.produtoId,
@@ -25,5 +28,6 @@ class Distribuicao {
     required this.responsavel,
     required this.bairroResponsavel,
     required this.statusConfirmacao,
+    this.confirmadoEm,
   });
 }
