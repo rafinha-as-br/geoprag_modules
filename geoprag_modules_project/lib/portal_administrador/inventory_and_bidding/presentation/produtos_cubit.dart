@@ -10,6 +10,7 @@ import '../../../src/widgets/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../core/produto_repository.dart';
+import 'entregas_por_licitacao_dialog.dart';
 import 'produto_view_model.dart';
 
 /// Carrega a listagem de Produtos em estoque para o [BaseListScreen]
@@ -18,9 +19,26 @@ class ProdutosCubit extends BaseListScreenController<ProdutoResumoViewModel> {
   ProdutosCubit(this._repository) : super(_initialModel()) {
     emit(
       state.copyWith(
-        filter: GeopragSearchField(
-          hintText: 'Buscar produto por lote ou licitação...',
-          onChanged: buscar,
+        filter: Row(
+          children: [
+            Expanded(
+              child: GeopragSearchField(
+                hintText: 'Buscar produto por lote ou licitação...',
+                onChanged: buscar,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Builder(
+              builder: (context) => OutlinedButton.icon(
+                onPressed: () => mostrarEntregasPorLicitacao(
+                  context,
+                  entregasPorLicitacao,
+                ),
+                icon: const Icon(Icons.local_shipping),
+                label: const Text('Entregas por Licitação'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -125,6 +143,10 @@ class ProdutosCubit extends BaseListScreenController<ProdutoResumoViewModel> {
       emitError(AppErrorMessages.carregamentoGenerico);
     }
   }
+
+  /// Entradas já carregadas, agrupadas por licitação (GEOPRAG-163).
+  List<EntregasLicitacaoViewModel> get entregasPorLicitacao =>
+      EntregasLicitacaoViewModel.agrupar(_todos);
 
   /// Filtra a listagem carregada por nome, lote ou licitação — acionado
   /// pelo `GeopragSearchField` do slot `filter` do model.

@@ -32,9 +32,7 @@ void main() {
     (tester) async {
       final repository = MockProdutoRepository();
       final navigator = MockAdminNavigator();
-      when(
-        () => repository.listar(),
-      ).thenAnswer(
+      when(() => repository.listar()).thenAnswer(
         (_) async => [
           produto('p1', 'BTI Líquido', 'L-001'),
           produto('p2', 'Larvicida Granulado', 'L-002'),
@@ -68,6 +66,50 @@ void main() {
 
       expect(find.textContaining('BTI Líquido'), findsNothing);
       expect(find.textContaining('Larvicida Granulado'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Entregas por Licitação mostra lote, validade e volume por pregão',
+    (tester) async {
+      final repository = MockProdutoRepository();
+      when(() => repository.listar()).thenAnswer(
+        (_) async => [
+          produto('p1', 'BTI Líquido', 'L-001'),
+          produto('p2', 'BTI Líquido', 'L-002'),
+        ],
+      );
+
+      await tester.binding.setSurfaceSize(const Size(1400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdminNavigatorScope(
+            navigator: MockAdminNavigator(),
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => AdminSessionCubit()),
+                BlocProvider(create: (_) => ProdutosCubit(repository)),
+              ],
+              child: const DashboardEstoqueScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Entregas por Licitação'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining('Pregão 01/2026 — 2 entrega(s), 200 Litros'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Lote L-002 — 100 Litros — validade 01/01/2027'),
+        findsOneWidget,
+      );
     },
   );
 }
