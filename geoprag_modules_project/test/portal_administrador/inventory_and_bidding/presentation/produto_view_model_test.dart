@@ -52,7 +52,9 @@ void main() {
 
   group('ProdutoDetalhadoViewModel.fromEntity', () {
     test('mapeia o produto e as movimentações agregadas', () {
-      final viewModel = ProdutoDetalhadoViewModel.fromEntity(produto, [movimentacao]);
+      final viewModel = ProdutoDetalhadoViewModel.fromEntity(produto, [
+        movimentacao,
+      ]);
 
       expect(viewModel.id, 'p1');
       expect(viewModel.fornecedor, 'BioInsumos Ltda.');
@@ -86,6 +88,45 @@ void main() {
       expect(viewModel.fatorConversao, 1.5);
       expect(viewModel.distanciaCarreamento, 150);
       expect(viewModel.fatorCorrecao, 1.2);
+    });
+  });
+
+  group('EntregasLicitacaoViewModel.agrupar', () {
+    Produto entrega(String id, String licitacao, int original, String un) =>
+        Produto(
+          id: id,
+          nome: 'BTI',
+          lote: 'L-$id',
+          dataValidade: DateTime(2026, 12, 1),
+          status: 'Produto em estoque',
+          quantidade: 1,
+          quantidadeOriginal: original,
+          unidadeMedida: un,
+          licitacao: licitacao,
+          fornecedor: 'BioInsumos Ltda.',
+        );
+
+    test('agrupa por licitação e soma o volume recebido por unidade', () {
+      final grupos = EntregasLicitacaoViewModel.agrupar(
+        [
+          entrega('1', 'Pregão 01/2026', 300, 'Litros'),
+          entrega('2', 'Pregão 02/2026', 100, 'Kg'),
+          entrega('3', 'Pregão 01/2026', 300, 'Litros'),
+          entrega('4', 'Pregão 01/2026', 50, 'Kg'),
+        ].map(ProdutoResumoViewModel.fromEntity).toList(),
+      );
+
+      expect(grupos.map((g) => g.licitacao), [
+        'Pregão 01/2026',
+        'Pregão 02/2026',
+      ]);
+      expect(grupos.first.entregas.map((e) => e.id), ['1', '3', '4']);
+      expect(grupos.first.totalPorUnidade, {'Litros': 600, 'Kg': 50});
+      expect(grupos.last.totalPorUnidade, {'Kg': 100});
+    });
+
+    test('lista vazia não gera grupos', () {
+      expect(EntregasLicitacaoViewModel.agrupar(const []), isEmpty);
     });
   });
 }

@@ -2,6 +2,10 @@
 /// campo, exibido na listagem e na ficha de distribuição do Portal
 /// Administrador.
 class Distribuicao {
+  /// Estado final da operação de saída (GEOPRAG-164) — independente do
+  /// [statusConfirmacao], que acompanha o aceite do aplicador.
+  static const estadoFinal = 'Produto distribuído';
+
   final String id;
   final String produtoId;
   final int quantidade;
@@ -12,6 +16,9 @@ class Distribuicao {
   final String
   statusConfirmacao; // 'aguardando_aceite' | 'confirmado' | 'recusado'
 
+  /// Data/hora em que o aplicador confirmou o recebimento no App (GEOPRAG-166).
+  final DateTime? confirmadoEm;
+
   const Distribuicao({
     required this.id,
     required this.produtoId,
@@ -21,5 +28,6 @@ class Distribuicao {
     required this.responsavel,
     required this.bairroResponsavel,
     required this.statusConfirmacao,
+    this.confirmadoEm,
   });
 }

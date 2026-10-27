@@ -37,26 +37,37 @@ class RecebimentoResumoViewModel {
 class RecebimentoDetalheViewModel {
   final String id;
   final String produtoNome;
+  final String loteDescricao;
   final String quantidadeDescricao;
   final String agenteEntregadorDescricao;
   final String dataDespachoDescricao;
+  final String? confirmadoEmDescricao;
+  final bool pendenteSincronizacao;
 
   const RecebimentoDetalheViewModel({
     required this.id,
     required this.produtoNome,
+    required this.loteDescricao,
     required this.quantidadeDescricao,
     required this.agenteEntregadorDescricao,
     required this.dataDespachoDescricao,
+    this.confirmadoEmDescricao,
+    this.pendenteSincronizacao = false,
   });
 
   factory RecebimentoDetalheViewModel.fromEntity(Recebimento entity) {
     return RecebimentoDetalheViewModel(
       id: entity.id,
       produtoNome: entity.produtoNome,
+      loteDescricao: entity.lote,
       quantidadeDescricao: entity.quantidadeDescricao,
       agenteEntregadorDescricao:
           '${entity.agenteEntregador} (${entity.cargoAgenteEntregador})',
       dataDespachoDescricao: _formatarDataHora(entity.dataDespacho),
+      confirmadoEmDescricao: entity.confirmadoEm == null
+          ? null
+          : _formatarDataHora(entity.confirmadoEm!),
+      pendenteSincronizacao: entity.pendenteSincronizacao,
     );
   }
 

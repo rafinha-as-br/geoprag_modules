@@ -8,6 +8,21 @@ String _formatarData(DateTime data) {
   return '$dia/$mes/${data.year}';
 }
 
+String _formatarDataHora(DateTime data) {
+  final hora = data.hour.toString().padLeft(2, '0');
+  final minuto = data.minute.toString().padLeft(2, '0');
+  return '${_formatarData(data)} $hora:$minuto';
+}
+
+/// Rótulo curto da situação do recebimento, exibido na listagem ao lado do
+/// estado final [Distribuicao.estadoFinal].
+String rotuloConfirmacao(String statusConfirmacao) =>
+    switch (statusConfirmacao) {
+      'confirmado' => 'recebimento confirmado',
+      'recusado' => 'recebimento recusado',
+      _ => 'aguardando confirmação',
+    };
+
 /// ViewModel resumida de [Distribuicao] — usada na listagem do histórico de
 /// saídas, antes de abrir a ficha completa.
 class DistribuicaoResumoViewModel {
@@ -60,6 +75,9 @@ class DistribuicaoDetalhadaViewModel {
   final String bairroResponsavel;
   final String statusConfirmacao;
 
+  /// Data/hora da confirmação no App, `null` enquanto não confirmada.
+  final String? confirmadoEm;
+
   const DistribuicaoDetalhadaViewModel({
     required this.produtoNome,
     required this.quantidade,
@@ -68,6 +86,7 @@ class DistribuicaoDetalhadaViewModel {
     required this.responsavel,
     required this.bairroResponsavel,
     required this.statusConfirmacao,
+    this.confirmadoEm,
   });
 
   factory DistribuicaoDetalhadaViewModel.fromEntity(
@@ -82,6 +101,9 @@ class DistribuicaoDetalhadaViewModel {
       responsavel: entity.responsavel,
       bairroResponsavel: entity.bairroResponsavel,
       statusConfirmacao: entity.statusConfirmacao,
+      confirmadoEm: entity.confirmadoEm == null
+          ? null
+          : _formatarDataHora(entity.confirmadoEm!),
     );
   }
 }

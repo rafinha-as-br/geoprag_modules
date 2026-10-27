@@ -164,7 +164,7 @@ void main() {
         // nenhum FormField registrado — validate() passa vazio e onSubmit()
         // roda com _produtoId/_unidade/_dataEntrega ainda nulos. O teste
         // trava aqui se isso virar uma exceção não capturada.
-        await tester.tap(find.text('Confirmar Saída e Gerar Documento'));
+        await tester.tap(find.text('Confirmar Saída'));
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
@@ -199,7 +199,7 @@ void main() {
         await criarCubitCarregado(tester);
         await preencherFormulario(tester);
 
-        await tester.tap(find.text('Confirmar Saída e Gerar Documento'));
+        await tester.tap(find.text('Confirmar Saída'));
         await tester.pumpAndSettle();
 
         expect(find.text('Saída registrada com sucesso.'), findsOneWidget);
@@ -225,7 +225,7 @@ void main() {
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await tester.pump();
 
-        await tester.tap(find.text('Confirmar Saída e Gerar Documento'));
+        await tester.tap(find.text('Confirmar Saída'));
         await tester.pump();
 
         verifyNever(

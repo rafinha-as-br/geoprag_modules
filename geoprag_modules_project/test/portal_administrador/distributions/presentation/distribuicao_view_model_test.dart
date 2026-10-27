@@ -49,6 +49,17 @@ void main() {
     });
   });
 
+  group('rotuloConfirmacao', () {
+    test('traduz cada status e trata o desconhecido como aguardando', () {
+      expect(rotuloConfirmacao('confirmado'), 'recebimento confirmado');
+      expect(rotuloConfirmacao('recusado'), 'recebimento recusado');
+      expect(
+        rotuloConfirmacao('aguardando_aceite'),
+        'aguardando confirmação',
+      );
+    });
+  });
+
   group('ProdutoOpcaoViewModel.fromEntity', () {
     test('mapeia id e nomeExibicao sem alteração', () {
       const produto = ProdutoReferenciaDistribuicao(
@@ -76,6 +87,31 @@ void main() {
       expect(viewModel.id, '1');
       expect(viewModel.nome, 'João Silva');
       expect(viewModel.bairro, 'Belchior');
+    });
+  });
+
+  group('DistribuicaoDetalhadaViewModel.confirmadoEm', () {
+    test('formata data e hora da confirmação, ou fica nulo sem ela', () {
+      final confirmada = Distribuicao(
+        id: 'd1',
+        produtoId: 'p1',
+        quantidade: 2,
+        unidade: 'Litros',
+        dataEntrega: DateTime(2026, 6, 1),
+        responsavel: 'João Silva',
+        bairroResponsavel: 'Belchior',
+        statusConfirmacao: 'confirmado',
+        confirmadoEm: DateTime(2026, 6, 2, 9, 5),
+      );
+
+      expect(
+        DistribuicaoDetalhadaViewModel.fromEntity(confirmada, 'x').confirmadoEm,
+        '02/06/2026 09:05',
+      );
+      expect(
+        DistribuicaoDetalhadaViewModel.fromEntity(entity, 'x').confirmadoEm,
+        isNull,
+      );
     });
   });
 }

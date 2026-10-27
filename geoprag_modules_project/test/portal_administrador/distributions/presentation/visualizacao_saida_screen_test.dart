@@ -73,10 +73,11 @@ void main() {
       await tester.pumpWidget(wrap('d1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Comprovante de Saída'), findsOneWidget);
+      expect(find.text('Registro de Saída'), findsOneWidget);
+      expect(find.text('Produto distribuído'), findsOneWidget);
       expect(find.byType(Card), findsOneWidget);
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.print), findsOneWidget);
+      expect(find.byIcon(Icons.print), findsNothing);
       expect(find.text('Editar Registro'), findsOneWidget);
       expect(
         find.text(
@@ -110,4 +111,51 @@ void main() {
       );
     },
   );
+
+  group('Gerar Comprovante (PDF) - GEOPRAG-166', () {
+    Future<void> abrir(WidgetTester tester, String status) async {
+      when(() => repository.buscarPorId('d1')).thenAnswer(
+        (_) async => Distribuicao(
+          id: 'd1',
+          produtoId: 'p1',
+          quantidade: 2,
+          unidade: 'Litros',
+          dataEntrega: DateTime(2026, 6, 1),
+          responsavel: 'João Silva',
+          bairroResponsavel: 'Belchior',
+          statusConfirmacao: status,
+        ),
+      );
+      when(
+        () => repository.buscarNomeProduto('p1'),
+      ).thenAnswer((_) async => 'BTI Líquido - Lote L-001');
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(wrap('d1'));
+      await tester.pumpAndSettle();
+    }
+
+    OutlinedButton botao(WidgetTester tester) => tester.widget<OutlinedButton>(
+      find.ancestor(
+        of: find.text('Gerar Comprovante (PDF)'),
+        matching: find.bySubtype<OutlinedButton>(),
+      ),
+    );
+
+    testWidgets('habilitado quando o recebimento está confirmado', (
+      tester,
+    ) async {
+      await abrir(tester, 'confirmado');
+      expect(botao(tester).onPressed, isNotNull);
+    });
+
+    testWidgets('desabilitado enquanto o recebimento não foi confirmado', (
+      tester,
+    ) async {
+      await abrir(tester, 'aguardando_aceite');
+      expect(botao(tester).onPressed, isNull);
+    });
+  });
 }

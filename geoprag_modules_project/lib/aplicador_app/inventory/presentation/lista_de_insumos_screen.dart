@@ -88,6 +88,12 @@ class _InventarioConteudo extends StatelessWidget {
               ),
             ),
           ),
+          if (estoqueAtual.recebimentosPendentesCount > 0) ...[
+            const SizedBox(height: 16),
+            _AlertaRecebimentoPendente(
+              descricao: estoqueAtual.recebimentosPendentesDescricao,
+            ),
+          ],
           const SizedBox(height: 32),
           const Text(
             'Ações',
@@ -153,6 +159,45 @@ class _InventarioConteudo extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Alerta visual dentro do app de que há produto a caminho para confirmar
+/// (GEOPRAG-165). Sem notificação push — fora do escopo.
+class _AlertaRecebimentoPendente extends StatelessWidget {
+  const _AlertaRecebimentoPendente({required this.descricao});
+
+  final String descricao;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => AplicadorNavigatorScope.of(context).toRecebimentos(),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: GeopragColors.statusDenuncia.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: GeopragColors.statusDenuncia),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.notifications_active_outlined,
+              color: GeopragColors.green900,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '$descricao. Toque para confirmar o recebimento.',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
