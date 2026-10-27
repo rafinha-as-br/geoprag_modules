@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
 import '../../../src/widgets/base_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
-import '../../gerenciamento_de_aplicadores/core/aplicador_repository.dart';
+import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 import 'widgets/painel_do_dashboard.dart';
@@ -27,12 +28,13 @@ class PontosDeAplicacaoCubit
   }
 
   final AdminPontoDeAplicacaoRepository _repository;
-  final AplicadorRepository _aplicadorRepository;
+  final AplicadorResumoRepository _aplicadorRepository;
 
   List<PontoDeAplicacaoResumoViewModel> _todos = [];
   String _busca = '';
   EstadoPontoDeAplicacao? _estado;
   bool _incluirDesativados = false;
+  bool _apenasEmAtraso = false;
 
   static BaseListScreenModel<PontoDeAplicacaoResumoViewModel>
   _initialModel() {
@@ -63,6 +65,7 @@ class PontosDeAplicacaoCubit
     emitLoading();
     try {
       final pontos = await _repository.listar();
+      final idsEmAtraso = await _repository.idsDePontosEmAtraso();
       final nomesPorAplicadorId = {
         for (final aplicador in await _aplicadorRepository.listar())
           aplicador.id: aplicador.nome,
@@ -72,10 +75,13 @@ class PontosDeAplicacaoCubit
           PontoDeAplicacaoResumoViewModel.fromEntity(
             ponto,
             aplicadorNome: nomesPorAplicadorId[ponto.aplicadorId],
+            emAtraso: idsEmAtraso.contains(ponto.id),
           ),
       ];
       _emitirListagem();
     } on EntidadeNaoEncontradaException catch (e) {
+      emitError(e.mensagemAmigavel);
+    } on ApiException catch (e) {
       emitError(e.mensagemAmigavel);
     } catch (e, stackTrace) {
       AppLogger.error('PontosDeAplicacaoCubit._carregar', e, stackTrace);
@@ -98,6 +104,11 @@ class PontosDeAplicacaoCubit
     _emitirListagem();
   }
 
+  void alternarApenasEmAtraso(bool apenas) {
+    _apenasEmAtraso = apenas;
+    _emitirListagem();
+  }
+
   /// Emite listagem e painel juntos: o painel exibe alertas e cobertura
   /// derivados da carga completa, então ele precisa ser remontado sempre que
   /// os dados mudam — não só na construção do Cubit.
@@ -108,6 +119,9 @@ class PontosDeAplicacaoCubit
         filter: PainelDoDashboard(
           alertas: _todos.where((ponto) => ponto.ativoSemRegistro).toList(),
           cobertura: _cobertura(),
+          quantidadeEmAtraso: _todos.where((ponto) => ponto.emAtraso).length,
+          apenasEmAtraso: _apenasEmAtraso,
+          onAlternarApenasEmAtraso: alternarApenasEmAtraso,
           incluirDesativados: _incluirDesativados,
           estadoSelecionado: _estado,
           onBuscar: buscar,
@@ -124,6 +138,7 @@ class PontosDeAplicacaoCubit
     return _todos.where((ponto) {
       if (!_incluirDesativados && ponto.desativado) return false;
       if (_estado != null && ponto.estado != _estado) return false;
+      if (_apenasEmAtraso && !ponto.emAtraso) return false;
       if (_busca.isEmpty) return true;
       return ponto.nome.toLowerCase().contains(_busca) ||
           ponto.identificador.toLowerCase().contains(_busca) ||

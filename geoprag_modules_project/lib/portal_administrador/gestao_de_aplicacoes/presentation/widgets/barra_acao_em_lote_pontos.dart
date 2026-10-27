@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../src/api/api_exceptions.dart';
+import '../../../../src/errors/app_error_messages.dart';
+import '../../../../src/errors/app_logger.dart';
 import '../../../../src/state/acao_feedback.dart';
 import '../../../../src/widgets/base_list_screen.dart';
 import '../../../../src/widgets/geoprag_barra_acao_em_lote.dart';
@@ -28,7 +31,21 @@ class BarraAcaoEmLotePontos extends StatelessWidget {
     final reconciliacao = cubit.reconciliar(acao);
     List<AplicadorOpcao>? aplicadoresDisponiveis;
     if (acao == AcaoEmLote.atribuirAplicador) {
-      aplicadoresDisponiveis = await cubit.listarAplicadoresDisponiveis();
+      try {
+        aplicadoresDisponiveis = await cubit.listarAplicadoresDisponiveis();
+      } catch (e, stackTrace) {
+        final mensagem = e is ApiException
+            ? e.mensagemAmigavel
+            : AppErrorMessages.carregamentoGenerico;
+        if (e is! ApiException) {
+          AppLogger.error('BarraAcaoEmLotePontos._iniciarFluxo', e, stackTrace);
+        }
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensagem)));
+        return;
+      }
     }
     if (!context.mounted) return;
 

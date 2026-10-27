@@ -1,3 +1,4 @@
+import '../../../src/api/api_exceptions.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
@@ -12,8 +13,8 @@ import 'widgets/edicao_de_ponto_banner.dart';
 /// Edição de um Ponto de Aplicação já cadastrado (GEOPRAG-109).
 ///
 /// Mesmos campos de [CriarPontoDeAplicacaoCubit], mas: (1) carrega o ponto
-/// existente antes de exibir o formulário; (2) todos os campos exceto
-/// [nome] ficam desabilitados quando
+/// existente antes de exibir o formulário; (2) todos os campos exceto o nome
+/// e a tolerância de atraso ficam desabilitados quando
 /// `PontoDeAplicacao.podeEditarCadastroCompleto` for falso — o predicado
 /// mora na entidade, então a mesma regra vale mesmo que alguém chame o
 /// Cubit direto (sem passar pela tela); (3) não tem campo de aplicador —
@@ -44,6 +45,14 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
   double? _dosagem;
   double? _distancia;
   int? _quantidadeDeSubpontos;
+  int? _toleranciaDias;
+
+  /// Nome e tolerância gravados (carregados, ou salvos por último) — com o
+  /// cadastro travado, só uma mudança em relação a eles chama
+  /// `editarNome`/`editarTolerancia`, para não registrar evento de auditoria
+  /// de algo que não mudou.
+  String? _nomeCarregado;
+  int? _toleranciaCarregada;
 
   bool _podeEditarCadastroCompleto = false;
   bool _carregando = true;
@@ -60,6 +69,7 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
       final ponto = await _repository.buscarPorId(_pontoId);
       _podeEditarCadastroCompleto = ponto.podeEditarCadastroCompleto;
       _nome = ponto.nome;
+      _nomeCarregado = ponto.nome;
       _bairro = ponto.bairro;
       _endereco = ponto.endereco;
       _numeroReferencia = ponto.numeroReferencia;
@@ -70,9 +80,13 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
       _dosagem = ponto.dosagemMl;
       _distancia = ponto.distanciaEntreSubpontosMetros;
       _quantidadeDeSubpontos = ponto.quantidadeDeSubpontos;
+      _toleranciaDias = ponto.toleranciaDias;
+      _toleranciaCarregada = ponto.toleranciaDias;
       _carregando = false;
       _rebuildFields();
     } on EntidadeNaoEncontradaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
+    } on ApiException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('EditarPontoDeAplicacaoCubit._carregar', e, stackTrace);
@@ -211,6 +225,18 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
           onChanged: (valor) => _quantidadeDeSubpontos = valor,
         ),
       ),
+      // Sempre habilitada, como o nome: a tolerância só muda quando o aviso
+      // de atraso aparece e não depende da trava do cadastro.
+      BaseFormField(
+        label: 'Tolerância de atraso (dias)',
+        field: GeopragNumeroInteiroInput(
+          label: 'Tolerância de atraso (dias)',
+          initialValue: _toleranciaDias,
+          mensagemObrigatorio: 'Informe a tolerância de atraso em dias.',
+          mensagemInvalido: 'A tolerância deve ser de pelo menos 1 dia.',
+          onChanged: (valor) => _toleranciaDias = valor,
+        ),
+      ),
     ];
   }
 
@@ -232,9 +258,17 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
           dosagemMl: _dosagem!,
           distanciaEntreSubpontosMetros: _distancia!,
           quantidadeDeSubpontos: _quantidadeDeSubpontos!,
+          toleranciaDias: _toleranciaDias!,
         );
       } else {
-        await _repository.editarNome(_pontoId, _nome!);
+        if (_nome != _nomeCarregado) {
+          await _repository.editarNome(_pontoId, _nome!);
+          _nomeCarregado = _nome;
+        }
+        if (_toleranciaDias != _toleranciaCarregada) {
+          await _repository.editarTolerancia(_pontoId, _toleranciaDias!);
+          _toleranciaCarregada = _toleranciaDias;
+        }
       }
       emitFeedback(
         const AcaoFeedbackSucesso('Ponto de aplicação atualizado com sucesso.'),
@@ -242,6 +276,8 @@ class EditarPontoDeAplicacaoCubit extends BaseFormController {
     } on EntidadeNaoEncontradaException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } on OperacaoNaoPermitidaException catch (e) {
+      emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
+    } on ApiException catch (e) {
       emitFeedback(AcaoFeedbackErro(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('EditarPontoDeAplicacaoCubit.onSubmit', e, stackTrace);

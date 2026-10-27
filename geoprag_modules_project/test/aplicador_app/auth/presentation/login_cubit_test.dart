@@ -31,14 +31,14 @@ void main() {
       ).thenAnswer((_) async => usuario);
     },
     build: () => LoginCubit(repository),
-    act: (cubit) => cubit.submit(identifier: usuario.cpf, senha: '123456'),
+    act: (cubit) => cubit.submit(identifier: usuario.cpf!, senha: '123456'),
     expect: () => [
       const AuthActionLoading<Usuario>(),
       isA<AuthActionSuccess<Usuario>>().having((s) => s.data, 'data', usuario),
     ],
     verify: (_) {
       verify(
-        () => repository.login(identifier: usuario.cpf, senha: '123456'),
+        () => repository.login(identifier: usuario.cpf!, senha: '123456'),
       ).called(1);
     },
   );
@@ -51,7 +51,7 @@ void main() {
       ).thenThrow(const InvalidCredentialsException());
     },
     build: () => LoginCubit(repository),
-    act: (cubit) => cubit.submit(identifier: usuario.cpf, senha: 'senha-errada'),
+    act: (cubit) => cubit.submit(identifier: usuario.cpf!, senha: 'senha-errada'),
     expect: () => [
       const AuthActionLoading<Usuario>(),
       isA<AuthActionFailure<Usuario>>().having(
@@ -71,7 +71,7 @@ void main() {
       ).thenThrow(Exception('timeout de rede'));
     },
     build: () => LoginCubit(repository),
-    act: (cubit) => cubit.submit(identifier: usuario.cpf, senha: '123456'),
+    act: (cubit) => cubit.submit(identifier: usuario.cpf!, senha: '123456'),
     expect: () => [
       const AuthActionLoading<Usuario>(),
       isA<AuthActionFailure<Usuario>>().having(

@@ -16,6 +16,29 @@ dependencies:
   # archive resolvido no Dart 3.9 do CI é o 4.0.9 e o código não compila.
   # Remover quando o CI subir de versão.
   image: '>=4.5.0 <4.11.0'
+  dio: ^5.11.1
+  uuid: ^4.6.0
+  sqflite: '>=2.4.2 <2.4.2+1'
+  # Limites do sqflite e de suas dependências: mantêm a resolução compatível com
+  # o Dart 3.9 do CI (Flutter 3.35.5) mesmo em máquinas com SDK mais novo, onde
+  # o pubspec.lock dos apps (versionado) sairia com versões que o CI não aceita.
+  # Remover quando o CI subir de versão.
+  sqflite_common: '>=2.5.5 <2.5.6+1'
+  sqflite_android: '>=2.4.1 <2.4.2+3'
+  sqflite_darwin: '>=2.4.1 <2.4.3'
+  sqflite_platform_interface: '>=2.4.0 <2.4.1'
+  synchronized: '>=3.1.0 <3.4.0+1'
+  path: ^1.9.0
+  flutter_secure_storage: ^9.2.4
+  connectivity_plus: ^7.3.2
+  # Limite do geolocator: a partir da 14.0.2 o geolocator_linux exige dbus
+  # ^0.7.3, que conflita com o dbus ^0.8 do connectivity_plus >=7.3.2 (via nm).
+  # Remover quando um dos dois pacotes alinhar o dbus.
+  geolocator: '>=14.0.0 <14.0.2'
+  # Limite do xml (vem do connectivity_plus, via nm e dbus): a 7.x exige Dart
+  # 3.11 e o CI roda em 3.9. Mesma razão dos limites do sqflite acima; remover
+  # quando o CI subir de versão.
+  xml: '>=6.6.1 <6.7.0'
 
 flutter:
   assets:
@@ -27,3 +50,6 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   bloc_test: ^10.0.0
   mocktail: ^1.0.5
+  # Testes dos DAOs sobre SQLite em memória, sem aparelho. Limitado a 2.3.x
+  # porque a 2.4 exige Dart 3.10 (CI em 3.9).
+  sqflite_common_ffi: '>=2.3.7+1 <2.4.0'

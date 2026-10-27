@@ -21,16 +21,25 @@ class DetalheDoPontoDesignadoCubit extends Cubit<DetalheDoPontoDesignadoState> {
   Future<void> _carregar() async {
     try {
       final ponto = await _repository.buscarPorId(_pontoId);
+      final emAtraso = await _repository.estaEmAtraso(_pontoId);
+      if (isClosed) return;
       emit(
         DetalheDoPontoDesignadoLoaded(
-          DetalheDoPontoDesignadoViewModel.fromEntity(ponto),
+          DetalheDoPontoDesignadoViewModel.fromEntity(
+            ponto,
+            emAtraso: emAtraso,
+          ),
         ),
       );
     } on EntidadeNaoEncontradaException catch (e) {
-      emit(DetalheDoPontoDesignadoError(e.mensagemAmigavel));
+      if (!isClosed) emit(DetalheDoPontoDesignadoError(e.mensagemAmigavel));
     } catch (e, stackTrace) {
       AppLogger.error('DetalheDoPontoDesignadoCubit._carregar', e, stackTrace);
-      emit(DetalheDoPontoDesignadoError(AppErrorMessages.carregamentoGenerico));
+      if (!isClosed) {
+        emit(
+          DetalheDoPontoDesignadoError(AppErrorMessages.carregamentoGenerico),
+        );
+      }
     }
   }
 }

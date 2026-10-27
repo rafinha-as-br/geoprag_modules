@@ -26,12 +26,14 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     estado: EstadoPontoDeAplicacao.ativa,
     subpontos: [
       Subponto(
+        id: '00000000-0000-4000-8000-000000000a01',
         latitude: -26.9312,
         longitude: -48.9567,
         realizadoEm: DateTime(2026, 8, 24, 8, 12),
         registradoEm: DateTime(2026, 8, 24, 18, 40),
       ),
       Subponto(
+        id: '00000000-0000-4000-8000-000000000a02',
         latitude: -26.9318,
         longitude: -48.9572,
         realizadoEm: DateTime(2026, 8, 24, 8, 31),
@@ -55,6 +57,9 @@ final List<PontoDeAplicacao> mockPontosDeAplicacao = [
     quantidadeDeSubpontos: 5,
     aplicadorId: '2',
     estado: EstadoPontoDeAplicacao.ativa,
+    // Tolerância própria, diferente do padrão de 4 dias: a tolerância é por
+    // ponto (GEOPRAG-174). Os demais pontos usam o padrão.
+    toleranciaDias: 7,
   ),
   PontoDeAplicacao(
     id: 'pa3',

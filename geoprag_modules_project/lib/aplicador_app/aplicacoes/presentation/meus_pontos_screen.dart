@@ -9,6 +9,7 @@ import '../../../portal_administrador/gestao_de_aplicacoes/presentation/ponto_de
     show EstadoPontoDeAplicacaoApresentacao;
 import '../../core/aplicador_navigator.dart';
 import 'meus_pontos_cubit.dart';
+import 'mensagem_de_atraso.dart';
 import 'meus_pontos_state.dart';
 import 'meus_pontos_view_model.dart';
 
@@ -18,8 +19,14 @@ import 'meus_pontos_view_model.dart';
 /// Assume que um [MeusPontosCubit] já foi provido acima na árvore de
 /// widgets (ver `AplicadorBootstrap.buildMeusPontosCubit` em
 /// `bootstrap.dart`).
+///
+/// [resumoDaSincronizacao] é a faixa com os indicadores de sincronização
+/// (GEOPRAG-204; ver `AplicadorBootstrap.buildResumoDaSincronizacao`). Vem de
+/// fora porque a sincronização depende de pacotes que o portal web não carrega.
 class MeusPontosScreen extends StatelessWidget {
-  const MeusPontosScreen({super.key});
+  const MeusPontosScreen({super.key, this.resumoDaSincronizacao});
+
+  final Widget? resumoDaSincronizacao;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +34,7 @@ class MeusPontosScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Meus Pontos de Aplicação')),
       body: Column(
         children: [
-          const _BannerOffline(),
+          resumoDaSincronizacao ?? const SizedBox.shrink(),
           Expanded(
             child: BlocBuilder<MeusPontosCubit, MeusPontosState>(
               builder: (context, state) {
@@ -50,35 +57,6 @@ class MeusPontosScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: const AplicadorBottomNav(currentIndex: 0),
-    );
-  }
-}
-
-/// Estrutura de UI para a futura sincronização offline (GEOPRAG-111: "fora
-/// de escopo" o motor de persistência real — hoje não existe nenhum no
-/// repositório) — sempre visível, sem lógica de conectividade por trás.
-class _BannerOffline extends StatelessWidget {
-  const _BannerOffline();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: GeopragColors.blue600.withOpacity(0.08),
-      child: Row(
-        children: [
-          Icon(Icons.cloud_off_outlined, size: 18, color: GeopragColors.blue600),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Sincronização automática ainda não disponível — mantenha-se '
-              'conectado à internet ao registrar aplicações.',
-              style: TextStyle(fontSize: 12, color: Colors.black87),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -130,7 +108,11 @@ class _PontoDoAplicadorCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.water_drop_outlined, size: 16, color: Colors.grey),
+                  const Icon(
+                    Icons.water_drop_outlined,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(width: 4),
                   Text('Dosagem: ${ponto.dosagemFormatada}'),
                   const SizedBox(width: 16),
@@ -141,6 +123,29 @@ class _PontoDoAplicadorCard extends StatelessWidget {
                   ),
                 ],
               ),
+              if (ponto.emAtraso) ...[
+                const SizedBox(height: 8),
+                Row(
+                  key: Key('meusPontosScreen_atraso_${ponto.id}'),
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: GeopragColors.statusAtrasado,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        mensagemDeAtrasoDoPonto,
+                        style: TextStyle(
+                          color: GeopragColors.statusAtrasado,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (ponto.ativoSemRegistro) ...[
                 const SizedBox(height: 8),
                 Row(

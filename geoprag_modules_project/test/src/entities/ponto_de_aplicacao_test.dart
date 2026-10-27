@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
 
@@ -9,6 +10,7 @@ PontoDeAplicacao pontoDeTeste({
   double larguraMetros = 2,
   double profundidadeMetros = 0.5,
   double velocidadeMetrosPorSegundo = 0.4,
+  int toleranciaDias = toleranciaPadraoDeAtrasoEmDias,
 }) {
   return PontoDeAplicacao(
     id: 'pa1',
@@ -27,10 +29,12 @@ PontoDeAplicacao pontoDeTeste({
     aplicadorId: aplicadorId,
     estado: estado,
     subpontos: subpontos,
+    toleranciaDias: toleranciaDias,
   );
 }
 
 final _execucao = Subponto(
+  id: 'sp-teste-1',
   latitude: -26.9312,
   longitude: -48.9567,
   realizadoEm: DateTime(2026, 8, 24, 8, 12),
@@ -369,6 +373,123 @@ void main() {
     });
   });
 
+  group('toleranciaDias', () {
+    test('nasce no padrão de 4 dias, vindo da constante única', () {
+      final ponto = pontoDeTeste();
+
+      expect(ponto.toleranciaDias, toleranciaPadraoDeAtrasoEmDias);
+      expect(ponto.toleranciaDias, 4);
+    });
+
+    test('aceita uma tolerância própria na construção', () {
+      final ponto = pontoDeTeste(toleranciaDias: 10);
+
+      expect(ponto.toleranciaDias, 10);
+    });
+
+    test('é rejeitada na construção quando for zero ou negativa', () {
+      expect(
+        () => pontoDeTeste(toleranciaDias: 0),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      expect(
+        () => pontoDeTeste(toleranciaDias: -3),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('copyWith preserva a tolerância quando não é informada', () {
+      final ponto = pontoDeTeste(toleranciaDias: 9).copyWith(nome: 'Outro');
+
+      expect(ponto.toleranciaDias, 9);
+    });
+  });
+
+  group('editarTolerancia', () {
+    test('altera a tolerância de um ponto com o cadastro liberado', () {
+      final ponto = pontoDeTeste().editarTolerancia(7);
+
+      expect(ponto.toleranciaDias, 7);
+    });
+
+    test('sempre permitido, mesmo com o cadastro travado por execução', () {
+      final travado = pontoDeTeste(subpontos: [_execucao]);
+      expect(travado.podeEditarCadastroCompleto, isFalse);
+
+      final ponto = travado.editarTolerancia(7);
+
+      expect(ponto.toleranciaDias, 7);
+    });
+
+    test('sempre permitido, mesmo com o cadastro travado por agendamento', () {
+      final travado = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.direcionada,
+        aplicadorId: '1',
+      ).ativar(
+        Agendamento.gerar(
+          dataInicio: DateTime(2026, 9, 10),
+          intervaloDias: 15,
+          quantidadeRecorrencias: 2,
+        ),
+      );
+      expect(travado.podeEditarCadastroCompleto, isFalse);
+
+      final ponto = travado.editarTolerancia(2);
+
+      expect(ponto.toleranciaDias, 2);
+    });
+
+    test('não altera agendamento, dosagem nem histórico', () {
+      final original = pontoDeTeste(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: '1',
+        subpontos: [_execucao],
+      ).copyWith(
+        agendamento: Agendamento.gerar(
+          dataInicio: DateTime(2026, 9, 10),
+          intervaloDias: 15,
+          quantidadeRecorrencias: 2,
+        ),
+      );
+
+      final ponto = original.editarTolerancia(9);
+
+      expect(ponto.agendamento, original.agendamento);
+      expect(ponto.dosagemMl, original.dosagemMl);
+      expect(ponto.subpontos, original.subpontos);
+      expect(ponto.estado, original.estado);
+      expect(ponto.nome, original.nome);
+    });
+
+    test('rejeita zero com mensagem amigável', () {
+      expect(
+        () => pontoDeTeste().editarTolerancia(0),
+        throwsA(
+          isA<OperacaoNaoPermitidaException>().having(
+            (e) => e.mensagemAmigavel,
+            'mensagemAmigavel',
+            'A tolerância de atraso deve ser de pelo menos 1 dia.',
+          ),
+        ),
+      );
+    });
+
+    test('rejeita valor negativo', () {
+      expect(
+        () => pontoDeTeste().editarTolerancia(-1),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('não altera o ponto original', () {
+      final original = pontoDeTeste();
+
+      original.editarTolerancia(9);
+
+      expect(original.toleranciaDias, toleranciaPadraoDeAtrasoEmDias);
+    });
+  });
+
   group('editarCadastroCompleto', () {
     test('atualiza os campos quando o cadastro está liberado', () {
       final ponto = pontoDeTeste().editarCadastroCompleto(
@@ -383,12 +504,14 @@ void main() {
         dosagemMl: 200,
         distanciaEntreSubpontosMetros: 80,
         quantidadeDeSubpontos: 10,
+        toleranciaDias: 6,
       );
 
       expect(ponto.nome, 'Nome novo');
       expect(ponto.bairro, 'Bairro novo');
       expect(ponto.larguraMetros, 5);
       expect(ponto.quantidadeDeSubpontos, 10);
+      expect(ponto.toleranciaDias, 6);
     });
 
     test('rejeita quando o cadastro está travado por execução', () {
@@ -407,6 +530,27 @@ void main() {
           dosagemMl: 1,
           distanciaEntreSubpontosMetros: 1,
           quantidadeDeSubpontos: 1,
+          toleranciaDias: 1,
+        ),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+
+    test('rejeita uma tolerância inválida mesmo com o cadastro liberado', () {
+      expect(
+        () => pontoDeTeste().editarCadastroCompleto(
+          nome: 'x',
+          bairro: 'x',
+          endereco: 'x',
+          numeroReferencia: 'x',
+          descricaoDoTrecho: 'x',
+          larguraMetros: 1,
+          profundidadeMetros: 1,
+          velocidadeMetrosPorSegundo: 1,
+          dosagemMl: 1,
+          distanciaEntreSubpontosMetros: 1,
+          quantidadeDeSubpontos: 1,
+          toleranciaDias: 0,
         ),
         throwsA(isA<OperacaoNaoPermitidaException>()),
       );

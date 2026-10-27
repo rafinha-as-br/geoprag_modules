@@ -6,8 +6,8 @@ import '../../../src/entities/ponto_de_aplicacao.dart';
 /// pontos do município). Mesma convenção de prefixo de
 /// `AdminNavigator`/`AdminAccount`.
 ///
-/// TODO(GEOPRAG-24): contrato real dos endpoints ainda não validado com o
-/// backend.
+/// Só leitura, e do aparelho (GEOPRAG-203): os pontos vêm do SQLite que o pull
+/// abastece. O registro de aplicação passa por `RegistroDeAplicacaoRepository`.
 abstract class AplicadorPontoDeAplicacaoRepository {
   /// Pontos atribuídos a [aplicadorId], exceto os já
   /// [EstadoPontoDeAplicacao.desativado] — não há nenhuma ação disponível
@@ -16,8 +16,14 @@ abstract class AplicadorPontoDeAplicacaoRepository {
 
   Future<PontoDeAplicacao> buscarPorId(String id);
 
-  /// Registra uma aplicação real no ponto [id]. GEOPRAG-111 trata o
-  /// subponto como um contador simples — cada chamada apenas soma mais um
-  /// [Subponto] ao histórico, sem validar ordem ou posição esperada.
-  Future<void> registrarSubponto(String id, Subponto subponto);
+  /// Ids dos pontos de [aplicadorId] com a aplicação em atraso (GEOPRAG-161).
+  ///
+  /// Calculado localmente, sem rede, pela regra de domínio compartilhada
+  /// (`verificarAtraso`) — por isso funciona offline. É só um aviso: não
+  /// bloqueia nenhuma ação sobre o ponto.
+  Future<Set<String>> idsDePontosEmAtraso(String aplicadorId);
+
+  /// Se o ponto [id] está com a aplicação em atraso (mesma regra e mesmas
+  /// garantias de [idsDePontosEmAtraso]).
+  Future<bool> estaEmAtraso(String id);
 }

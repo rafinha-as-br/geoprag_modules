@@ -94,6 +94,7 @@ void main() {
             viewModel(
               execucoes: [
                 Subponto(
+                  id: 'sp-teste-1',
                   latitude: 0,
                   longitude: 0,
                   realizadoEm: DateTime(2026, 8, 1),
@@ -139,6 +140,63 @@ void main() {
       await tester.ensureVisible(botao);
       await tester.tap(botao);
       verify(() => navigator.toAplicacaoInfo('pa1')).called(1);
+    });
+  });
+
+  group('DetalheDoPontoDesignadoScreen — alerta de atraso (GEOPRAG-161)', () {
+    DetalheDoPontoDesignadoViewModel emAtraso(bool valor) =>
+        DetalheDoPontoDesignadoViewModel(
+          id: 'pa1',
+          identificador: '#GAS1',
+          nome: 'Córrego Gasparinho',
+          bairro: 'Gasparinho',
+          endereco: 'Rua Pedro Simon',
+          numeroReferencia: 'Em frente ao nº 240',
+          descricaoDoTrecho: 'Trecho de 400 m.',
+          estado: EstadoPontoDeAplicacao.ativa,
+          dosagemFormatada: '120 ml',
+          distanciaEntreSubpontosMetros: 50,
+          quantidadeDeSubpontos: 8,
+          execucoes: const [],
+          emAtraso: valor,
+        );
+
+    testWidgets('mostra o aviso em linguagem simples quando está em atraso', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap(DetalheDoPontoDesignadoLoaded(emAtraso(true))));
+
+      expect(
+        find.byKey(const Key('detalheDoPontoDesignadoScreen_avisoDeAtraso')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Esta aplicação está atrasada. Você pode fazer a aplicação '
+          'normalmente.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('não mostra o aviso quando está em dia', (tester) async {
+      await tester.pumpWidget(
+        wrap(DetalheDoPontoDesignadoLoaded(emAtraso(false))),
+      );
+
+      expect(
+        find.byKey(const Key('detalheDoPontoDesignadoScreen_avisoDeAtraso')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('o atraso nunca desabilita "Iniciar Aplicação"', (tester) async {
+      await tester.pumpWidget(wrap(DetalheDoPontoDesignadoLoaded(emAtraso(true))));
+
+      final botao = tester.widget<ElevatedButton>(
+        find.byKey(const Key('detalheDoPontoDesignadoScreen_iniciarAplicacao')),
+      );
+      expect(botao.onPressed, isNotNull);
     });
   });
 }
