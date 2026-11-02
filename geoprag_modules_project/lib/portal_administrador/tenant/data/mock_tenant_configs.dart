@@ -22,4 +22,18 @@ final Map<String, TenantConfig> mockAdminTenantConfigs = {
       logoAssetUrl: 'https://tiles.geoprag.example/gaspar-sc/logo.png',
     ),
   ),
+  // O piloto Web não usa geolocalização nem tiles. Os campos permanecem
+  // vazios de propósito até o aplicativo de campo entrar no escopo HML.
+  'gaspar-sc-hml': const TenantConfig(
+    tenantId: 'gaspar-sc-hml',
+    cityName: 'Gaspar',
+    mapBounds: TenantMapBounds(
+      southWestLat: -26.9756,
+      southWestLng: -48.9976,
+      northEastLat: -26.8814,
+      northEastLng: -48.8814,
+    ),
+    mbtilesUrl: '',
+    branding: TenantBranding(primaryColorHex: '#0B5E3C', logoAssetUrl: ''),
+  ),
 };

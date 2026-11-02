@@ -6,6 +6,8 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_nav
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_session_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_session_state.dart';
 import 'package:geoprag_modules/portal_administrador/widgets/sidebar_menu.dart';
+import 'package:geoprag_modules/src/application/admin_portal_runtime.dart';
+import 'package:geoprag_modules/src/core/environment/build_environment.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdminNavigator extends Mock implements AdminNavigator {}
@@ -59,6 +61,8 @@ void main() {
     navigator = MockAdminNavigator();
     sessionCubit = AdminSessionCubit()..iniciarSessao(contaAdmin);
   });
+
+  tearDown(AdminPortalRuntime.limparConfiguracaoDeTeste);
 
   testWidgets('mostra nome e cargo do administrador logado no rodapé', (
     tester,
@@ -121,5 +125,26 @@ void main() {
     await tester.pumpWidget(wrap());
 
     expect(find.text('MV'), findsOneWidget);
+  });
+
+  testWidgets('em homologação oculta áreas que ainda usam mocks', (
+    tester,
+  ) async {
+    AdminPortalRuntime.configurarParaTeste(
+      AdminPortalRuntime(
+        environment: GeopragBuildEnvironmentConfig.deValor('homologacao'),
+      ),
+    );
+
+    await tester.pumpWidget(wrap());
+
+    expect(find.text('Homologação'), findsOneWidget);
+    expect(find.text('Gestão de Aplicações'), findsOneWidget);
+    expect(find.text('Aplicadores'), findsNothing);
+    expect(find.text('Visão Geral'), findsNothing);
+    expect(find.text('Estoque e Compras'), findsNothing);
+    expect(find.text('Distribuições'), findsNothing);
+    expect(find.text('Denúncias'), findsNothing);
+    expect(find.text('Gerenciamento de Administradores'), findsNothing);
   });
 }

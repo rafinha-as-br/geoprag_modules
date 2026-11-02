@@ -97,6 +97,11 @@ class AdminPontoDeAplicacaoRepositoryHttp
     await _api.post('${_caminho(id)}/cancelamento');
   }
 
+  @override
+  Future<void> simularAplicacaoEmHomologacao(String id) async {
+    await _api.post('${_caminho(id)}/simulacao-aplicacao');
+  }
+
   /// Relê o ponto e reenvia o cadastro como está, só com o nome novo. O
   /// servidor aceita mesmo com o cadastro travado porque nada além do nome
   /// muda.

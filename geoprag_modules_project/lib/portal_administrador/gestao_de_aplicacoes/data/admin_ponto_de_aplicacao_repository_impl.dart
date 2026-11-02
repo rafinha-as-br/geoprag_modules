@@ -127,10 +127,7 @@ class AdminPontoDeAplicacaoRepositoryImpl
 
   @override
   Future<void> desatribuirAplicador(String id) async {
-    final antes = await _atualizar(
-      id,
-      (ponto) => ponto.desatribuirAplicador(),
-    );
+    final antes = await _atualizar(id, (ponto) => ponto.desatribuirAplicador());
     await _registrarEvento(id, 'aplicador_desatribuido', {
       'aplicadorIdAnterior': antes.aplicadorId,
     });
@@ -296,6 +293,18 @@ class AdminPontoDeAplicacaoRepositoryImpl
   Future<void> cancelarAplicacaoQuimica(String id) async {
     await _atualizar(id, (ponto) => ponto.cancelarAplicacaoQuimica());
     await _registrarEvento(id, 'aplicacao_cancelada', const {});
+  }
+
+  @override
+  Future<void> simularAplicacaoEmHomologacao(String id) async {
+    final antes = await _atualizar(
+      id,
+      (ponto) => ponto.simularAplicacaoEmHomologacao(),
+    );
+    final dataConcluida = antes.agendamento?.proximaDataPendente;
+    await _registrarEvento(id, 'aplicacao_simulada_homologacao', {
+      'dataAgendadaId': dataConcluida?.id,
+    });
   }
 
   Future<PontoDeAplicacao> _atualizar(

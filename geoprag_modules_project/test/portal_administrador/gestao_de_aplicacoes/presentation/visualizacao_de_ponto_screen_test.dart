@@ -9,7 +9,9 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/a
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/visualizacao_de_ponto_screen.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/atribuir_aplicador_dialog.dart';
+import 'package:geoprag_modules/src/application/admin_portal_runtime.dart';
 import 'package:geoprag_modules/src/api/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/environment/build_environment.dart';
 import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -33,6 +35,8 @@ void main() {
     aplicadorRepository = MockAplicadorRepository();
     navigator = MockAdminNavigator();
   });
+
+  tearDown(AdminPortalRuntime.limparConfiguracaoDeTeste);
 
   Future<void> montar(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -89,6 +93,48 @@ void main() {
       verifyNever(() => navigator.toAplicacaoBairro(any()));
     },
   );
+
+  testWidgets('em homologação mostra a simulação e pede confirmação', (
+    tester,
+  ) async {
+    AdminPortalRuntime.configurarParaTeste(
+      AdminPortalRuntime(
+        environment: GeopragBuildEnvironmentConfig.deValor('homologacao'),
+      ),
+    );
+    when(() => repository.buscarPorId('pa1')).thenAnswer(
+      (_) async => pontoDeAplicacao(
+        estado: EstadoPontoDeAplicacao.ativa,
+        aplicadorId: 'ap-1',
+        agendamento: Agendamento.gerar(
+          dataInicio: DateTime(2026, 10, 1),
+          intervaloDias: 7,
+          quantidadeRecorrencias: 1,
+        ),
+      ),
+    );
+
+    await montar(tester);
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('simulacaoAplicacaoHomologacao')),
+      findsOneWidget,
+    );
+    // O botão fica abaixo do conteúdo longo do detalhe. Acionar o callback
+    // testa o mesmo fluxo sem depender da rolagem desta tela no widget test.
+    final button = tester.widget<FilledButton>(
+      find.byKey(const Key('simulacaoAplicacaoHomologacao_botao')),
+    );
+    button.onPressed!();
+    await tester.pump();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(
+      find.textContaining('Nenhuma localização será criada'),
+      findsOneWidget,
+    );
+  });
 
   testWidgets(
     'trecho sem medidas e sem texto (cadastro mínimo da API) mostra "Não '

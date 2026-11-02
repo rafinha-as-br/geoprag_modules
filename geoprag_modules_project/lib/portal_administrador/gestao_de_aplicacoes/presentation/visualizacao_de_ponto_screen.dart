@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/application/admin_portal_runtime.dart';
 import '../../../src/entities/ponto_de_aplicacao.dart';
 import '../../../src/state/acao_feedback.dart';
 import '../../../src/theme/geoprag_colors.dart';
@@ -521,38 +522,73 @@ class _CardDeVazao extends StatelessWidget {
   }
 }
 
-/// Espaço reservado para o registro manual de aplicação pelo portal —
-/// funcionalidade de épico próprio, ainda não detalhada.
+/// Simulação temporária do ciclo de aplicação, visível exclusivamente no
+/// ambiente de homologação. Ela não substitui o registro georreferenciado do
+/// aplicativo de campo.
 class _SlotDeRegistroManual extends StatelessWidget {
   const _SlotDeRegistroManual();
 
   @override
   Widget build(BuildContext context) {
+    if (!AdminPortalRuntime.atual.permiteSimulacaoDeAplicacao) {
+      return const SizedBox.shrink();
+    }
+    final processando = context.select<PontoDeAplicacaoDetalheCubit, bool>(
+      (cubit) => switch (cubit.state) {
+        PontoDeAplicacaoDetalheLoaded(:final processando) => processando,
+        _ => true,
+      },
+    );
     return Container(
+      key: const Key('simulacaoAplicacaoHomologacao'),
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade400),
+        color: GeopragColors.blue600.withValues(alpha: 0.08),
+        border: Border.all(color: GeopragColors.blue600),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.edit_note, color: Colors.black38),
-          SizedBox(height: 8),
-          Text(
-            'Registro manual de aplicação pelo portal',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black54,
-            ),
+          const Icon(Icons.science_outlined, color: GeopragColors.blue600),
+          const SizedBox(height: 8),
+          const Text(
+            'Simular aplicação (homologação)',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text(
-            'Ainda não disponível.',
+          const SizedBox(height: 4),
+          const Text(
+            'Conclui a próxima data pendente sem criar geolocalização. '
+            'A ação fica registrada na auditoria da API de homologação.',
+            textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black54, fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            key: const Key('simulacaoAplicacaoHomologacao_botao'),
+            onPressed: processando ? null : () => _confirmarESimular(context),
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('Simular aplicação'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmarESimular(BuildContext context) async {
+    final confirmado = await _confirmarAcaoSimples(
+      context,
+      titulo: 'Simular aplicação',
+      mensagem:
+          'A próxima data pendente será concluída somente no ambiente de '
+          'homologação. Nenhuma localização será criada. Confirma?',
+      rotuloConfirmar: 'Simular aplicação',
+    );
+    if (confirmado && context.mounted) {
+      await context
+          .read<PontoDeAplicacaoDetalheCubit>()
+          .simularAplicacaoEmHomologacao();
+    }
   }
 }
 

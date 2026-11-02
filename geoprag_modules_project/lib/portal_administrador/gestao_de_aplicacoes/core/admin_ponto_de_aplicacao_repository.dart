@@ -101,6 +101,13 @@ abstract class AdminPontoDeAplicacaoRepository {
   /// [PontoDeAplicacao.cancelarAplicacaoQuimica]).
   Future<void> cancelarAplicacaoQuimica(String id);
 
+  /// Conclui a próxima data pendente por uma simulação controlada no Portal
+  /// de homologação. Não cria coordenadas, subpontos ou registros de campo.
+  ///
+  /// O servidor deve restringir esta rota ao ambiente HML e registrar a ação
+  /// na auditoria. Em produção, a interface não expõe esta operação.
+  Future<void> simularAplicacaoEmHomologacao(String id);
+
   /// Cadastra um ponto novo. Nasce em
   /// [EstadoPontoDeAplicacao.enderecada] quando [aplicadorId] é `null`, ou
   /// em [EstadoPontoDeAplicacao.direcionada] quando um responsável já é

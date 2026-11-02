@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../src/application/admin_portal_runtime.dart';
 import '../../../src/entities/tenant_config.dart';
 import 'tenant_state.dart';
 import '../../../src/errors/app_error_messages.dart';
 import '../../../src/errors/app_exceptions.dart';
 import '../../../src/errors/app_logger.dart';
+import '../../autenticacao/core/admin_account.dart';
 
 /// Carrega a configuração do tenant (prefeitura) atual: tenta o cache local
 /// primeiro (cold start offline) e depois busca/atualiza a partir do
@@ -14,6 +16,21 @@ class AdminTenantCubit extends Cubit<AdminTenantState> {
   AdminTenantCubit(this._repository) : super(const AdminTenantInitial());
 
   final TenantRepository _repository;
+
+  /// Carrega a configuração do tenant indicado pela sessão autenticada.
+  ///
+  /// O identificador não é escolhido pela interface: vem da resposta de login
+  /// do servidor. Em homologação, a política do Portal também garante que a
+  /// sessão pertence ao tenant isolado do piloto antes de consultar o cache.
+  Future<void> loadForAccount(AdminAccount account) async {
+    try {
+      AdminPortalRuntime.atual.validarTenantDoPortal(account.tenantId);
+    } on ArgumentError catch (error) {
+      emit(AdminTenantError(error.message?.toString() ?? 'Tenant inválido.'));
+      return;
+    }
+    await load(account.tenantId);
+  }
 
   Future<void> load(String tenantId) async {
     final cached = await _repository.readCached();

@@ -22,4 +22,18 @@ final Map<String, TenantConfig> mockAplicadorTenantConfigs = {
       logoAssetUrl: 'https://tiles.geoprag.example/gaspar-sc/logo.png',
     ),
   ),
+  // O aplicativo de campo ainda não entra no piloto HML; esta configuração
+  // existe somente para que o tenant retornado no login seja reconhecido.
+  'gaspar-sc-hml': const TenantConfig(
+    tenantId: 'gaspar-sc-hml',
+    cityName: 'Gaspar',
+    mapBounds: TenantMapBounds(
+      southWestLat: -26.9756,
+      southWestLng: -48.9976,
+      northEastLat: -26.8814,
+      northEastLng: -48.8814,
+    ),
+    mbtilesUrl: '',
+    branding: TenantBranding(primaryColorHex: '#0B5E3C', logoAssetUrl: ''),
+  ),
 };

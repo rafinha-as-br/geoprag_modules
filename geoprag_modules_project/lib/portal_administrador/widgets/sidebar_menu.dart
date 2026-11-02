@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../src/application/admin_portal_runtime.dart';
+import '../../src/features/homologacao/domain/politica_do_portal_admin.dart';
 import '../../src/theme/geoprag_colors.dart';
 import '../../src/widgets/geoprag_logo.dart';
 import '../autenticacao/core/admin_account.dart';
@@ -16,6 +18,7 @@ class SidebarMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionState = context.watch<AdminSessionCubit>().state;
+    final runtime = AdminPortalRuntime.atual;
     final isAdministrador =
         sessionState is AdminSessionAutenticado &&
         sessionState.conta.role == AdminRole.administrador;
@@ -46,45 +49,53 @@ class SidebarMenu extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _buildMenuItem(
-                    context,
-                    'Visão Geral',
-                    Icons.dashboard,
-                    '/dashboard',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'Gestão de Aplicações',
-                    Icons.pin_drop,
-                    '/aplicacoes',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'Aplicadores',
-                    Icons.people,
-                    '/aplicadores',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'Estoque e Compras',
-                    Icons.inventory,
-                    '/estoque',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'Distribuições',
-                    Icons.local_shipping,
-                    '/distribuicoes',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'Denúncias',
-                    Icons.report_problem,
-                    '/denuncias_admin',
-                  ),
+                  if (runtime.isHomologacao) const _FaixaDeHomologacao(),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.visaoGeral))
+                    _buildMenuItem(
+                      context,
+                      'Visão Geral',
+                      Icons.dashboard,
+                      '/dashboard',
+                    ),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.aplicacoes))
+                    _buildMenuItem(
+                      context,
+                      'Gestão de Aplicações',
+                      Icons.pin_drop,
+                      '/aplicacoes',
+                    ),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.aplicadores))
+                    _buildMenuItem(
+                      context,
+                      'Aplicadores',
+                      Icons.people,
+                      '/aplicadores',
+                    ),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.estoque))
+                    _buildMenuItem(
+                      context,
+                      'Estoque e Compras',
+                      Icons.inventory,
+                      '/estoque',
+                    ),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.distribuicoes))
+                    _buildMenuItem(
+                      context,
+                      'Distribuições',
+                      Icons.local_shipping,
+                      '/distribuicoes',
+                    ),
+                  if (runtime.permiteSecao(SecaoDoPortalAdmin.denuncias))
+                    _buildMenuItem(
+                      context,
+                      'Denúncias',
+                      Icons.report_problem,
+                      '/denuncias_admin',
+                    ),
                   // Ocultação total (não apenas bloqueio de rota) para
                   // Sub-Administrador — GEOPRAG-36, escopo 3.
-                  if (isAdministrador)
+                  if (isAdministrador &&
+                      runtime.permiteSecao(SecaoDoPortalAdmin.administradores))
                     _buildMenuItem(
                       context,
                       'Gerenciamento de Administradores',
@@ -151,6 +162,26 @@ class SidebarMenu extends StatelessWidget {
       case '/administradores':
         navigator.toGerenciamentoAdministradores();
     }
+  }
+}
+
+/// Marca visualmente o build de piloto para evitar que seja confundido com
+/// um Portal de produção durante as validações da prefeitura.
+class _FaixaDeHomologacao extends StatelessWidget {
+  const _FaixaDeHomologacao();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Ambiente de homologação',
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: Chip(
+          avatar: Icon(Icons.science_outlined, size: 18),
+          label: Text('Homologação'),
+        ),
+      ),
+    );
   }
 }
 

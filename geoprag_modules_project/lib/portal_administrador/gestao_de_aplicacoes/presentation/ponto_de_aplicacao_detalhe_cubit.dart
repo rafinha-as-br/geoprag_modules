@@ -107,6 +107,14 @@ class PontoDeAplicacaoDetalheCubit extends Cubit<PontoDeAplicacaoDetalheState> {
     'Aplicação química cancelada — o ponto está inativo.',
   );
 
+  /// Simula a conclusão da próxima aplicação apenas no piloto HML.
+  /// A visibilidade do botão é decidida pela política de ambiente; o servidor
+  /// ainda precisa validar ambiente, perfil e estado do ponto.
+  Future<void> simularAplicacaoEmHomologacao() => _executarAcao(
+    () => _repository.simularAplicacaoEmHomologacao(_pontoId),
+    'Aplicação simulada com sucesso para homologação.',
+  );
+
   Future<void> removerAlertaDeAtraso() => _executarAcao(
     () => _repository.removerAlertaDeAtraso(_pontoId),
     'Alerta de atraso removido.',

@@ -523,6 +523,30 @@ class PontoDeAplicacao {
     );
   }
 
+  /// Conclui a próxima recorrência por uma simulação exclusiva do piloto de
+  /// homologação.
+  ///
+  /// Diferente de [registrarSubponto], não adiciona execução de campo nem
+  /// inventa latitude/longitude. A API deve auditar a origem da conclusão e
+  /// só expor esta transição no ambiente HML.
+  PontoDeAplicacao simularAplicacaoEmHomologacao() {
+    if (estado != EstadoPontoDeAplicacao.ativa) {
+      throw const OperacaoNaoPermitidaException(
+        'Só é possível simular uma aplicação em um ponto ativo.',
+      );
+    }
+    final agendamentoAtual = agendamento;
+    final proximaData = agendamentoAtual?.proximaDataPendente;
+    if (proximaData == null) {
+      throw const OperacaoNaoPermitidaException(
+        'Não há uma aplicação pendente para simular neste ponto.',
+      );
+    }
+    return copyWith(
+      agendamento: agendamentoAtual!.comDataConcluida(proximaData.id),
+    );
+  }
+
   /// Vincula um aplicador responsável ao ponto, promovendo-o de
   /// [EstadoPontoDeAplicacao.enderecada] para
   /// [EstadoPontoDeAplicacao.direcionada].

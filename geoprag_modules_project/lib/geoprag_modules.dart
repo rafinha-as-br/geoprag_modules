@@ -1,5 +1,8 @@
 library geoprag_modules;
 
+export 'src/application/admin_portal_runtime.dart';
+export 'src/features/homologacao/homologacao.dart';
+
 export 'src/theme/geoprag_colors.dart';
 export 'src/theme/geoprag_status.dart';
 export 'src/theme/geoprag_theme.dart';

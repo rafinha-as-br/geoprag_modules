@@ -103,6 +103,22 @@ void main() {
     expect(feedback, isA<AcaoFeedbackErro>());
   });
 
+  test('simularAplicacaoEmHomologacao chama o repositório e recarrega',
+      () async {
+    when(
+      () => repository.simularAplicacaoEmHomologacao('pa1'),
+    ).thenAnswer((_) async {});
+    final cubit = await carregar(pontoDeAplicacao());
+
+    await cubit.simularAplicacaoEmHomologacao();
+
+    verify(() => repository.simularAplicacaoEmHomologacao('pa1')).called(1);
+    expect(
+      (cubit.state as PontoDeAplicacaoDetalheLoaded).feedback,
+      isA<AcaoFeedbackSucesso>(),
+    );
+  });
+
   test('resolve o nome do aplicador quando o ponto está direcionado', () async {
     final cubit = await carregar(
       pontoDeAplicacao(

@@ -337,11 +337,20 @@ void main() {
             '/pontos/p-1/cancelamento',
             () => repositorio.cancelarAplicacaoQuimica('p-1'),
           ),
+          'simularAplicacaoEmHomologacao': (
+            '/pontos/p-1/simulacao-aplicacao',
+            () => repositorio.simularAplicacaoEmHomologacao('p-1'),
+          ),
         });
       when(() => api.post(any())).thenAnswer((_) async => pontoAtivoJson());
     });
 
-    for (final nome in ['desativar', 'reativar', 'cancelarAplicacaoQuimica']) {
+    for (final nome in [
+      'desativar',
+      'reativar',
+      'cancelarAplicacaoQuimica',
+      'simularAplicacaoEmHomologacao',
+    ]) {
       test('$nome faz POST no caminho da transição, sem corpo', () async {
         final (caminho, acao) = transicoes[nome]!;
 

@@ -1,7 +1,10 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_state.dart';
+import 'package:geoprag_modules/src/application/admin_portal_runtime.dart';
+import 'package:geoprag_modules/src/core/environment/build_environment.dart';
 import 'package:geoprag_modules/src/entities/tenant_config.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:geoprag_modules/src/errors/app_exceptions.dart';
@@ -32,6 +35,8 @@ void main() {
     repository = MockTenantRepository();
     registerFallbackValue(config);
   });
+
+  tearDown(AdminPortalRuntime.limparConfiguracaoDeTeste);
 
   blocTest<AdminTenantCubit, AdminTenantState>(
     'sem cache: emite [Ready(config)] após buscar e cachear a configuração',
@@ -111,4 +116,55 @@ void main() {
       ),
     ],
   );
+
+  test('loadForAccount usa o tenant devolvido no login em homologação',
+      () async {
+    const configHml = TenantConfig(
+      tenantId: 'gaspar-sc-hml',
+      cityName: 'Gaspar',
+      mapBounds: TenantMapBounds(
+        southWestLat: -26.9756,
+        southWestLng: -48.9976,
+        northEastLat: -26.8814,
+        northEastLng: -48.8814,
+      ),
+      mbtilesUrl: '',
+      branding: TenantBranding(primaryColorHex: '#0B5E3C', logoAssetUrl: ''),
+    );
+    AdminPortalRuntime.configurarParaTeste(
+      AdminPortalRuntime(
+        environment: GeopragBuildEnvironmentConfig.deValor('homologacao'),
+      ),
+    );
+    when(() => repository.readCached()).thenAnswer((_) async => null);
+    when(
+      () => repository.fetchByTenantId('gaspar-sc-hml'),
+    ).thenAnswer((_) async => configHml);
+    when(() => repository.cache(configHml)).thenAnswer((_) async {});
+    final conta = AdminAccount(
+      id: 'admin-hml',
+      tenantId: 'gaspar-sc-hml',
+      email: 'admin.hml@gaspar.sc.gov.br',
+      nome: 'Admin HML',
+      cpf: '123.456.789-00',
+      dataNascimento: DateTime(1990, 1, 1),
+      sexo: 'Não informado',
+      dataCriacao: DateTime(2026, 1, 1),
+      role: AdminRole.administrador,
+    );
+    final cubit = AdminTenantCubit(repository);
+
+    await cubit.loadForAccount(conta);
+
+    expect(
+      cubit.state,
+      isA<AdminTenantReady>().having(
+        (state) => state.config.tenantId,
+        'tenantId',
+        'gaspar-sc-hml',
+      ),
+    );
+    verify(() => repository.fetchByTenantId('gaspar-sc-hml')).called(1);
+    await cubit.close();
+  });
 }

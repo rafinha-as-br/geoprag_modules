@@ -267,4 +267,34 @@ void main() {
       expect(ponto.cicloConcluido, isFalse);
     });
   });
+
+  group('simularAplicacaoEmHomologacao', () {
+    test('conclui somente a próxima data pendente, sem criar subponto', () {
+      final original = _pontoAtivo();
+
+      final simulado = original.simularAplicacaoEmHomologacao();
+
+      expect(_status(simulado), [
+        StatusDataAgendada.concluida,
+        StatusDataAgendada.pendente,
+        StatusDataAgendada.pendente,
+      ]);
+      expect(simulado.subpontos, isEmpty);
+      expect(
+        original.agendamento!.datas.first.status,
+        StatusDataAgendada.pendente,
+      );
+    });
+
+    test('rejeita ponto fora de operação ou sem data pendente', () {
+      expect(
+        () => _pontoAtivo().desativar().simularAplicacaoEmHomologacao(),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+      expect(
+        () => _pontoAtivo(semAgendamento: true).simularAplicacaoEmHomologacao(),
+        throwsA(isA<OperacaoNaoPermitidaException>()),
+      );
+    });
+  });
 }
