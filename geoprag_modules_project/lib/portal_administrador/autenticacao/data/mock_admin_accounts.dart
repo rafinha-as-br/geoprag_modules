@@ -1,5 +1,21 @@
 import '../core/admin_account.dart';
 
+/// Tenant das contas simuladas, coerente com o ambiente do build.
+///
+/// No piloto de homologação o login precisa devolver o tenant isolado de
+/// Gaspar; nos demais ambientes as contas de desenvolvimento continuam no
+/// tenant histórico. Em produção a origem desse dado é sempre a API.
+const _ambienteDasContasMock = String.fromEnvironment(
+  'GEOPRAG_ENV',
+  defaultValue: 'desenvolvimento',
+);
+const _tenantDasContasMock =
+    _ambienteDasContasMock == 'homologacao' ||
+        _ambienteDasContasMock == 'homologação' ||
+        _ambienteDasContasMock == 'hml'
+    ? 'gaspar-sc-hml'
+    : 'gaspar-sc';
+
 /// Contas usadas para simular, na tela "Esqueci minha senha" do portal web,
 /// a distinção de papel que em produção viria do backend: Administrador
 /// principal (verificação por e-mail + CPF) ou Sub-Administrador (requer
@@ -7,7 +23,7 @@ import '../core/admin_account.dart';
 final List<AdminAccount> mockAdminAccounts = [
   AdminAccount(
     id: 'adm-1',
-    tenantId: 'gaspar-sc',
+    tenantId: _tenantDasContasMock,
     email: 'admin@gaspar.sc.gov.br',
     nome: 'Marcos Vieira',
     cpf: '123.456.789-00',
@@ -18,7 +34,7 @@ final List<AdminAccount> mockAdminAccounts = [
   ),
   AdminAccount(
     id: 'adm-2',
-    tenantId: 'gaspar-sc',
+    tenantId: _tenantDasContasMock,
     email: 'celia.ramos@gaspar.sc.gov.br',
     nome: 'Célia Ramos',
     cpf: '987.654.321-00',

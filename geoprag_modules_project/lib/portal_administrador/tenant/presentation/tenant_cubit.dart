@@ -32,6 +32,13 @@ class AdminTenantCubit extends Cubit<AdminTenantState> {
     await load(account.tenantId);
   }
 
+  /// Remove a configuração atualmente exibida quando a sessão termina.
+  ///
+  /// O cache persistente continua sendo reaproveitado somente se o próximo
+  /// login for do mesmo tenant; o estado em memória, porém, não pode manter a
+  /// configuração de uma conta que acabou de sair.
+  void limparSessao() => emit(const AdminTenantInitial());
+
   Future<void> load(String tenantId) async {
     final cached = await _repository.readCached();
     // O cache só vale para o mesmo tenant: o tenant agora vem do login (GEOPRAG-187)

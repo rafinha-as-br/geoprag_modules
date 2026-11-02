@@ -80,10 +80,10 @@ void main() {
     '(nunca expõe a exceção bruta ao usuário)',
     setUp: () {
       when(() => repository.readCached()).thenAnswer((_) async => null);
-      when(
-        () => repository.fetchByTenantId('tenant-invalido'),
-      ).thenThrow(
-        const EntidadeNaoEncontradaException('Tenant "tenant-invalido" não encontrado.'),
+      when(() => repository.fetchByTenantId('tenant-invalido')).thenThrow(
+        const EntidadeNaoEncontradaException(
+          'Tenant "tenant-invalido" não encontrado.',
+        ),
       );
     },
     build: () => AdminTenantCubit(repository),
@@ -117,54 +117,73 @@ void main() {
     ],
   );
 
-  test('loadForAccount usa o tenant devolvido no login em homologação',
-      () async {
-    const configHml = TenantConfig(
-      tenantId: 'gaspar-sc-hml',
-      cityName: 'Gaspar',
-      mapBounds: TenantMapBounds(
-        southWestLat: -26.9756,
-        southWestLng: -48.9976,
-        northEastLat: -26.8814,
-        northEastLng: -48.8814,
-      ),
-      mbtilesUrl: '',
-      branding: TenantBranding(primaryColorHex: '#0B5E3C', logoAssetUrl: ''),
-    );
-    AdminPortalRuntime.configurarParaTeste(
-      AdminPortalRuntime(
-        environment: GeopragBuildEnvironmentConfig.deValor('homologacao'),
-      ),
-    );
-    when(() => repository.readCached()).thenAnswer((_) async => null);
-    when(
-      () => repository.fetchByTenantId('gaspar-sc-hml'),
-    ).thenAnswer((_) async => configHml);
-    when(() => repository.cache(configHml)).thenAnswer((_) async {});
-    final conta = AdminAccount(
-      id: 'admin-hml',
-      tenantId: 'gaspar-sc-hml',
-      email: 'admin.hml@gaspar.sc.gov.br',
-      nome: 'Admin HML',
-      cpf: '123.456.789-00',
-      dataNascimento: DateTime(1990, 1, 1),
-      sexo: 'Não informado',
-      dataCriacao: DateTime(2026, 1, 1),
-      role: AdminRole.administrador,
-    );
-    final cubit = AdminTenantCubit(repository);
+  test(
+    'loadForAccount usa o tenant devolvido no login em homologação',
+    () async {
+      const configHml = TenantConfig(
+        tenantId: 'gaspar-sc-hml',
+        cityName: 'Gaspar',
+        mapBounds: TenantMapBounds(
+          southWestLat: -26.9756,
+          southWestLng: -48.9976,
+          northEastLat: -26.8814,
+          northEastLng: -48.8814,
+        ),
+        mbtilesUrl: '',
+        branding: TenantBranding(primaryColorHex: '#0B5E3C', logoAssetUrl: ''),
+      );
+      AdminPortalRuntime.configurarParaTeste(
+        AdminPortalRuntime(
+          environment: GeopragBuildEnvironmentConfig.deValor('homologacao'),
+        ),
+      );
+      when(() => repository.readCached()).thenAnswer((_) async => null);
+      when(
+        () => repository.fetchByTenantId('gaspar-sc-hml'),
+      ).thenAnswer((_) async => configHml);
+      when(() => repository.cache(configHml)).thenAnswer((_) async {});
+      final conta = AdminAccount(
+        id: 'admin-hml',
+        tenantId: 'gaspar-sc-hml',
+        email: 'admin.hml@gaspar.sc.gov.br',
+        nome: 'Admin HML',
+        cpf: '123.456.789-00',
+        dataNascimento: DateTime(1990, 1, 1),
+        sexo: 'Não informado',
+        dataCriacao: DateTime(2026, 1, 1),
+        role: AdminRole.administrador,
+      );
+      final cubit = AdminTenantCubit(repository);
 
-    await cubit.loadForAccount(conta);
+      await cubit.loadForAccount(conta);
 
-    expect(
-      cubit.state,
-      isA<AdminTenantReady>().having(
-        (state) => state.config.tenantId,
-        'tenantId',
-        'gaspar-sc-hml',
-      ),
-    );
-    verify(() => repository.fetchByTenantId('gaspar-sc-hml')).called(1);
-    await cubit.close();
-  });
+      expect(
+        cubit.state,
+        isA<AdminTenantReady>().having(
+          (state) => state.config.tenantId,
+          'tenantId',
+          'gaspar-sc-hml',
+        ),
+      );
+      verify(() => repository.fetchByTenantId('gaspar-sc-hml')).called(1);
+      await cubit.close();
+    },
+  );
+
+  blocTest<AdminTenantCubit, AdminTenantState>(
+    'limparSessao remove a configuração do tenant da memória',
+    setUp: () {
+      when(() => repository.readCached()).thenAnswer((_) async => null);
+      when(
+        () => repository.fetchByTenantId('gaspar-sc'),
+      ).thenAnswer((_) async => config);
+      when(() => repository.cache(config)).thenAnswer((_) async {});
+    },
+    build: () => AdminTenantCubit(repository),
+    act: (cubit) async {
+      await cubit.load('gaspar-sc');
+      cubit.limparSessao();
+    },
+    expect: () => [isA<AdminTenantReady>(), isA<AdminTenantInitial>()],
+  );
 }
