@@ -4,7 +4,7 @@
 
 `geoprag_modules` é o package Flutter compartilhado do Geoprag. Ele concentra capacidades reutilizadas pelo Portal Administrador Web e pelo aplicativo de campo, sem assumir o ciclo de vida, as rotas ou a configuração de execução dos aplicativos consumidores.
 
-Esta primeira etapa de reconstrução estabelece as quatro camadas em `lib/src/` e adiciona a base tipada para os ambientes de desenvolvimento, homologação e produção. A estrutura legada em `lib/portal_administrador`, `lib/aplicador_app`, `lib/src/theme`, `lib/src/widgets` e `lib/src/api` continua sendo uma fachada compatível enquanto as capacidades são migradas gradualmente.
+O package está em migração controlada para quatro camadas reais em `lib/src/`. Auditoria e Atrasos já vivem em `features/`, enquanto `lib/portal_administrador`, `lib/aplicador_app` e os caminhos históricos em `src/` permanecem como fachadas de compatibilidade até todos os consumidores migrarem.
 
 ## Consumidores e tecnologias
 
@@ -25,7 +25,7 @@ Antes de editar uma camada, ler seu documento local; não presumir carregamento 
 
 ## API e imports
 
-Preservar as fachadas atuais para imports diretos já usados pelos dois aplicativos, inclusive `portal_administrador/...`, `aplicador_app/...` e `src/api/...`. Novas capacidades compartilhadas entram nas quatro camadas; não mover uma funcionalidade legada apenas por organização sem preservar seu export de compatibilidade.
+Preservar as fachadas atuais para imports diretos já usados pelos dois aplicativos, inclusive `portal_administrador/...`, `aplicador_app/...` e caminhos históricos em `src/`. A implementação nova entra nas quatro camadas; uma fachada deve apenas reexportar a localização canônica, nunca guardar uma segunda implementação.
 
 O fluxo de homologação usa `POST /api/v1/pontos/{id}/simulacao-aplicacao`. Essa rota deve ser implementada pela API, restrita ao perfil de homologação e auditada no servidor; o cliente não cria coordenadas nem registros de GPS artificiais.
 

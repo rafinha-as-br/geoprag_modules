@@ -2,7 +2,7 @@
 
 ## Infraestrutura atual
 
-`environment/build_environment.dart` lê e valida o ambiente de compilação. `network/api_config.dart` é a localização canônica da configuração de URL e timeout HTTP; `src/api/api_config.dart` permanece como reexport de compatibilidade para imports existentes.
+`environment/build_environment.dart` lê e valida o ambiente de compilação. `network/api_config.dart` é a localização canônica da configuração de URL e timeout HTTP. `errors/` e `logging/` guardam os contratos técnicos compartilhados; os caminhos antigos em `src/errors/` são somente reexports de compatibilidade.
 
 ## Inicialização e reutilização
 

@@ -1,6 +1,8 @@
 library geoprag_modules;
 
 export 'src/application/admin_portal_runtime.dart';
+export 'src/features/atrasos/atrasos.dart';
+export 'src/features/auditoria/auditoria.dart';
 export 'src/features/homologacao/homologacao.dart';
 
 export 'src/theme/geoprag_colors.dart';

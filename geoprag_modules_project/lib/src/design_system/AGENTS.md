@@ -2,7 +2,7 @@
 
 ## Padrões presentes
 
-O Design System existente permanece implementado em `src/theme/` e `src/widgets/`. `geoprag_design_system.dart` é a entrada canônica para seus tokens, tema e componentes genéricos durante a migração gradual.
+`theme/` contém a implementação canônica de tokens, estados e tema. `src/theme/` é uma fachada de compatibilidade. `geoprag_design_system.dart` é a entrada canônica; os componentes genéricos em `src/widgets/` serão migrados sem mover widgets que carreguem regra de feature.
 
 ## Referências e reutilização
 
