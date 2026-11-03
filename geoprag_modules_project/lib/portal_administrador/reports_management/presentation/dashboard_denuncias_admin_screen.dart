@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/widgets/base_list_screen.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
 import 'denuncia_view_model.dart';
 import 'triagem_denuncias_controller.dart';
 

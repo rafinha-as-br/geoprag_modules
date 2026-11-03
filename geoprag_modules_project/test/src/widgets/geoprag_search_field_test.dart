@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_search_field.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_search_field.dart';
 
 void main() {
   testWidgets('mostra o hintText e aciona onChanged com o texto digitado', (

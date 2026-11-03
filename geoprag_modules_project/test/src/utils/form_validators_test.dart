@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/utils/form_validators.dart';
+import 'package:geoprag_modules/src/design_system/validation/form_validators.dart';
 
 void main() {
   group('formatarNumeroExibicao', () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/widgets/geoprag_tenant_loading_screen.dart';
+import '../../../src/features/tenant/presentation/geoprag_tenant_loading_screen.dart';
 import 'tenant_cubit.dart';
 import 'tenant_state.dart';
 

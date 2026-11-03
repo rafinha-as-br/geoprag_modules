@@ -5,11 +5,11 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/a
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/aplicador_resumo_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/criar_ponto_de_aplicacao_cubit.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../gestao_de_aplicacoes_fixtures.dart';

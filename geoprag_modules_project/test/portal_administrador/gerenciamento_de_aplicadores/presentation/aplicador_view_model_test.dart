@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/atuacao_aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicador_view_model.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
 
 void main() {
   final aplicador = Aplicador(

@@ -1,5 +1,5 @@
-import '../../../src/entities/atraso_de_aplicacao.dart';
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Contrato de acesso aos Pontos de Aplicação pelo Portal Administrador.
 ///

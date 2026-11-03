@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/aplicador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/criar_aplicador_cubit.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_data_nascimento_input.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_sexo_input.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_data_nascimento_input.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_sexo_input.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorRepository extends Mock implements AplicadorRepository {}

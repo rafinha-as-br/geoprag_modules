@@ -1,4 +1,4 @@
-import '../../../src/state/acao_feedback.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 
 sealed class PontoDeAplicacaoDetalheState {

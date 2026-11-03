@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/mock_pontos_de_aplicacao.dart';
-import 'package:geoprag_modules/src/atraso/alerta_de_atraso_repository_impl.dart';
-import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
-import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
-import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/features/atrasos/data/alerta_de_atraso_repository_impl.dart';
+import 'package:geoprag_modules/src/features/auditoria/domain/evento_auditoria.dart';
+import 'package:geoprag_modules/src/features/auditoria/data/evento_auditoria_repository_impl.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 void main() {
   late AdminPontoDeAplicacaoRepositoryImpl repository;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_filter_dropdown.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_filter_dropdown.dart';
 
 void main() {
   testWidgets(

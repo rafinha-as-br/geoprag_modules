@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/detalhe_do_ponto_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/detalhe_do_ponto_state.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorPontoDeAplicacaoRepository extends Mock

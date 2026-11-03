@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/permissions/capacidade.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/authorization/capacidade.dart';
 import '../core/admin_account.dart';
 import '../core/admin_auth_repository.dart';
 import '../core/capacidades_por_cargo.dart';

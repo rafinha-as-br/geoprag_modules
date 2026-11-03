@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_navigator.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_view_model.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/painel_do_dashboard.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdminNavigator extends Mock implements AdminNavigator {}

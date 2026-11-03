@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
 
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../core/posicao_gps.dart';
 import '../core/servico_de_localizacao.dart';
 

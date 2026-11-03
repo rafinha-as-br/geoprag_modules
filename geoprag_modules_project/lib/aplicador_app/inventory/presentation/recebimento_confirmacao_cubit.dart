@@ -4,9 +4,9 @@ import '../core/recebimento.dart';
 import '../core/recebimento_repository.dart';
 import 'recebimento_confirmacao_state.dart';
 import 'recebimento_view_model.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Carrega o recebimento a ser confirmado em `ReceberProdutoScreen` e
 /// executa a confirmação de entrega.

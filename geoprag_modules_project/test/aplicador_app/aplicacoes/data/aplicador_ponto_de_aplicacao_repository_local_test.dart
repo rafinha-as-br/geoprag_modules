@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/data/aplicador_ponto_de_aplicacao_repository_local.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 import '../../local/apoio_do_banco.dart';
 

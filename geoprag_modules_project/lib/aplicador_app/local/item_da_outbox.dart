@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../src/api/sync/registro_dtos.dart';
+import '../../src/features/sincronizacao/data/registro_dtos.dart';
 
 /// Situação de um item da outbox (fila de envio ao servidor).
 enum EstadoDoItemDaOutbox {

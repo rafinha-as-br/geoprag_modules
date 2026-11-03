@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/widgets/base_list_screen.dart';
-import '../../../src/widgets/geoprag_back_button.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
+import '../../../src/design_system/components/geoprag_back_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_view_model.dart';
 import 'listagem_denuncias_controller.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
 import '../../core/aplicador_navigator.dart';
 import 'tela_de_aplicacao_cubit.dart';
 import 'tela_de_aplicacao_state.dart';

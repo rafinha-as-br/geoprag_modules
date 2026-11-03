@@ -7,7 +7,7 @@ import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento_reposit
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/inventario_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/inventario_state.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockInsumoRepository extends Mock implements InsumoRepository {}
 

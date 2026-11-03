@@ -1,4 +1,4 @@
-import 'package:geoprag_modules/src/api/sync/pull_dtos.dart';
+import 'package:geoprag_modules/src/features/sincronizacao/data/pull_dtos.dart';
 
 /// `PontoDoAplicador` no formato do `GET /sync/pull`.
 ///

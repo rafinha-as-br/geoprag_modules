@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/resumo_geral_repository.dart';
 import 'dashboard_geral_state.dart';
 import 'resumo_geral_view_model.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Carrega o resumo geral operacional exibido no Dashboard do Portal
 /// Administrador.

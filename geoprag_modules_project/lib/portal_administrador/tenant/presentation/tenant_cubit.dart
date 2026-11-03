@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../src/application/admin_portal_runtime.dart';
-import '../../../src/entities/tenant_config.dart';
+import '../../../src/features/tenant/domain/tenant_config.dart';
 import 'tenant_state.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../../autenticacao/core/admin_account.dart';
 
 /// Carrega a configuração do tenant (prefeitura) atual: tenta o cache local

@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Pontos de Aplicação cadastrados no município, cobrindo os cinco estados
 /// do ciclo de vida e os dois casos que o dashboard destaca (ponto ativo com

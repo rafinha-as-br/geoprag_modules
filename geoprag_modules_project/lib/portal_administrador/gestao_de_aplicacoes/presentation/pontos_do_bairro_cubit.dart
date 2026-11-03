@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/api/api_exceptions.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/widgets/base_list_screen.dart';
-import '../../../src/widgets/geoprag_search_field.dart';
+import '../../../src/core/network/api_exceptions.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
+import '../../../src/design_system/components/geoprag_search_field.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';

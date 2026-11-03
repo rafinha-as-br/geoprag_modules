@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/posicao_gps.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/regra_de_chegada.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 void main() {
   const latitude = -26.9331;

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/reports/core/denuncia_de_foco.dart';
 import 'package:geoprag_modules/aplicador_app/reports/core/denuncia_de_foco_repository.dart';
 import 'package:geoprag_modules/aplicador_app/reports/presentation/criar_denuncia_de_foco_cubit.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDenunciaDeFocoRepository extends Mock

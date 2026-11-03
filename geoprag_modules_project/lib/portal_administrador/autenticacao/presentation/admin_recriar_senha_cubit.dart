@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../core/admin_auth_repository.dart';
 import 'auth_action_state.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 class AdminRecriarSenhaCubit extends Cubit<AuthActionState<Null>> {
   AdminRecriarSenhaCubit(this._repository) : super(const AuthActionIdle());

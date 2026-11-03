@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
 
 void main() {
   final prevista = DateTime(2026, 10, 1);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../src/widgets/base_interstitial_screen.dart';
+import '../../src/design_system/components/base_interstitial_screen.dart';
 import '../autenticacao/core/admin_navigator.dart';
 
 /// Tela exibida quando o cargo da sessão atual não tem acesso a um módulo

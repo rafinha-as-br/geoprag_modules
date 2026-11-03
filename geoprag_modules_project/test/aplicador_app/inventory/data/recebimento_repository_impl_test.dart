@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/data/mock_recebimentos.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/data/recebimento_repository_impl.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 // NOTA: `RecebimentoRepositoryImpl.confirmar` muta a lista `mockRecebimentos`
 // (estado global em memória, compartilhado entre instâncias do repositório).

@@ -3,7 +3,7 @@ import '../core/denuncia_repository.dart';
 import '../core/historico_denuncia.dart';
 import 'mock_denuncias.dart';
 import 'mock_historico_denuncias.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [DenunciaRepository] com fonte remota mockada
 /// (`mockReports`/`mockHistoricoDenuncias`).

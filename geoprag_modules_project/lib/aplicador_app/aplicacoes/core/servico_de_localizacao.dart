@@ -1,4 +1,4 @@
-import '../../../src/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_error_messages.dart';
 import 'posicao_gps.dart';
 
 /// Por que não foi possível obter a posição do aparelho.

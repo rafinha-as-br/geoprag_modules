@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/geoprag_logo.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/geoprag_logo.dart';
 import '../../core/aplicador_navigator.dart';
 
 // Não migrada para BaseInterstitialScreen (GEOPRAG-96): hero image de fundo

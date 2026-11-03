@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_map_placeholder.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_map_placeholder.dart';
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));

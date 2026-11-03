@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_numero_inteiro_input.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_numero_inteiro_input.dart';
 
 void main() {
   final formKey = GlobalKey<FormState>();

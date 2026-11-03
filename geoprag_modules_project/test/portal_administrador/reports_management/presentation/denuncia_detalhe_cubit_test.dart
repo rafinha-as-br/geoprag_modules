@@ -6,8 +6,8 @@ import 'package:geoprag_modules/portal_administrador/reports_management/core/his
 import 'package:geoprag_modules/portal_administrador/reports_management/presentation/denuncia_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/presentation/denuncia_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockDenunciaRepository extends Mock implements DenunciaRepository {}
 

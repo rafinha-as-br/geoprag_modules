@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_back_button.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_back_button.dart';
 
 void main() {
   testWidgets('chama onBack ao ser tocado, sem confirmação nenhuma', (

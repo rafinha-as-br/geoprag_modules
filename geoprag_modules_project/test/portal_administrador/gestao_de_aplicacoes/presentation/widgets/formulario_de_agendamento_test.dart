@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/formulario_de_agendamento.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 void main() {
   group('FormularioDeAgendamento', () {

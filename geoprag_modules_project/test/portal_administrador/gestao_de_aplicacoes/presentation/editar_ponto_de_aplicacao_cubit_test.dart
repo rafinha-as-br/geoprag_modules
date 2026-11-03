@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/editar_ponto_de_aplicacao_cubit.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_numero_inteiro_input.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_texto_input.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_numero_inteiro_input.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_texto_input.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../gestao_de_aplicacoes_fixtures.dart';

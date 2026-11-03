@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_exit_button.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_exit_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'editar_ponto_de_aplicacao_cubit.dart';
 

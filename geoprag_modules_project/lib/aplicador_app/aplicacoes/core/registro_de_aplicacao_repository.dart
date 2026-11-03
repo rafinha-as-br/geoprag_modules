@@ -1,5 +1,5 @@
-import '../../../src/entities/aplicacao.dart';
-import '../../../src/entities/produto.dart';
+import '../../../src/features/aplicacoes/domain/aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/produto.dart';
 
 /// Registro de aplicações feito em campo, **local-first** (GEOPRAG-190).
 ///

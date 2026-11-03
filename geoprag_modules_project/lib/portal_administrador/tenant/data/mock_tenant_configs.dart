@@ -1,4 +1,4 @@
-import '../../../src/entities/tenant_config.dart';
+import '../../../src/features/tenant/domain/tenant_config.dart';
 
 /// Configurações de tenant usadas para simular a resposta do backend,
 /// indexadas por `tenant_id`.

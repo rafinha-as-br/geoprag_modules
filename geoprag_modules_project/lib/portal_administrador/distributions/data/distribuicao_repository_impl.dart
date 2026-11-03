@@ -5,7 +5,7 @@ import '../core/responsavel_referencia_distribuicao.dart';
 import 'mock_distribuicoes.dart';
 import 'mock_produtos_referencia_distribuicao.dart';
 import 'mock_responsaveis_referencia_distribuicao.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [DistribuicaoRepository] com fonte remota mockada
 /// (`mockDistribuicoes`/`mockNomesProdutosDistribuicao`/

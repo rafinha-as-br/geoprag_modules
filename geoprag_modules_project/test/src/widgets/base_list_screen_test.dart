@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
-import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
-import 'package:geoprag_modules/src/widgets/base_list_screen.dart';
-import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
+import 'package:geoprag_modules/src/design_system/theme/geoprag_colors.dart';
+import 'package:geoprag_modules/portal_administrador/shared/presentation/widgets/base_list_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/base_screen_feedback.dart';
 
 BaseListScreenModel<String> _model({
   List<Widget> actions = const [],

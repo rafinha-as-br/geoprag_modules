@@ -1,6 +1,6 @@
-import '../../../src/api/api_client.dart';
-import '../../../src/api/sync/sync_json.dart';
-import '../../../src/entities/usuario.dart';
+import '../../../src/core/network/api_client.dart';
+import '../../../src/features/sincronizacao/data/sync_json.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 import '../core/aplicador_resumo.dart';
 import '../core/aplicador_resumo_repository.dart';
 

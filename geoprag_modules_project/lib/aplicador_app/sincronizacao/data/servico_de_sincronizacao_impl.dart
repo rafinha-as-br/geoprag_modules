@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import '../../../src/api/api_client.dart';
-import '../../../src/api/api_exceptions.dart';
-import '../../../src/api/sync/pull_dtos.dart';
-import '../../../src/api/sync/registro_dtos.dart';
-import '../../../src/api/sync/sync_json.dart' show formatarDataHoraComOffset;
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/network/api_client.dart';
+import '../../../src/core/network/api_exceptions.dart';
+import '../../../src/features/sincronizacao/data/pull_dtos.dart';
+import '../../../src/features/sincronizacao/data/registro_dtos.dart';
+import '../../../src/features/sincronizacao/data/sync_json.dart' show formatarDataHoraComOffset;
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../../local/item_da_outbox.dart';
 import '../../local/outbox_dao.dart';
 import '../core/resultado_da_sincronizacao.dart';

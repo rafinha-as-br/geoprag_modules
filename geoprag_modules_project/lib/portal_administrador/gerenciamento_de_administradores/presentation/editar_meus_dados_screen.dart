@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
 import '../../autenticacao/presentation/admin_session_cubit.dart';
 import 'editar_meus_dados_cubit.dart';
 

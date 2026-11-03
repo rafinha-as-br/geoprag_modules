@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../src/entities/produto.dart';
+import '../../src/features/aplicacoes/domain/produto.dart';
 import 'esquema.dart';
 import 'produto_dao.dart';
 

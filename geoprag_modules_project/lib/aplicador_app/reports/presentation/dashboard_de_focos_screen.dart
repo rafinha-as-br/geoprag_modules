@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/aplicador_bottom_nav.dart';
-import '../../../src/widgets/base_card_list_screen.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/features/aplicador/presentation/components/aplicador_bottom_nav.dart';
+import '../../../src/design_system/components/base_card_list_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'denuncia_de_foco_view_model.dart';
 import 'denuncias_de_foco_cubit.dart';

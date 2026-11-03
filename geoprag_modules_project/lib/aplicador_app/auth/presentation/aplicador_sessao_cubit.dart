@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../core/auth_repository.dart';
 import '../core/usuario.dart';
 import 'aplicador_sessao_state.dart';

@@ -8,7 +8,7 @@ import 'package:geoprag_modules/portal_administrador/distributions/presentation/
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicao_view_model.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicoes_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicoes_state.dart';
-import 'package:geoprag_modules/src/widgets/base_card_list_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/base_card_list_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDistribuicoesCubit extends MockCubit<DistribuicoesState>

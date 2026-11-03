@@ -1,7 +1,7 @@
 import '../core/recebimento.dart';
 import '../core/recebimento_repository.dart';
 import 'mock_recebimentos.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [RecebimentoRepository] com fonte remota mockada
 /// (`mockRecebimentos`).

@@ -1,4 +1,4 @@
-import 'package:geoprag_modules/src/api/armazenamento_seguro.dart';
+import 'package:geoprag_modules/src/core/security/armazenamento_seguro.dart';
 
 /// [ArmazenamentoSeguro] em memória para os testes (sem plugin nativo).
 class ArmazenamentoEmMemoria implements ArmazenamentoSeguro {

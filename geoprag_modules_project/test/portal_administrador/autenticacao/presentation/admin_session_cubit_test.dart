@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_session_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_session_state.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/permissions/capacidade.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/authorization/capacidade.dart';
 
 void main() {
   final conta = AdminAccount(

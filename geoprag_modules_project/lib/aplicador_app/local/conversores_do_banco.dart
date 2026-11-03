@@ -1,6 +1,6 @@
-import '../../src/api/sync/sync_json.dart' show formatarDataDeCalendario;
-import '../../src/entities/aplicacao.dart';
-import '../../src/entities/ponto_de_aplicacao.dart';
+import '../../src/features/sincronizacao/data/sync_json.dart' show formatarDataDeCalendario;
+import '../../src/features/aplicacoes/domain/aplicacao.dart';
+import '../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'item_da_outbox.dart';
 
 /// Conversão entre as entidades do domínio e as linhas do banco local. Fica na

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/aplicador_resumo_repository_http.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/bairro_repository_http.dart';
-import 'package:geoprag_modules/src/api/api_client.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
+import 'package:geoprag_modules/src/core/network/api_client.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _ApiFalsa extends Mock implements ApiClient {}

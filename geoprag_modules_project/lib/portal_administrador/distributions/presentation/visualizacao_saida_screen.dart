@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_detail_screen.dart';
-import '../../../src/widgets/geoprag_back_button.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_detail_screen.dart';
+import '../../../src/design_system/components/geoprag_back_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../core/distribuicao.dart';
 import 'comprovante_recebimento_pdf.dart';

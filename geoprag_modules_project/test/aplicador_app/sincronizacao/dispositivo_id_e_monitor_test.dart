@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
-import 'package:geoprag_modules/src/services/gerador_de_id.dart';
+import 'package:geoprag_modules/src/core/ids/gerador_de_id.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/armazenamento_em_memoria.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../src/api/api_client.dart';
-import '../src/api/api_client_provider.dart';
-import '../src/api/armazenamento_seguro.dart';
+import '../src/core/network/api_client.dart';
+import '../src/core/network/api_client_provider.dart';
+import '../src/core/security/armazenamento_seguro.dart';
 import 'aplicacoes/core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'aplicacoes/core/registro_de_aplicacao_repository.dart';
 import 'aplicacoes/data/aplicador_ponto_de_aplicacao_repository_local.dart';

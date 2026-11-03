@@ -6,7 +6,7 @@ import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/produto_repository.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/produto_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/visualizacao_produto_screen.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockProdutoRepository extends Mock implements ProdutoRepository {}

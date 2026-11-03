@@ -1,4 +1,4 @@
-import '../../src/entities/ponto_de_aplicacao.dart';
+import '../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Acesso aos pontos atribuídos ao aplicador, guardados no aparelho. Interface
 /// para testes com banco em memória.

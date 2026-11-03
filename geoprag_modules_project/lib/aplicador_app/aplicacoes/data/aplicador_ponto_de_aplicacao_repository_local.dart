@@ -1,6 +1,6 @@
-import '../../../src/entities/atraso_de_aplicacao.dart';
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 import '../../local/aplicacao_dao.dart';
 import '../../local/ponto_dao.dart';
 import '../core/aplicador_ponto_de_aplicacao_repository.dart';

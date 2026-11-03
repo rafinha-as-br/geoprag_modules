@@ -1,4 +1,4 @@
-import '../../src/entities/aplicacao.dart';
+import '../../src/features/aplicacoes/domain/aplicacao.dart';
 import 'item_da_outbox.dart';
 
 /// Acesso às aplicações registradas no aparelho. Interface para testes com

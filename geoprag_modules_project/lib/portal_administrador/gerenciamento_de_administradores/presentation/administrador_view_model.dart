@@ -1,4 +1,4 @@
-import '../../../src/entities/usuario.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 import '../../autenticacao/core/admin_account.dart';
 
 /// ViewModel de [AdminAccount] — usado tanto na listagem quanto no dialog

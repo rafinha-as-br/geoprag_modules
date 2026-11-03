@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/bootstrap.dart';
 import 'package:geoprag_modules/aplicador_app/nucleo_offline.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/entities/aplicacao.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 

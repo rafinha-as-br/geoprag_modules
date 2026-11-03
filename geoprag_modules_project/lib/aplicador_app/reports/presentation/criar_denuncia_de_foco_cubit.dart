@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
 import '../core/denuncia_de_foco.dart';
 import '../core/denuncia_de_foco_repository.dart';
 import 'denuncia_de_foco_view_model.dart';

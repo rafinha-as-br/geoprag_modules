@@ -1,4 +1,4 @@
-import '../../src/entities/produto.dart';
+import '../../src/features/aplicacoes/domain/produto.dart';
 
 /// Acesso aos produtos que o pull entregou, guardados no aparelho. Interface
 /// para testes com banco em memória.

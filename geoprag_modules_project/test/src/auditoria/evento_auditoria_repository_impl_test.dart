@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/auditoria/evento_auditoria.dart';
-import 'package:geoprag_modules/src/auditoria/evento_auditoria_repository_impl.dart';
+import 'package:geoprag_modules/src/features/auditoria/domain/evento_auditoria.dart';
+import 'package:geoprag_modules/src/features/auditoria/data/evento_auditoria_repository_impl.dart';
 
 void main() {
   test(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_status.dart';
-import '../../../src/widgets/geoprag_barra_acao_em_lote.dart';
-import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
+import '../../../src/design_system/components/geoprag_barra_acao_em_lote.dart';
+import '../../../src/design_system/components/geoprag_status_badge.dart';
 import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'aplicador_view_model.dart';

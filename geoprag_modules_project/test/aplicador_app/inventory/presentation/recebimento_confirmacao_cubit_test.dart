@@ -5,7 +5,7 @@ import 'package:geoprag_modules/aplicador_app/inventory/core/recebimento_reposit
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/recebimento_confirmacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/inventory/presentation/recebimento_confirmacao_state.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockRecebimentoRepository extends Mock implements RecebimentoRepository {}
 

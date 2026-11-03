@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../../sincronizacao/core/servico_de_sincronizacao.dart';
 import '../core/aplicador_ponto_de_aplicacao_repository.dart';
 import 'meus_pontos_state.dart';

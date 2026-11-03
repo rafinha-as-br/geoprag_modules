@@ -6,7 +6,7 @@ import 'package:geoprag_modules/portal_administrador/dashboard/core/resumo_geral
 import 'package:geoprag_modules/portal_administrador/dashboard/core/resumo_geral_repository.dart';
 import 'package:geoprag_modules/portal_administrador/dashboard/presentation/dashboard_geral_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/dashboard/presentation/dashboard_geral_screen.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_map_placeholder.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_map_placeholder.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockResumoGeralRepository extends Mock implements ResumoGeralRepository {}

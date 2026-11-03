@@ -1,4 +1,4 @@
-import '../../../src/entities/usuario.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 import 'aplicador_view_model.dart';
 
 /// Filtro de status aplicado à listagem do dashboard de Aplicadores.

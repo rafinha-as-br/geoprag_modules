@@ -7,7 +7,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/detalhe_do
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/detalhe_do_ponto_state.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/detalhe_do_ponto_view_model.dart';
 import 'package:geoprag_modules/aplicador_app/core/aplicador_navigator.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDetalheDoPontoDesignadoCubit

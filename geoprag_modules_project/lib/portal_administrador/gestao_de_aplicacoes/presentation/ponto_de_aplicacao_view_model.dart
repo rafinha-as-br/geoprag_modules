@@ -1,5 +1,5 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/theme/geoprag_status.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
 
 /// Como cada [EstadoPontoDeAplicacao] se apresenta ao usuário: o rótulo do
 /// chip e a cor funcional que ele empresta da paleta de status da marca.

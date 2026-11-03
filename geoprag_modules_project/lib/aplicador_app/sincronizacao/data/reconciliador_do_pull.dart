@@ -1,9 +1,9 @@
-import '../../../src/api/sync/pull_dtos.dart';
-import '../../../src/api/sync/sync_mappers.dart';
-import '../../../src/entities/aplicacao.dart';
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/entities/produto.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/features/sincronizacao/data/pull_dtos.dart';
+import '../../../src/features/sincronizacao/data/sync_mappers.dart';
+import '../../../src/features/aplicacoes/domain/aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/produto.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../../local/aplicacao_dao.dart';
 import '../../local/item_da_outbox.dart';
 import '../../local/outbox_dao.dart';

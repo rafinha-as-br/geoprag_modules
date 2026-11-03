@@ -1,9 +1,9 @@
-import '../src/api/api_client.dart';
-import '../src/api/api_client_provider.dart';
-import '../src/atraso/alerta_de_atraso_repository.dart';
-import '../src/atraso/alerta_de_atraso_repository_impl.dart';
-import '../src/auditoria/evento_auditoria_repository.dart';
-import '../src/auditoria/evento_auditoria_repository_impl.dart';
+import '../src/core/network/api_client.dart';
+import '../src/core/network/api_client_provider.dart';
+import '../src/features/atrasos/domain/alerta_de_atraso_repository.dart';
+import '../src/features/atrasos/data/alerta_de_atraso_repository_impl.dart';
+import '../src/features/auditoria/domain/evento_auditoria_repository.dart';
+import '../src/features/auditoria/data/evento_auditoria_repository_impl.dart';
 import 'autenticacao/core/admin_account.dart';
 import 'autenticacao/core/admin_auth_repository.dart';
 import 'autenticacao/core/solicitacao_redefinicao_repository.dart';
@@ -61,7 +61,7 @@ import 'reports_management/data/denuncia_repository_impl.dart';
 import 'reports_management/presentation/denuncia_detalhe_cubit.dart';
 import 'reports_management/presentation/listagem_denuncias_controller.dart';
 import 'reports_management/presentation/triagem_denuncias_controller.dart';
-import '../src/entities/tenant_config.dart';
+import '../src/features/tenant/domain/tenant_config.dart';
 import 'tenant/data/tenant_repository_impl.dart';
 import 'tenant/presentation/tenant_cubit.dart';
 

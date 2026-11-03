@@ -1,6 +1,6 @@
-import '../../../src/entities/tenant_config.dart';
+import '../../../src/features/tenant/domain/tenant_config.dart';
 import 'mock_tenant_configs.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [TenantRepository] com fonte remota mockada
 /// (`mockAdminTenantConfigs`, ver TODO no arquivo) e cache local em memória.

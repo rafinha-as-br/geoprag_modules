@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import '../../../src/api/sync/sync_mappers.dart';
-import '../../../src/entities/aplicacao.dart';
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/entities/produto.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/services/gerador_de_id.dart';
+import '../../../src/features/sincronizacao/data/sync_mappers.dart';
+import '../../../src/features/aplicacoes/domain/aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/produto.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/ids/gerador_de_id.dart';
 import '../../local/aplicacao_dao.dart';
 import '../../local/item_da_outbox.dart';
 import '../../local/produto_dao.dart';

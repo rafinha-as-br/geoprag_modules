@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/atraso/alerta_de_atraso_repository_impl.dart';
+import 'package:geoprag_modules/src/features/atrasos/data/alerta_de_atraso_repository_impl.dart';
 
 void main() {
   tearDown(mockAlertasDeAtrasoRemovidos.clear);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/geoprag_map_placeholder.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/geoprag_map_placeholder.dart';
 import '../../core/aplicador_navigator.dart';
 import '../core/regra_de_chegada.dart';
 import 'aplicacao_de_campo_view_model.dart';

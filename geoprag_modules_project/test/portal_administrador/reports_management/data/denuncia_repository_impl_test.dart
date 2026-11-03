@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/data/denuncia_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/reports_management/data/mock_denuncias.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 void main() {
   late DenunciaRepositoryImpl repository;

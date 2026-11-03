@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/api/api_client.dart';
-import 'package:geoprag_modules/src/api/api_client_provider.dart';
-import 'package:geoprag_modules/src/api/api_config.dart';
-import 'package:geoprag_modules/src/api/sessao_de_tokens.dart';
-import 'package:geoprag_modules/src/api/sessao_segura.dart';
+import 'package:geoprag_modules/src/core/network/api_client.dart';
+import 'package:geoprag_modules/src/core/network/api_client_provider.dart';
+import 'package:geoprag_modules/src/core/network/api_config.dart';
+import 'package:geoprag_modules/src/core/security/sessao_de_tokens.dart';
+import 'package:geoprag_modules/src/core/security/sessao_segura.dart';
 
 import '../../support/armazenamento_em_memoria.dart';
 

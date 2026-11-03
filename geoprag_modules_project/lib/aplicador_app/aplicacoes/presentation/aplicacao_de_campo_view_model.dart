@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// ViewModel de [PontoDeAplicacao] usado no fluxo de campo (informativa →
 /// geolocalização → execução) — formata dosagem e endereço, e expõe a

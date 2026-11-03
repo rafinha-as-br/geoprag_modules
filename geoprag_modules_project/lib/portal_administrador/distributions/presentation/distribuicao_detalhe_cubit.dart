@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/distribuicao_repository.dart';
 import 'distribuicao_detalhe_state.dart';
 import 'distribuicao_view_model.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Carrega a ficha completa de uma Distribuição específica
 /// (`distribuicaoId`) para a tela de detalhe.

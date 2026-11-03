@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/geoprag_modules.dart';
 import 'package:geoprag_modules/aplicador_app/bootstrap.dart';
 import 'package:geoprag_modules/portal_administrador/bootstrap.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockAdapter extends Mock implements HttpClientAdapter {}

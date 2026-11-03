@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_auth_step_screen.dart';
-import '../../../src/widgets/geoprag_countdown.dart';
-import '../../../src/widgets/geoprag_cpf_input.dart';
-import '../../../src/widgets/geoprag_otp_input.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_auth_step_screen.dart';
+import '../../../src/design_system/components/geoprag_countdown.dart';
+import '../../../src/design_system/components/geoprag_cpf_input.dart';
+import '../../../src/design_system/components/geoprag_otp_input.dart';
 import '../core/admin_navigator.dart';
 import 'auth_action_state.dart';
 import 'verificar_codigo_admin_cubit.dart';

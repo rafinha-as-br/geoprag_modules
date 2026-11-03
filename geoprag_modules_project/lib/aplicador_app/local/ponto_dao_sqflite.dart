@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../src/entities/ponto_de_aplicacao.dart';
+import '../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'conversores_do_banco.dart';
 import 'esquema.dart';
 import 'ponto_dao.dart';

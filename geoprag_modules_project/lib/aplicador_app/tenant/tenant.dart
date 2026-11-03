@@ -5,7 +5,7 @@
 /// `.mbtiles` ([MbtilesDownloader]).
 library;
 
-export '../../src/entities/tenant_config.dart';
+export '../../src/features/tenant/domain/tenant_config.dart';
 
 export 'data/mbtiles_downloader.dart';
 export 'data/mock_tenant_configs.dart';

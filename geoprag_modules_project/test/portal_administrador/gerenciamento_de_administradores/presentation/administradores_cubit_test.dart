@@ -3,8 +3,8 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_acc
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/resultado_solicitacao_promocao.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/administradores_cubit.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdministradorRepository extends Mock

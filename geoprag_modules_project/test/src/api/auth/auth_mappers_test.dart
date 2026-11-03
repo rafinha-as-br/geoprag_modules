@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/geoprag_modules.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
 
 UsuarioDto _dto({
   PerfilDto perfil = PerfilDto.aplicador,

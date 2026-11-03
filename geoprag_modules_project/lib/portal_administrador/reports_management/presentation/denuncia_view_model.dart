@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/theme/geoprag_status.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
 import '../core/denuncia.dart';
 import '../core/historico_denuncia.dart';
 

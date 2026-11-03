@@ -4,8 +4,8 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_acc
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_auth_repository.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_login_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/auth_action_state.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdminAuthRepository extends Mock implements AdminAuthRepository {}

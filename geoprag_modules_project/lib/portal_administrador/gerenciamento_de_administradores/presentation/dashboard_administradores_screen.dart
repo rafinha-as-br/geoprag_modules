@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/widgets/base_list_screen.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
 import 'administradores_cubit.dart';
 import 'administrador_view_model.dart';
 

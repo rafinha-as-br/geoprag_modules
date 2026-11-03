@@ -1,5 +1,5 @@
-import '../../../src/api/api_client.dart';
-import '../../../src/api/sync/sync_json.dart';
+import '../../../src/core/network/api_client.dart';
+import '../../../src/features/sincronizacao/data/sync_json.dart';
 import '../core/bairro.dart';
 import '../core/bairro_repository.dart';
 

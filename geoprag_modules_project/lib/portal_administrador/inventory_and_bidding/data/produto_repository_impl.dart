@@ -5,7 +5,7 @@ import '../core/produto_repository.dart';
 import 'mock_formulas_dosagem.dart';
 import 'mock_movimentacoes_produto.dart';
 import 'mock_produtos.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [ProdutoRepository] com fonte remota mockada
 /// (`mockProdutos`/`mockMovimentacoesProduto`/`mockFormulasDosagem`).

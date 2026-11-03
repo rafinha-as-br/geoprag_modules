@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_state.dart';
-import 'package:geoprag_modules/src/entities/tenant_config.dart';
+import 'package:geoprag_modules/src/features/tenant/domain/tenant_config.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTenantRepository extends Mock implements TenantRepository {}

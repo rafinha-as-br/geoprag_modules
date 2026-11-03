@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/api/armazenamento_seguro.dart';
-import 'package:geoprag_modules/src/api/auth/login_dtos.dart';
-import 'package:geoprag_modules/src/api/auth/usuario_dto.dart';
-import 'package:geoprag_modules/src/api/sessao_segura.dart';
+import 'package:geoprag_modules/src/core/security/armazenamento_seguro.dart';
+import 'package:geoprag_modules/src/features/autenticacao/data/login_dtos.dart';
+import 'package:geoprag_modules/src/features/autenticacao/data/usuario_dto.dart';
+import 'package:geoprag_modules/src/core/security/sessao_segura.dart';
 
 import '../../support/armazenamento_em_memoria.dart';
 import '../../support/login_fixtures.dart';

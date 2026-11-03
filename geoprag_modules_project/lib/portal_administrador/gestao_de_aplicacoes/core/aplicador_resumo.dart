@@ -1,4 +1,4 @@
-import '../../../src/entities/usuario.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 
 /// Aplicador como a Gestão de Aplicações o enxerga: o suficiente para mostrar
 /// o responsável de um ponto e escolher um candidato (`AplicadorResumo` do

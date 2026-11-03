@@ -3,8 +3,8 @@ import '../core/aplicador_repository.dart';
 import '../core/atuacao_aplicador.dart';
 import 'mock_aplicadores.dart';
 import 'mock_atuacoes_aplicador.dart';
-import '../../../src/entities/usuario.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 /// Implementação de [AplicadorRepository] com fonte remota mockada
 /// (`mockApplicators`/`mockAtuacoesAplicador`).

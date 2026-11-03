@@ -8,8 +8,8 @@ import 'package:geoprag_modules/portal_administrador/distributions/core/distribu
 import 'package:geoprag_modules/portal_administrador/distributions/core/produto_referencia_distribuicao.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/core/responsavel_referencia_distribuicao.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/cadastro_saida_cubit.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_data_nascimento_input.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_data_nascimento_input.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDistribuicaoRepository extends Mock implements DistribuicaoRepository {}

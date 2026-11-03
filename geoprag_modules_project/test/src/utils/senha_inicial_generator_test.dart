@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/utils/senha_inicial_generator.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/senha_inicial_generator.dart';
 
 void main() {
   group('gerarSenhaInicial', () {

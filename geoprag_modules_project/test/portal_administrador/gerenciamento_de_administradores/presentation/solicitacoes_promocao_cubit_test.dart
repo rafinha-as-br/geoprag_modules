@@ -5,7 +5,7 @@ import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administra
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/solicitacao_promocao.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/solicitacoes_promocao_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/solicitacoes_promocao_state.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdministradorRepository extends Mock

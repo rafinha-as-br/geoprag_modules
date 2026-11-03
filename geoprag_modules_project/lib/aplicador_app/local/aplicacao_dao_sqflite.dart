@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../src/entities/aplicacao.dart';
+import '../../src/features/aplicacoes/domain/aplicacao.dart';
 import 'aplicacao_dao.dart';
 import 'conversores_do_banco.dart';
 import 'esquema.dart';

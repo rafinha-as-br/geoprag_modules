@@ -13,7 +13,7 @@ class AppErrorMessages {
   static const String carregamentoGenerico =
       'Não foi possível carregar os dados. Tente novamente.';
 
-  // Camada HTTP (src/api): textos de último recurso, usados quando o
+  // Camada HTTP (core/network): textos de último recurso, usados quando o
   // servidor não envia um `detail` próprio. Nunca incluem detalhe técnico.
 
   static const String semConexao =

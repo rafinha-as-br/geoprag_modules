@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/api/sessao_segura.dart';
-import 'package:geoprag_modules/src/api/sync/pull_dtos.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/security/sessao_segura.dart';
+import 'package:geoprag_modules/src/features/sincronizacao/data/pull_dtos.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/armazenamento_em_memoria.dart';

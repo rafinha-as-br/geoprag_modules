@@ -1,9 +1,9 @@
-import '../../../src/atraso/alerta_de_atraso_repository.dart';
-import '../../../src/auditoria/evento_auditoria.dart';
-import '../../../src/auditoria/evento_auditoria_repository.dart';
-import '../../../src/entities/atraso_de_aplicacao.dart';
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/features/atrasos/domain/alerta_de_atraso_repository.dart';
+import '../../../src/features/auditoria/domain/evento_auditoria.dart';
+import '../../../src/features/auditoria/domain/evento_auditoria_repository.dart';
+import '../../../src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'mock_pontos_de_aplicacao.dart';
 

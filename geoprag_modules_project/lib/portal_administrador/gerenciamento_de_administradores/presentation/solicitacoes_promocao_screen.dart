@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/widgets/base_card_list_screen.dart';
-import '../../../src/widgets/geoprag_back_button.dart';
+import '../../../src/design_system/components/base_card_list_screen.dart';
+import '../../../src/design_system/components/geoprag_back_button.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_cubit.dart';

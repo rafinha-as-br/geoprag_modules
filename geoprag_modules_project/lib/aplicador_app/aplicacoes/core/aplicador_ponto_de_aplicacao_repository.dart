@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Contrato de acesso aos pontos de aplicação atribuídos ao aplicador
 /// logado no `aplicador_app` — visão restrita (só os seus pontos), em

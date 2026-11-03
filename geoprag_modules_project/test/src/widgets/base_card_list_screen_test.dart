@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/base_card_list_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/base_card_list_screen.dart';
 
 void main() {
   Widget wrap(BaseCardListScreenModel<String> model) => MaterialApp(

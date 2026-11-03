@@ -5,7 +5,7 @@ import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administra
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/solicitacao_promocao.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/data/administrador_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/data/mock_solicitacoes_promocao.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 const _adminSeedEmail = 'admin@gaspar.sc.gov.br';
 

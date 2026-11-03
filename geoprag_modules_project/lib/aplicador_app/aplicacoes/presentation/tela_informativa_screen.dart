@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_interstitial_screen.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_interstitial_screen.dart';
 import '../../core/aplicador_navigator.dart';
 
 class TelaInformativaScreen extends StatelessWidget {

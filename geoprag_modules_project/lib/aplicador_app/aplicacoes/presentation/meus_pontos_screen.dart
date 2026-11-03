@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/aplicador_bottom_nav.dart';
-import '../../../src/widgets/base_card_list_screen.dart';
-import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/features/aplicador/presentation/components/aplicador_bottom_nav.dart';
+import '../../../src/design_system/components/base_card_list_screen.dart';
+import '../../../src/design_system/components/geoprag_status_badge.dart';
 import '../../../portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_view_model.dart'
     show EstadoPontoDeAplicacaoApresentacao;
 import '../../core/aplicador_navigator.dart';

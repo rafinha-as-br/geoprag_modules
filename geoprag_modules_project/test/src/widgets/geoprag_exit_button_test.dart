@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_exit_button.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_exit_button.dart';
 
 void main() {
   late ValueNotifier<bool> dirty;

@@ -5,7 +5,7 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/a
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/core/admin_ponto_de_aplicacao_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/pontos_do_bairro_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/barra_acao_em_lote_pontos.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../gestao_de_aplicacoes_fixtures.dart';

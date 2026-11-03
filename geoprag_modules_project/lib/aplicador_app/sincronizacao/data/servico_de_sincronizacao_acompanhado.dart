@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../core/resultado_da_sincronizacao.dart';
 import '../core/servico_de_sincronizacao.dart';
 import 'ultima_sincronizacao.dart';

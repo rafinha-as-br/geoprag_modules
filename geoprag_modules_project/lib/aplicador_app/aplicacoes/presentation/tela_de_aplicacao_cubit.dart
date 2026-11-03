@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/entities/aplicacao.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/features/aplicacoes/domain/aplicacao.dart';
 import '../core/aplicador_ponto_de_aplicacao_repository.dart';
 import '../core/registro_de_aplicacao_repository.dart';
 import '../core/servico_de_localizacao.dart';

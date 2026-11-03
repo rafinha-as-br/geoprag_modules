@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/api/auth/login_dtos.dart';
+import 'package:geoprag_modules/src/features/autenticacao/data/login_dtos.dart';
 
 import '../../../support/login_fixtures.dart';
 

@@ -7,8 +7,8 @@ import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadore
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/core/atuacao_aplicador.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/aplicador_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_aplicadores/presentation/visualizacao_individual_screen.dart';
-import 'package:geoprag_modules/src/entities/usuario.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/features/autenticacao/domain/usuario.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorRepository extends Mock implements AplicadorRepository {}

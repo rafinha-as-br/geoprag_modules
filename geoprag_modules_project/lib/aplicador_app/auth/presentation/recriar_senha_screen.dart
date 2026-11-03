@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_auth_step_screen.dart';
-import '../../../src/widgets/geoprag_password_requirements.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_auth_step_screen.dart';
+import '../../../src/design_system/components/geoprag_password_requirements.dart';
 import '../../core/aplicador_navigator.dart';
 import 'auth_action_state.dart';
 import 'recriar_senha_cubit.dart';

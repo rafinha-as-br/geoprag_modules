@@ -1,4 +1,4 @@
-import '../../src/entities/atraso_de_aplicacao.dart'
+import '../../src/features/aplicacoes/domain/atraso_de_aplicacao.dart'
     show toleranciaPadraoDeAtrasoEmDias;
 
 /// Uma etapa do esquema do banco local: os comandos que levam o banco da

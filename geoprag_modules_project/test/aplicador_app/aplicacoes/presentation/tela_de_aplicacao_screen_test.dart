@@ -7,7 +7,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_ap
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_screen.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_state.dart';
 import 'package:geoprag_modules/aplicador_app/core/aplicador_navigator.dart';
-import 'package:geoprag_modules/src/entities/produto.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/produto.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTelaDeAplicacaoCubit extends MockCubit<TelaDeAplicacaoState>

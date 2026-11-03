@@ -7,7 +7,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/meus_ponto
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/meus_pontos_state.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/meus_pontos_view_model.dart';
 import 'package:geoprag_modules/aplicador_app/core/aplicador_navigator.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockMeusPontosCubit extends MockCubit<MeusPontosState>

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../core/painel_de_sincronizacao.dart';
 import 'sincronizacao_state.dart';
 

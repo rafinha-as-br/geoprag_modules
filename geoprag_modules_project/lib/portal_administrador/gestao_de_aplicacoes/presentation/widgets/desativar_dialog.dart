@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Confirmação de desativação de um ponto (GEOPRAG-110): explica, nesta
 /// ordem, que não é exclusão, que o histórico é preservado, que o ponto

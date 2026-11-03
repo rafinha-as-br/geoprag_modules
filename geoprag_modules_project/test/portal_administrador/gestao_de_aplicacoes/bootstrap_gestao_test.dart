@@ -4,10 +4,10 @@ import 'package:geoprag_modules/portal_administrador/bootstrap.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/admin_ponto_de_aplicacao_repository_http.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/aplicador_resumo_repository_http.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/data/bairro_repository_http.dart';
-import 'package:geoprag_modules/src/api/api_client.dart';
-import 'package:geoprag_modules/src/api/api_client_provider.dart';
-import 'package:geoprag_modules/src/api/api_config.dart';
-import 'package:geoprag_modules/src/api/sessao_de_tokens.dart';
+import 'package:geoprag_modules/src/core/network/api_client.dart';
+import 'package:geoprag_modules/src/core/network/api_client_provider.dart';
+import 'package:geoprag_modules/src/core/network/api_config.dart';
+import 'package:geoprag_modules/src/core/security/sessao_de_tokens.dart';
 
 void main() {
   const bootstrap = AdminBootstrap();

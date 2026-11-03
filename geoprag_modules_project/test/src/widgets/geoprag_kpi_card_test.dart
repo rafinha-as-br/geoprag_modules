@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_kpi_card.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_kpi_card.dart';
 
 void main() {
   testWidgets('GeopragKpiCard mostra título, valor e ícone com a cor informada', (

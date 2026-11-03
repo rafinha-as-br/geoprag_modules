@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/core/aplicador_navigator.dart';
-import 'package:geoprag_modules/src/widgets/aplicador_bottom_nav.dart';
+import 'package:geoprag_modules/src/features/aplicador/presentation/components/aplicador_bottom_nav.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorNavigator extends Mock implements AplicadorNavigator {}

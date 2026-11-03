@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_exit_button.dart';
-import '../../../src/widgets/geoprag_senha_gerada_dialog.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_exit_button.dart';
+import '../../../src/design_system/components/geoprag_senha_gerada_dialog.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'criar_administrador_cubit.dart';
 

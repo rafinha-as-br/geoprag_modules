@@ -5,11 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/aplicacoes.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/entities/aplicacao.dart';
-import 'package:geoprag_modules/src/entities/produto.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/services/gerador_de_id.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/produto.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/ids/gerador_de_id.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../local/apoio_do_banco.dart';

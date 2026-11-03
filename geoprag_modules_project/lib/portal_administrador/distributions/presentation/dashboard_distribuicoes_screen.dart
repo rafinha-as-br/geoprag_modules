@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_status.dart';
-import '../../../src/widgets/base_card_list_screen.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
+import '../../../src/design_system/components/base_card_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../core/distribuicao.dart';
 import 'distribuicao_view_model.dart';

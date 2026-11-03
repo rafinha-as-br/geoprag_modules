@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/utils/form_validators.dart';
-import '../../../src/widgets/geoprag_logo.dart';
-import '../../../src/widgets/geoprag_submit_button.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/validation/form_validators.dart';
+import '../../../src/design_system/components/geoprag_logo.dart';
+import '../../../src/design_system/components/geoprag_submit_button.dart';
 import '../core/admin_navigator.dart';
 import '../core/admin_account.dart';
 import 'admin_login_cubit.dart';

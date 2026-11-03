@@ -1,4 +1,4 @@
-import '../../../src/api/armazenamento_seguro.dart';
+import '../../../src/core/security/armazenamento_seguro.dart';
 
 /// Horário da última sincronização bem-sucedida, guardado no
 /// [ArmazenamentoSeguro] para sobreviver ao fechamento do app (GEOPRAG-204).

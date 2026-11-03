@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_barra_acao_em_lote.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_barra_acao_em_lote.dart';
 
 void main() {
   group('GeopragBarraAcaoEmLote', () {

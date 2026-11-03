@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/entities/ponto_de_aplicacao.dart' show Subponto;
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_detail_screen.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart' show Subponto;
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_detail_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'detalhe_do_ponto_cubit.dart';
 import 'detalhe_do_ponto_state.dart';

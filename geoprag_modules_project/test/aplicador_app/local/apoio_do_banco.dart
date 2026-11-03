@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
-import 'package:geoprag_modules/src/api/sync/registro_dtos.dart';
-import 'package:geoprag_modules/src/entities/aplicacao.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/sincronizacao/data/registro_dtos.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// Banco SQLite em memória (sem aparelho) com o esquema real do app.

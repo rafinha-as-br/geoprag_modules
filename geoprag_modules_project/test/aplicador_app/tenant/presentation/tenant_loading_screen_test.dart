@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_loading_screen.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_state.dart';
-import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
+import 'package:geoprag_modules/src/design_system/theme/geoprag_colors.dart';
 
 class MockTenantCubit extends MockCubit<TenantState> implements TenantCubit {}
 

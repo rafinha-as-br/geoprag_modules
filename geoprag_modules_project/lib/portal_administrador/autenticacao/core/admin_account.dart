@@ -1,4 +1,4 @@
-import '../../../src/entities/usuario.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 
 enum AdminRole { administrador, subAdministrador }
 

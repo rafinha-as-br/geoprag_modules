@@ -6,8 +6,8 @@ import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/produto.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/core/produto_repository.dart';
 import 'package:geoprag_modules/portal_administrador/inventory_and_bidding/presentation/criar_produto_cubit.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_data_nascimento_input.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_data_nascimento_input.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockProdutoRepository extends Mock implements ProdutoRepository {}

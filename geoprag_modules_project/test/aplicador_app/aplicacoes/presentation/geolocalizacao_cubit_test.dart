@@ -6,7 +6,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/core/regra_de_chegada.d
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/servico_de_localizacao.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/geolocalizacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/geolocalizacao_state.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorPontoDeAplicacaoRepository extends Mock

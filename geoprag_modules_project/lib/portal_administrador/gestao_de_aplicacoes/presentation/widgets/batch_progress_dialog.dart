@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/api/api_exceptions.dart';
-import '../../../../src/errors/app_exceptions.dart';
-import '../../../../src/errors/app_logger.dart';
+import '../../../../src/core/network/api_exceptions.dart';
+import '../../../../src/core/errors/app_exceptions.dart';
+import '../../../../src/core/logging/app_logger.dart';
 
 /// Resultado final de um [BatchProgressDialog]: quais ids foram concluídos
 /// com sucesso e quais falharam (com o motivo), depois de todas as

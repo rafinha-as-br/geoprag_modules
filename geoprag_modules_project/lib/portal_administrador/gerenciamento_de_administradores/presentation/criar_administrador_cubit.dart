@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/utils/senha_inicial_generator.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_cpf_input.dart';
-import '../../../src/widgets/geoprag_data_nascimento_input.dart';
-import '../../../src/widgets/geoprag_email_input.dart';
-import '../../../src/widgets/geoprag_sexo_input.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/features/autenticacao/domain/senha_inicial_generator.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_cpf_input.dart';
+import '../../../src/design_system/components/geoprag_data_nascimento_input.dart';
+import '../../../src/design_system/components/geoprag_email_input.dart';
+import '../../../src/design_system/components/geoprag_sexo_input.dart';
 import '../core/administrador_repository.dart';
 
 /// Formulário de criação de novo administrador (GEOPRAG-36), migrado para

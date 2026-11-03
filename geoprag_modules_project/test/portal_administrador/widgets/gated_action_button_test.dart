@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/presentation/admin_session_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/widgets/gated_action_button.dart';
-import 'package:geoprag_modules/src/permissions/capacidade.dart';
+import 'package:geoprag_modules/src/core/authorization/capacidade.dart';
 
 // OutlinedButton.icon retorna uma subclasse privada — find.byType(OutlinedButton)
 // não casa por tipo exato. byWidgetPredicate com `is` casa a subclasse também.

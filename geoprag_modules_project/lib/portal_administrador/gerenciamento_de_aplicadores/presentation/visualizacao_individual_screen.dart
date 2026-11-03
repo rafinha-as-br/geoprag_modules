@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/entities/usuario.dart';
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_detail_screen.dart';
-import '../../../src/widgets/geoprag_back_button.dart';
-import '../../../src/widgets/geoprag_masked_text.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_detail_screen.dart';
+import '../../../src/design_system/components/geoprag_back_button.dart';
+import '../../../src/design_system/components/geoprag_masked_text.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../core/atuacao_aplicador.dart';
 import 'aplicador_detalhe_cubit.dart';

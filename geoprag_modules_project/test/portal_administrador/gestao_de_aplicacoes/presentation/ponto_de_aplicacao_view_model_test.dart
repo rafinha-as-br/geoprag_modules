@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/ponto_de_aplicacao_view_model.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/theme/geoprag_status.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/design_system/theme/geoprag_status.dart';
 
 import '../gestao_de_aplicacoes_fixtures.dart';
 

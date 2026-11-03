@@ -7,10 +7,10 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/core/registro_de_aplica
 import 'package:geoprag_modules/aplicador_app/aplicacoes/core/servico_de_localizacao.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/tela_de_aplicacao_state.dart';
-import 'package:geoprag_modules/src/entities/aplicacao.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
-import 'package:geoprag_modules/src/entities/produto.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/produto.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorPontoDeAplicacaoRepository extends Mock

@@ -2,7 +2,7 @@
 
 ## Padrões presentes
 
-`theme/` contém a implementação canônica de tokens, estados e tema. `src/theme/` é uma fachada de compatibilidade. `geoprag_design_system.dart` é a entrada canônica; os componentes genéricos em `src/widgets/` serão migrados sem mover widgets que carreguem regra de feature.
+`theme/` contém tokens, estados e tema. `components/` concentra widgets visuais genéricos e `validation/` as regras de validação de formulário reutilizáveis. `geoprag_design_system.dart` é a entrada canônica desses contratos.
 
 ## Referências e reutilização
 
@@ -14,4 +14,4 @@ O Design System não depende de `features`, de `portal_administrador` ou de regr
 
 ## Evolução e extração manual
 
-Consolidar novos tokens e componentes genéricos pelo barrel deste diretório sem remover as fachadas legadas até os consumidores migrarem. Uma extração para package separado exigirá revisão explícita de pubspec, assets, imports e API pública; ela não é automática.
+Consolidar novos tokens e componentes genéricos pelo barrel deste diretório. Uma extração para package separado exigirá revisão explícita de pubspec, assets, imports e API pública; ela não é automática.

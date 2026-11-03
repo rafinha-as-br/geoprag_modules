@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// ViewModel resumida de [PontoDeAplicacao] para a lista "Meus Pontos de
 /// Aplicação" do aplicador.

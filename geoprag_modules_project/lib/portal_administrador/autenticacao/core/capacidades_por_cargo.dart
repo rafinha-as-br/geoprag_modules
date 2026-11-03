@@ -1,4 +1,4 @@
-import '../../../src/permissions/capacidade.dart';
+import '../../../src/core/authorization/capacidade.dart';
 import 'admin_account.dart';
 
 /// Ponto único de verdade de quais [Capacidade]s cada [AdminRole] libera

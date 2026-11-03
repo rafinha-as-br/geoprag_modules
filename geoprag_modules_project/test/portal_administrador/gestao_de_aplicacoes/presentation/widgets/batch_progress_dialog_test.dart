@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/batch_progress_dialog.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 /// Guarda o resultado do `showDialog` — não pode ser o valor de retorno de
 /// um helper `async`, porque o `Future` só resolve quando o diálogo é

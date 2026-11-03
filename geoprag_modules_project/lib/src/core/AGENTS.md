@@ -2,11 +2,11 @@
 
 ## Infraestrutura atual
 
-`environment/build_environment.dart` lê e valida o ambiente de compilação. `network/api_config.dart` é a localização canônica da configuração de URL e timeout HTTP. `errors/` e `logging/` guardam os contratos técnicos compartilhados; os caminhos antigos em `src/errors/` são somente reexports de compatibilidade.
+`environment/build_environment.dart` lê e valida o ambiente de compilação. `network/` concentra o cliente HTTP, configuração, exceções e a composição legada de cliente. `security/`, `authorization/`, `ids/`, `errors/`, `logging/` e `presentation/` guardam os contratos técnicos compartilhados.
 
 ## Inicialização e reutilização
 
-Core não guarda tenant, sessão de usuário ou regra de negócio. `ApiClientProvider` continua sendo a composição legada da sessão HTTP até sua migração planejada, e deve ser configurado pelo bootstrap do aplicativo antes do primeiro uso.
+Core não guarda tenant ou regra de negócio. `ApiClientProvider` é a composição compartilhada da sessão HTTP e deve ser configurado pelo bootstrap do aplicativo antes do primeiro uso.
 
 ## Alterações compartilhadas
 

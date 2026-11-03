@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/sincronizacao.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../local/apoio_do_banco.dart';

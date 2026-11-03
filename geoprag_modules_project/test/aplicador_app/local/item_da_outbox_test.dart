@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/local/local.dart';
-import 'package:geoprag_modules/src/api/sync/registro_dtos.dart';
+import 'package:geoprag_modules/src/features/sincronizacao/data/registro_dtos.dart';
 
 import 'apoio_do_banco.dart';
 

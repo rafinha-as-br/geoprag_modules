@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/widgets/base_list_screen.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import '../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../core/produto_repository.dart';

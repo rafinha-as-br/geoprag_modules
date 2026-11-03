@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_data_nascimento_input.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_data_nascimento_input.dart';
 import '../core/distribuicao_repository.dart';
 import 'distribuicao_view_model.dart';
 

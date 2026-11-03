@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
 
 void main() {
   group('AcaoFeedback', () {

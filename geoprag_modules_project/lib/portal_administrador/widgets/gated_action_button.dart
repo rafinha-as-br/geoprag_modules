@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../src/permissions/capacidade.dart';
+import '../../src/core/authorization/capacidade.dart';
 import '../autenticacao/presentation/admin_session_cubit.dart';
 
 /// Botão de ação sujeito ao esquema de permissões por capacidade

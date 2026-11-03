@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/geoprag_kpi_card.dart';
-import '../../../src/widgets/geoprag_log_panel.dart';
-import '../../../src/widgets/geoprag_map_placeholder.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/geoprag_kpi_card.dart';
+import '../../../src/design_system/components/geoprag_log_panel.dart';
+import '../../../src/design_system/components/geoprag_map_placeholder.dart';
 import 'dashboard_geral_cubit.dart';
 import 'dashboard_geral_state.dart';
 import 'resumo_geral_view_model.dart';

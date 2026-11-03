@@ -6,11 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/core/administrador_repository.dart';
 import 'package:geoprag_modules/portal_administrador/gerenciamento_de_administradores/presentation/criar_administrador_cubit.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_data_nascimento_input.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_sexo_input.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_data_nascimento_input.dart';
+import 'package:geoprag_modules/src/design_system/components/geoprag_sexo_input.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAdministradorRepository extends Mock

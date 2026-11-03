@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_status.dart';
-import '../../../src/widgets/geoprag_masked_text.dart';
-import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
+import '../../../src/design_system/components/geoprag_masked_text.dart';
+import '../../../src/design_system/components/geoprag_status_badge.dart';
 import '../../autenticacao/core/admin_account.dart';
 import 'administrador_view_model.dart';
 import 'administradores_cubit.dart';

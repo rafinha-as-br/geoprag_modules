@@ -5,10 +5,10 @@ import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_
 import 'package:geoprag_modules/portal_administrador/tenant/presentation/tenant_state.dart';
 import 'package:geoprag_modules/src/application/admin_portal_runtime.dart';
 import 'package:geoprag_modules/src/core/environment/build_environment.dart';
-import 'package:geoprag_modules/src/entities/tenant_config.dart';
+import 'package:geoprag_modules/src/features/tenant/domain/tenant_config.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockTenantRepository extends Mock implements TenantRepository {}
 

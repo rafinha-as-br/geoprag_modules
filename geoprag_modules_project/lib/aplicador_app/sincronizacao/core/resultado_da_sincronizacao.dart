@@ -1,4 +1,4 @@
-import '../../../src/api/sync/pull_dtos.dart';
+import '../../../src/features/sincronizacao/data/pull_dtos.dart';
 
 /// O que o pull fez no banco do aparelho (GEOPRAG-202).
 class ResultadoDoPull {

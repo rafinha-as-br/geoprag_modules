@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/theme/geoprag_status.dart';
+import '../../../../src/design_system/theme/geoprag_status.dart';
 
 /// Banner de aviso exibido no dialog de detalhes quando o cadastro do
 /// administrador está desativado — extraído de `_AdministradorDetalheDialog`

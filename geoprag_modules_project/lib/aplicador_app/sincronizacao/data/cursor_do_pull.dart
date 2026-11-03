@@ -1,5 +1,5 @@
-import '../../../src/api/armazenamento_seguro.dart';
-import '../../../src/api/sessao_segura.dart';
+import '../../../src/core/security/armazenamento_seguro.dart';
+import '../../../src/core/security/sessao_segura.dart';
 
 /// Cursor do pull incremental (GEOPRAG-206): o instante do servidor devolvido
 /// pelo último pull que o aparelho reconciliou por inteiro. O próximo pull o

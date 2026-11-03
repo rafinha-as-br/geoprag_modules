@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/admin_account.dart';
 import '../core/admin_auth_repository.dart';
 import 'auth_action_state.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Resolve o papel (Administrador principal ou Sub-Administrador) da conta
 /// pelo e-mail informado — o restante do fluxo de "esqueci minha senha"

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import '../src/api/api_client.dart';
-import '../src/api/api_client_provider.dart';
+import '../src/core/network/api_client.dart';
+import '../src/core/network/api_client_provider.dart';
 import 'auth/core/auth_repository.dart';
 import 'auth/data/auth_repository_impl.dart';
 import 'auth/presentation/aplicador_sessao_cubit.dart';
@@ -31,7 +31,7 @@ import 'reports/core/denuncia_de_foco_repository.dart';
 import 'reports/data/denuncia_de_foco_repository_impl.dart';
 import 'reports/presentation/criar_denuncia_de_foco_cubit.dart';
 import 'reports/presentation/denuncias_de_foco_cubit.dart';
-import '../src/entities/tenant_config.dart';
+import '../src/features/tenant/domain/tenant_config.dart';
 import 'tenant/data/mbtiles_downloader.dart';
 import 'tenant/data/tenant_repository_impl.dart';
 import 'tenant/presentation/tenant_cubit.dart';

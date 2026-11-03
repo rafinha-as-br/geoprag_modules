@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/state/acao_feedback.dart';
-import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
-import 'package:geoprag_modules/src/widgets/base_form_screen.dart';
-import 'package:geoprag_modules/src/widgets/base_screen_feedback.dart';
+import 'package:geoprag_modules/src/core/presentation/acao_feedback.dart';
+import 'package:geoprag_modules/src/design_system/theme/geoprag_colors.dart';
+import 'package:geoprag_modules/src/design_system/components/base_form_screen.dart';
+import 'package:geoprag_modules/src/design_system/components/base_screen_feedback.dart';
 
 /// Controller de teste: exercita exatamente o que o Cubit de uma tela real
 /// faz ao estender [BaseFormController].

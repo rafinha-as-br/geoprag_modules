@@ -1,5 +1,5 @@
-import '../../../src/api/armazenamento_seguro.dart';
-import '../../../src/services/gerador_de_id.dart';
+import '../../../src/core/security/armazenamento_seguro.dart';
+import '../../../src/core/ids/gerador_de_id.dart';
 
 /// Identificador estável deste aparelho para o servidor (`dispositivoId` do
 /// lote de `POST /sync/aplicacoes`): um UUID gerado na primeira vez e guardado

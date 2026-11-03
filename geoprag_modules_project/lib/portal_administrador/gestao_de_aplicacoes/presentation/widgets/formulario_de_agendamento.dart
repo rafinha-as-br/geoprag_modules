@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Campos do agendamento do ciclo — data da 1ª aplicação, intervalo em dias
 /// (padrão 15) e quantidade de recorrências — compartilhados entre o

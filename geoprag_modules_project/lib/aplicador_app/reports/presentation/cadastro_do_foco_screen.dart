@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'criar_denuncia_de_foco_cubit.dart';
 

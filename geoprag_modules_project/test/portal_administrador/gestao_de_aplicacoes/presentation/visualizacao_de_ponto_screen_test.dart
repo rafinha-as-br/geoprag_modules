@@ -10,9 +10,9 @@ import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presen
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/visualizacao_de_ponto_screen.dart';
 import 'package:geoprag_modules/portal_administrador/gestao_de_aplicacoes/presentation/widgets/atribuir_aplicador_dialog.dart';
 import 'package:geoprag_modules/src/application/admin_portal_runtime.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
 import 'package:geoprag_modules/src/core/environment/build_environment.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../gestao_de_aplicacoes_fixtures.dart';

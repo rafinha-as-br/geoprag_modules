@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_account.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/capacidades_por_cargo.dart';
-import 'package:geoprag_modules/src/permissions/capacidade.dart';
+import 'package:geoprag_modules/src/core/authorization/capacidade.dart';
 
 void main() {
   test('todo AdminRole tem uma entrada no mapa', () {

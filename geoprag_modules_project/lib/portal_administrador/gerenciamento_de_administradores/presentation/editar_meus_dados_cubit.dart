@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_email_input.dart';
-import '../../../src/widgets/geoprag_password_requirements.dart';
-import '../../../src/widgets/geoprag_texto_input.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_email_input.dart';
+import '../../../src/design_system/components/geoprag_password_requirements.dart';
+import '../../../src/design_system/components/geoprag_texto_input.dart';
 import '../../autenticacao/core/admin_account.dart';
 import '../../autenticacao/core/admin_auth_exceptions.dart';
 import '../../autenticacao/core/admin_auth_repository.dart';

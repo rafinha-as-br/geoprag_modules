@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/api/api_exceptions.dart';
+import '../../../src/core/network/api_exceptions.dart';
 import '../core/auth_exceptions.dart';
 import '../core/auth_repository.dart';
 import '../core/usuario.dart';
 import 'auth_action_state.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 class LoginCubit extends Cubit<AuthActionState<Usuario>> {
   LoginCubit(this._repository) : super(const AuthActionIdle());

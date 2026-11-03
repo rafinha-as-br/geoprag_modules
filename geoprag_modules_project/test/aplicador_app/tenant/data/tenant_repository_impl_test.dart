@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/data/mock_tenant_configs.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/data/tenant_repository_impl.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 void main() {
   late TenantRepositoryImpl repository;

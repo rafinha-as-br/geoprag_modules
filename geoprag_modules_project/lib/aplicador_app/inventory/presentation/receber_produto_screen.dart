@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_interstitial_screen.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_interstitial_screen.dart';
 import '../../core/aplicador_navigator.dart';
 import 'recebimento_confirmacao_cubit.dart';
 import 'recebimento_confirmacao_state.dart';

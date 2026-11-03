@@ -5,8 +5,8 @@ import 'package:geoprag_modules/portal_administrador/distributions/core/distribu
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicao_detalhe_cubit.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/presentation/distribuicao_detalhe_state.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockDistribuicaoRepository extends Mock implements DistribuicaoRepository {}
 

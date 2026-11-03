@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/utils/form_validators.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_dropdown_obrigatorio.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/validation/form_validators.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_dropdown_obrigatorio.dart';
 import '../core/produto.dart';
 import '../core/produto_repository.dart';
 

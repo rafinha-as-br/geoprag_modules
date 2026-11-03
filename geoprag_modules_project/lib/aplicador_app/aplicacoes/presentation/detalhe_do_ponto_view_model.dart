@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// ViewModel de [PontoDeAplicacao] para a tela "Detalhe do Ponto
 /// Designado" do aplicador.

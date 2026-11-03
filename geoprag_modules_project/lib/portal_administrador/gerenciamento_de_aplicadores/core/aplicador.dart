@@ -1,4 +1,4 @@
-import '../../../src/entities/usuario.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
 
 /// Endereço de residência do Aplicador é obrigatório (RN "Dados da
 /// Conta"), por isso os campos herdados de [Usuario] que compõem o

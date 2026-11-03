@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/entities/tenant_config.dart';
+import '../../../src/features/tenant/domain/tenant_config.dart';
 import '../data/mbtiles_downloader.dart';
 import 'tenant_state.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Carrega a configuração do tenant (prefeitura) atual e provisiona o
 /// download em background do pacote `.mbtiles` (via [MbtilesDownloader]),

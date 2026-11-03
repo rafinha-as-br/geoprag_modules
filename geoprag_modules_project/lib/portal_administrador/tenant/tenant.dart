@@ -4,7 +4,7 @@
 /// `presentation`.
 library;
 
-export '../../src/entities/tenant_config.dart';
+export '../../src/features/tenant/domain/tenant_config.dart';
 
 export 'data/mock_tenant_configs.dart';
 export 'data/tenant_repository_impl.dart';

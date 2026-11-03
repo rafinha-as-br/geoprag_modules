@@ -1,12 +1,12 @@
-import '../../../src/api/api_exceptions.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
-import '../../../src/widgets/base_form_screen.dart';
-import '../../../src/widgets/geoprag_numero_decimal_input.dart';
-import '../../../src/widgets/geoprag_numero_inteiro_input.dart';
-import '../../../src/widgets/geoprag_texto_input.dart';
+import '../../../src/core/network/api_exceptions.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
+import '../../../src/design_system/components/base_form_screen.dart';
+import '../../../src/design_system/components/geoprag_numero_decimal_input.dart';
+import '../../../src/design_system/components/geoprag_numero_inteiro_input.dart';
+import '../../../src/design_system/components/geoprag_texto_input.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'widgets/edicao_de_ponto_banner.dart';
 

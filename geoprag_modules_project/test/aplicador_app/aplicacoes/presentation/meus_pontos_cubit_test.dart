@@ -7,7 +7,7 @@ import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/meus_ponto
 import 'package:geoprag_modules/aplicador_app/aplicacoes/presentation/meus_pontos_state.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/core/resultado_da_sincronizacao.dart';
 import 'package:geoprag_modules/aplicador_app/sincronizacao/core/servico_de_sincronizacao.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAplicadorPontoDeAplicacaoRepository extends Mock

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../src/application/admin_portal_runtime.dart';
 import '../../src/features/homologacao/domain/politica_do_portal_admin.dart';
-import '../../src/theme/geoprag_colors.dart';
-import '../../src/widgets/geoprag_logo.dart';
+import '../../src/design_system/theme/geoprag_colors.dart';
+import '../../src/design_system/components/geoprag_logo.dart';
 import '../autenticacao/core/admin_account.dart';
 import '../autenticacao/core/admin_navigator.dart';
 import '../autenticacao/presentation/admin_session_cubit.dart';

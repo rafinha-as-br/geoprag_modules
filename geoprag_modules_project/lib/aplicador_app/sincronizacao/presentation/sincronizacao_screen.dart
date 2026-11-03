@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/theme/geoprag_status.dart';
-import '../../../src/widgets/geoprag_status_badge.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/theme/geoprag_status.dart';
+import '../../../src/design_system/components/geoprag_status_badge.dart';
 import '../core/registro_sincronizavel.dart';
 import 'botao_sincronizar_agora.dart';
 import 'sincronizacao_cubit.dart';

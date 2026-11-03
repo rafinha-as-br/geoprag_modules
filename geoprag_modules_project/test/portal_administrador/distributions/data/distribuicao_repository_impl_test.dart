@@ -3,7 +3,7 @@ import 'package:geoprag_modules/portal_administrador/distributions/data/distribu
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_distribuicoes.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_produtos_referencia_distribuicao.dart';
 import 'package:geoprag_modules/portal_administrador/distributions/data/mock_responsaveis_referencia_distribuicao.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
 
 void main() {
   late DistribuicaoRepositoryImpl repository;

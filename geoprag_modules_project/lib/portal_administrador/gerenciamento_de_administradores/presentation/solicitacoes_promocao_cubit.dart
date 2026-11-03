@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/administrador_repository.dart';
 import 'solicitacao_promocao_view_model.dart';
 import 'solicitacoes_promocao_state.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
 
 /// Carrega as solicitações de promoção em aberto e registra votos/
 /// cancelamentos (GEOPRAG-36). [_usuarioAtualEmail] identifica quem está

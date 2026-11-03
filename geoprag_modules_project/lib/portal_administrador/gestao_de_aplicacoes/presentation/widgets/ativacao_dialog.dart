@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'formulario_de_agendamento.dart';
 
 /// Ativa o ciclo de um único ponto, coletando o agendamento (mesmo

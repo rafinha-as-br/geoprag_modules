@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../src/widgets/base_list_screen.dart';
+import '../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
 import 'produto_view_model.dart';
 import 'produtos_cubit.dart';
 

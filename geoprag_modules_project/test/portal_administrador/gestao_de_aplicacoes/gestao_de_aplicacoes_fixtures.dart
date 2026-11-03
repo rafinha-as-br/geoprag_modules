@@ -1,5 +1,5 @@
-import 'package:geoprag_modules/src/entities/atraso_de_aplicacao.dart';
-import 'package:geoprag_modules/src/entities/ponto_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/atraso_de_aplicacao.dart';
+import 'package:geoprag_modules/src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 
 /// Ponto de Aplicação de teste com os campos obrigatórios já preenchidos —
 /// cada teste sobrescreve só o que a sua asserção olha.

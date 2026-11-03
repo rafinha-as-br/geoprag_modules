@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../src/theme/geoprag_status.dart';
-import '../../../../src/widgets/base_list_screen.dart';
-import '../../../../src/widgets/geoprag_status_badge.dart';
+import '../../../../src/design_system/theme/geoprag_status.dart';
+import '../../../../portal_administrador/shared/presentation/widgets/base_list_screen.dart';
+import '../../../../src/design_system/components/geoprag_status_badge.dart';
 import '../../../gerenciamento_de_administradores/presentation/widgets/geoprag_data_table.dart';
 import '../ponto_de_aplicacao_view_model.dart';
 

@@ -1,4 +1,4 @@
-import '../../../src/entities/tenant_config.dart';
+import '../../../src/features/tenant/domain/tenant_config.dart';
 
 sealed class AdminTenantState {
   const AdminTenantState();

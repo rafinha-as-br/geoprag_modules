@@ -4,8 +4,8 @@ import '../core/administrador_repository.dart';
 import '../core/resultado_solicitacao_promocao.dart';
 import '../core/solicitacao_promocao.dart';
 import 'mock_solicitacoes_promocao.dart';
-import '../../../src/entities/usuario.dart';
-import '../../../src/errors/app_exceptions.dart';
+import '../../../src/features/autenticacao/domain/usuario.dart';
+import '../../../src/core/errors/app_exceptions.dart';
 
 extension _FirstOrNull<T> on Iterable<T> {
   T? get firstOrNull {

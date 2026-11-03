@@ -1,8 +1,8 @@
-import '../../../src/api/api_client.dart';
-import '../../../src/api/auth/auth_mappers.dart';
-import '../../../src/api/auth/login_dtos.dart';
-import '../../../src/api/auth/usuario_dto.dart';
-import '../../../src/api/sessao_segura.dart';
+import '../../../src/core/network/api_client.dart';
+import '../../../src/features/autenticacao/data/auth_mappers.dart';
+import '../../../src/features/autenticacao/data/login_dtos.dart';
+import '../../../src/features/autenticacao/data/usuario_dto.dart';
+import '../../../src/core/security/sessao_segura.dart';
 import '../core/admin_account.dart';
 import '../core/admin_auth_exceptions.dart';
 import '../core/admin_auth_repository.dart';

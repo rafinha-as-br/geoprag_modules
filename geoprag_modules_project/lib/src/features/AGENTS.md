@@ -2,7 +2,7 @@
 
 ## Capacidades e limites
 
-As capacidades legadas continuam em `lib/portal_administrador` e `lib/aplicador_app` para preservar contratos dos consumidores. `auditoria/` e `atrasos/` já possuem `domain/` e `data/` canônicos; os antigos caminhos `src/auditoria` e `src/atraso` são apenas fachadas. A feature de homologação está em `homologacao/domain/` e define, de forma pura, a disponibilidade limitada do Portal Administrador e o tenant de teste `gaspar-sc-hml`.
+As capacidades de Portal e Aplicador continuam em `lib/portal_administrador` e `lib/aplicador_app`. Em `src/features/`, `auditoria/`, `atrasos/`, `aplicacoes/`, `autenticacao/`, `sincronizacao/`, `tenant/` e `homologacao/` concentram os contratos compartilhados por capacidade. A feature de homologação define, de forma pura, a disponibilidade limitada do Portal Administrador e o tenant de teste `gaspar-sc-hml`.
 
 ## Estrutura proporcional
 

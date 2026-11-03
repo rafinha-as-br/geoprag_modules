@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/theme/geoprag_colors.dart';
-import '../../../src/widgets/base_detail_screen.dart';
-import '../../../src/widgets/geoprag_back_button.dart';
-import '../../../src/widgets/geoprag_map_placeholder.dart';
+import '../../../src/design_system/theme/geoprag_colors.dart';
+import '../../../src/design_system/components/base_detail_screen.dart';
+import '../../../src/design_system/components/geoprag_back_button.dart';
+import '../../../src/design_system/components/geoprag_map_placeholder.dart';
 import '../../autenticacao/core/admin_navigator.dart';
 import 'denuncia_detalhe_cubit.dart';
 import 'denuncia_detalhe_state.dart';

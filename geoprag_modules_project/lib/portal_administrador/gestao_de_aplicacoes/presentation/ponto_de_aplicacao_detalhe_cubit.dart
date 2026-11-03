@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../src/entities/ponto_de_aplicacao.dart';
-import '../../../src/api/api_exceptions.dart';
-import '../../../src/errors/app_error_messages.dart';
-import '../../../src/errors/app_exceptions.dart';
-import '../../../src/errors/app_logger.dart';
-import '../../../src/state/acao_feedback.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
+import '../../../src/core/network/api_exceptions.dart';
+import '../../../src/core/errors/app_error_messages.dart';
+import '../../../src/core/errors/app_exceptions.dart';
+import '../../../src/core/logging/app_logger.dart';
+import '../../../src/core/presentation/acao_feedback.dart';
 import '../core/aplicador_resumo_repository.dart';
 import '../core/admin_ponto_de_aplicacao_repository.dart';
 import 'ponto_de_aplicacao_detalhe_state.dart';

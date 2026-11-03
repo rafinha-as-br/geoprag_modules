@@ -3,10 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/data/mbtiles_downloader.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_cubit.dart';
 import 'package:geoprag_modules/aplicador_app/tenant/presentation/tenant_state.dart';
-import 'package:geoprag_modules/src/entities/tenant_config.dart';
+import 'package:geoprag_modules/src/features/tenant/domain/tenant_config.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:geoprag_modules/src/errors/app_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/errors/app_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 
 class MockTenantRepository extends Mock implements TenantRepository {}
 

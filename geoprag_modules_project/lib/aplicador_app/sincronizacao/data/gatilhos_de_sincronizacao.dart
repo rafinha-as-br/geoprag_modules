@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../../../src/errors/app_logger.dart';
+import '../../../src/core/logging/app_logger.dart';
 import '../../local/outbox_dao.dart';
 import '../core/monitor_de_conexao.dart';
 import '../core/servico_de_sincronizacao.dart';

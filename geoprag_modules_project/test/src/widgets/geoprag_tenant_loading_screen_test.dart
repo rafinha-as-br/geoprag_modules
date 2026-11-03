@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geoprag_modules/src/theme/geoprag_colors.dart';
-import 'package:geoprag_modules/src/widgets/geoprag_tenant_loading_screen.dart';
+import 'package:geoprag_modules/src/design_system/theme/geoprag_colors.dart';
+import 'package:geoprag_modules/src/features/tenant/presentation/geoprag_tenant_loading_screen.dart';
 
 void main() {
   group('GeopragTenantLoadingScreen', () {

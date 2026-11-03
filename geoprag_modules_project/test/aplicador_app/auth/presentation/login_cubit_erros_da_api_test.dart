@@ -4,8 +4,8 @@ import 'package:geoprag_modules/aplicador_app/auth/core/auth_repository.dart';
 import 'package:geoprag_modules/aplicador_app/auth/core/usuario.dart';
 import 'package:geoprag_modules/aplicador_app/auth/presentation/auth_action_state.dart';
 import 'package:geoprag_modules/aplicador_app/auth/presentation/login_cubit.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/errors/app_error_messages.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/core/errors/app_error_messages.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}

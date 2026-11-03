@@ -3,10 +3,10 @@ import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_acc
 import 'package:geoprag_modules/portal_administrador/autenticacao/core/admin_auth_exceptions.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/data/admin_auth_repository_impl.dart';
 import 'package:geoprag_modules/portal_administrador/autenticacao/data/mock_admin_accounts.dart';
-import 'package:geoprag_modules/src/api/api_client.dart';
-import 'package:geoprag_modules/src/api/api_exceptions.dart';
-import 'package:geoprag_modules/src/api/auth/usuario_dto.dart';
-import 'package:geoprag_modules/src/api/sessao_segura.dart';
+import 'package:geoprag_modules/src/core/network/api_client.dart';
+import 'package:geoprag_modules/src/core/network/api_exceptions.dart';
+import 'package:geoprag_modules/src/features/autenticacao/data/usuario_dto.dart';
+import 'package:geoprag_modules/src/core/security/sessao_segura.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../support/armazenamento_em_memoria.dart';

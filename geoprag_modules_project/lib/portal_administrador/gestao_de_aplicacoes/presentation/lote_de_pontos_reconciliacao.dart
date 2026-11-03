@@ -1,4 +1,4 @@
-import '../../../src/entities/ponto_de_aplicacao.dart';
+import '../../../src/features/aplicacoes/domain/ponto_de_aplicacao.dart';
 import 'ponto_de_aplicacao_view_model.dart';
 
 /// Ação em lote aplicável a um conjunto de pontos selecionados na tela de

@@ -1,4 +1,4 @@
-import '../../../src/entities/produto.dart';
+import '../../../src/features/aplicacoes/domain/produto.dart';
 import 'aplicacao_de_campo_view_model.dart';
 
 sealed class TelaDeAplicacaoState {

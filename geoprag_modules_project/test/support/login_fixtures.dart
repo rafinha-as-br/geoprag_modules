@@ -1,4 +1,4 @@
-import 'package:geoprag_modules/src/api/auth/usuario_dto.dart';
+import 'package:geoprag_modules/src/features/autenticacao/data/usuario_dto.dart';
 
 /// Corpo de `POST /auth/login` como o servidor o devolve.
 Map<String, dynamic> respostaDeLogin({
